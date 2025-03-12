@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -27,7 +26,6 @@ export default function Search() {
     petFriendly: false,
   });
 
-  // Filter properties based on search criteria
   const filteredProperties = properties.filter((property) => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           property.location.toLowerCase().includes(searchTerm.toLowerCase());
@@ -39,7 +37,6 @@ export default function Search() {
     
     const matchesBeds = property.beds >= minBeds;
     
-    // Feature filtering
     let matchesFeatures = true;
     if (features.parking && !property.features.some(f => f.toLowerCase().includes("parking"))) matchesFeatures = false;
     if (features.furnished && !property.features.some(f => f.toLowerCase().includes("furnished"))) matchesFeatures = false;
@@ -51,7 +48,6 @@ export default function Search() {
     return matchesSearch && matchesType && matchesPrice && matchesBeds && matchesFeatures;
   });
 
-  // Handle feature checkbox changes
   const handleFeatureChange = (feature: keyof typeof features) => {
     setFeatures(prev => ({
       ...prev,
@@ -94,7 +90,7 @@ export default function Search() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="">Any property type</SelectItem>
+                    <SelectItem value="any">Any property type</SelectItem>
                     <SelectItem value="House">House</SelectItem>
                     <SelectItem value="Apartment">Apartment</SelectItem>
                     <SelectItem value="Condo">Condo</SelectItem>
