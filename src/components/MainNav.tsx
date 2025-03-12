@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -12,6 +11,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { SearchIcon, MapIcon, HeartIcon, UserIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { 
+  SignedIn,
+  SignedOut,
+  UserButton,
+  SignInButton,
+  SignUpButton
+} from "@clerk/clerk-react";
 
 export function MainNav() {
   return (
@@ -80,18 +86,27 @@ export function MainNav() {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="ml-auto flex items-center space-x-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/favorites">
-              <HeartIcon className="h-5 w-5" />
-              <span className="sr-only">Favorites</span>
-            </Link>
-          </Button>
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/profile">
-              <UserIcon className="h-5 w-5" />
-              <span className="sr-only">Profile</span>
-            </Link>
-          </Button>
+          <SignedIn>
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/favorites">
+                <HeartIcon className="h-5 w-5" />
+                <span className="sr-only">Favorites</span>
+              </Link>
+            </Button>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <SignedOut>
+            <Button variant="ghost" asChild>
+              <SignInButton mode="modal">
+                <span>Sign In</span>
+              </SignInButton>
+            </Button>
+            <Button variant="default" asChild>
+              <SignUpButton mode="modal">
+                <span>Sign Up</span>
+              </SignUpButton>
+            </Button>
+          </SignedOut>
         </div>
       </div>
     </div>
