@@ -1,37 +1,12 @@
 
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
-import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon } from "lucide-react";
+import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { properties } from "@/data/properties";
 
-const featuredProperties = [
-  {
-    id: 1,
-    title: "Modern Downtown Apartment",
-    price: "$450,000",
-    location: "Downtown, City",
-    beds: 2,
-    type: "Apartment",
-    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&q=80",
-  },
-  {
-    id: 2,
-    title: "Suburban Family Home",
-    price: "$750,000",
-    location: "Suburbia, City",
-    beds: 4,
-    type: "House",
-    image: "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&q=80",
-  },
-  {
-    id: 3,
-    title: "Luxury Penthouse",
-    price: "$1,200,000",
-    location: "City Center",
-    beds: 3,
-    type: "Penthouse",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80",
-  },
-];
+// Take first 3 properties for featured display
+const featuredProperties = properties.slice(0, 3);
 
 export default function Index() {
   return (
@@ -48,9 +23,11 @@ export default function Index() {
             Discover thousands of properties for sale and rent
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center slide-up">
-            <Button size="lg" className="font-semibold">
-              <SearchIcon className="mr-2 h-5 w-5" />
-              Search Properties
+            <Button size="lg" className="font-semibold" asChild>
+              <Link to="/search">
+                <SearchIcon className="mr-2 h-5 w-5" />
+                Search Properties
+              </Link>
             </Button>
             <Button size="lg" variant="outline" className="font-semibold">
               List Your Property
@@ -61,10 +38,22 @@ export default function Index() {
 
       {/* Featured Properties */}
       <section className="py-16 container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-8">Featured Properties</h2>
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-bold">Featured Properties</h2>
+          <Button variant="outline" asChild>
+            <Link to="/search" className="flex items-center gap-2">
+              View All
+              <ArrowRightIcon className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {featuredProperties.map((property) => (
-            <div key={property.id} className="property-card fade-in">
+            <Link 
+              to={`/property/${property.id}`}
+              key={property.id} 
+              className="property-card fade-in group hover:scale-[1.02] transition-all"
+            >
               <div className="relative">
                 <img
                   src={property.image}
@@ -74,7 +63,7 @@ export default function Index() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="absolute top-4 right-4"
+                  className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   Save
                 </Button>
@@ -99,7 +88,7 @@ export default function Index() {
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
