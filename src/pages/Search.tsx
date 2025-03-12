@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -12,9 +13,10 @@ import { properties } from "@/data/properties";
 
 export default function Search() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [propertyType, setPropertyType] = useState<string>("");
+  const [propertyType, setPropertyType] = useState<string>("any");
+  const [selectedCity, setSelectedCity] = useState<string>("any");
   const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(2000000);
+  const [maxPrice, setMaxPrice] = useState(50000000);
   const [minBeds, setMinBeds] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [features, setFeatures] = useState({
@@ -26,11 +28,16 @@ export default function Search() {
     petFriendly: false,
   });
 
+  // Get unique cities from properties data
+  const cities = ["any", ...Array.from(new Set(properties.map(property => property.city)))];
+
   const filteredProperties = properties.filter((property) => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           property.location.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesType = propertyType === "" || property.type.toLowerCase() === propertyType.toLowerCase();
+    const matchesType = propertyType === "any" || property.type.toLowerCase() === propertyType.toLowerCase();
+    
+    const matchesCity = selectedCity === "any" || property.city === selectedCity;
     
     const price = parseInt(property.price.replace(/[^0-9]/g, ""));
     const matchesPrice = price >= minPrice && price <= maxPrice;
@@ -45,7 +52,7 @@ export default function Search() {
     if (features.security && !property.features.some(f => f.toLowerCase().includes("security"))) matchesFeatures = false;
     if (features.petFriendly && !property.features.some(f => f.toLowerCase().includes("pet"))) matchesFeatures = false;
     
-    return matchesSearch && matchesType && matchesPrice && matchesBeds && matchesFeatures;
+    return matchesSearch && matchesType && matchesCity && matchesPrice && matchesBeds && matchesFeatures;
   });
 
   const handleFeatureChange = (feature: keyof typeof features) => {
@@ -91,25 +98,46 @@ export default function Search() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="any">Any property type</SelectItem>
-                    <SelectItem value="House">House</SelectItem>
+                    <SelectItem value="Villa">Villa</SelectItem>
                     <SelectItem value="Apartment">Apartment</SelectItem>
-                    <SelectItem value="Condo">Condo</SelectItem>
-                    <SelectItem value="Penthouse">Penthouse</SelectItem>
+                    <SelectItem value="Studio">Studio</SelectItem>
+                    <SelectItem value="Duplex">Duplex</SelectItem>
+                    <SelectItem value="Traditional House">Traditional House</SelectItem>
+                    <SelectItem value="Loft">Loft</SelectItem>
+                    <SelectItem value="Chalet">Chalet</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
             
             <div>
-              <label className="text-sm font-medium mb-2 block">Price Range</label>
+              <label className="text-sm font-medium mb-2 block">City</label>
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Any city" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {cities.map(city => (
+                      <SelectItem key={city} value={city}>
+                        {city === "any" ? "Any city" : city}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium mb-2 block">Price Range (DZD)</label>
               <div className="flex items-center justify-between mb-2">
-                <span>${minPrice.toLocaleString()}</span>
-                <span>${maxPrice.toLocaleString()}</span>
+                <span>{minPrice.toLocaleString()} DZD</span>
+                <span>{maxPrice.toLocaleString()} DZD</span>
               </div>
               <Slider 
                 min={0} 
-                max={2000000} 
-                step={10000} 
+                max={50000000} 
+                step={500000} 
                 value={[minPrice, maxPrice]}
                 onValueChange={([min, max]) => {
                   setMinPrice(min);
@@ -137,9 +165,9 @@ export default function Search() {
               </Select>
             </div>
             
-            <div>
+            <div className="md:col-span-2 lg:col-span-4">
               <label className="text-sm font-medium mb-2 block">Features</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                 <div className="flex items-center space-x-2">
                   <Checkbox 
                     id="parking" 
@@ -210,7 +238,7 @@ export default function Search() {
                   <img
                     src={property.image || property.images[0]}
                     alt={property.title}
-                    className="property-image"
+                    className="h-64 w-full object-cover rounded-t-lg"
                   />
                   <Button
                     variant="secondary"
@@ -220,12 +248,12 @@ export default function Search() {
                     Save
                   </Button>
                 </div>
-                <div className="property-details">
+                <div className="p-4 border border-t-0 rounded-b-lg">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-semibold">{property.title}</h3>
                     <span className="text-primary font-semibold">{property.price}</span>
                   </div>
-                  <div className="flex items-center gap-4 text-muted-foreground">
+                  <div className="flex flex-col space-y-1 text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <MapPinIcon className="h-4 w-4" />
                       {property.location}
@@ -248,9 +276,10 @@ export default function Search() {
               <p className="text-muted-foreground mb-4">Try adjusting your search criteria to find more properties.</p>
               <Button onClick={() => {
                 setSearchTerm("");
-                setPropertyType("");
+                setPropertyType("any");
+                setSelectedCity("any");
                 setMinPrice(0);
-                setMaxPrice(2000000);
+                setMaxPrice(50000000);
                 setMinBeds(0);
                 setFeatures({
                   parking: false,
