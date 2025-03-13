@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
@@ -35,14 +35,6 @@ export function useEmailSignUp(onError: (message: string) => void) {
       // Check if confirmation is required
       if (result?.confirmationRequired) {
         setConfirmationSent(true); // Set the confirmation sent state
-
-        // Delay navigation to ensure confirmationSent is set
-        setTimeout(() => {
-          // After confirmationSent is set, navigate with properly encoded email
-          console.log("Navigating to email confirmation page with email:", email);
-          const encodedEmail = encodeURIComponent(email);
-          navigate(`/email-confirmation?email=${encodedEmail}`, { replace: true });
-        }, 100); // Delay navigation slightly to ensure state update
       }
 
       return result;
@@ -54,6 +46,15 @@ export function useEmailSignUp(onError: (message: string) => void) {
       setLoading(false);
     }
   };
+
+  // useEffect to navigate after confirmationSent is set
+  useEffect(() => {
+    if (confirmationSent) {
+      const encodedEmail = encodeURIComponent(email);
+      console.log("Navigating to email confirmation page with email:", encodedEmail);
+      navigate(`/email-confirmation?email=${encodedEmail}`, { replace: true });
+    }
+  }, [confirmationSent, email, navigate]); // Dependency array ensures the effect runs when confirmationSent or email changes
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
