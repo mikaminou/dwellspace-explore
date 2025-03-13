@@ -26,6 +26,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     loading,
     confirmationSent,
     showPassword,
+    demoMode,
     handleSubmit,
     togglePasswordVisibility
   } = useEmailSignUp(onError);
@@ -107,7 +108,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         className="w-full" 
         disabled={loading || confirmationSent}
       >
-        {loading ? "Creating account..." : confirmationSent ? "Confirmation Email Sent" : "Create Account"}
+        {loading ? "Creating account..." : confirmationSent ? (demoMode ? "Demo Mode Active" : "Confirmation Email Sent") : "Create Account"}
       </Button>
     </form>
   );

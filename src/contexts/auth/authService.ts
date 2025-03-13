@@ -1,4 +1,3 @@
-
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -27,6 +26,12 @@ export const authService = {
       
       if (error) {
         console.error("Supabase signup error:", error);
+        
+        // Check if it's a rate limit error
+        if (error.message && error.message.includes("rate limit exceeded")) {
+          throw error; // Let the caller handle the rate limit error
+        }
+        
         throw error;
       }
       
