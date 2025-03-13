@@ -237,7 +237,7 @@ export default function Index() {
               className={`font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
               asChild
             >
-              <Link to="/search" className="flex items-center gap-2">
+              <Link to="/search" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 <SearchIcon className="h-5 w-5" />
                 {t('cta.search')}
               </Link>
@@ -248,7 +248,7 @@ export default function Index() {
               className={`font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
               asChild
             >
-              <Link to="/contact" className="flex items-center gap-2">
+              <Link to="/contact" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 {t('cta.contact')}
               </Link>
             </Button>

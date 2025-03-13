@@ -21,12 +21,25 @@ const translations = {
     'nav.profile': 'الملف الشخصي',
     'nav.favorites': 'المفضلة',
     'nav.logout': 'تسجيل الخروج',
+    
     'hero.title': 'ابحث عن مساحتك المثالية',
     'hero.subtitle': 'اكتشف آلاف العقارات للبيع والإيجار',
     'hero.search': 'ابحث عن عقارات',
     'hero.list': 'أضف عقارك',
+    'hero.browse': 'تصفح العقارات',
+    
     'featured.title': 'عقارات مميزة',
     'featured.viewAll': 'عرض الكل',
+    
+    'luxury.title': 'عقارات فاخرة',
+    'luxury.viewAll': 'عرض الكل',
+    'luxury.badge': 'فاخر',
+    
+    'cta.title': 'هل أنت مستعد للعثور على منزل أحلامك؟',
+    'cta.subtitle': 'دعنا نساعدك في العثور على المكان المثالي لك ولعائلتك',
+    'cta.search': 'ابحث عن العقارات',
+    'cta.contact': 'تواصل معنا',
+    
     'property.beds': 'غرف',
     'property.save': 'حفظ',
     'property.share': 'مشاركة',
@@ -148,12 +161,25 @@ const translations = {
     'nav.profile': 'Profil',
     'nav.favorites': 'Favoris',
     'nav.logout': 'Se Déconnecter',
+    
     'hero.title': 'Trouvez Votre Espace Idéal',
     'hero.subtitle': 'Découvrez des milliers de propriétés à vendre et à louer',
     'hero.search': 'Rechercher des Propriétés',
     'hero.list': 'Lister Votre Propriété',
+    'hero.browse': 'Parcourir les propriétés',
+    
     'featured.title': 'Propriétés en Vedette',
     'featured.viewAll': 'Voir Tout',
+    
+    'luxury.title': 'Propriétés de Luxe',
+    'luxury.viewAll': 'Voir Tout',
+    'luxury.badge': 'Luxe',
+    
+    'cta.title': 'Prêt à trouver votre maison de rêve?',
+    'cta.subtitle': 'Laissez-nous vous aider à trouver l\'endroit parfait pour vous et votre famille',
+    'cta.search': 'Rechercher des propriétés',
+    'cta.contact': 'Contactez-nous',
+    
     'property.beds': 'chambres',
     'property.save': 'Sauvegarder',
     'property.share': 'Partager',
@@ -275,12 +301,25 @@ const translations = {
     'nav.profile': 'Profile',
     'nav.favorites': 'Favorites',
     'nav.logout': 'Log Out',
+    
     'hero.title': 'Find Your Ideal Space',
     'hero.subtitle': 'Discover thousands of properties for sale and rent',
     'hero.search': 'Search Properties',
     'hero.list': 'List Your Property',
+    'hero.browse': 'Browse Properties',
+    
     'featured.title': 'Featured Properties',
     'featured.viewAll': 'View All',
+    
+    'luxury.title': 'Luxury Properties',
+    'luxury.viewAll': 'View All',
+    'luxury.badge': 'Luxury',
+    
+    'cta.title': 'Ready to find your dream home?',
+    'cta.subtitle': 'Let us help you find the perfect place for you and your family',
+    'cta.search': 'Search Properties',
+    'cta.contact': 'Contact Us',
+    
     'property.beds': 'beds',
     'property.save': 'Save',
     'property.share': 'Share',
