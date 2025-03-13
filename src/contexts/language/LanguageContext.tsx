@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type LanguageContextType = {
@@ -99,6 +100,7 @@ const translations = {
     'role.buyer': 'مشتري',
     'role.seller': 'بائع',
     'role.agent': 'وكيل',
+    'role.placeholder': 'اختر دورك',
     'name.label': 'الاسم الكامل',
     'name.placeholder': 'اسمك',
     'email.label': 'البريد الإلكتروني',
@@ -110,6 +112,7 @@ const translations = {
     'signup.creating': 'جاري إنشاء الحساب...',
     'signup.emailSent': 'تم إرسال بريد التأكيد',
     'signup.demoActive': 'وضع العرض التوضيحي مفعل',
+    'otp.verifying': 'جاري التحقق...',
     
     // Search page translations
     'search.placeholder': 'ابحث حسب الموقع أو اسم العقار',
@@ -140,13 +143,10 @@ const translations = {
     'search.noPropertiesFound': 'لم يتم العثور على عقارات',
     'search.adjustSearchCriteria': 'حاول تعديل معايير البحث للعثور على المزيد من العقارات.',
     'search.resetFilters': 'إعادة تعيين الفلاتر',
-    'role.placeholder': 'اختر دورك',
-    'otp.verifying': 'جاري التحقق...',
     
     // Hero section translations
     'search.location': 'الموقع، اسم العقار، أو كلمة مفتاحية',
     'search.search': 'بحث',
-    'hero.browse': 'تصفح العقارات',
   },
   fr: {
     'site.name': 'Osken',
@@ -239,6 +239,7 @@ const translations = {
     'role.buyer': 'Acheteur',
     'role.seller': 'Vendeur',
     'role.agent': 'Agent',
+    'role.placeholder': 'Sélectionnez votre rôle',
     'name.label': 'Nom Complet',
     'name.placeholder': 'Votre nom',
     'email.label': 'Email',
@@ -250,6 +251,7 @@ const translations = {
     'signup.creating': 'Création du compte...',
     'signup.emailSent': 'Email de Confirmation Envoyé',
     'signup.demoActive': 'Mode Démo Actif',
+    'otp.verifying': 'Vérification en cours...',
     
     // Search page translations
     'search.placeholder': 'Rechercher par emplacement ou nom de propriété',
@@ -280,13 +282,10 @@ const translations = {
     'search.noPropertiesFound': 'Aucune propriété trouvée',
     'search.adjustSearchCriteria': 'Essayez d\'ajuster vos critères de recherche pour trouver plus de propriétés.',
     'search.resetFilters': 'Réinitialiser les filtres',
-    'role.placeholder': 'Sélectionnez votre rôle',
-    'otp.verifying': 'Vérification en cours...',
     
     // Hero section translations
     'search.location': 'Lieu, nom de propriété, ou mot-clé',
     'search.search': 'Rechercher',
-    'hero.browse': 'Parcourir les propriétés',
   },
   en: {
     'site.name': 'Osken',
@@ -379,6 +378,7 @@ const translations = {
     'role.buyer': 'Buyer',
     'role.seller': 'Seller',
     'role.agent': 'Agent',
+    'role.placeholder': 'Select your role',
     'name.label': 'Full Name',
     'name.placeholder': 'Your name',
     'email.label': 'Email',
@@ -390,6 +390,7 @@ const translations = {
     'signup.creating': 'Creating account...',
     'signup.emailSent': 'Confirmation Email Sent',
     'signup.demoActive': 'Demo Mode Active',
+    'otp.verifying': 'Verifying...',
     
     // Search page translations
     'search.placeholder': 'Search by location or property name',
@@ -420,13 +421,10 @@ const translations = {
     'search.noPropertiesFound': 'No properties found',
     'search.adjustSearchCriteria': 'Try adjusting your search criteria to find more properties.',
     'search.resetFilters': 'Reset Filters',
-    'role.placeholder': 'Select your role',
-    'otp.verifying': 'Verifying...',
     
     // Hero section translations
     'search.location': 'Location, property name, or keyword',
     'search.search': 'Search',
-    'hero.browse': 'Browse Properties',
   }
 };
 
