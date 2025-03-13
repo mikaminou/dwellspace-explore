@@ -20,12 +20,21 @@ export default function Index() {
   useEffect(() => {
     const fetchVideoUrl = async () => {
       try {
-        const { data } = await supabase.storage
+        console.log("Fetching video URL from Supabase...");
+        const { data, error } = await supabase.storage
           .from('herosection')
           .getPublicUrl('hero.mp4');
         
+        if (error) {
+          console.error('Error fetching video URL:', error);
+          return;
+        }
+        
         if (data?.publicUrl) {
+          console.log("Video URL fetched successfully:", data.publicUrl);
           setVideoUrl(data.publicUrl);
+        } else {
+          console.error('No public URL returned from Supabase');
         }
       } catch (error) {
         console.error('Error fetching video URL:', error);
@@ -43,14 +52,25 @@ export default function Index() {
       <section className="relative h-[80vh] flex items-center justify-center bg-secondary/90">
         <div className="absolute inset-0 overflow-hidden">
           {videoUrl ? (
-            <video 
-              src={videoUrl} 
-              autoPlay 
-              loop 
-              muted 
-              playsInline
-              className="object-cover w-full h-full opacity-30"
-            />
+            <>
+              <video 
+                key={videoUrl} // Add key to force re-render when URL changes
+                className="hero-video w-full h-full object-cover opacity-30"
+                autoPlay
+                muted
+                loop
+                playsInline
+                poster="/img/algeria-real-estate.jpg" // Fallback image while video loads
+              >
+                <source src={videoUrl} type="video/mp4" />
+                {/* Fallback for browsers that don't support video */}
+                <img 
+                  src="/img/algeria-real-estate.jpg" 
+                  alt={t('hero.title')} 
+                  className="object-cover w-full h-full opacity-20"
+                />
+              </video>
+            </>
           ) : (
             <img 
               src="/img/algeria-real-estate.jpg" 
@@ -59,6 +79,7 @@ export default function Index() {
             />
           )}
         </div>
+        
         <div className="container mx-auto px-4 text-center relative z-10">
           <h1 className={`text-5xl md:text-6xl font-bold mb-4 text-white text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
             {t('hero.title')}
