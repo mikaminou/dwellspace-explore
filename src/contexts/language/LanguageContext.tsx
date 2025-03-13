@@ -129,6 +129,11 @@ const translations = {
     'search.resetFilters': 'إعادة تعيين الفلاتر',
     'role.placeholder': 'اختر دورك',
     'otp.verifying': 'جاري التحقق...',
+    
+    // Hero section translations
+    'search.location': 'الموقع، اسم العقار، أو كلمة مفتاحية',
+    'search.search': 'بحث',
+    'hero.browse': 'تصفح العقارات',
   },
   fr: {
     'site.name': 'Osken',
@@ -251,6 +256,11 @@ const translations = {
     'search.resetFilters': 'Réinitialiser les filtres',
     'role.placeholder': 'Sélectionnez votre rôle',
     'otp.verifying': 'Vérification en cours...',
+    
+    // Hero section translations
+    'search.location': 'Lieu, nom de propriété, ou mot-clé',
+    'search.search': 'Rechercher',
+    'hero.browse': 'Parcourir les propriétés',
   },
   en: {
     'site.name': 'Osken',
@@ -373,6 +383,11 @@ const translations = {
     'search.resetFilters': 'Reset Filters',
     'role.placeholder': 'Select your role',
     'otp.verifying': 'Verifying...',
+    
+    // Hero section translations
+    'search.location': 'Location, property name, or keyword',
+    'search.search': 'Search',
+    'hero.browse': 'Browse Properties',
   }
 };
 

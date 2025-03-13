@@ -88,7 +88,7 @@ export default function Index() {
               className={`font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
               asChild
             >
-              <Link to="/search" className="flex items-center gap-2">
+              <Link to="/search" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 <SearchIcon className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                 {t('hero.browse')}
               </Link>
