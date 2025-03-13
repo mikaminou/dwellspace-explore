@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,11 +5,10 @@ import { Label } from "@/components/ui/label";
 import { AlertTriangle, Info } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
 
-// Country codes for phone auth - limited to Algeria and Germany with emoji flags
 const countryCodes = [
   { code: "+213", country: "Algeria", flag: "🇩🇿" },
   { code: "+49", country: "Germany", flag: "🇩🇪" },
@@ -45,14 +43,12 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
       return;
     }
     
-    // Format the phone number with country code
     const formattedPhone = `${countryCode}${phoneNumber}`;
     
     try {
       setLoading(true);
       await signInWithPhone(formattedPhone);
       
-      // Save phone details for OTP verification
       onPhoneDetailsCapture(phoneNumber, countryCode);
       onShowOtp();
       
@@ -65,7 +61,6 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
     } catch (error: any) {
       console.error("Phone verification error:", error);
       
-      // Check if the error is related to Twilio configuration
       if (error.message && (
         error.message.includes("unverified") || 
         error.message.includes("Twilio") ||
@@ -74,7 +69,6 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
       )) {
         setTwilioConfigIssue(true);
         
-        // For demo purposes, proceed anyway so users can test the flow
         onPhoneDetailsCapture(phoneNumber, countryCode);
         onShowOtp();
         

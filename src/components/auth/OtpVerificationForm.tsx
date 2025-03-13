@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { AlertCircle, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth";
 import { useToast } from "@/hooks/use-toast";
 
 interface OtpVerificationFormProps {
@@ -41,16 +40,12 @@ export function OtpVerificationForm({
       return;
     }
     
-    // Format the phone number with country code
     const formattedPhone = `${countryCode}${phoneNumber}`;
     
     try {
       setLoading(true);
       
-      // For Algerian numbers or when Twilio isn't fully configured, use demo mode
       if (isDemoMode) {
-        // In demo mode, we'll just simulate a successful auth
-        // Wait a bit to simulate verification
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         toast({
@@ -61,7 +56,6 @@ export function OtpVerificationForm({
         return;
       }
       
-      // Normal verification flow
       await verifyOTP(formattedPhone, otp);
       toast({
         title: "Verification successful",
@@ -80,7 +74,6 @@ export function OtpVerificationForm({
         setError(errorMsg);
         onError(errorMsg);
       } else {
-        // For other errors, enter demo mode so users can still test the flow
         setIsDemoMode(true);
         setError("Using demo mode due to verification issues. Enter any 6 digits to continue.");
       }

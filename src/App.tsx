@@ -13,7 +13,7 @@ import EmailConfirmation from "./pages/EmailConfirmation";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/auth";
 
 const queryClient = new QueryClient();
 
