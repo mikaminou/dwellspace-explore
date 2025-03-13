@@ -7,6 +7,8 @@ import { properties } from "@/data/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 // Take first 6 properties for featured display
 const featuredProperties = properties.slice(0, 3);
@@ -14,6 +16,25 @@ const luxuryProperties = properties.slice(3, 6).map(p => ({...p, luxury: true}))
 
 export default function Index() {
   const { t, dir } = useLanguage();
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchVideoUrl = async () => {
+      try {
+        const { data } = await supabase.storage
+          .from('herosection')
+          .getPublicUrl('hero.mp4');
+        
+        if (data?.publicUrl) {
+          setVideoUrl(data.publicUrl);
+        }
+      } catch (error) {
+        console.error('Error fetching video URL:', error);
+      }
+    };
+
+    fetchVideoUrl();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -22,11 +43,22 @@ export default function Index() {
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center bg-gradient-to-r from-secondary to-secondary/80">
         <div className="absolute inset-0 overflow-hidden">
-          <img 
-            src="/img/algeria-real-estate.jpg" 
-            alt={t('hero.title')} 
-            className="object-cover w-full h-full opacity-20"
-          />
+          {videoUrl ? (
+            <video 
+              src={videoUrl} 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              className="object-cover w-full h-full opacity-30"
+            />
+          ) : (
+            <img 
+              src="/img/algeria-real-estate.jpg" 
+              alt={t('hero.title')} 
+              className="object-cover w-full h-full opacity-20"
+            />
+          )}
         </div>
         <div className="container mx-auto px-4 text-center relative z-10">
           <h1 className={`text-4xl md:text-6xl font-bold mb-6 text-white animate-fade-in text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
