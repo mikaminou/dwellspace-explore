@@ -6,9 +6,10 @@ import { properties } from "@/data/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase, getMediaUrl } from "@/integrations/supabase/client";
+import { supabase, getMediaUrl, checkFileExists } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 // Take first 6 properties for featured display
 const featuredProperties = properties.slice(0, 3);
@@ -22,6 +23,7 @@ export default function Index() {
   const { t, dir } = useLanguage();
   const [videoError, setVideoError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
+  const [showAlert, setShowAlert] = useState(false);
   
   // Get direct video URL using the helper function
   const directVideoUrl = getMediaUrl(VIDEO_BUCKET, VIDEO_PATH);
@@ -30,25 +32,12 @@ export default function Index() {
   useEffect(() => {
     const checkVideoExists = async () => {
       try {
-        const { data, error } = await supabase
-          .storage
-          .from(VIDEO_BUCKET)
-          .list('', {
-            limit: 100,
-            offset: 0,
-            sortBy: { column: 'name', order: 'asc' },
-          });
+        const fileExists = await checkFileExists(VIDEO_BUCKET, VIDEO_PATH);
         
-        if (error) {
-          console.error("Error checking video existence:", error);
-          setVideoError(true);
-          return;
-        }
-        
-        const videoExists = data.some(file => file.name === VIDEO_PATH);
-        if (!videoExists) {
+        if (!fileExists) {
           console.error("Video file not found in storage");
           setVideoError(true);
+          setShowAlert(true);
           toast({
             title: "Video file not found",
             description: "The hero video is not available. Please upload it to the Supabase storage.",
@@ -85,6 +74,17 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <MainNav />
+      
+      {/* Admin Alert for Missing Video */}
+      {showAlert && (
+        <Alert variant="destructive" className="mb-4 mx-4">
+          <AlertTitle>Video File Missing</AlertTitle>
+          <AlertDescription>
+            The hero video (hero.mp4) needs to be uploaded to the "herosection" bucket in Supabase Storage.
+            A static image is being shown as a fallback.
+          </AlertDescription>
+        </Alert>
+      )}
       
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center bg-secondary/90">

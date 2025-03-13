@@ -13,5 +13,31 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 
 // Helper function to get direct public URL for media files
 export const getMediaUrl = (bucket: string, path: string): string => {
-  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
+  // Ensure the path doesn't start with a slash
+  const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${cleanPath}`;
+};
+
+// Check if a file exists in a bucket
+export const checkFileExists = async (bucket: string, path: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .storage
+      .from(bucket)
+      .list('', {
+        limit: 100,
+        offset: 0,
+        sortBy: { column: 'name', order: 'asc' },
+      });
+    
+    if (error) {
+      console.error("Error checking file existence:", error);
+      return false;
+    }
+    
+    return data.some(file => file.name === path);
+  } catch (err) {
+    console.error("Error in checkFileExists:", err);
+    return false;
+  }
 };
