@@ -29,7 +29,6 @@ export default function SignUpPage() {
     setShowOtpInput(false);
   };
 
-  // This function is used to capture phone details from PhoneSignUpForm when showing OTP screen
   const handlePhoneDetailsCapture = (phone: string, country: string) => {
     setPhoneNumber(phone);
     setCountryCode(country);
@@ -67,6 +66,7 @@ export default function SignUpPage() {
                   <PhoneSignUpForm 
                     onShowOtp={handleShowOtp} 
                     onError={handleError} 
+                    onPhoneDetailsCapture={handlePhoneDetailsCapture}
                   />
                 ) : (
                   <OtpVerificationForm 

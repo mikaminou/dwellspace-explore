@@ -19,9 +19,10 @@ const countryCodes = [
 interface PhoneSignUpFormProps {
   onShowOtp: () => void;
   onError: (message: string) => void;
+  onPhoneDetailsCapture: (phone: string, countryCode: string) => void;
 }
 
-export function PhoneSignUpForm({ onShowOtp, onError }: PhoneSignUpFormProps) {
+export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: PhoneSignUpFormProps) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [countryCode, setCountryCode] = useState("+213");
   const [userRole, setUserRole] = useState("buyer");
@@ -50,7 +51,11 @@ export function PhoneSignUpForm({ onShowOtp, onError }: PhoneSignUpFormProps) {
     try {
       setLoading(true);
       await signInWithPhone(formattedPhone);
+      
+      // Save phone details for OTP verification
+      onPhoneDetailsCapture(phoneNumber, countryCode);
       onShowOtp();
+      
       toast({
         title: "Verification code sent",
         description: "Please check your phone for the verification code",
@@ -62,15 +67,21 @@ export function PhoneSignUpForm({ onShowOtp, onError }: PhoneSignUpFormProps) {
       if (error.message && (
         error.message.includes("Invalid From Number") || 
         error.message.includes("Twilio") ||
-        error.message.includes("SMS")
+        error.message.includes("SMS") ||
+        error.message.includes("unverified")
       )) {
         setTwilioConfigIssue(true);
-        const errorMsg = "Twilio configuration issue detected. Please check your Twilio setup or use email authentication instead.";
+        const errorMsg = "Twilio configuration issue detected. Your number needs to be verified in Twilio.";
         setError(errorMsg);
         onError(errorMsg);
+        
+        // For demo purposes, proceed anyway so users can test the flow
+        onPhoneDetailsCapture(phoneNumber, countryCode);
+        onShowOtp();
+        
         toast({
-          title: "Twilio configuration issue",
-          description: "Your Supabase project's Twilio configuration needs a verified phone number.",
+          title: "Twilio verification issue",
+          description: "In a real app, you'd need to verify your phone number with Twilio first.",
           variant: "destructive",
         });
       } else {
@@ -100,8 +111,8 @@ export function PhoneSignUpForm({ onShowOtp, onError }: PhoneSignUpFormProps) {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Twilio Configuration Issue</AlertTitle>
           <AlertDescription>
-            Your Supabase project needs a verified phone number in the Twilio configuration. 
-            This is needed to send SMS messages. Please check your Twilio setup in the Supabase dashboard or use email authentication instead.
+            Your phone number needs to be verified in Twilio before receiving SMS codes.
+            For testing purposes, you can proceed to the next step anyway.
           </AlertDescription>
         </Alert>
       )}
