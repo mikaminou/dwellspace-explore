@@ -1,4 +1,3 @@
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +30,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
   } = useEmailSignUp(onError);
 
   const [error, setError] = useState("");
-  
+
   const handleLocalError = (message: string) => {
     setError(message);
     onError(message);
