@@ -37,18 +37,18 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     onError(message);
   };
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted, attempting sign up with email:", email);
     
-    try {
-      // The handleSubmit function already includes navigation logic
-      await handleSubmit(e);
-      // No need to manually navigate here, it's handled in the hook
-    } catch (err) {
+    // Clear any existing errors
+    setError("");
+    
+    // Direct call to handleSubmit which already has navigation logic
+    handleSubmit(e).catch((err: Error) => {
       console.error("Signup error:", err);
-      // Error is already handled in the hook
-    }
+      // Error handling is already in the hook
+    });
   };
 
   return (
