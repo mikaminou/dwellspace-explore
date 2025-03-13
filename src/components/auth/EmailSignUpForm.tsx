@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -45,8 +44,6 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         setConfirmationSent(true);
         // Redirect to the confirmation page with the email
         navigate(`/email-confirmation?email=${encodeURIComponent(email)}`);
-      } else {
-        navigate("/");
       }
     } catch (error: any) {
       const errorMessage = error.message || "Failed to create account.";
