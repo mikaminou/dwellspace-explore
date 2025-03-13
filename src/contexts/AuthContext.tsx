@@ -68,6 +68,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const signUp = async (email: string, password: string, displayName: string, role: string = "buyer") => {
     try {
+      // Using absolute URL without complex params to ensure redirection works
+      const baseUrl = window.location.origin;
+      
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
@@ -77,8 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             last_name: displayName.split(' ').slice(1).join(' '),
             role: role,
           },
-          // Use absolute URL with no redirect param to ensure redirection works properly
-          emailRedirectTo: `${window.location.origin}/email-confirmation`
+          emailRedirectTo: `${baseUrl}/email-confirmation`
         }
       });
       

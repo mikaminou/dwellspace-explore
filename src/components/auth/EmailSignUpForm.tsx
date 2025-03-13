@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -42,8 +43,11 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       // Check if confirmation is required
       if (result?.confirmationRequired) {
         setConfirmationSent(true);
-        // Redirect to the confirmation page with the email
-        navigate(`/email-confirmation?email=${encodeURIComponent(email)}`);
+        
+        // Force redirect to the confirmation page after a short delay
+        setTimeout(() => {
+          navigate(`/email-confirmation?email=${encodeURIComponent(email)}`);
+        }, 500);
       }
     } catch (error: any) {
       const errorMessage = error.message || "Failed to create account.";
