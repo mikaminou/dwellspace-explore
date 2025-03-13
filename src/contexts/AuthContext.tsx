@@ -78,7 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Welcome to DwellSpace!",
       });
       
-      return data;
     } catch (error: any) {
       toast({
         title: "Sign up failed",
@@ -91,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const signIn = async (email: string, password: string) => {
     try {
-      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (error) throw error;
       
@@ -100,7 +99,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Welcome back!",
       });
       
-      return data;
     } catch (error: any) {
       toast({
         title: "Sign in failed",
