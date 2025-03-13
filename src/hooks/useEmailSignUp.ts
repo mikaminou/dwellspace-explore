@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -28,22 +27,24 @@ export function useEmailSignUp(onError: (message: string) => void) {
       onError(errorMsg);
       return;
     }
-    
+
     try {
       setLoading(true);
       const result = await signUp(email, password, displayName, userRole);
       
       // Check if confirmation is required
       if (result?.confirmationRequired) {
-        setConfirmationSent(true);
-        
-        // Navigate with properly encoded email parameter
-        console.log("Navigating to email confirmation page with email:", email);
-        const encodedEmail = encodeURIComponent(email);
-        // Use replace: true to prevent back navigation to sign up page
-        navigate(`/email-confirmation?email=${encodedEmail}`, { replace: true });
+        setConfirmationSent(true); // Set the confirmation sent state
+
+        // Delay navigation to ensure confirmationSent is set
+        setTimeout(() => {
+          // After confirmationSent is set, navigate with properly encoded email
+          console.log("Navigating to email confirmation page with email:", email);
+          const encodedEmail = encodeURIComponent(email);
+          navigate(`/email-confirmation?email=${encodedEmail}`, { replace: true });
+        }, 100); // Delay navigation slightly to ensure state update
       }
-      
+
       return result;
     } catch (error: any) {
       const errorMessage = error.message || "Failed to create account.";
