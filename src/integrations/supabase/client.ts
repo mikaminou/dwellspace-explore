@@ -10,3 +10,8 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+// Helper function to get direct public URL for media files
+export const getMediaUrl = (bucket: string, path: string): string => {
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
+};

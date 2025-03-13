@@ -6,51 +6,36 @@ import { properties } from "@/data/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, getMediaUrl } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 
 // Take first 6 properties for featured display
 const featuredProperties = properties.slice(0, 3);
 const luxuryProperties = properties.slice(3, 6).map(p => ({...p, luxury: true}));
 
+// Direct video URL for hero section
+const VIDEO_BUCKET = "herosection";
+const VIDEO_PATH = "hero.mp4";
+
 export default function Index() {
   const { t, dir } = useLanguage();
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
+  
+  // Get direct video URL instead of using the storage API
+  const directVideoUrl = getMediaUrl(VIDEO_BUCKET, VIDEO_PATH);
 
-  useEffect(() => {
-    const fetchVideoUrl = async () => {
-      try {
-        console.log("Fetching video URL from Supabase...");
-        const { data } = await supabase.storage
-          .from('herosection')
-          .getPublicUrl('hero.mp4');
-        
-        if (data?.publicUrl) {
-          console.log("Video URL fetched successfully:", data.publicUrl);
-          setVideoUrl(data.publicUrl);
-        } else {
-          console.error('No public URL returned from Supabase');
-          setVideoError(true);
-        }
-      } catch (error) {
-        console.error('Error fetching video URL:', error);
-        setVideoError(true);
-      }
-    };
-
-    fetchVideoUrl();
-  }, []);
-
+  // Function to handle video load event
   const handleVideoLoad = () => {
     console.log("Video loaded successfully");
-    setVideoLoaded(true);
+    setIsVideoLoading(false);
   };
 
+  // Function to handle video error
   const handleVideoError = (error: any) => {
     console.error("Error loading video:", error);
     setVideoError(true);
+    setIsVideoLoading(false);
   };
 
   return (
@@ -60,27 +45,30 @@ export default function Index() {
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center bg-secondary/90">
         <div className="absolute inset-0 overflow-hidden z-0">
-          {videoUrl && !videoError ? (
+          {!videoError ? (
             <video 
-              key={videoUrl} // Add key to force re-render when URL changes
               className="w-full h-full object-cover opacity-30"
               autoPlay
               muted
               loop
               playsInline
-              poster="/img/algeria-real-estate.jpg" // Fallback image while video loads
+              poster="/img/algeria-real-estate.jpg" 
               onLoadedData={handleVideoLoad}
               onError={handleVideoError}
             >
-              <source src={videoUrl} type="video/mp4" />
+              <source src={directVideoUrl} type="video/mp4" />
               {/* Fallback for browsers that don't support video */}
-              <img 
-                src="/img/algeria-real-estate.jpg" 
-                alt={t('hero.title')} 
-                className="object-cover w-full h-full opacity-20"
-              />
+              Your browser does not support the video tag.
             </video>
           ) : (
+            <img 
+              src="/img/algeria-real-estate.jpg" 
+              alt={t('hero.title')} 
+              className="object-cover w-full h-full opacity-20"
+            />
+          )}
+          
+          {isVideoLoading && (
             <img 
               src="/img/algeria-real-estate.jpg" 
               alt={t('hero.title')} 
