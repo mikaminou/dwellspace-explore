@@ -17,6 +17,7 @@ export default function EmailConfirmationPage() {
   const token = searchParams.get("token");
   const type = searchParams.get("type");
   const email = searchParams.get("email") || "";
+  const demo = searchParams.get("demo") === "true";
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -34,17 +35,45 @@ export default function EmailConfirmationPage() {
       token, 
       type, 
       email, 
+      demo,
       hasSession: !!session,
       url: window.location.href
     });
 
-    if (!email && !token) {
+    if (!email && !token && !demo) {
       console.warn("No email or token found in URL");
     }
-  }, [token, type, email, session]);
+    
+    // If in demo mode, auto-verify after a delay
+    if (demo) {
+      setProgress(0);
+      const timer = setInterval(() => {
+        setProgress((prevProgress) => {
+          const newProgress = Math.min(prevProgress + 10, 100);
+          
+          if (newProgress === 100) {
+            clearInterval(timer);
+            setVerified(true);
+            toast({
+              title: "Demo mode",
+              description: "Your account has been verified in demo mode.",
+              variant: "default",
+            });
+            setTimeout(() => {
+              navigate("/");
+            }, 2000);
+          }
+          
+          return newProgress;
+        });
+      }, 500);
+      
+      return () => clearInterval(timer);
+    }
+  }, [token, type, email, demo, session, navigate, toast]);
 
   // Redirect if user is already logged in and there's no token to verify
-  if (session && !token) {
+  if (session && !token && !demo) {
     return <Navigate to="/" />;
   }
 
@@ -93,7 +122,7 @@ export default function EmailConfirmationPage() {
   }, [token, type, navigate, toast]);
 
   useEffect(() => {
-    if (!token && !verified && !showResendButton) {
+    if (!token && !verified && !showResendButton && !demo) {
       const timer = setInterval(() => {
         setProgress((prevProgress) => {
           const increment = prevProgress < 90 ? 10 : 2;
@@ -112,7 +141,7 @@ export default function EmailConfirmationPage() {
       
       return () => clearInterval(timer);
     }
-  }, [token, verified, showResendButton]);
+  }, [token, verified, showResendButton, demo]);
 
   const handleResendConfirmation = async () => {
     try {
@@ -156,14 +185,16 @@ export default function EmailConfirmationPage() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
-              {verified ? "Email Verified" : "Verify Your Email"}
+              {verified ? "Email Verified" : demo ? "Demo Mode Active" : "Verify Your Email"}
             </CardTitle>
             <CardDescription className="text-center">
               {verified 
                 ? "Your email has been verified successfully"
-                : token && verifying
-                  ? "Verifying your email..."
-                  : "Please check your inbox to confirm your email address"}
+                : demo
+                  ? "You're in demo mode to bypass email verification"
+                  : token && verifying
+                    ? "Verifying your email..."
+                    : "Please check your inbox to confirm your email address"}
             </CardDescription>
           </CardHeader>
           
@@ -174,7 +205,7 @@ export default function EmailConfirmationPage() {
               </Alert>
             )}
             
-            {!token && !verified && (
+            {!token && !verified && !demo && (
               <>
                 <div className="flex justify-center">
                   <div className="bg-blue-50 dark:bg-blue-900/20 rounded-full p-5 mb-4">
@@ -199,6 +230,31 @@ export default function EmailConfirmationPage() {
               </>
             )}
             
+            {demo && (
+              <>
+                <div className="flex justify-center">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 rounded-full p-5 mb-4">
+                    <Info className="h-12 w-12 text-amber-600 dark:text-amber-400" />
+                  </div>
+                </div>
+                
+                <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
+                  <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <AlertDescription className="text-amber-600 dark:text-amber-400">
+                    You are in <strong>demo mode</strong> because of email rate limitations. 
+                    No actual verification email has been sent.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="space-y-2">
+                  <p className="text-sm text-center text-muted-foreground">
+                    Simulating verification...
+                  </p>
+                  <Progress value={progress} className="h-2" />
+                </div>
+              </>
+            )}
+            
             {token && verifying && (
               <div className="flex flex-col items-center justify-center py-6">
                 <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
@@ -217,7 +273,7 @@ export default function EmailConfirmationPage() {
           </CardContent>
           
           <CardFooter className="flex flex-col space-y-4">
-            {showResendButton && !verified && (
+            {showResendButton && !verified && !demo && (
               <Button 
                 variant="outline" 
                 className="w-full" 

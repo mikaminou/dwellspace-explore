@@ -1,1 +1,10 @@
+
 project_id = "kaebtzbmtozoqvsdojkl"
+
+[api]
+enabled = true
+# Uncomment the next line if you want to use your own email templates
+# email_confirm_url = "https://kaebtzbmtozoqvsdojkl.supabase.co/functions/v1/custom-email-verification"
+
+[functions.custom-email-verification]
+verify_jwt = false

@@ -1,3 +1,4 @@
+
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -5,12 +6,13 @@ import { toast } from "@/hooks/use-toast";
 export const authService = {
   signUp: async (email: string, password: string, displayName: string, role: string = "buyer") => {
     try {
-      // Get base URL
+      // Get base URL - ensure it's the absolute URL including protocol
       const baseUrl = window.location.origin;
       
       console.log("Starting Supabase signup process for:", email);
+      console.log("Using redirect URL:", baseUrl);
       
-      // Simple sign-up with no complex URL parameters
+      // Sign up with proper redirect URL
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
@@ -20,7 +22,7 @@ export const authService = {
             last_name: displayName.split(' ').slice(1).join(' '),
             role: role,
           },
-          emailRedirectTo: baseUrl
+          emailRedirectTo: `${baseUrl}/email-confirmation`
         }
       });
       
