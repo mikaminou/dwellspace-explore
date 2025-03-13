@@ -16,8 +16,11 @@ export function useEmailSignUp(onError: (message: string) => void) {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
     onError(""); // Clear any previous errors in parent component
     
     if (password.length < 6) {
@@ -34,15 +37,16 @@ export function useEmailSignUp(onError: (message: string) => void) {
       if (result?.confirmationRequired) {
         setConfirmationSent(true);
         
-        // Log navigation attempt for debugging
-        console.log("Attempting navigation to email confirmation page");
-        
-        // Force immediate navigation to confirmation page
+        // Navigate to email confirmation page with email parameter
+        console.log("Navigating to email confirmation page");
         navigate(`/email-confirmation?email=${encodeURIComponent(email)}`, { replace: true });
       }
+      
+      return result;
     } catch (error: any) {
       const errorMessage = error.message || "Failed to create account.";
       onError(errorMessage);
+      throw error;
     } finally {
       setLoading(false);
     }

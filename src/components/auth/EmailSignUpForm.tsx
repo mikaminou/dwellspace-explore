@@ -7,6 +7,7 @@ import { AlertCircle } from "lucide-react";
 import { PasswordField } from "./PasswordField";
 import { RoleSelector } from "./RoleSelector";
 import { useEmailSignUp } from "@/hooks/useEmailSignUp";
+import { useState } from "react";
 
 interface EmailSignUpFormProps {
   onError: (message: string) => void;
@@ -36,8 +37,16 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     onError(message);
   };
 
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit(e).catch((err) => {
+      console.error("Signup error:", err);
+      // Error is already handled in the hook
+    });
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleFormSubmit} className="space-y-4">
       {error && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
@@ -96,6 +105,3 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     </form>
   );
 }
-
-// Add the missing import at the top to fix build error
-import { useState } from "react";
