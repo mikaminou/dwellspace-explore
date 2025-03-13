@@ -160,6 +160,12 @@
   text-align: right;
 }
 
+/* Override for centered Arabic text */
+.text-center[dir="rtl"] .arabic-text,
+[dir="rtl"] .text-center .arabic-text {
+  text-align: center;
+}
+
 [dir="rtl"] input::placeholder,
 [dir="rtl"] .select-placeholder {
   text-align: right;

@@ -29,10 +29,10 @@ export default function Index() {
           />
         </div>
         <div className="container mx-auto px-4 text-center relative z-10">
-          <h1 className={`text-4xl md:text-6xl font-bold mb-6 text-white animate-fade-in ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+          <h1 className={`text-4xl md:text-6xl font-bold mb-6 text-white animate-fade-in text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
             {t('hero.title')}
           </h1>
-          <p className={`text-xl text-gray-200 mb-10 max-w-2xl mx-auto animate-slide-up ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+          <p className={`text-xl text-gray-200 mb-10 max-w-2xl mx-auto animate-slide-up text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
             {t('hero.subtitle')}
           </p>
           
