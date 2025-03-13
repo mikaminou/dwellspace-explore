@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -6,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -125,7 +126,7 @@ export default function SignUpPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="email">Email</TabsTrigger>
-                <TabsTrigger value="phone">Phone</TabsTrigger>
+                <TabsTrigger value="phone" disabled={true}>Phone (Unavailable)</TabsTrigger>
               </TabsList>
               
               <TabsContent value="email">
@@ -170,6 +171,14 @@ export default function SignUpPage() {
               </TabsContent>
               
               <TabsContent value="phone">
+                <Alert className="mb-4">
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>Phone authentication unavailable</AlertTitle>
+                  <AlertDescription>
+                    Phone authentication is currently unavailable due to configuration issues. Please use email authentication instead.
+                  </AlertDescription>
+                </Alert>
+                
                 {!showOtpInput ? (
                   <form onSubmit={handlePhoneSubmit} className="space-y-4">
                     <div className="space-y-2">
@@ -208,7 +217,7 @@ export default function SignUpPage() {
                       </div>
                       <p className="text-xs text-muted-foreground">Enter your phone number without the country code</p>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button type="submit" className="w-full" disabled={loading || true}>
                       {loading ? "Sending code..." : "Send Verification Code"}
                     </Button>
                   </form>
