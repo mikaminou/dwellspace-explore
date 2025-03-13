@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -9,17 +10,29 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { SearchIcon, MapIcon, HeartIcon, UserIcon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { SearchIcon, MapIcon, HeartIcon, UserIcon, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  SignedIn,
-  SignedOut,
-  UserButton,
-  SignInButton,
-  SignUpButton
-} from "@clerk/clerk-react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
+import { NotificationBell } from "./NotificationBell";
 
 export function MainNav() {
+  const { currentUser, isLoaded, signOut } = useAuth();
+  const navigate = useNavigate();
+  
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   return (
     <div className="border-b">
       <div className="flex h-16 items-center px-4 container mx-auto">
@@ -86,27 +99,64 @@ export function MainNav() {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="ml-auto flex items-center space-x-4">
-          <SignedIn>
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/favorites">
-                <HeartIcon className="h-5 w-5" />
-                <span className="sr-only">Favorites</span>
-              </Link>
-            </Button>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-          <SignedOut>
-            <Button variant="ghost" asChild>
-              <SignInButton mode="modal">
-                <span>Sign In</span>
-              </SignInButton>
-            </Button>
-            <Button variant="default" asChild>
-              <SignUpButton mode="modal">
-                <span>Sign Up</span>
-              </SignUpButton>
-            </Button>
-          </SignedOut>
+          {isLoaded && currentUser ? (
+            <>
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/favorites">
+                  <HeartIcon className="h-5 w-5" />
+                  <span className="sr-only">Favorites</span>
+                </Link>
+              </Button>
+              <NotificationBell />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar>
+                      <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || "User"} />
+                      <AvatarFallback>
+                        {currentUser.displayName 
+                          ? currentUser.displayName.slice(0, 2).toUpperCase() 
+                          : "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel className="font-normal">
+                    {currentUser.displayName || currentUser.email}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/favorites">
+                      <HeartIcon className="mr-2 h-4 w-4" />
+                      <span>Favorites</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link to="/signin">Sign In</Link>
+              </Button>
+              <Button variant="default" asChild>
+                <Link to="/signup">Sign Up</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
