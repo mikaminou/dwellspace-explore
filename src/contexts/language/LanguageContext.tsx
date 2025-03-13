@@ -67,7 +67,7 @@ const translations = {
     'notifications.newProperty': 'عقار جديد معروض',
     'notifications.propertyMatch': 'عقار جديد يطابق معاييرك',
     'notifications.priceAlert': 'تنبيه انخفاض السعر',
-    'notFound.title': 'عذراً! الص��حة غير موجودة',
+    'notFound.title': 'عذراً! الصفحة غير موجودة',
     'notFound.returnHome': 'العودة إلى الصفحة الرئيسية',
     'otp.title': 'أدخل رمز التحقق',
     'otp.subtitle': 'تم إرسال رمز التحقق إلى',

@@ -35,7 +35,7 @@ const NotFound = () => {
             size="lg"
             className={`bg-primary hover:bg-primary-dark animate-slide-up delay-150 ${dir === 'rtl' ? 'arabic-text' : ''}`}
           >
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
               <HomeIcon size={18} />
               {t('notFound.returnHome')}
             </Link>
