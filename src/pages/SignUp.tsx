@@ -33,6 +33,7 @@ export default function SignUpPage() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("email");
   const [twilioConfigIssue, setTwilioConfigIssue] = useState(false);
+  const [userRole, setUserRole] = useState("buyer");
   const { signUp, signInWithPhone, verifyOTP } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -49,7 +50,7 @@ export default function SignUpPage() {
     
     try {
       setLoading(true);
-      await signUp(email, password, displayName);
+      await signUp(email, password, displayName, userRole);
       navigate("/");
     } catch (error: any) {
       setError(error.message || "Failed to create account.");
@@ -204,6 +205,20 @@ export default function SignUpPage() {
                     />
                     <p className="text-xs text-muted-foreground">Password must be at least 6 characters long</p>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="role">I am a</Label>
+                    <Select value={userRole} onValueChange={setUserRole}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="buyer">Buyer</SelectItem>
+                        <SelectItem value="seller">Seller</SelectItem>
+                        <SelectItem value="agent">Agent</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">Select your role in the platform</p>
+                  </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Creating account..." : "Create Account"}
                   </Button>
@@ -212,7 +227,7 @@ export default function SignUpPage() {
               
               <TabsContent value="phone">
                 {twilioConfigIssue && (
-                  <Alert className="mb-4" variant="warning">
+                  <Alert className="mb-4">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>Twilio Configuration Issue</AlertTitle>
                     <AlertDescription>
@@ -259,6 +274,20 @@ export default function SignUpPage() {
                         />
                       </div>
                       <p className="text-xs text-muted-foreground">Enter your phone number without the country code</p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role">I am a</Label>
+                      <Select value={userRole} onValueChange={setUserRole}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="buyer">Buyer</SelectItem>
+                          <SelectItem value="seller">Seller</SelectItem>
+                          <SelectItem value="agent">Agent</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">Select your role in the platform</p>
                     </div>
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Sending code..." : "Send Verification Code"}
