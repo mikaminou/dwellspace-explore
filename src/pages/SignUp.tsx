@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -175,7 +174,7 @@ export default function SignUpPage() {
                       <Label htmlFor="phone">Phone Number</Label>
                       <div className="flex gap-2">
                         <Select value={countryCode} onValueChange={setCountryCode}>
-                          <SelectTrigger className="w-24">
+                          <SelectTrigger className="w-24 px-3">
                             <SelectValue>
                               <div className="flex items-center gap-2">
                                 <span className="text-lg">{getSelectedFlag()}</span>
