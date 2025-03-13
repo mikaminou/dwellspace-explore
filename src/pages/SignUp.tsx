@@ -183,10 +183,10 @@ export default function SignUpPage() {
                               </div>
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="min-w-[160px]">
                             {countryCodes.map((country) => (
                               <SelectItem key={country.code} value={country.code} className="w-full">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-3 px-1">
                                   <span className="text-lg">{country.flag}</span>
                                   <span>{country.code}</span>
                                   <span className="text-muted-foreground">{country.country}</span>
