@@ -2,9 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { 
   User, 
-  onAuthStateChanged,
-  GoogleAuthProvider,
-  signInWithPopup
+  onAuthStateChanged
 } from "firebase/auth";
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,7 +15,6 @@ interface AuthContextType {
   isLoaded: boolean;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
   signInWithPhone: (phone: string) => Promise<void>;
   signOut: () => Promise<void>;
   verifyOTP: (phone: string, otp: string) => Promise<void>;
@@ -118,42 +115,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
   };
-  
-  const signInWithGoogle = async () => {
-    try {
-      // For Firebase notifications - skip if not initialized
-      if (auth && typeof auth.signInWithPopup === 'function') {
-        try {
-          const provider = new GoogleAuthProvider();
-          await signInWithPopup(auth, provider);
-        } catch (error) {
-          console.warn("Firebase Google sign in failed, but continuing with Supabase:", error);
-        }
-      }
-      
-      // For Supabase auth
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`,
-        }
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Signed in successfully",
-        description: "Welcome back!",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Google sign in failed",
-        description: error.message,
-        variant: "destructive",
-      });
-      throw error;
-    }
-  };
 
   const signInWithPhone = async (phone: string) => {
     try {
@@ -237,7 +198,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoaded,
     signUp,
     signIn,
-    signInWithGoogle,
     signInWithPhone,
     verifyOTP,
     signOut,

@@ -22,7 +22,7 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("email");
-  const { signUp, signInWithGoogle, signInWithPhone, verifyOTP } = useAuth();
+  const { signUp, signInWithPhone, verifyOTP } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,18 +41,6 @@ export default function SignUpPage() {
     } catch (error: any) {
       setError(error.message || "Failed to create account.");
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setError("");
-    try {
-      setLoading(true);
-      await signInWithGoogle();
-      // Navigation will be handled by the OAuth redirect
-    } catch (error: any) {
-      setError(error.message || "Failed to sign in with Google.");
       setLoading(false);
     }
   };
@@ -219,19 +207,7 @@ export default function SignUpPage() {
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-              </div>
             </div>
-            <Button 
-              variant="outline" 
-              type="button" 
-              className="w-full" 
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-            >
-              Continue with Google
-            </Button>
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-sm text-muted-foreground">
