@@ -2,7 +2,6 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
@@ -13,10 +12,10 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em rgba(200, 180, 150, 0.6));
+  filter: drop-shadow(0 0 2em rgba(39, 174, 96, 0.6));
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em rgba(200, 180, 150, 0.6));
+  filter: drop-shadow(0 0 2em rgba(39, 174, 96, 0.6));
 }
 
 @keyframes logo-spin {
@@ -36,7 +35,7 @@
 
 .card {
   padding: 2em;
-  border: 1px solid rgba(200, 180, 150, 0.2);
+  border: 1px solid rgba(44, 62, 80, 0.1);
   background-color: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -45,7 +44,7 @@
 
 .card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-  border-color: rgba(200, 180, 150, 0.3);
+  border-color: rgba(44, 62, 80, 0.2);
 }
 
 .read-the-docs {
@@ -56,13 +55,13 @@
 .luxury-glass {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(200, 180, 150, 0.15);
+  border: 1px solid rgba(205, 164, 52, 0.15);
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
 }
 
 .luxury-card {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(200, 180, 150, 0.1);
+  border: 1px solid rgba(205, 164, 52, 0.1);
   box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(4px);
   border-radius: 10px;
@@ -73,5 +72,62 @@
 .luxury-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.08);
-  border-color: rgba(200, 180, 150, 0.2);
+  border-color: rgba(205, 164, 52, 0.2);
+}
+
+/* Custom gradients */
+.primary-gradient {
+  background: linear-gradient(135deg, #27AE60 0%, #2ECC71 100%);
+}
+
+.secondary-gradient {
+  background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+}
+
+.luxury-gradient {
+  background: linear-gradient(135deg, #CDA434 0%, #E5CB6F 100%);
+}
+
+/* Animation utilities */
+.animate-hover-up {
+  transition: transform 0.3s ease;
+}
+
+.animate-hover-up:hover {
+  transform: translateY(-6px);
+}
+
+/* Custom button styles */
+.btn-cta {
+  background-color: #E67E22;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-cta:hover {
+  background-color: #D35400;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 400ms, transform 400ms;
+}
+
+.page-exit {
+  opacity: 1;
+}
+
+.page-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
 }

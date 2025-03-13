@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { HomeIcon } from "lucide-react";
+import { MainNav } from "@/components/MainNav";
 
 const NotFound = () => {
   const location = useLocation();
@@ -17,17 +19,28 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-6xl font-bold mb-4 text-gray-800">404</h1>
-        <p className={`text-xl text-gray-600 mb-6 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-          {t('notFound.title')}
-        </p>
-        <Button asChild>
-          <Link to="/" className={dir === 'rtl' ? 'arabic-text' : ''}>
-            {t('notFound.returnHome')}
-          </Link>
-        </Button>
+    <div className="min-h-screen flex flex-col bg-background">
+      <MainNav />
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-center max-w-md px-4">
+          <h1 className="text-8xl font-bold mb-4 text-secondary dark:text-white animate-fade-in">404</h1>
+          <p className={`text-xl text-muted-foreground mb-8 animate-slide-up ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+            {t('notFound.title')}
+          </p>
+          <p className={`text-base text-muted-foreground mb-8 animate-slide-up delay-75 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+            {t('notFound.message') || "The page you're looking for doesn't exist or has been moved."}
+          </p>
+          <Button 
+            asChild 
+            size="lg"
+            className={`bg-primary hover:bg-primary-dark animate-slide-up delay-150 ${dir === 'rtl' ? 'arabic-text' : ''}`}
+          >
+            <Link to="/" className="flex items-center gap-2">
+              <HomeIcon size={18} />
+              {t('notFound.returnHome')}
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

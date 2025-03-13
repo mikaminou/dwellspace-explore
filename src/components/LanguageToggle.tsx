@@ -28,20 +28,20 @@ export function LanguageToggle({ className }: { className?: string }) {
         <Button 
           variant="outline" 
           size="sm" 
-          className={`bg-white/80 hover:bg-white text-primary font-medium border border-primary/20 flex items-center gap-1 ${className}`}
+          className={`bg-white/80 dark:bg-secondary/30 hover:bg-white dark:hover:bg-secondary/40 text-secondary dark:text-white font-medium border border-gray-200 dark:border-gray-700 flex items-center gap-1 ${className}`}
         >
           <Globe className="h-4 w-4" />
           {getLanguageLabel(language)}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="min-w-32">
-        <DropdownMenuItem onClick={() => setLanguage('en')}>
+        <DropdownMenuItem onClick={() => setLanguage('en')} className="hover:bg-muted cursor-pointer">
           <span className="mr-2">🇬🇧</span> English
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setLanguage('fr')}>
+        <DropdownMenuItem onClick={() => setLanguage('fr')} className="hover:bg-muted cursor-pointer">
           <span className="mr-2">🇫🇷</span> Français
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setLanguage('ar')}>
+        <DropdownMenuItem onClick={() => setLanguage('ar')} className="hover:bg-muted cursor-pointer">
           <span className="mr-2">🇩🇿</span> العربية
         </DropdownMenuItem>
       </DropdownMenuContent>
