@@ -6,6 +6,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { AlertCircle, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useOtpVerification } from "@/hooks/useOtpVerification";
+import { useLanguage } from "@/contexts/language/LanguageContext";
 
 interface OtpVerificationFormProps {
   phoneNumber: string;
@@ -29,6 +30,8 @@ export function OtpVerificationForm({
     handleVerifyOTP
   } = useOtpVerification(phoneNumber, countryCode, onError);
 
+  const { t } = useLanguage();
+
   return (
     <form onSubmit={handleVerifyOTP} className="space-y-4">
       {error && (
@@ -41,15 +44,15 @@ export function OtpVerificationForm({
       {isDemoMode && (
         <Alert className="mb-4 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
           <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-          <AlertTitle className="text-amber-600 dark:text-amber-400">Demo Mode Active</AlertTitle>
+          <AlertTitle className="text-amber-600 dark:text-amber-400">{t('demo.title')}</AlertTitle>
           <AlertDescription className="text-amber-600 dark:text-amber-400">
-            Real SMS verification is unavailable for this number. In demo mode, <strong>any 6-digit code</strong> will work.
+            {t('demo.description')}
           </AlertDescription>
         </Alert>
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="otp" className="block text-center mb-2">Enter verification code</Label>
+        <Label htmlFor="otp" className="block text-center mb-2">{t('otp.title')}</Label>
         <div className="flex justify-center mb-4">
           <InputOTP maxLength={6} value={otp} onChange={setOtp}>
             <InputOTPGroup>
@@ -64,12 +67,12 @@ export function OtpVerificationForm({
         </div>
         <p className="text-xs text-muted-foreground text-center">
           {isDemoMode 
-            ? "Enter any 6 digits to continue in demo mode" 
-            : `A verification code has been sent to ${countryCode} ${phoneNumber}`}
+            ? t('otp.demoSubtitle')
+            : `${t('otp.subtitle')} ${countryCode} ${phoneNumber}`}
         </p>
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Verifying..." : "Verify & Create Account"}
+        {loading ? "Verifying..." : t('otp.verify')}
       </Button>
       <Button 
         type="button" 
@@ -78,7 +81,7 @@ export function OtpVerificationForm({
         onClick={onBack}
         disabled={loading}
       >
-        Back
+        {t('otp.back')}
       </Button>
     </form>
   );

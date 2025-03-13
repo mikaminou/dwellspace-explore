@@ -8,6 +8,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { RoleSelector } from "./RoleSelector";
 import { CountryCodeSelector } from "./CountryCodeSelector";
 import { usePhoneSignUp } from "@/hooks/usePhoneSignUp";
+import { useLanguage } from "@/contexts/language/LanguageContext";
 
 interface PhoneSignUpFormProps {
   onShowOtp: () => void;
@@ -34,22 +35,22 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
   } = usePhoneSignUp(onShowOtp, onError, onPhoneDetailsCapture);
 
   const [error, setError] = useState("");
+  const { t } = useLanguage();
 
   return (
     <form onSubmit={handlePhoneSubmit} className="space-y-4">
       {twilioConfigIssue && (
         <Alert className="mb-4">
           <Info className="h-4 w-4" />
-          <AlertTitle>Demo Mode Activated</AlertTitle>
+          <AlertTitle>{t('demo.title')}</AlertTitle>
           <AlertDescription>
-            Your phone verification couldn't be processed by our SMS provider.
-            You can continue in demo mode where any 6-digit code will work.
+            {t('demo.description')}
           </AlertDescription>
         </Alert>
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="phone">Phone Number</Label>
+        <Label htmlFor="phone">{t('phone.label')}</Label>
         <div className="flex gap-2">
           <CountryCodeSelector 
             countryCode={countryCode} 
@@ -59,20 +60,20 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
           <Input 
             id="phone" 
             type="tel" 
-            placeholder="123456789" 
+            placeholder={t('phone.placeholder')} 
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
             required
             className="flex-1"
           />
         </div>
-        <p className="text-xs text-muted-foreground">Enter your phone number without the country code</p>
+        <p className="text-xs text-muted-foreground">{t('phone.subtitle')}</p>
       </div>
       
       <RoleSelector userRole={userRole} setUserRole={setUserRole} />
       
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Sending code..." : "Send Verification Code"}
+        {loading ? t('phone.sending') : t('phone.send')}
       </Button>
     </form>
   );

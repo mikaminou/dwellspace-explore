@@ -8,6 +8,35 @@
     <meta name="description" content="Osken - Find your ideal property" />
     <meta name="author" content="Lovable" />
     <meta property="og:image" content="/og-image.png" />
+    <script>
+      // Set initial language based on browser preference
+      (function() {
+        try {
+          const savedLang = localStorage.getItem('language');
+          if (savedLang) {
+            document.documentElement.lang = savedLang;
+            document.documentElement.dir = savedLang === 'ar' ? 'rtl' : 'ltr';
+          } else {
+            const browserLang = navigator.language.toLowerCase();
+            if (browserLang.startsWith('ar')) {
+              document.documentElement.lang = 'ar';
+              document.documentElement.dir = 'rtl';
+              localStorage.setItem('language', 'ar');
+            } else if (browserLang.startsWith('fr')) {
+              document.documentElement.lang = 'fr';
+              document.documentElement.dir = 'ltr';
+              localStorage.setItem('language', 'fr');
+            } else {
+              document.documentElement.lang = 'en';
+              document.documentElement.dir = 'ltr';
+              localStorage.setItem('language', 'en');
+            }
+          }
+        } catch (e) {
+          console.error('Error setting initial language:', e);
+        }
+      })();
+    </script>
   </head>
 
   <body>

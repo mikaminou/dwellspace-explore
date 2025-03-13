@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { requestNotificationPermission, onMessageListener } from '@/lib/firebase';
 import { useAuth } from '@/contexts/auth';
+import { useLanguage } from '@/contexts/language/LanguageContext';
 
 interface Notification {
   id: string;
@@ -23,6 +25,7 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!currentUser) return;
@@ -32,14 +35,14 @@ export function NotificationBell() {
     const exampleNotifications: Notification[] = [
       {
         id: '1',
-        title: 'New Property Listed',
-        body: 'A new property matching your criteria has been listed.',
+        title: t('notifications.newProperty'),
+        body: t('notifications.propertyMatch'),
         read: false,
         timestamp: Date.now() - 3600000,
       },
       {
         id: '2',
-        title: 'Price Drop Alert',
+        title: t('notifications.priceAlert'),
         body: 'A property you saved has dropped in price!',
         read: false,
         timestamp: Date.now() - 86400000,
@@ -54,7 +57,7 @@ export function NotificationBell() {
     return () => {
       unsubscribe();
     };
-  }, [currentUser]);
+  }, [currentUser, t]);
 
   const markAsRead = (id: string) => {
     setNotifications(prev => 
@@ -93,7 +96,7 @@ export function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
         <div className="flex items-center justify-between p-2">
-          <h4 className="font-medium">Notifications</h4>
+          <h4 className="font-medium">{t('notifications.title')}</h4>
           {unreadCount > 0 && (
             <Button 
               variant="ghost" 
@@ -101,7 +104,7 @@ export function NotificationBell() {
               className="h-8 text-xs"
               onClick={markAllAsRead}
             >
-              Mark all as read
+              {t('notifications.markAllRead')}
             </Button>
           )}
         </div>
@@ -127,7 +130,7 @@ export function NotificationBell() {
             ))
           ) : (
             <div className="py-4 text-center text-muted-foreground">
-              No notifications yet
+              {t('notifications.noNotifications')}
             </div>
           )}
         </div>

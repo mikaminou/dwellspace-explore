@@ -8,6 +8,7 @@ import { PasswordField } from "./PasswordField";
 import { RoleSelector } from "./RoleSelector";
 import { useEmailSignUp } from "@/hooks/useEmailSignUp";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/language/LanguageContext";
 
 interface EmailSignUpFormProps {
   onError: (message: string) => void;
@@ -32,6 +33,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
   } = useEmailSignUp(onError);
 
   const [error, setError] = useState("");
+  const { t } = useLanguage();
 
   const handleLocalError = (message: string) => {
     setError(message);
@@ -63,10 +65,10 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="name">Full Name</Label>
+        <Label htmlFor="name">{t('name.label')}</Label>
         <Input 
           id="name" 
-          placeholder="Your name" 
+          placeholder={t('name.placeholder')} 
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           required
@@ -74,11 +76,11 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">{t('email.label')}</Label>
         <Input 
           id="email" 
           type="email" 
-          placeholder="your@email.com" 
+          placeholder={t('email.placeholder')} 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -86,7 +88,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t('password.label')}</Label>
         <PasswordField
           password={password}
           setPassword={setPassword}
@@ -94,7 +96,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           togglePasswordVisibility={togglePasswordVisibility}
           disabled={loading || confirmationSent}
         />
-        <p className="text-xs text-muted-foreground">Password must be at least 6 characters long</p>
+        <p className="text-xs text-muted-foreground">{t('password.requirement')}</p>
       </div>
       
       <RoleSelector 
@@ -108,7 +110,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         className="w-full" 
         disabled={loading || confirmationSent}
       >
-        {loading ? "Creating account..." : confirmationSent ? (demoMode ? "Demo Mode Active" : "Confirmation Email Sent") : "Create Account"}
+        {loading ? t('signup.creating') : confirmationSent ? (demoMode ? t('signup.demoActive') : t('signup.emailSent')) : t('signup.button')}
       </Button>
     </form>
   );
