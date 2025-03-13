@@ -56,16 +56,16 @@ export function MainNav() {
         <NavigationMenu dir={dir}>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>{t('nav.explore')}</NavigationMenuTrigger>
+              <NavigationMenuTrigger className={dir === 'rtl' ? 'arabic-text' : ''}>{t('nav.explore')}</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-4 w-[400px] grid-cols-2">
                   <li className="row-span-3">
                     <NavigationMenuLink asChild>
                       <Link to="/properties/sale" className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md">
-                        <div className="mb-2 mt-4 text-lg font-medium">
+                        <div className={`mb-2 mt-4 text-lg font-medium ${dir === 'rtl' ? 'arabic-text' : ''}`}>
                           {t('nav.sale')}
                         </div>
-                        <p className="text-sm leading-tight text-muted-foreground">
+                        <p className={`text-sm leading-tight text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>
                           {dir === 'rtl' 
                             ? 'اعثر على منزل أحلامك من مجموعتنا المختارة'
                             : 'Trouvez votre maison de rêve parmi notre sélection'}
@@ -76,8 +76,8 @@ export function MainNav() {
                   <li>
                     <NavigationMenuLink asChild>
                       <Link to="/properties/rent" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">{t('nav.rent')}</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        <div className={`text-sm font-medium leading-none ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('nav.rent')}</div>
+                        <p className={`line-clamp-2 text-sm leading-snug text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>
                           {dir === 'rtl' 
                             ? 'تصفح العقارات للإيجار'
                             : 'Parcourir les propriétés à louer'}
@@ -88,8 +88,8 @@ export function MainNav() {
                   <li>
                     <NavigationMenuLink asChild>
                       <Link to="/map" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">{t('nav.map')}</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                        <div className={`text-sm font-medium leading-none ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('nav.map')}</div>
+                        <p className={`line-clamp-2 text-sm leading-snug text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>
                           {dir === 'rtl' 
                             ? 'استكشاف العقارات على الخريطة'
                             : 'Explorer les propriétés sur la carte'}
@@ -102,17 +102,17 @@ export function MainNav() {
             </NavigationMenuItem>
             <NavigationMenuItem>
               <Button variant="ghost" asChild>
-                <Link to="/search" className="flex items-center gap-2">
+                <Link to="/search" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                   <SearchIcon className="h-4 w-4" />
-                  {t('nav.search')}
+                  <span className={dir === 'rtl' ? 'arabic-text' : ''}>{t('nav.search')}</span>
                 </Link>
               </Button>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <Button variant="ghost" asChild>
-                <Link to="/map" className="flex items-center gap-2">
+                <Link to="/map" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                   <MapIcon className="h-4 w-4" />
-                  {t('nav.map')}
+                  <span className={dir === 'rtl' ? 'arabic-text' : ''}>{t('nav.map')}</span>
                 </Link>
               </Button>
             </NavigationMenuItem>
@@ -142,27 +142,27 @@ export function MainNav() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align={dir === 'rtl' ? 'start' : 'end'} forceMount>
-                  <DropdownMenuLabel>{t('account.myAccount')}</DropdownMenuLabel>
-                  <DropdownMenuLabel className="font-normal">
+                  <DropdownMenuLabel className={dir === 'rtl' ? 'arabic-text' : ''}>{t('account.myAccount')}</DropdownMenuLabel>
+                  <DropdownMenuLabel className={`font-normal ${dir === 'rtl' ? 'arabic-text' : ''}`}>
                     {userName || userEmail}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/profile">
+                    <Link to="/profile" className={dir === 'rtl' ? 'flex flex-row-reverse' : ''}>
                       <UserIcon className={`${dir === 'rtl' ? 'ml-2' : 'mr-2'} h-4 w-4`} />
-                      <span>{t('nav.profile')}</span>
+                      <span className={dir === 'rtl' ? 'arabic-text' : ''}>{t('nav.profile')}</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/favorites">
+                    <Link to="/favorites" className={dir === 'rtl' ? 'flex flex-row-reverse' : ''}>
                       <HeartIcon className={`${dir === 'rtl' ? 'ml-2' : 'mr-2'} h-4 w-4`} />
-                      <span>{t('nav.favorites')}</span>
+                      <span className={dir === 'rtl' ? 'arabic-text' : ''}>{t('nav.favorites')}</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuItem onClick={handleSignOut} className={dir === 'rtl' ? 'flex flex-row-reverse' : ''}>
                     <LogOut className={`${dir === 'rtl' ? 'ml-2' : 'mr-2'} h-4 w-4`} />
-                    <span>{t('nav.logout')}</span>
+                    <span className={dir === 'rtl' ? 'arabic-text' : ''}>{t('nav.logout')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -170,10 +170,10 @@ export function MainNav() {
           ) : (
             <>
               <Button variant="ghost" asChild>
-                <Link to="/signin">{t('nav.signin')}</Link>
+                <Link to="/signin" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('nav.signin')}</Link>
               </Button>
               <Button variant="default" asChild>
-                <Link to="/signup">{t('nav.signup')}</Link>
+                <Link to="/signup" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('nav.signup')}</Link>
               </Button>
             </>
           )}
