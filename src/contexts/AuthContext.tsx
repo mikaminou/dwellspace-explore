@@ -18,7 +18,9 @@ interface AuthContextType {
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithPhone: (phone: string) => Promise<void>;
   signOut: () => Promise<void>;
+  verifyOTP: (phone: string, otp: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -152,6 +154,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw error;
     }
   };
+
+  const signInWithPhone = async (phone: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Verification code sent",
+        description: "Please check your phone for the verification code",
+      });
+      
+    } catch (error: any) {
+      toast({
+        title: "Phone sign in failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const verifyOTP = async (phone: string, otp: string) => {
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        phone,
+        token: otp,
+        type: 'sms'
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Phone verified successfully",
+        description: "Welcome to DwellSpace!",
+      });
+      
+    } catch (error: any) {
+      toast({
+        title: "Verification failed",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
   
   const signOut = async () => {
     try {
@@ -188,6 +238,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signUp,
     signIn,
     signInWithGoogle,
+    signInWithPhone,
+    verifyOTP,
     signOut,
   };
   
