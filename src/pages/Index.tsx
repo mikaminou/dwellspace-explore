@@ -16,6 +16,8 @@ const luxuryProperties = properties.slice(3, 6).map(p => ({...p, luxury: true}))
 export default function Index() {
   const { t, dir } = useLanguage();
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     const fetchVideoUrl = async () => {
@@ -30,14 +32,26 @@ export default function Index() {
           setVideoUrl(data.publicUrl);
         } else {
           console.error('No public URL returned from Supabase');
+          setVideoError(true);
         }
       } catch (error) {
         console.error('Error fetching video URL:', error);
+        setVideoError(true);
       }
     };
 
     fetchVideoUrl();
   }, []);
+
+  const handleVideoLoad = () => {
+    console.log("Video loaded successfully");
+    setVideoLoaded(true);
+  };
+
+  const handleVideoError = (error: any) => {
+    console.error("Error loading video:", error);
+    setVideoError(true);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,27 +59,27 @@ export default function Index() {
       
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center bg-secondary/90">
-        <div className="absolute inset-0 overflow-hidden">
-          {videoUrl ? (
-            <>
-              <video 
-                key={videoUrl} // Add key to force re-render when URL changes
-                className="hero-video w-full h-full object-cover opacity-30"
-                autoPlay
-                muted
-                loop
-                playsInline
-                poster="/img/algeria-real-estate.jpg" // Fallback image while video loads
-              >
-                <source src={videoUrl} type="video/mp4" />
-                {/* Fallback for browsers that don't support video */}
-                <img 
-                  src="/img/algeria-real-estate.jpg" 
-                  alt={t('hero.title')} 
-                  className="object-cover w-full h-full opacity-20"
-                />
-              </video>
-            </>
+        <div className="absolute inset-0 overflow-hidden z-0">
+          {videoUrl && !videoError ? (
+            <video 
+              key={videoUrl} // Add key to force re-render when URL changes
+              className="w-full h-full object-cover opacity-30"
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/img/algeria-real-estate.jpg" // Fallback image while video loads
+              onLoadedData={handleVideoLoad}
+              onError={handleVideoError}
+            >
+              <source src={videoUrl} type="video/mp4" />
+              {/* Fallback for browsers that don't support video */}
+              <img 
+                src="/img/algeria-real-estate.jpg" 
+                alt={t('hero.title')} 
+                className="object-cover w-full h-full opacity-20"
+              />
+            </video>
           ) : (
             <img 
               src="/img/algeria-real-estate.jpg" 
