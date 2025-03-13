@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -8,15 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Flag } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Country codes for phone auth - limited to Algeria and Germany with flags
+// Country codes for phone auth - limited to Algeria and Germany with emoji flags
 const countryCodes = [
-  { code: "+213", country: "Algeria" },
-  { code: "+49", country: "Germany" },
+  { code: "+213", country: "Algeria", flag: "🇩🇿" },
+  { code: "+49", country: "Germany", flag: "🇩🇪" },
 ];
 
 export default function SignUpPage() {
@@ -99,13 +98,9 @@ export default function SignUpPage() {
     }
   };
 
-  const renderCountryCodeOption = (code: string, country: string) => {
-    return (
-      <div className="flex items-center gap-2">
-        <Flag className="h-4 w-4" />
-        <span>{code} {country}</span>
-      </div>
-    );
+  const getSelectedFlag = () => {
+    const selectedCountry = countryCodes.find(country => country.code === countryCode);
+    return selectedCountry ? selectedCountry.flag : "";
   };
 
   return (
@@ -182,7 +177,7 @@ export default function SignUpPage() {
                           <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Country Code">
                               <div className="flex items-center gap-2">
-                                <Flag className="h-4 w-4" />
+                                <span className="text-lg">{getSelectedFlag()}</span>
                                 <span>{countryCode}</span>
                               </div>
                             </SelectValue>
@@ -191,7 +186,7 @@ export default function SignUpPage() {
                             {countryCodes.map((country) => (
                               <SelectItem key={country.code} value={country.code}>
                                 <div className="flex items-center gap-2">
-                                  <Flag className="h-4 w-4" />
+                                  <span className="text-lg">{country.flag}</span>
                                   <span>{country.code} {country.country}</span>
                                 </div>
                               </SelectItem>
