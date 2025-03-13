@@ -10,7 +10,7 @@ type LanguageContextType = {
 
 const translations = {
   ar: {
-    'site.name': 'دويل سبيس',
+    'site.name': 'أوسكن',
     'nav.home': 'الرئيسية',
     'nav.explore': 'استكشاف',
     'nav.sale': 'للبيع',
@@ -40,7 +40,7 @@ const translations = {
     'signin.create': 'إنشاء حساب',
   },
   fr: {
-    'site.name': 'DwellSpace',
+    'site.name': 'Osken',
     'nav.home': 'Accueil',
     'nav.explore': 'Explorer',
     'nav.sale': 'À Vendre',
