@@ -153,6 +153,16 @@
 .arabic-text {
   font-family: 'Cairo', sans-serif;
   line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+[dir="rtl"] .arabic-text {
+  text-align: right;
+}
+
+[dir="rtl"] input::placeholder,
+[dir="rtl"] .select-placeholder {
+  text-align: right;
 }
 
 /* Custom hero gradient */
@@ -187,3 +197,14 @@
   @apply transition-transform duration-300 hover:scale-105;
 }
 
+/* RTL specific adjustments */
+[dir="rtl"] .search-input {
+  text-align: right;
+  padding-right: 2.5rem;
+  padding-left: 0.75rem;
+}
+
+[dir="rtl"] .search-icon {
+  right: 0.75rem;
+  left: auto;
+}

@@ -41,30 +41,30 @@ export default function Index() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="md:col-span-2">
                 <Input 
-                  placeholder={t('search.location') || "Location, property name, or keyword"}
-                  className={`h-12 ${dir === 'rtl' ? 'arabic-text text-right' : ''}`}
+                  placeholder={t('search.location')}
+                  className={`h-12 ${dir === 'rtl' ? 'arabic-text text-right pr-4' : ''}`}
                   dir={dir}
                 />
               </div>
               <div>
                 <Select>
-                  <SelectTrigger className={`h-12 ${dir === 'rtl' ? 'arabic-text text-right' : ''}`}>
+                  <SelectTrigger className={`h-12 ${dir === 'rtl' ? 'arabic-text text-right' : ''}`} dir={dir}>
                     <SelectValue placeholder={t('search.propertyType')} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent dir={dir}>
                     <SelectGroup>
-                      <SelectItem value="any">{t('search.anyPropertyType')}</SelectItem>
-                      <SelectItem value="apartment">{t('search.apartment')}</SelectItem>
-                      <SelectItem value="villa">{t('search.villa')}</SelectItem>
-                      <SelectItem value="house">{t('search.house')}</SelectItem>
-                      <SelectItem value="land">{t('search.land')}</SelectItem>
+                      <SelectItem value="any" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.anyPropertyType')}</SelectItem>
+                      <SelectItem value="apartment" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.apartment')}</SelectItem>
+                      <SelectItem value="villa" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.villa')}</SelectItem>
+                      <SelectItem value="house" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.house')}</SelectItem>
+                      <SelectItem value="land" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.land')}</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Button className={`w-full h-12 bg-primary hover:bg-primary-dark text-white ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`} size="lg">
-                  <SearchIcon className="h-5 w-5 mr-2" />
+                  <SearchIcon className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                   {t('search.search')}
                 </Button>
               </div>
@@ -89,7 +89,7 @@ export default function Index() {
               asChild
             >
               <Link to="/search" className="flex items-center gap-2">
-                <SearchIcon className="h-5 w-5" />
+                <SearchIcon className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                 {t('hero.browse')}
               </Link>
             </Button>
