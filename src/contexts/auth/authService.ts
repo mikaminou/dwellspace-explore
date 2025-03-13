@@ -9,6 +9,8 @@ export const authService = {
       // Get base URL
       const baseUrl = window.location.origin;
       
+      console.log("Starting Supabase signup process for:", email);
+      
       // Simple sign-up with no complex URL parameters
       const { data, error } = await supabase.auth.signUp({ 
         email, 
@@ -23,18 +25,25 @@ export const authService = {
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase signup error:", error);
+        throw error;
+      }
+      
+      console.log("Supabase signup response:", data);
       
       // Check if email confirmation is required
       const confirmationRequired = data.user?.identities && data.user.identities.length === 0;
       
       if (confirmationRequired) {
+        console.log("Email confirmation required for:", email);
         toast({
           title: "Confirmation email sent",
           description: "Please check your inbox to confirm your email address.",
         });
         return { confirmationRequired: true };
       } else {
+        console.log("User created without confirmation requirement");
         toast({
           title: "Account created successfully",
           description: "Welcome to DwellSpace!",
@@ -43,6 +52,7 @@ export const authService = {
       }
       
     } catch (error: any) {
+      console.error("Full signup error:", error);
       toast({
         title: "Sign up failed",
         description: error.message,

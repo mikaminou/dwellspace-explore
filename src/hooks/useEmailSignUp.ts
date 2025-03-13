@@ -29,18 +29,32 @@ export function useEmailSignUp(onError: (message: string) => void) {
 
     try {
       setLoading(true);
+      
+      // Log the start of the signup process
+      console.log("Starting signup process for:", email);
+      
       const result = await signUp(email, password, displayName, userRole);
+      
+      console.log("Signup result:", result);
 
       // Check if confirmation is required
       if (result?.confirmationRequired) {
+        console.log("Confirmation required, proceeding with navigation");
         setConfirmationSent(true);
         
         // Encode email for URL
         const encodedEmail = encodeURIComponent(email);
-        console.log("Confirmation required, forcing navigation to:", `/email-confirmation?email=${encodedEmail}`);
         
-        // Force navigation directly, bypassing React Router completely
-        window.location.href = `/email-confirmation?email=${encodedEmail}`;
+        // Log the exact URL we're trying to navigate to
+        const redirectUrl = `/email-confirmation?email=${encodedEmail}`;
+        console.log("Attempting to navigate to:", redirectUrl);
+        
+        // Force navigation with a slight delay to ensure state updates complete
+        setTimeout(() => {
+          console.log("Executing delayed navigation now");
+          // Use replace to prevent back button from returning to signup
+          window.location.replace(redirectUrl);
+        }, 100);
         
         return result;
       }
@@ -48,6 +62,7 @@ export function useEmailSignUp(onError: (message: string) => void) {
       return result;
     } catch (error: any) {
       const errorMessage = error.message || "Failed to create account.";
+      console.error("Signup error:", error);
       onError(errorMessage);
       throw error;
     } finally {

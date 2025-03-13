@@ -45,7 +45,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     setError("");
     
     try {
-      // Simple direct approach - let useEmailSignUp handle navigation
+      // Let useEmailSignUp handle all navigation logic
       await handleSubmit(e);
     } catch (err: any) {
       console.error("Signup error:", err);
