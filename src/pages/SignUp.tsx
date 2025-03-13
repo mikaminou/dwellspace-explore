@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -32,6 +32,7 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("email");
+  const [twilioConfigIssue, setTwilioConfigIssue] = useState(false);
   const { signUp, signInWithPhone, verifyOTP } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -60,6 +61,7 @@ export default function SignUpPage() {
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setTwilioConfigIssue(false);
     
     if (!phoneNumber || phoneNumber.length < 5) {
       setError("Please enter a valid phone number");
@@ -79,12 +81,28 @@ export default function SignUpPage() {
       });
     } catch (error: any) {
       console.error("Phone verification error:", error);
-      setError(error.message || "Failed to send verification code. Try using email authentication instead.");
-      toast({
-        title: "Phone verification failed",
-        description: error.message || "Failed to send verification code. Try using email authentication instead.",
-        variant: "destructive",
-      });
+      
+      // Check if the error is related to Twilio configuration
+      if (error.message && (
+        error.message.includes("Invalid From Number") || 
+        error.message.includes("Twilio") ||
+        error.message.includes("SMS")
+      )) {
+        setTwilioConfigIssue(true);
+        setError("Twilio configuration issue detected. Please check your Twilio setup or use email authentication instead.");
+        toast({
+          title: "Twilio configuration issue",
+          description: "Your Supabase project's Twilio configuration needs a verified phone number.",
+          variant: "destructive",
+        });
+      } else {
+        setError(error.message || "Failed to send verification code. Try using email authentication instead.");
+        toast({
+          title: "Phone verification failed",
+          description: error.message || "Failed to send verification code. Try using email authentication instead.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -193,6 +211,17 @@ export default function SignUpPage() {
               </TabsContent>
               
               <TabsContent value="phone">
+                {twilioConfigIssue && (
+                  <Alert className="mb-4" variant="warning">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Twilio Configuration Issue</AlertTitle>
+                    <AlertDescription>
+                      Your Supabase project needs a verified phone number in the Twilio configuration. 
+                      This is needed to send SMS messages. Please check your Twilio setup in the Supabase dashboard or use email authentication instead.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
                 {!showOtpInput ? (
                   <form onSubmit={handlePhoneSubmit} className="space-y-4">
                     <div className="space-y-2">
