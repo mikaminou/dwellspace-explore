@@ -35,14 +35,20 @@ export function useEmailSignUp(onError: (message: string) => void) {
 
       // Check if confirmation is required
       if (result?.confirmationRequired) {
-        setConfirmationSent(true); // Update confirmation state
+        setConfirmationSent(true);
         
         // Encode email for URL
         const encodedEmail = encodeURIComponent(email);
-        console.log("Confirmation required. Email:", encodedEmail);
+        console.log("Confirmation required, redirecting to email confirmation page");
         
-        // Use window.location for direct navigation to ensure it works
-        window.location.href = `/email-confirmation?email=${encodedEmail}`;
+        // Try multiple navigation approaches - for React Router
+        navigate(`/email-confirmation?email=${encodedEmail}`, { replace: true });
+        
+        // As a fallback, also try direct URL change after a short delay
+        setTimeout(() => {
+          window.location.href = `/email-confirmation?email=${encodedEmail}`;
+        }, 300);
+        
         return result;
       }
 

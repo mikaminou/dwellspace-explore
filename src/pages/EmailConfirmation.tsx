@@ -34,8 +34,13 @@ export default function EmailConfirmationPage() {
       token, 
       type, 
       email, 
-      hasSession: !!session 
+      hasSession: !!session,
+      url: window.location.href
     });
+
+    if (!email && !token) {
+      console.warn("No email or token found in URL");
+    }
   }, [token, type, email, session]);
 
   // Redirect if user is already logged in and there's no token to verify
