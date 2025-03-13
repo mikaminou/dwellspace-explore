@@ -10,7 +10,7 @@ type LanguageContextType = {
 
 const translations = {
   ar: {
-    'site.name': 'أوسكن',
+    'site.name': 'أسكن',
     'nav.home': 'الرئيسية',
     'nav.explore': 'استكشاف',
     'nav.sale': 'للبيع',
