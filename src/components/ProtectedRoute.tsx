@@ -8,11 +8,11 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { currentUser, isLoaded } = useAuth();
+  const { session, isLoaded } = useAuth();
 
   if (!isLoaded) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
-  return currentUser ? <>{children}</> : <Navigate to="/signin" replace />;
+  return session ? <>{children}</> : <Navigate to="/signin" replace />;
 }

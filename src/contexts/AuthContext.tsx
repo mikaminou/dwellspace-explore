@@ -2,19 +2,18 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { 
   User, 
-  createUserWithEmailAndPassword, 
-  signInWithEmailAndPassword,
-  signOut as firebaseSignOut,
   onAuthStateChanged,
-  updateProfile,
   GoogleAuthProvider,
   signInWithPopup
 } from "firebase/auth";
 import { auth, requestNotificationPermission } from "@/lib/firebase";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Session } from "@supabase/supabase-js";
 
 interface AuthContextType {
   currentUser: User | null;
+  session: Session | null;
   isLoaded: boolean;
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
@@ -26,36 +25,60 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const { toast } = useToast();
   
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    // Firebase auth state for notifications
+    const unsubscribeFirebase = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      setIsLoaded(true);
       
       // Request notification permission when user is authenticated
       if (user) {
         requestNotificationPermission().then(token => {
           if (token) {
-            // Here you would typically send this token to your backend
             console.log("Notification token registered:", token);
           }
         });
       }
     });
     
-    return unsubscribe;
+    // Supabase auth state
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+        setIsLoaded(true);
+      }
+    );
+    
+    return () => {
+      unsubscribeFirebase();
+      authSubscription.unsubscribe();
+    };
   }, []);
   
   const signUp = async (email: string, password: string, displayName: string) => {
     try {
-      const result = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(result.user, { displayName });
+      const { error, data } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: {
+            first_name: displayName.split(' ')[0],
+            last_name: displayName.split(' ').slice(1).join(' '),
+          }
+        }
+      });
+      
+      if (error) throw error;
+      
       toast({
         title: "Account created successfully",
         description: "Welcome to DwellSpace!",
       });
+      
+      return data;
     } catch (error: any) {
       toast({
         title: "Sign up failed",
@@ -68,11 +91,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const signIn = async (email: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (error) throw error;
+      
       toast({
         title: "Signed in successfully",
         description: "Welcome back!",
       });
+      
+      return data;
     } catch (error: any) {
       toast({
         title: "Sign in failed",
@@ -85,8 +113,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const signInWithGoogle = async () => {
     try {
+      // For Firebase notifications
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
+      
+      // For Supabase auth
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        }
+      });
+      
+      if (error) throw error;
+      
       toast({
         title: "Signed in successfully",
         description: "Welcome back!",
@@ -103,7 +143,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const signOut = async () => {
     try {
-      await firebaseSignOut(auth);
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      // Also sign out from Firebase
+      await auth.signOut();
+      
       toast({
         title: "Signed out successfully",
       });
@@ -119,6 +165,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const value = {
     currentUser,
+    session,
     isLoaded,
     signUp,
     signIn,

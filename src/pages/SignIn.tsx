@@ -7,35 +7,39 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { signIn, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     try {
       setLoading(true);
       await signIn(email, password);
       navigate("/");
-    } catch (error) {
-      console.error("Failed to sign in:", error);
+    } catch (error: any) {
+      setError(error.message || "Failed to sign in. Please check your credentials.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    setError("");
     try {
       setLoading(true);
       await signInWithGoogle();
-      navigate("/");
-    } catch (error) {
-      console.error("Failed to sign in with Google:", error);
-    } finally {
+      // Navigation will be handled by the OAuth redirect
+    } catch (error: any) {
+      setError(error.message || "Failed to sign in with Google.");
       setLoading(false);
     }
   };
@@ -50,6 +54,12 @@ export default function SignInPage() {
             <CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>

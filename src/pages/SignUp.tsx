@@ -7,36 +7,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      return;
+    }
+    
     try {
       setLoading(true);
       await signUp(email, password, displayName);
       navigate("/");
-    } catch (error) {
-      console.error("Failed to sign up:", error);
+    } catch (error: any) {
+      setError(error.message || "Failed to create account.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    setError("");
     try {
       setLoading(true);
       await signInWithGoogle();
-      navigate("/");
-    } catch (error) {
-      console.error("Failed to sign in with Google:", error);
-    } finally {
+      // Navigation will be handled by the OAuth redirect
+    } catch (error: any) {
+      setError(error.message || "Failed to sign in with Google.");
       setLoading(false);
     }
   };
@@ -51,6 +61,12 @@ export default function SignUpPage() {
             <CardDescription className="text-center">Enter your information to create an account</CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
@@ -83,6 +99,7 @@ export default function SignUpPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                <p className="text-xs text-muted-foreground">Password must be at least 6 characters long</p>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Creating account..." : "Create Account"}

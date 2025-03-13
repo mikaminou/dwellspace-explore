@@ -25,13 +25,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "./NotificationBell";
 
 export function MainNav() {
-  const { currentUser, isLoaded, signOut } = useAuth();
+  const { session, currentUser, isLoaded, signOut } = useAuth();
   const navigate = useNavigate();
   
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
+
+  // Get user display information
+  const userEmail = session?.user?.email || currentUser?.email;
+  const userName = session?.user?.user_metadata?.first_name || currentUser?.displayName;
+  const userAvatar = session?.user?.user_metadata?.avatar_url || currentUser?.photoURL;
+  const userInitials = userName 
+    ? userName.slice(0, 2).toUpperCase() 
+    : userEmail 
+      ? userEmail.slice(0, 2).toUpperCase() 
+      : "U";
 
   return (
     <div className="border-b">
@@ -99,7 +109,7 @@ export function MainNav() {
           </NavigationMenuList>
         </NavigationMenu>
         <div className="ml-auto flex items-center space-x-4">
-          {isLoaded && currentUser ? (
+          {isLoaded && session ? (
             <>
               <Button variant="ghost" size="icon" asChild>
                 <Link to="/favorites">
@@ -112,11 +122,9 @@ export function MainNav() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar>
-                      <AvatarImage src={currentUser.photoURL || undefined} alt={currentUser.displayName || "User"} />
+                      <AvatarImage src={userAvatar || undefined} alt={userName || "User"} />
                       <AvatarFallback>
-                        {currentUser.displayName 
-                          ? currentUser.displayName.slice(0, 2).toUpperCase() 
-                          : "U"}
+                        {userInitials}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -124,7 +132,7 @@ export function MainNav() {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuLabel className="font-normal">
-                    {currentUser.displayName || currentUser.email}
+                    {userName || userEmail}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>

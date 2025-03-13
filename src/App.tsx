@@ -9,6 +9,7 @@ import Search from "./pages/Search";
 import PropertyDetails from "./pages/PropertyDetails";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -25,15 +26,15 @@ const App = () => (
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route 
-            path="/favorites" 
+            path="/profile" 
             element={
               <ProtectedRoute>
-                <NotFound />
+                <Profile />
               </ProtectedRoute>
             } 
           />
           <Route 
-            path="/profile" 
+            path="/favorites" 
             element={
               <ProtectedRoute>
                 <NotFound />
