@@ -18,8 +18,8 @@ const luxuryProperties = properties.slice(3, 6).map(p => ({...p, luxury: true}))
 // Video configuration
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
-// Direct signed URL provided by the user
-const DIRECT_SIGNED_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/hero.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9oZXJvLm1wNCIsImlhdCI6MTc0MTg5MTQyMCwiZXhwIjoxNzczNDI3NDIwfQ.ocQCcfFXgHHMW8do_xssp2P5csUFT-efMRtqqw_L1_M";
+// Fallback direct signed URL provided by the user (long expiry)
+const FALLBACK_SIGNED_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/hero.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9oZXJvLm1wNCIsImlhdCI6MTc0MTg5MTQyMCwiZXhwIjoxNzczNDI3NDIwfQ.ocQCcfFXgHHMW8do_xssp2P5csUFT-efMRtqqw_L1_M";
 
 export default function Index() {
   const { t, dir } = useLanguage();
@@ -27,10 +27,10 @@ export default function Index() {
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   
-  // Use the direct signed URL provided by the user
-  const [videoUrl, setVideoUrl] = useState(DIRECT_SIGNED_URL);
+  // Initialize with the fallback URL, then try to get a public URL if available
+  const [videoUrl, setVideoUrl] = useState(FALLBACK_SIGNED_URL);
 
-  // Function to check if video exists in storage
+  // Function to check if video exists in storage and get appropriate URL
   useEffect(() => {
     const checkVideoExists = async () => {
       try {
@@ -45,6 +45,14 @@ export default function Index() {
             description: "The hero video is not available. Please upload it to the Supabase storage.",
             variant: "destructive",
           });
+        } else {
+          // Try to get a public URL first, which works better for new tabs
+          const publicUrl = getMediaUrl(VIDEO_BUCKET, VIDEO_PATH);
+          setVideoUrl(publicUrl);
+          
+          // If you still want to use signed URLs, you could do:
+          // const signedUrl = await getSignedUrl(VIDEO_BUCKET, VIDEO_PATH, 24 * 60 * 60); // 24 hour expiry
+          // if (signedUrl) setVideoUrl(signedUrl);
         }
       } catch (err) {
         console.error("Error checking video:", err);
@@ -52,7 +60,6 @@ export default function Index() {
       }
     };
     
-    // Still check if the file exists for informational purposes
     checkVideoExists();
   }, []);
 
