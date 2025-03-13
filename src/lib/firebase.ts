@@ -1,7 +1,7 @@
 
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getMessaging, getToken } from "firebase/messaging";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -62,6 +62,26 @@ export const requestNotificationPermission = async () => {
   } catch (error) {
     console.error("Error getting notification permission:", error);
     return null;
+  }
+};
+
+// Add the missing onMessageListener function
+export const onMessageListener = () => {
+  if (!messaging) {
+    console.warn("Firebase messaging is not initialized");
+    return () => {}; // Return empty unsubscribe function
+  }
+  
+  try {
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log('Message received in foreground:', payload);
+      // You can dispatch this to your notification state or display it directly
+    });
+    
+    return unsubscribe;
+  } catch (error) {
+    console.error("Error setting up message listener:", error);
+    return () => {}; // Return empty unsubscribe function
   }
 };
 
