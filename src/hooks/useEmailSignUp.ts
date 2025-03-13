@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
 
@@ -13,7 +12,6 @@ export function useEmailSignUp(onError: (message: string) => void) {
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signUp } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -39,15 +37,10 @@ export function useEmailSignUp(onError: (message: string) => void) {
         
         // Encode email for URL
         const encodedEmail = encodeURIComponent(email);
-        console.log("Confirmation required, redirecting to email confirmation page");
+        console.log("Confirmation required, forcing navigation to:", `/email-confirmation?email=${encodedEmail}`);
         
-        // Try multiple navigation approaches - for React Router
-        navigate(`/email-confirmation?email=${encodedEmail}`, { replace: true });
-        
-        // As a fallback, also try direct URL change after a short delay
-        setTimeout(() => {
-          window.location.href = `/email-confirmation?email=${encodedEmail}`;
-        }, 300);
+        // Force navigation directly, bypassing React Router completely
+        window.location.href = `/email-confirmation?email=${encodedEmail}`;
         
         return result;
       }

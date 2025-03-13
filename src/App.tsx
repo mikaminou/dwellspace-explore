@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
+// Create a new query client instance
 const queryClient = new QueryClient();
 
 const App = () => (

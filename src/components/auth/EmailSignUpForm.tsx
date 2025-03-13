@@ -7,8 +7,7 @@ import { AlertCircle } from "lucide-react";
 import { PasswordField } from "./PasswordField";
 import { RoleSelector } from "./RoleSelector";
 import { useEmailSignUp } from "@/hooks/useEmailSignUp";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 interface EmailSignUpFormProps {
   onError: (message: string) => void;
@@ -32,16 +31,6 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
   } = useEmailSignUp(onError);
 
   const [error, setError] = useState("");
-  const navigate = useNavigate();
-
-  // Handle confirmation redirects
-  useEffect(() => {
-    if (confirmationSent && email) {
-      const encodedEmail = encodeURIComponent(email);
-      console.log("Confirmation detected, redirecting to:", `/email-confirmation?email=${encodedEmail}`);
-      navigate(`/email-confirmation?email=${encodedEmail}`, { replace: true });
-    }
-  }, [confirmationSent, email, navigate]);
 
   const handleLocalError = (message: string) => {
     setError(message);
@@ -56,15 +45,8 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     setError("");
     
     try {
-      // Call handleSubmit and await the result
+      // Simple direct approach - let useEmailSignUp handle navigation
       await handleSubmit(e);
-      
-      // If we get here with confirmationSent true, manually navigate
-      if (confirmationSent && email) {
-        const encodedEmail = encodeURIComponent(email);
-        console.log("Manually navigating after confirmation");
-        window.location.href = `/email-confirmation?email=${encodedEmail}`;
-      }
     } catch (err: any) {
       console.error("Signup error:", err);
     }
