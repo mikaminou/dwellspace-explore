@@ -31,18 +31,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   useEffect(() => {
     // Firebase auth state for notifications
-    const unsubscribeFirebase = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-      
-      // Request notification permission when user is authenticated
-      if (user) {
-        requestNotificationPermission().then(token => {
-          if (token) {
-            console.log("Notification token registered:", token);
-          }
-        });
-      }
-    });
+    let unsubscribeFirebase = () => {};
+    
+    // Only attempt to use Firebase if it's properly initialized (auth has onAuthStateChanged)
+    if (auth && typeof auth.onAuthStateChanged === 'function') {
+      unsubscribeFirebase = onAuthStateChanged(auth, (user) => {
+        setCurrentUser(user);
+        
+        // Request notification permission when user is authenticated
+        if (user) {
+          requestNotificationPermission().then(token => {
+            if (token) {
+              console.log("Notification token registered:", token);
+            }
+          });
+        }
+      });
+    } else {
+      console.warn("Firebase auth not fully initialized, notifications may not work");
+      setCurrentUser(null);
+    }
     
     // Supabase auth state
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
@@ -60,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const signUp = async (email: string, password: string, displayName: string) => {
     try {
-      const { error, data } = await supabase.auth.signUp({ 
+      const { error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
@@ -111,9 +119,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const signInWithGoogle = async () => {
     try {
-      // For Firebase notifications
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      // For Firebase notifications - skip if not initialized
+      if (auth && typeof auth.signInWithPopup === 'function') {
+        try {
+          const provider = new GoogleAuthProvider();
+          await signInWithPopup(auth, provider);
+        } catch (error) {
+          console.warn("Firebase Google sign in failed, but continuing with Supabase:", error);
+        }
+      }
       
       // For Supabase auth
       const { error } = await supabase.auth.signInWithOAuth({
@@ -145,8 +159,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Also sign out from Firebase
-      await auth.signOut();
+      // Also sign out from Firebase if it's initialized
+      if (auth && typeof auth.signOut === 'function') {
+        try {
+          await auth.signOut();
+        } catch (error) {
+          console.warn("Firebase sign out failed:", error);
+        }
+      }
       
       toast({
         title: "Signed out successfully",

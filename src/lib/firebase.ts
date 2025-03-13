@@ -1,69 +1,68 @@
 
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getMessaging, getToken } from "firebase/messaging";
 
-// Your web app's Firebase configuration
-// Replace these with your actual Firebase config
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "dummy-key",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "dummy-domain",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "dummy-project",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "dummy-bucket",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "000000000000",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "dummy-app-id"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-
-// Initialize Firebase Cloud Messaging
+// Initialize Firebase - but only if we have valid config
+let app;
+let auth;
 let messaging;
 
 try {
-  messaging = getMessaging(app);
+  // Only initialize if we have a valid API key (not the dummy one)
+  if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "dummy-key") {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    
+    // Messaging is only available in browser environment
+    if (typeof window !== 'undefined') {
+      try {
+        messaging = getMessaging(app);
+      } catch (error) {
+        console.warn("Firebase messaging initialization failed:", error);
+      }
+    }
+  } else {
+    console.warn("Firebase is not properly configured. Some features may not work.");
+    // Create dummy auth object
+    auth = {} as any;
+  }
 } catch (error) {
-  console.error("Firebase messaging initialization error:", error);
+  console.error("Firebase initialization error:", error);
+  // Create dummy auth object
+  auth = {} as any;
 }
 
 // Request notification permission and get token
 export const requestNotificationPermission = async () => {
+  if (!messaging) {
+    console.warn("Firebase messaging is not initialized");
+    return null;
+  }
+  
   try {
-    if (!messaging) return null;
-    
     const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      console.log("Notification permission denied");
-      return null;
+    if (permission === "granted") {
+      const token = await getToken(messaging, {
+        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+      });
+      return token;
     }
-    
-    // Get token
-    const currentToken = await getToken(messaging, {
-      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-    });
-    
-    if (currentToken) {
-      console.log("FCM Token:", currentToken);
-      return currentToken;
-    } else {
-      console.log("No registration token available");
-      return null;
-    }
+    return null;
   } catch (error) {
-    console.error("An error occurred while retrieving token:", error);
+    console.error("Error getting notification permission:", error);
     return null;
   }
 };
 
-// Handle foreground messages
-export const onMessageListener = () => {
-  if (!messaging) return () => {};
-  
-  return onMessage(messaging, (payload) => {
-    console.log("Message received:", payload);
-    return payload;
-  });
-};
-
-export default app;
+export { auth };
