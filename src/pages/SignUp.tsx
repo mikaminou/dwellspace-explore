@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 // Country codes for phone auth - limited to Algeria and Germany with emoji flags
 const countryCodes = [
@@ -34,6 +35,7 @@ export default function SignUpPage() {
   const { signUp, signInWithPhone, verifyOTP } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,8 +73,18 @@ export default function SignUpPage() {
       setLoading(true);
       await signInWithPhone(formattedPhone);
       setShowOtpInput(true);
+      toast({
+        title: "Verification code sent",
+        description: "Please check your phone for the verification code",
+      });
     } catch (error: any) {
-      setError(error.message || "Failed to send verification code.");
+      console.error("Phone verification error:", error);
+      setError(error.message || "Failed to send verification code. Try using email authentication instead.");
+      toast({
+        title: "Phone verification failed",
+        description: error.message || "Failed to send verification code. Try using email authentication instead.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -93,9 +105,19 @@ export default function SignUpPage() {
     try {
       setLoading(true);
       await verifyOTP(formattedPhone, otp);
+      toast({
+        title: "Verification successful",
+        description: "You are now signed in",
+      });
       navigate("/");
     } catch (error: any) {
+      console.error("OTP verification error:", error);
       setError(error.message || "Failed to verify code.");
+      toast({
+        title: "Verification failed",
+        description: error.message || "Failed to verify code",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -126,7 +148,7 @@ export default function SignUpPage() {
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="email">Email</TabsTrigger>
-                <TabsTrigger value="phone" disabled={true}>Phone (Unavailable)</TabsTrigger>
+                <TabsTrigger value="phone">Phone</TabsTrigger>
               </TabsList>
               
               <TabsContent value="email">
@@ -171,14 +193,6 @@ export default function SignUpPage() {
               </TabsContent>
               
               <TabsContent value="phone">
-                <Alert className="mb-4">
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Phone authentication unavailable</AlertTitle>
-                  <AlertDescription>
-                    Phone authentication is currently unavailable due to configuration issues. Please use email authentication instead.
-                  </AlertDescription>
-                </Alert>
-                
                 {!showOtpInput ? (
                   <form onSubmit={handlePhoneSubmit} className="space-y-4">
                     <div className="space-y-2">
@@ -217,7 +231,7 @@ export default function SignUpPage() {
                       </div>
                       <p className="text-xs text-muted-foreground">Enter your phone number without the country code</p>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading || true}>
+                    <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Sending code..." : "Send Verification Code"}
                     </Button>
                   </form>
