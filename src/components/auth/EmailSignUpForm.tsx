@@ -44,10 +44,11 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       if (result?.confirmationRequired) {
         setConfirmationSent(true);
         
-        // Force redirect to the confirmation page after a short delay
-        setTimeout(() => {
-          navigate(`/email-confirmation?email=${encodeURIComponent(email)}`);
-        }, 500);
+        // Log navigation attempt for debugging
+        console.log("Attempting navigation to email confirmation page");
+        
+        // Force immediate navigation to confirmation page
+        navigate(`/email-confirmation?email=${encodeURIComponent(email)}`, { replace: true });
       }
     } catch (error: any) {
       const errorMessage = error.message || "Failed to create account.";
