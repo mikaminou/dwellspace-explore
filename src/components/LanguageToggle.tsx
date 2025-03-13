@@ -15,7 +15,7 @@ export function LanguageToggle({ className }: { className?: string }) {
       variant="outline" 
       size="sm" 
       onClick={toggleLanguage} 
-      className={className}
+      className={`bg-gold-light hover:bg-gold text-black font-medium ${className}`}
     >
       {language === 'fr' ? 'العربية' : 'Français'}
     </Button>

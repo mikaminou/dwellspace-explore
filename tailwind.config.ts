@@ -66,6 +66,22 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// New luxury-themed colors
+				gold: {
+					light: '#d4af37',
+					DEFAULT: '#b8860b',
+					dark: '#8b6914'
+				},
+				burgundy: {
+					light: '#a23953',
+					DEFAULT: '#800020',
+					dark: '#4c0012'
+				},
+				emerald: {
+					light: '#50c878',
+					DEFAULT: '#046307',
+					dark: '#023803'
 				}
 			},
 			borderRadius: {
