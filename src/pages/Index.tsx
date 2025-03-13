@@ -8,12 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase, getMediaUrl } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
 // Take first 6 properties for featured display
 const featuredProperties = properties.slice(0, 3);
 const luxuryProperties = properties.slice(3, 6).map(p => ({...p, luxury: true}));
 
-// Direct video URL for hero section
+// Video configuration
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
 
@@ -22,8 +23,46 @@ export default function Index() {
   const [videoError, setVideoError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   
-  // Get direct video URL instead of using the storage API
+  // Get direct video URL using the helper function
   const directVideoUrl = getMediaUrl(VIDEO_BUCKET, VIDEO_PATH);
+
+  // Function to check if video exists in storage
+  useEffect(() => {
+    const checkVideoExists = async () => {
+      try {
+        const { data, error } = await supabase
+          .storage
+          .from(VIDEO_BUCKET)
+          .list('', {
+            limit: 100,
+            offset: 0,
+            sortBy: { column: 'name', order: 'asc' },
+          });
+        
+        if (error) {
+          console.error("Error checking video existence:", error);
+          setVideoError(true);
+          return;
+        }
+        
+        const videoExists = data.some(file => file.name === VIDEO_PATH);
+        if (!videoExists) {
+          console.error("Video file not found in storage");
+          setVideoError(true);
+          toast({
+            title: "Video file not found",
+            description: "The hero video is not available. Please upload it to the Supabase storage.",
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        console.error("Error checking video:", err);
+        setVideoError(true);
+      }
+    };
+    
+    checkVideoExists();
+  }, []);
 
   // Function to handle video load event
   const handleVideoLoad = () => {
@@ -32,10 +71,15 @@ export default function Index() {
   };
 
   // Function to handle video error
-  const handleVideoError = (error: any) => {
+  const handleVideoError = (error) => {
     console.error("Error loading video:", error);
     setVideoError(true);
     setIsVideoLoading(false);
+    toast({
+      title: "Video loading error",
+      description: "Could not load the hero video. Using fallback image instead.",
+      variant: "destructive",
+    });
   };
 
   return (
@@ -57,7 +101,6 @@ export default function Index() {
               onError={handleVideoError}
             >
               <source src={directVideoUrl} type="video/mp4" />
-              {/* Fallback for browsers that don't support video */}
               Your browser does not support the video tag.
             </video>
           ) : (
@@ -68,7 +111,7 @@ export default function Index() {
             />
           )}
           
-          {isVideoLoading && (
+          {isVideoLoading && !videoError && (
             <img 
               src="/img/algeria-real-estate.jpg" 
               alt={t('hero.title')} 
