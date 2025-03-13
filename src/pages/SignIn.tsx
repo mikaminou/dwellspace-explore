@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -8,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from "@/contexts/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/language/LanguageContext";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -16,6 +18,7 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const { signIn } = useAuth();
   const navigate = useNavigate();
+  const { t, dir } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,10 +39,14 @@ export default function SignInPage() {
     <div className="min-h-screen bg-background">
       <MainNav />
       <div className="container mx-auto flex justify-center items-center py-16">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md glass fade-in">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
-            <CardDescription className="text-center">Enter your email and password to sign in</CardDescription>
+            <CardTitle className={`text-2xl font-bold text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+              {t('signin.title')}
+            </CardTitle>
+            <CardDescription className={`text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+              {t('signin.subtitle')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
@@ -50,7 +57,9 @@ export default function SignInPage() {
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className={dir === 'rtl' ? 'block text-right arabic-text' : ''}>
+                  {t('signin.email')}
+                </Label>
                 <Input 
                   id="email" 
                   type="email" 
@@ -58,10 +67,14 @@ export default function SignInPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className={dir === 'rtl' ? 'text-right' : ''}
+                  dir={dir}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className={dir === 'rtl' ? 'block text-right arabic-text' : ''}>
+                  {t('signin.password')}
+                </Label>
                 <Input 
                   id="password" 
                   type="password" 
@@ -69,10 +82,12 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className={dir === 'rtl' ? 'text-right' : ''}
+                  dir={dir}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Signing in..." : "Sign In"}
+              <Button type="submit" className="w-full bg-gradient-to-r from-primary to-blue-500 hover:from-blue-600 hover:to-primary" disabled={loading}>
+                {loading ? (dir === 'rtl' ? "جاري تسجيل الدخول..." : "Connexion en cours...") : t('signin.button')}
               </Button>
             </form>
             <div className="relative my-4">
@@ -82,10 +97,10 @@ export default function SignInPage() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <p className="text-sm text-muted-foreground">
-              Don't have an account?{" "}
+            <p className={`text-sm text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+              {t('signin.noAccount')}{" "}
               <Link to="/signup" className="text-primary hover:underline">
-                Create one
+                {t('signin.create')}
               </Link>
             </p>
           </CardFooter>

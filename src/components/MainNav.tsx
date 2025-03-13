@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -22,10 +23,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/auth";
 import { NotificationBell } from "./NotificationBell";
+import { LanguageToggle } from "./LanguageToggle";
+import { useLanguage } from "@/contexts/language/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function MainNav() {
   const { session, currentUser, isLoaded, signOut } = useAuth();
+  const { t, dir } = useLanguage();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const handleSignOut = async () => {
     await signOut();
@@ -42,25 +48,27 @@ export function MainNav() {
       : "U";
 
   return (
-    <div className="border-b">
-      <div className="flex h-16 items-center px-4 container mx-auto">
-        <Link to="/" className="mr-6 flex items-center space-x-2">
-          <span className="text-xl font-bold">DwellSpace</span>
+    <div className="border-b glass">
+      <div className={`flex h-16 items-center px-4 container mx-auto ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+        <Link to="/" className={`${dir === 'rtl' ? 'ml-6' : 'mr-6'} flex items-center space-x-2`}>
+          <span className="text-xl font-bold">{t('site.name')}</span>
         </Link>
-        <NavigationMenu>
+        <NavigationMenu dir={dir}>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Explore</NavigationMenuTrigger>
+              <NavigationMenuTrigger>{t('nav.explore')}</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-4 w-[400px] grid-cols-2">
                   <li className="row-span-3">
                     <NavigationMenuLink asChild>
                       <Link to="/properties/sale" className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md">
                         <div className="mb-2 mt-4 text-lg font-medium">
-                          Properties for Sale
+                          {t('nav.sale')}
                         </div>
                         <p className="text-sm leading-tight text-muted-foreground">
-                          Find your dream home from our curated selection
+                          {dir === 'rtl' 
+                            ? 'اعثر على منزل أحلامك من مجموعتنا المختارة'
+                            : 'Trouvez votre maison de rêve parmi notre sélection'}
                         </p>
                       </Link>
                     </NavigationMenuLink>
@@ -68,9 +76,11 @@ export function MainNav() {
                   <li>
                     <NavigationMenuLink asChild>
                       <Link to="/properties/rent" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">Rent</div>
+                        <div className="text-sm font-medium leading-none">{t('nav.rent')}</div>
                         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Browse rental properties
+                          {dir === 'rtl' 
+                            ? 'تصفح العقارات للإيجار'
+                            : 'Parcourir les propriétés à louer'}
                         </p>
                       </Link>
                     </NavigationMenuLink>
@@ -78,9 +88,11 @@ export function MainNav() {
                   <li>
                     <NavigationMenuLink asChild>
                       <Link to="/map" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">Map View</div>
+                        <div className="text-sm font-medium leading-none">{t('nav.map')}</div>
                         <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Explore properties on the map
+                          {dir === 'rtl' 
+                            ? 'استكشاف العقارات على الخريطة'
+                            : 'Explorer les propriétés sur la carte'}
                         </p>
                       </Link>
                     </NavigationMenuLink>
@@ -92,7 +104,7 @@ export function MainNav() {
               <Button variant="ghost" asChild>
                 <Link to="/search" className="flex items-center gap-2">
                   <SearchIcon className="h-4 w-4" />
-                  Search
+                  {t('nav.search')}
                 </Link>
               </Button>
             </NavigationMenuItem>
@@ -100,19 +112,21 @@ export function MainNav() {
               <Button variant="ghost" asChild>
                 <Link to="/map" className="flex items-center gap-2">
                   <MapIcon className="h-4 w-4" />
-                  Map
+                  {t('nav.map')}
                 </Link>
               </Button>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-        <div className="ml-auto flex items-center space-x-4">
+        <div className={`${dir === 'rtl' ? 'mr-auto' : 'ml-auto'} flex items-center space-x-4`}>
+          <LanguageToggle />
+          
           {isLoaded && session ? (
             <>
               <Button variant="ghost" size="icon" asChild>
                 <Link to="/favorites">
                   <HeartIcon className="h-5 w-5" />
-                  <span className="sr-only">Favorites</span>
+                  <span className="sr-only">{t('nav.favorites')}</span>
                 </Link>
               </Button>
               <NotificationBell />
@@ -127,28 +141,28 @@ export function MainNav() {
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuContent className="w-56" align={dir === 'rtl' ? 'start' : 'end'} forceMount>
+                  <DropdownMenuLabel>{t('account.myAccount')}</DropdownMenuLabel>
                   <DropdownMenuLabel className="font-normal">
                     {userName || userEmail}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link to="/profile">
-                      <UserIcon className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                      <UserIcon className={`${dir === 'rtl' ? 'ml-2' : 'mr-2'} h-4 w-4`} />
+                      <span>{t('nav.profile')}</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/favorites">
-                      <HeartIcon className="mr-2 h-4 w-4" />
-                      <span>Favorites</span>
+                      <HeartIcon className={`${dir === 'rtl' ? 'ml-2' : 'mr-2'} h-4 w-4`} />
+                      <span>{t('nav.favorites')}</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <LogOut className={`${dir === 'rtl' ? 'ml-2' : 'mr-2'} h-4 w-4`} />
+                    <span>{t('nav.logout')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -156,10 +170,10 @@ export function MainNav() {
           ) : (
             <>
               <Button variant="ghost" asChild>
-                <Link to="/signin">Sign In</Link>
+                <Link to="/signin">{t('nav.signin')}</Link>
               </Button>
               <Button variant="default" asChild>
-                <Link to="/signup">Sign Up</Link>
+                <Link to="/signup">{t('nav.signup')}</Link>
               </Button>
             </>
           )}
