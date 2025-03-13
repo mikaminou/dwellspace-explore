@@ -5,7 +5,7 @@ import { MainNav } from "@/components/MainNav";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Info } from "lucide-react";
+import { Info } from "lucide-react";
 import { EmailSignUpForm } from "@/components/auth/EmailSignUpForm";
 import { PhoneSignUpForm } from "@/components/auth/PhoneSignUpForm";
 import { OtpVerificationForm } from "@/components/auth/OtpVerificationForm";
@@ -44,13 +44,6 @@ export default function SignUpPage() {
             <CardDescription className="text-center">Enter your information to create an account</CardDescription>
           </CardHeader>
           <CardContent>
-            {error && !activeTab.includes("phone") && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            
             {activeTab === "email" && (
               <Alert className="mb-4 bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
                 <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />

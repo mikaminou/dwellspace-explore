@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { 
   User, 
@@ -76,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             last_name: displayName.split(' ').slice(1).join(' '),
             role: role,
           },
+          // Explicitly set the absolute redirect URL with type parameter
           emailRedirectTo: `${window.location.origin}/email-confirmation?type=signup`
         }
       });

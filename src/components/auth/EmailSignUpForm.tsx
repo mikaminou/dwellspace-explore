@@ -27,6 +27,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    onError(""); // Clear any previous errors in parent component
     
     if (password.length < 6) {
       setError("Password must be at least 6 characters long");
@@ -61,15 +62,6 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         <Alert variant="destructive" className="mb-4">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-      
-      {confirmationSent && (
-        <Alert className="mb-4 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
-          <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-          <AlertDescription className="text-amber-600 dark:text-amber-400">
-            Confirmation email sent! Please check your inbox to verify your email address.
-          </AlertDescription>
         </Alert>
       )}
       
