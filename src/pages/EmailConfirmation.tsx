@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -11,10 +12,12 @@ import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function EmailConfirmationPage() {
+  // Get query parameters from URL
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const type = searchParams.get("type");
   const email = searchParams.get("email") || "";
+  
   const navigate = useNavigate();
   const { toast } = useToast();
   const { session } = useAuth();
@@ -25,6 +28,17 @@ export default function EmailConfirmationPage() {
   const [progress, setProgress] = useState(0);
   const [showResendButton, setShowResendButton] = useState(false);
 
+  useEffect(() => {
+    // Log for debugging
+    console.log("Email confirmation page loaded with params:", { 
+      token, 
+      type, 
+      email, 
+      hasSession: !!session 
+    });
+  }, [token, type, email, session]);
+
+  // Redirect if user is already logged in and there's no token to verify
   if (session && !token) {
     return <Navigate to="/" />;
   }
@@ -104,6 +118,8 @@ export default function EmailConfirmationPage() {
       setProgress(0);
       setShowResendButton(false);
       setError("");
+      
+      console.log("Resending confirmation to:", email);
       
       const { error } = await supabase.auth.resend({
         type: "signup",

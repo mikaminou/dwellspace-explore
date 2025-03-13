@@ -39,6 +39,8 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submitted, attempting sign up with email:", email);
+    
     handleSubmit(e).catch((err) => {
       console.error("Signup error:", err);
       // Error is already handled in the hook
