@@ -6,7 +6,7 @@ import { properties } from "@/data/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase, getMediaUrl, checkFileExists } from "@/integrations/supabase/client";
+import { supabase, getMediaUrl, checkFileExists, getSignedUrl } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -18,6 +18,8 @@ const luxuryProperties = properties.slice(3, 6).map(p => ({...p, luxury: true}))
 // Video configuration
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
+// Direct signed URL provided by the user
+const DIRECT_SIGNED_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/hero.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9oZXJvLm1wNCIsImlhdCI6MTc0MTg5MTQyMCwiZXhwIjoxNzczNDI3NDIwfQ.ocQCcfFXgHHMW8do_xssp2P5csUFT-efMRtqqw_L1_M";
 
 export default function Index() {
   const { t, dir } = useLanguage();
@@ -25,8 +27,8 @@ export default function Index() {
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   
-  // Get direct video URL using the helper function
-  const directVideoUrl = getMediaUrl(VIDEO_BUCKET, VIDEO_PATH);
+  // Use the direct signed URL provided by the user
+  const [videoUrl, setVideoUrl] = useState(DIRECT_SIGNED_URL);
 
   // Function to check if video exists in storage
   useEffect(() => {
@@ -50,6 +52,7 @@ export default function Index() {
       }
     };
     
+    // Still check if the file exists for informational purposes
     checkVideoExists();
   }, []);
 
@@ -100,7 +103,7 @@ export default function Index() {
               onLoadedData={handleVideoLoad}
               onError={handleVideoError}
             >
-              <source src={directVideoUrl} type="video/mp4" />
+              <source src={videoUrl} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           ) : (

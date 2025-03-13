@@ -18,6 +18,26 @@ export const getMediaUrl = (bucket: string, path: string): string => {
   return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${cleanPath}`;
 };
 
+// Helper function to get signed URL with token for protected files
+export const getSignedUrl = async (bucket: string, path: string, expiresIn = 60 * 60): Promise<string | null> => {
+  try {
+    const { data, error } = await supabase
+      .storage
+      .from(bucket)
+      .createSignedUrl(path, expiresIn);
+    
+    if (error) {
+      console.error("Error creating signed URL:", error);
+      return null;
+    }
+    
+    return data.signedUrl;
+  } catch (err) {
+    console.error("Error in getSignedUrl:", err);
+    return null;
+  }
+};
+
 // Check if a file exists in a bucket
 export const checkFileExists = async (bucket: string, path: string): Promise<boolean> => {
   try {
