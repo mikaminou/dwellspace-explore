@@ -51,6 +51,15 @@ export default function SignUpPage() {
               </Alert>
             )}
             
+            {activeTab === "email" && (
+              <Alert className="mb-4 bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+                <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <AlertDescription className="text-blue-600 dark:text-blue-400">
+                  A confirmation email will be sent to verify your account. Please check your inbox after signing up.
+                </AlertDescription>
+              </Alert>
+            )}
+            
             {activeTab === "phone" && !showOtpInput && countryCode === "+213" && (
               <Alert className="mb-4 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
                 <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />

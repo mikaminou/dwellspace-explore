@@ -13,7 +13,7 @@ interface AuthContextType {
   currentUser: User | null;
   session: Session | null;
   isLoaded: boolean;
-  signUp: (email: string, password: string, displayName: string, role?: string) => Promise<void>;
+  signUp: (email: string, password: string, displayName: string, role?: string) => Promise<{ confirmationRequired?: boolean } | undefined>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithPhone: (phone: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   
   const signUp = async (email: string, password: string, displayName: string, role: string = "buyer") => {
     try {
-      const { error } = await supabase.auth.signUp({ 
+      const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
@@ -75,16 +75,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             first_name: displayName.split(' ')[0],
             last_name: displayName.split(' ').slice(1).join(' '),
             role: role,
-          }
+          },
+          emailRedirectTo: window.location.origin
         }
       });
       
       if (error) throw error;
       
-      toast({
-        title: "Account created successfully",
-        description: "Welcome to DwellSpace!",
-      });
+      // Check if email confirmation is required
+      const confirmationRequired = data.user?.identities && data.user.identities.length === 0;
+      
+      if (confirmationRequired) {
+        toast({
+          title: "Confirmation email sent",
+          description: "Please check your inbox to confirm your email address.",
+        });
+        return { confirmationRequired: true };
+      } else {
+        toast({
+          title: "Account created successfully",
+          description: "Welcome to DwellSpace!",
+        });
+        return undefined;
+      }
       
     } catch (error: any) {
       toast({
