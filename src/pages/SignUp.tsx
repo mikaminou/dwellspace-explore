@@ -8,23 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Flag } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Country codes for phone auth
+// Country codes for phone auth - limited to Algeria and Germany with flags
 const countryCodes = [
-  { code: "+1", country: "US/Canada" },
-  { code: "+44", country: "UK" },
+  { code: "+213", country: "Algeria" },
   { code: "+49", country: "Germany" },
-  { code: "+33", country: "France" },
-  { code: "+61", country: "Australia" },
-  { code: "+91", country: "India" },
-  { code: "+86", country: "China" },
-  { code: "+81", country: "Japan" },
-  { code: "+52", country: "Mexico" },
-  { code: "+55", country: "Brazil" },
 ];
 
 export default function SignUpPage() {
@@ -32,7 +24,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("+1");
+  const [countryCode, setCountryCode] = useState("+213");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -107,6 +99,15 @@ export default function SignUpPage() {
     }
   };
 
+  const renderCountryCodeOption = (code: string, country: string) => {
+    return (
+      <div className="flex items-center gap-2">
+        <Flag className="h-4 w-4" />
+        <span>{code} {country}</span>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <MainNav />
@@ -178,13 +179,21 @@ export default function SignUpPage() {
                       <Label htmlFor="phone">Phone Number</Label>
                       <div className="flex gap-2">
                         <Select value={countryCode} onValueChange={setCountryCode}>
-                          <SelectTrigger className="w-[110px]">
-                            <SelectValue placeholder="Code" />
+                          <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Country Code">
+                              <div className="flex items-center gap-2">
+                                <Flag className="h-4 w-4" />
+                                <span>{countryCode}</span>
+                              </div>
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             {countryCodes.map((country) => (
                               <SelectItem key={country.code} value={country.code}>
-                                {country.code} {country.country}
+                                <div className="flex items-center gap-2">
+                                  <Flag className="h-4 w-4" />
+                                  <span>{country.code} {country.country}</span>
+                                </div>
                               </SelectItem>
                             ))}
                           </SelectContent>
