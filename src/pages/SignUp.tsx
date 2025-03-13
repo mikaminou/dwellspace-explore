@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -12,6 +11,7 @@ import { AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Country codes for phone auth - limited to Algeria and Germany with emoji flags
 const countryCodes = [
@@ -32,6 +32,7 @@ export default function SignUpPage() {
   const [activeTab, setActiveTab] = useState("email");
   const { signUp, signInWithPhone, verifyOTP } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,7 +176,7 @@ export default function SignUpPage() {
                       <Label htmlFor="phone">Phone Number</Label>
                       <div className="flex gap-2">
                         <Select value={countryCode} onValueChange={setCountryCode}>
-                          <SelectTrigger className="w-28 px-3">
+                          <SelectTrigger className={`${isMobile ? 'w-24' : 'w-32'} px-3`}>
                             <SelectValue>
                               <div className="flex items-center gap-2">
                                 <span className="text-lg">{getSelectedFlag()}</span>
