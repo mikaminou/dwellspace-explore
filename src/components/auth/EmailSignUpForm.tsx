@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Info } from "lucide-react";
+import { AlertCircle, Eye, EyeOff, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
@@ -21,6 +21,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
   const [loading, setLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
 
@@ -54,6 +55,10 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -90,15 +95,30 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
-        <Input 
-          id="password" 
-          type="password" 
-          placeholder="••••••••" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={loading || confirmationSent}
-        />
+        <div className="relative">
+          <Input 
+            id="password" 
+            type={showPassword ? "text" : "password"} 
+            placeholder="••••••••" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading || confirmationSent}
+            className="pr-10"
+          />
+          <button 
+            type="button" 
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 focus:outline-none"
+            onClick={togglePasswordVisibility}
+            disabled={loading || confirmationSent}
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
+        </div>
         <p className="text-xs text-muted-foreground">Password must be at least 6 characters long</p>
       </div>
       <div className="space-y-2">
