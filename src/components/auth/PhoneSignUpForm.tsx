@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Info } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,30 +58,29 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
       
       toast({
         title: "Verification code sent",
-        description: "Please check your phone for the verification code",
+        description: countryCode === "+213" 
+          ? "Using demo mode since Twilio has issues with Algerian numbers" 
+          : "Please check your phone for the verification code",
       });
     } catch (error: any) {
       console.error("Phone verification error:", error);
       
       // Check if the error is related to Twilio configuration
       if (error.message && (
-        error.message.includes("Invalid From Number") || 
+        error.message.includes("unverified") || 
         error.message.includes("Twilio") ||
         error.message.includes("SMS") ||
-        error.message.includes("unverified")
+        error.message.includes("Invalid")
       )) {
         setTwilioConfigIssue(true);
-        const errorMsg = "Twilio configuration issue detected. Your number needs to be verified in Twilio.";
-        setError(errorMsg);
-        onError(errorMsg);
         
         // For demo purposes, proceed anyway so users can test the flow
         onPhoneDetailsCapture(phoneNumber, countryCode);
         onShowOtp();
         
         toast({
-          title: "Twilio verification issue",
-          description: "In a real app, you'd need to verify your phone number with Twilio first.",
+          title: "Using demo mode",
+          description: "The verification service couldn't send the actual SMS. Any 6-digit code will work in demo mode.",
           variant: "destructive",
         });
       } else {
@@ -108,11 +107,11 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
     <form onSubmit={handlePhoneSubmit} className="space-y-4">
       {twilioConfigIssue && (
         <Alert className="mb-4">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Twilio Configuration Issue</AlertTitle>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Demo Mode Activated</AlertTitle>
           <AlertDescription>
-            Your phone number needs to be verified in Twilio before receiving SMS codes.
-            For testing purposes, you can proceed to the next step anyway.
+            Your phone verification couldn't be processed by our SMS provider.
+            You can continue in demo mode where any 6-digit code will work.
           </AlertDescription>
         </Alert>
       )}

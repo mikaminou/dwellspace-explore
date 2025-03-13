@@ -5,7 +5,7 @@ import { MainNav } from "@/components/MainNav";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Info } from "lucide-react";
 import { EmailSignUpForm } from "@/components/auth/EmailSignUpForm";
 import { PhoneSignUpForm } from "@/components/auth/PhoneSignUpForm";
 import { OtpVerificationForm } from "@/components/auth/OtpVerificationForm";
@@ -48,6 +48,16 @@ export default function SignUpPage() {
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            {activeTab === "phone" && !showOtpInput && countryCode === "+213" && (
+              <Alert className="mb-4 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
+                <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <AlertDescription className="text-amber-600 dark:text-amber-400">
+                  <strong>Note:</strong> Algerian numbers may not receive actual SMS codes due to Twilio restrictions. 
+                  You'll be able to continue in demo mode.
+                </AlertDescription>
               </Alert>
             )}
             
