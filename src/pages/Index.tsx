@@ -21,14 +21,9 @@ export default function Index() {
     const fetchVideoUrl = async () => {
       try {
         console.log("Fetching video URL from Supabase...");
-        const { data, error } = await supabase.storage
+        const { data } = await supabase.storage
           .from('herosection')
           .getPublicUrl('hero.mp4');
-        
-        if (error) {
-          console.error('Error fetching video URL:', error);
-          return;
-        }
         
         if (data?.publicUrl) {
           console.log("Video URL fetched successfully:", data.publicUrl);
