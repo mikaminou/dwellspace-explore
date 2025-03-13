@@ -1,3 +1,4 @@
+
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,14 +37,18 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     onError(message);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted, attempting sign up with email:", email);
     
-    handleSubmit(e).catch((err) => {
+    try {
+      // The handleSubmit function already includes navigation logic
+      await handleSubmit(e);
+      // No need to manually navigate here, it's handled in the hook
+    } catch (err) {
       console.error("Signup error:", err);
       // Error is already handled in the hook
-    });
+    }
   };
 
   return (

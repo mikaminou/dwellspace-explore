@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -35,11 +36,14 @@ export function useEmailSignUp(onError: (message: string) => void) {
       // Check if confirmation is required
       if (result?.confirmationRequired) {
         setConfirmationSent(true); // Update confirmation state
-        const encodedEmail = encodeURIComponent(email); // Encode email
-        console.log("Navigating to email confirmation page with email:", encodedEmail);
         
-        // Navigate directly after state is updated
+        // Directly navigate to email confirmation page without redirect
+        const encodedEmail = encodeURIComponent(email);
+        console.log("Navigating to email confirmation page with email:", encodedEmail);
         navigate(`/email-confirmation?email=${encodedEmail}`, { replace: true });
+        
+        // Return the result, but navigation is already handled
+        return result;
       }
 
       return result;
