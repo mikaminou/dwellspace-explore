@@ -51,7 +51,7 @@ export function MainNav() {
     <div className="border-b glass">
       <div className={`flex h-16 items-center px-4 container mx-auto ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
         <Link to="/" className={`${dir === 'rtl' ? 'ml-6' : 'mr-6'} flex items-center space-x-2`}>
-          <span className="text-xl font-bold">{t('site.name')}</span>
+          <span className={`text-xl font-bold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('site.name')}</span>
         </Link>
         <NavigationMenu dir={dir}>
           <NavigationMenuList>
