@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -174,8 +175,8 @@ export default function SignUpPage() {
                       <Label htmlFor="phone">Phone Number</Label>
                       <div className="flex gap-2">
                         <Select value={countryCode} onValueChange={setCountryCode}>
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Country Code">
+                          <SelectTrigger className="w-24">
+                            <SelectValue>
                               <div className="flex items-center gap-2">
                                 <span className="text-lg">{getSelectedFlag()}</span>
                                 <span>{countryCode}</span>
@@ -184,10 +185,11 @@ export default function SignUpPage() {
                           </SelectTrigger>
                           <SelectContent>
                             {countryCodes.map((country) => (
-                              <SelectItem key={country.code} value={country.code}>
+                              <SelectItem key={country.code} value={country.code} className="w-full">
                                 <div className="flex items-center gap-2">
                                   <span className="text-lg">{country.flag}</span>
-                                  <span>{country.code} {country.country}</span>
+                                  <span>{country.code}</span>
+                                  <span className="text-muted-foreground">{country.country}</span>
                                 </div>
                               </SelectItem>
                             ))}
