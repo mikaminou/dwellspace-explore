@@ -11,12 +11,28 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// Country codes for phone auth
+const countryCodes = [
+  { code: "+1", country: "US/Canada" },
+  { code: "+44", country: "UK" },
+  { code: "+49", country: "Germany" },
+  { code: "+33", country: "France" },
+  { code: "+61", country: "Australia" },
+  { code: "+91", country: "India" },
+  { code: "+86", country: "China" },
+  { code: "+81", country: "Japan" },
+  { code: "+52", country: "Mexico" },
+  { code: "+55", country: "Brazil" },
+];
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryCode, setCountryCode] = useState("+1");
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,14 +65,17 @@ export default function SignUpPage() {
     e.preventDefault();
     setError("");
     
-    if (!phone || phone.length < 10) {
+    if (!phoneNumber || phoneNumber.length < 5) {
       setError("Please enter a valid phone number");
       return;
     }
     
+    // Format the phone number with country code
+    const formattedPhone = `${countryCode}${phoneNumber}`;
+    
     try {
       setLoading(true);
-      await signInWithPhone(phone);
+      await signInWithPhone(formattedPhone);
       setShowOtpInput(true);
     } catch (error: any) {
       setError(error.message || "Failed to send verification code.");
@@ -74,9 +93,12 @@ export default function SignUpPage() {
       return;
     }
     
+    // Format the phone number with country code
+    const formattedPhone = `${countryCode}${phoneNumber}`;
+    
     try {
       setLoading(true);
-      await verifyOTP(phone, otp);
+      await verifyOTP(formattedPhone, otp);
       navigate("/");
     } catch (error: any) {
       setError(error.message || "Failed to verify code.");
@@ -154,15 +176,30 @@ export default function SignUpPage() {
                   <form onSubmit={handlePhoneSubmit} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone Number</Label>
-                      <Input 
-                        id="phone" 
-                        type="tel" 
-                        placeholder="+1234567890" 
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        required
-                      />
-                      <p className="text-xs text-muted-foreground">Enter your phone number with country code</p>
+                      <div className="flex gap-2">
+                        <Select value={countryCode} onValueChange={setCountryCode}>
+                          <SelectTrigger className="w-[110px]">
+                            <SelectValue placeholder="Code" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countryCodes.map((country) => (
+                              <SelectItem key={country.code} value={country.code}>
+                                {country.code} {country.country}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input 
+                          id="phone" 
+                          type="tel" 
+                          placeholder="123456789" 
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                          required
+                          className="flex-1"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">Enter your phone number without the country code</p>
                     </div>
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Sending code..." : "Send Verification Code"}
@@ -184,7 +221,7 @@ export default function SignUpPage() {
                           </InputOTPGroup>
                         </InputOTP>
                       </div>
-                      <p className="text-xs text-muted-foreground text-center">A verification code has been sent to {phone}</p>
+                      <p className="text-xs text-muted-foreground text-center">A verification code has been sent to {countryCode} {phoneNumber}</p>
                     </div>
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Verifying..." : "Verify & Create Account"}
