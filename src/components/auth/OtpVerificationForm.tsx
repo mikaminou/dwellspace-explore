@@ -1,12 +1,11 @@
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { AlertCircle, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useAuth } from "@/contexts/auth";
-import { useToast } from "@/hooks/use-toast";
+import { useOtpVerification } from "@/hooks/useOtpVerification";
 
 interface OtpVerificationFormProps {
   phoneNumber: string;
@@ -21,72 +20,14 @@ export function OtpVerificationForm({
   onBack,
   onError
 }: OtpVerificationFormProps) {
-  const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [isDemoMode, setIsDemoMode] = useState(countryCode === "+213");
-  const { verifyOTP } = useAuth();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    
-    if (!otp || otp.length !== 6) {
-      const errorMsg = "Please enter a valid verification code";
-      setError(errorMsg);
-      onError(errorMsg);
-      return;
-    }
-    
-    const formattedPhone = `${countryCode}${phoneNumber}`;
-    
-    try {
-      setLoading(true);
-      
-      if (isDemoMode) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        toast({
-          title: "Demo verification successful",
-          description: "You are now signed in with a simulated account",
-        });
-        navigate("/");
-        return;
-      }
-      
-      await verifyOTP(formattedPhone, otp);
-      toast({
-        title: "Verification successful",
-        description: "You are now signed in",
-      });
-      navigate("/");
-    } catch (error: any) {
-      console.error("OTP verification error:", error);
-      
-      if (error.message && (
-        error.message.includes("Invalid OTP") ||
-        error.message.includes("expired") ||
-        error.message.includes("incorrect")
-      )) {
-        const errorMsg = "The verification code is invalid or has expired. Please try again.";
-        setError(errorMsg);
-        onError(errorMsg);
-      } else {
-        setIsDemoMode(true);
-        setError("Using demo mode due to verification issues. Enter any 6 digits to continue.");
-      }
-      
-      toast({
-        title: "Verification failed",
-        description: error.message || "Failed to verify code",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    otp,
+    setOtp,
+    loading,
+    error,
+    isDemoMode,
+    handleVerifyOTP
+  } = useOtpVerification(phoneNumber, countryCode, onError);
 
   return (
     <form onSubmit={handleVerifyOTP} className="space-y-4">

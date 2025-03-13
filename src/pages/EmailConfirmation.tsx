@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -8,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, Info, Loader2, Mail, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function EmailConfirmationPage() {
@@ -26,12 +25,10 @@ export default function EmailConfirmationPage() {
   const [progress, setProgress] = useState(0);
   const [showResendButton, setShowResendButton] = useState(false);
 
-  // If user is already logged in, redirect to home
   if (session && !token) {
     return <Navigate to="/" />;
   }
 
-  // Handle token verification
   useEffect(() => {
     if (token && type === "signup") {
       const verifyToken = async () => {
@@ -39,7 +36,6 @@ export default function EmailConfirmationPage() {
           setVerifying(true);
           setError("");
           
-          // Confirm the signup with the token
           const { error } = await supabase.auth.verifyOtp({
             token_hash: token,
             type: "signup",
@@ -56,7 +52,6 @@ export default function EmailConfirmationPage() {
             variant: "default",
           });
           
-          // Redirect to home after successful verification
           setTimeout(() => {
             navigate("/");
           }, 3000);
@@ -78,21 +73,18 @@ export default function EmailConfirmationPage() {
     }
   }, [token, type, navigate, toast]);
 
-  // Simulate progress bar for waiting state
   useEffect(() => {
     if (!token && !verified && !showResendButton) {
       const timer = setInterval(() => {
         setProgress((prevProgress) => {
-          // Increment more slowly, going up to 100
           const increment = prevProgress < 90 ? 10 : 2;
           const newProgress = Math.min(prevProgress + increment, 100);
           
-          // Once we reach 100%, show the resend button after a short delay
           if (newProgress === 100) {
             clearInterval(timer);
             setTimeout(() => {
               setShowResendButton(true);
-            }, 500); // Small delay before showing the resend button
+            }, 500);
           }
           
           return newProgress;
@@ -103,7 +95,6 @@ export default function EmailConfirmationPage() {
     }
   }, [token, verified, showResendButton]);
 
-  // Handle resend confirmation email
   const handleResendConfirmation = async () => {
     try {
       if (!email) {
@@ -133,7 +124,6 @@ export default function EmailConfirmationPage() {
         description: error.message,
         variant: "destructive",
       });
-      // Show resend button again in case of error
       setShowResendButton(true);
     }
   };

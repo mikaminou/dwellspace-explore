@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -21,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth";
 import { NotificationBell } from "./NotificationBell";
 
 export function MainNav() {
@@ -33,7 +32,6 @@ export function MainNav() {
     navigate("/");
   };
 
-  // Get user display information
   const userEmail = session?.user?.email || currentUser?.email;
   const userName = session?.user?.user_metadata?.first_name || currentUser?.displayName;
   const userAvatar = session?.user?.user_metadata?.avatar_url || currentUser?.photoURL;

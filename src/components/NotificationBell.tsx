@@ -27,35 +27,31 @@ export function NotificationBell() {
   useEffect(() => {
     if (!currentUser) return;
 
-    // Request permission and register for notifications
     requestNotificationPermission();
 
-    // Example notifications (in a real app, these would come from Firebase)
     const exampleNotifications: Notification[] = [
       {
         id: '1',
         title: 'New Property Listed',
         body: 'A new property matching your criteria has been listed.',
         read: false,
-        timestamp: Date.now() - 3600000, // 1 hour ago
+        timestamp: Date.now() - 3600000,
       },
       {
         id: '2',
         title: 'Price Drop Alert',
         body: 'A property you saved has dropped in price!',
         read: false,
-        timestamp: Date.now() - 86400000, // 1 day ago
+        timestamp: Date.now() - 86400000,
       },
     ];
 
     setNotifications(exampleNotifications);
     setUnreadCount(exampleNotifications.filter(n => !n.read).length);
 
-    // Listen for new messages when the app is in the foreground
     const unsubscribe = onMessageListener();
 
     return () => {
-      // Clean up listener
       unsubscribe();
     };
   }, [currentUser]);
