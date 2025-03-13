@@ -36,6 +36,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useLanguage } from "@/contexts/language/LanguageContext";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -53,6 +54,7 @@ export default function ProfilePage() {
   const [profileData, setProfileData] = useState<ProfileFormValues | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t, dir } = useLanguage();
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -96,8 +98,8 @@ export default function ProfilePage() {
         }
       } catch (error: any) {
         toast({
-          title: "Error loading profile",
-          description: error.message || "Could not load your profile information.",
+          title: t('profile.errorLoading') || "Error loading profile",
+          description: error.message || t('profile.errorLoadingDescription') || "Could not load your profile information.",
           variant: "destructive",
         });
       } finally {
@@ -106,7 +108,7 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-  }, [session, isLoaded, navigate, toast, form]);
+  }, [session, isLoaded, navigate, toast, form, t]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     try {
@@ -126,13 +128,13 @@ export default function ProfilePage() {
       if (error) throw error;
 
       toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
+        title: t('profile.updated') || "Profile updated",
+        description: t('profile.updatedDescription') || "Your profile has been successfully updated.",
       });
     } catch (error: any) {
       toast({
-        title: "Error updating profile",
-        description: error.message || "Could not update your profile.",
+        title: t('profile.errorUpdating') || "Error updating profile",
+        description: error.message || t('profile.errorUpdatingDescription') || "Could not update your profile.",
         variant: "destructive",
       });
     } finally {
@@ -141,7 +143,7 @@ export default function ProfilePage() {
   };
 
   if (!isLoaded) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return <div className="flex items-center justify-center h-screen">{t('profile.loading') || "Loading..."}</div>;
   }
 
   const userEmail = session?.user?.email;
@@ -158,12 +160,16 @@ export default function ProfilePage() {
       <MainNav />
       <div className="container mx-auto py-10">
         <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-8">
+          <div className={`flex flex-col md:flex-row gap-8 ${dir === 'rtl' ? 'md:flex-row-reverse' : ''}`}>
             <div className="w-full md:w-1/3">
               <Card>
                 <CardHeader>
-                  <CardTitle>Profile</CardTitle>
-                  <CardDescription>Your personal information</CardDescription>
+                  <CardTitle className={dir === 'rtl' ? 'text-right arabic-text' : ''}>
+                    {t('profile.title') || "Profile"}
+                  </CardTitle>
+                  <CardDescription className={dir === 'rtl' ? 'text-right arabic-text' : ''}>
+                    {t('profile.subtitle') || "Your personal information"}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col items-center">
                   <Avatar className="h-24 w-24 mb-4">
@@ -179,8 +185,12 @@ export default function ProfilePage() {
             <div className="w-full md:w-2/3">
               <Card>
                 <CardHeader>
-                  <CardTitle>Edit Profile</CardTitle>
-                  <CardDescription>Update your profile information</CardDescription>
+                  <CardTitle className={dir === 'rtl' ? 'text-right arabic-text' : ''}>
+                    {t('profile.editTitle') || "Edit Profile"}
+                  </CardTitle>
+                  <CardDescription className={dir === 'rtl' ? 'text-right arabic-text' : ''}>
+                    {t('profile.editSubtitle') || "Update your profile information"}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Form {...form}>
@@ -191,9 +201,15 @@ export default function ProfilePage() {
                           name="first_name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>First Name</FormLabel>
+                              <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
+                                {t('profile.firstName') || "First Name"}
+                              </FormLabel>
                               <FormControl>
-                                <Input {...field} />
+                                <Input 
+                                  {...field} 
+                                  className={dir === 'rtl' ? 'text-right' : ''}
+                                  dir={dir}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -204,9 +220,15 @@ export default function ProfilePage() {
                           name="last_name"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Last Name</FormLabel>
+                              <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
+                                {t('profile.lastName') || "Last Name"}
+                              </FormLabel>
                               <FormControl>
-                                <Input {...field} />
+                                <Input 
+                                  {...field} 
+                                  className={dir === 'rtl' ? 'text-right' : ''}
+                                  dir={dir}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -218,9 +240,15 @@ export default function ProfilePage() {
                         name="phone_number"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
+                            <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
+                              {t('phone.label') || "Phone Number"}
+                            </FormLabel>
                             <FormControl>
-                              <Input {...field} />
+                              <Input 
+                                {...field} 
+                                className={dir === 'rtl' ? 'text-right' : ''}
+                                dir={dir}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -231,21 +259,23 @@ export default function ProfilePage() {
                         name="role"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>I am a</FormLabel>
+                            <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
+                              {t('role.label') || "I am a"}
+                            </FormLabel>
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a role" />
+                                <SelectTrigger className={dir === 'rtl' ? 'text-right' : ''}>
+                                  <SelectValue placeholder={t('profile.selectRole') || "Select a role"} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="buyer">Buyer</SelectItem>
-                                <SelectItem value="seller">Seller</SelectItem>
-                                <SelectItem value="agent">Agent</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
+                                <SelectItem value="buyer">{t('role.buyer') || "Buyer"}</SelectItem>
+                                <SelectItem value="seller">{t('role.seller') || "Seller"}</SelectItem>
+                                <SelectItem value="agent">{t('role.agent') || "Agent"}</SelectItem>
+                                <SelectItem value="admin">{t('profile.admin') || "Admin"}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -257,12 +287,16 @@ export default function ProfilePage() {
                         name="bio"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>About Me</FormLabel>
+                            <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
+                              {t('profile.aboutMe') || "About Me"}
+                            </FormLabel>
                             <FormControl>
                               <Textarea 
                                 rows={4}
-                                placeholder="Tell us a little about yourself"
+                                placeholder={t('profile.aboutMePlaceholder') || "Tell us a little about yourself"}
                                 {...field} 
+                                className={dir === 'rtl' ? 'text-right' : ''}
+                                dir={dir}
                               />
                             </FormControl>
                             <FormMessage />
@@ -270,7 +304,7 @@ export default function ProfilePage() {
                         )}
                       />
                       <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? "Saving..." : "Save Changes"}
+                        {loading ? (t('profile.saving') || "Saving...") : (t('profile.saveChanges') || "Save Changes")}
                       </Button>
                     </form>
                   </Form>
