@@ -54,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Supabase auth state
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        console.log("Auth state changed:", _event, session);
         setSession(session);
         setIsLoaded(true);
       }
@@ -76,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             last_name: displayName.split(' ').slice(1).join(' '),
             role: role,
           },
-          emailRedirectTo: window.location.origin
+          emailRedirectTo: `${window.location.origin}/email-confirmation?type=signup`
         }
       });
       
