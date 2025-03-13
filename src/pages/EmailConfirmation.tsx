@@ -80,20 +80,28 @@ export default function EmailConfirmationPage() {
 
   // Simulate progress bar for waiting state
   useEffect(() => {
-    if (!token && !verified && progress < 90) {
-      const timer = setTimeout(() => {
+    if (!token && !verified && !showResendButton) {
+      const timer = setInterval(() => {
         setProgress((prevProgress) => {
-          const newProgress = prevProgress + 5;
-          if (newProgress >= 90) {
-            setShowResendButton(true);
+          // Increment more slowly, going up to 100
+          const increment = prevProgress < 90 ? 10 : 2;
+          const newProgress = Math.min(prevProgress + increment, 100);
+          
+          // Once we reach 100%, show the resend button after a short delay
+          if (newProgress === 100) {
+            clearInterval(timer);
+            setTimeout(() => {
+              setShowResendButton(true);
+            }, 500); // Small delay before showing the resend button
           }
+          
           return newProgress;
         });
       }, 1000);
       
-      return () => clearTimeout(timer);
+      return () => clearInterval(timer);
     }
-  }, [progress, token, verified]);
+  }, [token, verified, showResendButton]);
 
   // Handle resend confirmation email
   const handleResendConfirmation = async () => {
@@ -125,6 +133,8 @@ export default function EmailConfirmationPage() {
         description: error.message,
         variant: "destructive",
       });
+      // Show resend button again in case of error
+      setShowResendButton(true);
     }
   };
 
