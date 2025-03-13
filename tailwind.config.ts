@@ -67,21 +67,21 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// New luxury-themed colors
-				gold: {
-					light: '#d4af37',
-					DEFAULT: '#b8860b',
-					dark: '#8b6914'
+				// Updated minimalist color palette
+				sand: {
+					light: '#f0e9df',
+					DEFAULT: '#dbd4c5',
+					dark: '#c5baa8'
 				},
-				burgundy: {
-					light: '#a23953',
-					DEFAULT: '#800020',
-					dark: '#4c0012'
+				sage: {
+					light: '#d8e0d5',
+					DEFAULT: '#b8c5b3',
+					dark: '#97a592'
 				},
-				emerald: {
-					light: '#50c878',
-					DEFAULT: '#046307',
-					dark: '#023803'
+				taupe: {
+					light: '#e6e0d4',
+					DEFAULT: '#c8b896',
+					dark: '#a99e78'
 				}
 			},
 			borderRadius: {

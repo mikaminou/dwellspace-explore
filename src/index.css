@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
 
 @tailwind base;
@@ -7,74 +8,82 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 220 20% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 20% 20%;
  
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 20% 20%;
  
-    --primary: 348 71% 44%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 32 40% 40%;
+    --primary-foreground: 0 0% 100%;
  
-    --secondary: 142 76% 36%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 150 30% 40%;
+    --secondary-foreground: 0 0% 100%;
  
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 30 10% 95%;
+    --muted-foreground: 220 10% 40%;
  
-    --accent: 36 100% 50%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 32 60% 60%;
+    --accent-foreground: 0 0% 100%;
  
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 20 10% 90%;
+    --input: 20 10% 90%;
+    --ring: 32 40% 40%;
  
     --radius: 0.5rem;
 
-    --sidebar-background: 348 71% 44%;
+    --sidebar-background: 32 40% 40%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 36 100% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 142 76% 36%;
+    --sidebar-primary: 32 60% 60%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 150 30% 40%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 348 71% 54%;
-    --sidebar-ring: 36 100% 60%;
+    --sidebar-border: 32 40% 45%;
+    --sidebar-ring: 32 60% 65%;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 348 71% 44%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 142 76% 36%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 36 100% 50%;
-    --accent-foreground: 0 0% 98%;
+    --background: 220 20% 10%;
+    --foreground: 0 0% 95%;
+    
+    --card: 220 20% 15%;
+    --card-foreground: 0 0% 95%;
+    
+    --popover: 220 20% 15%;
+    --popover-foreground: 0 0% 95%;
+    
+    --primary: 32 40% 40%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 150 30% 40%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 220 20% 20%;
+    --muted-foreground: 220 10% 70%;
+    
+    --accent: 32 60% 60%;
+    --accent-foreground: 0 0% 100%;
+    
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    
+    --border: 220 10% 25%;
+    --input: 220 10% 25%;
+    --ring: 32 40% 45%;
 
-    --sidebar-background: 348 71% 35%;
+    --sidebar-background: 32 40% 30%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 36 100% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 142 76% 36%;
+    --sidebar-primary: 32 60% 55%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 150 30% 40%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 348 71% 44%;
-    --sidebar-ring: 36 100% 60%;
+    --sidebar-border: 32 40% 35%;
+    --sidebar-ring: 32 60% 60%;
   }
 }
 
@@ -148,14 +157,14 @@
 
 /* Custom hero gradient */
 .hero-gradient {
-  background: linear-gradient(135deg, #f5f0e6 0%, #e2d1c3 100%);
+  background: linear-gradient(135deg, #f9f6f0 0%, #eee6dc 100%);
 }
 
-/* New luxury gradients */
-.luxury-gradient-1 {
-  background: linear-gradient(to right, #8B4513, #D2B48C);
+/* Minimalist gradients */
+.minimal-gradient-1 {
+  background: linear-gradient(to right, #e6e0d4, #f9f6f0);
 }
 
-.luxury-gradient-2 {
-  background: linear-gradient(135deg, #a86e3d 0%, #d4af37 100%);
+.minimal-gradient-2 {
+  background: linear-gradient(135deg, #dbd4c5 0%, #f0e9df 100%);
 }
