@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
 import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon, StarIcon } from "lucide-react";
@@ -41,7 +40,7 @@ export default function Index() {
       <MainNav />
       
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center bg-gradient-to-r from-secondary to-secondary/80">
+      <section className="relative h-[80vh] flex items-center justify-center bg-secondary/90">
         <div className="absolute inset-0 overflow-hidden">
           {videoUrl ? (
             <video 
@@ -61,26 +60,26 @@ export default function Index() {
           )}
         </div>
         <div className="container mx-auto px-4 text-center relative z-10">
-          <h1 className={`text-4xl md:text-6xl font-bold mb-6 text-white animate-fade-in text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+          <h1 className={`text-5xl md:text-6xl font-bold mb-4 text-white text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
             {t('hero.title')}
           </h1>
-          <p className={`text-xl text-gray-200 mb-10 max-w-2xl mx-auto animate-slide-up text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+          <p className={`text-xl text-gray-200 mb-10 max-w-2xl mx-auto ${dir === 'rtl' ? 'arabic-text' : ''}`}>
             {t('hero.subtitle')}
           </p>
           
-          {/* Advanced Search Bar */}
-          <div className="bg-white dark:bg-card p-4 rounded-lg shadow-lg mb-10 max-w-4xl mx-auto animate-slide-up delay-100">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="md:col-span-2">
+          {/* Modern Search Bar */}
+          <div className="bg-white dark:bg-card p-2 rounded-lg shadow-lg mb-8 max-w-3xl mx-auto animate-slide-up delay-100">
+            <div className="flex flex-col md:flex-row">
+              <div className="flex-grow md:border-r dark:border-gray-700 p-2">
                 <Input 
                   placeholder={t('search.location')}
-                  className={`h-12 ${dir === 'rtl' ? 'arabic-text text-right pr-4' : ''}`}
+                  className={`h-12 border-0 shadow-none ${dir === 'rtl' ? 'arabic-text text-right pr-4' : ''}`}
                   dir={dir}
                 />
               </div>
-              <div>
+              <div className="md:w-48 p-2">
                 <Select>
-                  <SelectTrigger className={`h-12 ${dir === 'rtl' ? 'arabic-text text-right' : ''}`} dir={dir}>
+                  <SelectTrigger className={`h-12 border-0 shadow-none ${dir === 'rtl' ? 'arabic-text text-right' : ''}`} dir={dir}>
                     <SelectValue placeholder={t('search.propertyType')} />
                   </SelectTrigger>
                   <SelectContent dir={dir}>
@@ -94,8 +93,8 @@ export default function Index() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Button className={`w-full h-12 bg-primary hover:bg-primary-dark text-white ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`} size="lg">
+              <div className="p-2">
+                <Button className={`w-full h-12 bg-primary hover:bg-primary/90 text-white ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`} size="lg">
                   <SearchIcon className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                   {t('search.search')}
                 </Button>
@@ -103,21 +102,21 @@ export default function Index() {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up delay-200">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              variant="cta"
-              className={`font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
+              className={`bg-accent hover:bg-accent/90 text-white font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
               asChild
             >
-              <Link to="/signup" className="flex items-center gap-2">
+              <Link to="/signup">
                 {t('hero.list')}
               </Link>
             </Button>
             <Button 
               size="lg" 
-              variant="white" 
-              className={`font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
+              variant="outline" 
+              className={`bg-white hover:bg-white/90 text-secondary font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
               asChild
             >
               <Link to="/search" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
@@ -129,7 +128,7 @@ export default function Index() {
         </div>
       </section>
       
-      {/* Featured Properties */}
+      {/* Featured Properties Section */}
       <section className="py-16 container mx-auto px-4 animate-fade-in">
         <div className={`flex justify-between items-center mb-8 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
           <h2 className={`text-3xl font-bold ${dir === 'rtl' ? 'arabic-text' : ''}`}>
