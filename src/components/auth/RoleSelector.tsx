@@ -10,22 +10,22 @@ interface RoleSelectorProps {
 }
 
 export function RoleSelector({ userRole, setUserRole, disabled = false }: RoleSelectorProps) {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   
   return (
     <div className="space-y-2">
-      <Label htmlFor="role">{t('role.label')}</Label>
+      <Label htmlFor="role" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('role.label')}</Label>
       <Select value={userRole} onValueChange={setUserRole} disabled={disabled}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select your role" />
+        <SelectTrigger className={dir === 'rtl' ? 'arabic-text' : ''}>
+          <SelectValue placeholder={t('role.placeholder') || "Select your role"} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="buyer">{t('role.buyer')}</SelectItem>
-          <SelectItem value="seller">{t('role.seller')}</SelectItem>
-          <SelectItem value="agent">{t('role.agent')}</SelectItem>
+          <SelectItem value="buyer" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('role.buyer')}</SelectItem>
+          <SelectItem value="seller" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('role.seller')}</SelectItem>
+          <SelectItem value="agent" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('role.agent')}</SelectItem>
         </SelectContent>
       </Select>
-      <p className="text-xs text-muted-foreground">{t('role.subtitle')}</p>
+      <p className={`text-xs text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('role.subtitle')}</p>
     </div>
   );
 }

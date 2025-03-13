@@ -21,11 +21,11 @@ const NotFound = () => {
       <div className="text-center">
         <h1 className="text-6xl font-bold mb-4 text-gray-800">404</h1>
         <p className={`text-xl text-gray-600 mb-6 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-          {t('notFound.title') || "Oops! Page not found"}
+          {t('notFound.title')}
         </p>
         <Button asChild>
           <Link to="/" className={dir === 'rtl' ? 'arabic-text' : ''}>
-            {t('notFound.returnHome') || "Return to Home"}
+            {t('notFound.returnHome')}
           </Link>
         </Button>
       </div>

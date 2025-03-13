@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type LanguageContextType = {
@@ -10,7 +9,7 @@ type LanguageContextType = {
 
 const translations = {
   ar: {
-    'site.name': 'أسكن',
+    'site.name': 'Osken',
     'nav.home': 'الرئيسية',
     'nav.explore': 'استكشاف',
     'nav.sale': 'للبيع',
@@ -68,7 +67,7 @@ const translations = {
     'notifications.newProperty': 'عقار جديد معروض',
     'notifications.propertyMatch': 'عقار جديد يطابق معاييرك',
     'notifications.priceAlert': 'تنبيه انخفاض السعر',
-    'notFound.title': 'عذراً! الصفحة غير موجودة',
+    'notFound.title': 'عذراً! الص��حة غير موجودة',
     'notFound.returnHome': 'العودة إلى الصفحة الرئيسية',
     'otp.title': 'أدخل رمز التحقق',
     'otp.subtitle': 'تم إرسال رمز التحقق إلى',
@@ -127,7 +126,9 @@ const translations = {
     'search.propertiesFound': 'عقارات تم العثور عليها',
     'search.noPropertiesFound': 'لم يتم العثور على عقارات',
     'search.adjustSearchCriteria': 'حاول تعديل معايير البحث للعثور على المزيد من العقارات.',
-    'search.resetFilters': 'إعادة تعيين الفلاتر'
+    'search.resetFilters': 'إعادة تعيين الفلاتر',
+    'role.placeholder': 'اختر دورك',
+    'otp.verifying': 'جاري التحقق...',
   },
   fr: {
     'site.name': 'Osken',
@@ -247,7 +248,9 @@ const translations = {
     'search.propertiesFound': 'Propriétés trouvées',
     'search.noPropertiesFound': 'Aucune propriété trouvée',
     'search.adjustSearchCriteria': 'Essayez d\'ajuster vos critères de recherche pour trouver plus de propriétés.',
-    'search.resetFilters': 'Réinitialiser les filtres'
+    'search.resetFilters': 'Réinitialiser les filtres',
+    'role.placeholder': 'Sélectionnez votre rôle',
+    'otp.verifying': 'Vérification en cours...',
   },
   en: {
     'site.name': 'Osken',
@@ -367,7 +370,9 @@ const translations = {
     'search.propertiesFound': 'Properties Found',
     'search.noPropertiesFound': 'No properties found',
     'search.adjustSearchCriteria': 'Try adjusting your search criteria to find more properties.',
-    'search.resetFilters': 'Reset Filters'
+    'search.resetFilters': 'Reset Filters',
+    'role.placeholder': 'Select your role',
+    'otp.verifying': 'Verifying...',
   }
 };
 

@@ -74,7 +74,7 @@ export default function Search() {
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
             <Input 
               className={`pl-10 ${dir === 'rtl' ? 'arabic-text' : ''}`} 
-              placeholder={t('search.placeholder') || "Search by location or property name"} 
+              placeholder={t('search.placeholder')} 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -85,7 +85,7 @@ export default function Search() {
             onClick={() => setShowFilters(!showFilters)}
           >
             <FilterIcon className={`${dir === 'rtl' ? 'ml-2' : 'mr-2'} h-4 w-4`} />
-            {showFilters ? t('search.hideFilters') || "Hide Filters" : t('search.showFilters') || "Show Filters"}
+            {showFilters ? t('search.hideFilters') : t('search.showFilters')}
           </Button>
         </div>
         
@@ -93,37 +93,37 @@ export default function Search() {
           <div className="bg-muted p-4 rounded-lg mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
               <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.propertyType') || "Property Type"}
+                {t('search.propertyType')}
               </label>
               <Select value={propertyType} onValueChange={setPropertyType}>
                 <SelectTrigger className={dir === 'rtl' ? 'arabic-text' : ''}>
-                  <SelectValue placeholder={t('search.anyPropertyType') || "Any property type"} />
+                  <SelectValue placeholder={t('search.anyPropertyType')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="any" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.anyPropertyType') || "Any property type"}
+                      {t('search.anyPropertyType')}
                     </SelectItem>
                     <SelectItem value="Villa" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.villa') || "Villa"}
+                      {t('search.villa')}
                     </SelectItem>
                     <SelectItem value="Apartment" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.apartment') || "Apartment"}
+                      {t('search.apartment')}
                     </SelectItem>
                     <SelectItem value="Studio" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.studio') || "Studio"}
+                      {t('search.studio')}
                     </SelectItem>
                     <SelectItem value="Duplex" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.duplex') || "Duplex"}
+                      {t('search.duplex')}
                     </SelectItem>
                     <SelectItem value="Traditional House" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.traditionalHouse') || "Traditional House"}
+                      {t('search.traditionalHouse')}
                     </SelectItem>
                     <SelectItem value="Loft" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.loft') || "Loft"}
+                      {t('search.loft')}
                     </SelectItem>
                     <SelectItem value="Chalet" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.chalet') || "Chalet"}
+                      {t('search.chalet')}
                     </SelectItem>
                   </SelectGroup>
                 </SelectContent>
@@ -132,17 +132,17 @@ export default function Search() {
             
             <div>
               <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.city') || "City"}
+                {t('search.city')}
               </label>
               <Select value={selectedCity} onValueChange={setSelectedCity}>
                 <SelectTrigger className={dir === 'rtl' ? 'arabic-text' : ''}>
-                  <SelectValue placeholder={t('search.anyCity') || "Any city"} />
+                  <SelectValue placeholder={t('search.anyCity')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     {cities.map(city => (
                       <SelectItem key={city} value={city} className={dir === 'rtl' ? 'arabic-text' : ''}>
-                        {city === "any" ? t('search.anyCity') || "Any city" : city}
+                        {city === "any" ? t('search.anyCity') : city}
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -152,7 +152,7 @@ export default function Search() {
             
             <div>
               <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.priceRange') || "Price Range (DZD)"}
+                {t('search.priceRange')}
               </label>
               <div className="flex items-center justify-between mb-2">
                 <span className={dir === 'rtl' ? 'arabic-text' : ''}>{minPrice.toLocaleString()} DZD</span>
@@ -172,16 +172,16 @@ export default function Search() {
             
             <div>
               <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.minimumBedrooms') || "Minimum Bedrooms"}
+                {t('search.minimumBedrooms')}
               </label>
               <Select value={minBeds.toString()} onValueChange={(value) => setMinBeds(parseInt(value))}>
                 <SelectTrigger className={dir === 'rtl' ? 'arabic-text' : ''}>
-                  <SelectValue placeholder={t('search.any') || "Any"} />
+                  <SelectValue placeholder={t('search.any')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="0" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.any') || "Any"}
+                      {t('search.any')}
                     </SelectItem>
                     <SelectItem value="1" className={dir === 'rtl' ? 'arabic-text' : ''}>1+</SelectItem>
                     <SelectItem value="2" className={dir === 'rtl' ? 'arabic-text' : ''}>2+</SelectItem>
@@ -195,7 +195,7 @@ export default function Search() {
             
             <div className="md:col-span-2 lg:col-span-4">
               <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.features') || "Features"}
+                {t('search.features')}
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                 <div className="flex items-center space-x-2">
@@ -205,7 +205,7 @@ export default function Search() {
                     onCheckedChange={() => handleFeatureChange("parking")} 
                   />
                   <label htmlFor="parking" className={dir === 'rtl' ? 'arabic-text mr-2' : ''}>
-                    {t('search.parking') || "Parking"}
+                    {t('search.parking')}
                   </label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -215,7 +215,7 @@ export default function Search() {
                     onCheckedChange={() => handleFeatureChange("furnished")} 
                   />
                   <label htmlFor="furnished" className={dir === 'rtl' ? 'arabic-text mr-2' : ''}>
-                    {t('search.furnished') || "Furnished"}
+                    {t('search.furnished')}
                   </label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -225,7 +225,7 @@ export default function Search() {
                     onCheckedChange={() => handleFeatureChange("pool")} 
                   />
                   <label htmlFor="pool" className={dir === 'rtl' ? 'arabic-text mr-2' : ''}>
-                    {t('search.pool') || "Pool"}
+                    {t('search.pool')}
                   </label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -235,7 +235,7 @@ export default function Search() {
                     onCheckedChange={() => handleFeatureChange("garden")} 
                   />
                   <label htmlFor="garden" className={dir === 'rtl' ? 'arabic-text mr-2' : ''}>
-                    {t('search.garden') || "Garden"}
+                    {t('search.garden')}
                   </label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -245,7 +245,7 @@ export default function Search() {
                     onCheckedChange={() => handleFeatureChange("security")} 
                   />
                   <label htmlFor="security" className={dir === 'rtl' ? 'arabic-text mr-2' : ''}>
-                    {t('search.security') || "Security"}
+                    {t('search.security')}
                   </label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -255,7 +255,7 @@ export default function Search() {
                     onCheckedChange={() => handleFeatureChange("petFriendly")} 
                   />
                   <label htmlFor="petFriendly" className={dir === 'rtl' ? 'arabic-text mr-2' : ''}>
-                    {t('search.petFriendly') || "Pet Friendly"}
+                    {t('search.petFriendly')}
                   </label>
                 </div>
               </div>
@@ -265,7 +265,7 @@ export default function Search() {
         
         <div className="mb-4">
           <h1 className={`text-2xl font-bold ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-            {filteredProperties.length} {t('search.propertiesFound') || "Properties Found"}
+            {filteredProperties.length} {t('search.propertiesFound')}
           </h1>
           <Separator className="my-4" />
         </div>
@@ -289,7 +289,7 @@ export default function Search() {
                     size="sm"
                     className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    {t('property.save') || "Save"}
+                    {t('property.save')}
                   </Button>
                 </div>
                 <div className="p-4 border border-t-0 rounded-b-lg">
@@ -304,7 +304,7 @@ export default function Search() {
                     </span>
                     <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
                       <BedDoubleIcon className="h-4 w-4" />
-                      {property.beds} {t('property.beds') || "beds"}
+                      {property.beds} {t('property.beds')}
                     </span>
                     <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
                       <HomeIcon className="h-4 w-4" />
@@ -317,10 +317,10 @@ export default function Search() {
           ) : (
             <div className="col-span-full text-center py-12">
               <h3 className={`text-xl font-semibold mb-2 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.noPropertiesFound') || "No properties found"}
+                {t('search.noPropertiesFound')}
               </h3>
               <p className={`text-muted-foreground mb-4 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.adjustSearchCriteria') || "Try adjusting your search criteria to find more properties."}
+                {t('search.adjustSearchCriteria')}
               </p>
               <Button onClick={() => {
                 setSearchTerm("");
@@ -338,7 +338,7 @@ export default function Search() {
                   petFriendly: false,
                 });
               }} className={dir === 'rtl' ? 'arabic-text' : ''}>
-                {t('search.resetFilters') || "Reset Filters"}
+                {t('search.resetFilters')}
               </Button>
             </div>
           )}

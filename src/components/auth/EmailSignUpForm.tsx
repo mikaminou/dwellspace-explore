@@ -33,7 +33,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
   } = useEmailSignUp(onError);
 
   const [error, setError] = useState("");
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
 
   const handleLocalError = (message: string) => {
     setError(message);
@@ -65,7 +65,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="name">{t('name.label')}</Label>
+        <Label htmlFor="name" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('name.label')}</Label>
         <Input 
           id="name" 
           placeholder={t('name.placeholder')} 
@@ -73,10 +73,12 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           onChange={(e) => setDisplayName(e.target.value)}
           required
           disabled={loading || confirmationSent}
+          className={dir === 'rtl' ? 'text-right' : ''}
+          dir={dir}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email">{t('email.label')}</Label>
+        <Label htmlFor="email" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('email.label')}</Label>
         <Input 
           id="email" 
           type="email" 
@@ -85,18 +87,21 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           onChange={(e) => setEmail(e.target.value)}
           required
           disabled={loading || confirmationSent}
+          className={dir === 'rtl' ? 'text-right' : ''}
+          dir={dir}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">{t('password.label')}</Label>
+        <Label htmlFor="password" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('password.label')}</Label>
         <PasswordField
           password={password}
           setPassword={setPassword}
           showPassword={showPassword}
           togglePasswordVisibility={togglePasswordVisibility}
           disabled={loading || confirmationSent}
+          dir={dir}
         />
-        <p className="text-xs text-muted-foreground">{t('password.requirement')}</p>
+        <p className={`text-xs text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('password.requirement')}</p>
       </div>
       
       <RoleSelector 
@@ -107,7 +112,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       
       <Button 
         type="submit" 
-        className="w-full" 
+        className={`w-full ${dir === 'rtl' ? 'arabic-text' : ''}`} 
         disabled={loading || confirmationSent}
       >
         {loading ? t('signup.creating') : confirmationSent ? (demoMode ? t('signup.demoActive') : t('signup.emailSent')) : t('signup.button')}

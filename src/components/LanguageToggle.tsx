@@ -11,7 +11,7 @@ import {
 import { Globe } from "lucide-react";
 
 export function LanguageToggle({ className }: { className?: string }) {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t, dir } = useLanguage();
 
   const getLanguageLabel = (code: string) => {
     switch(code) {
@@ -34,7 +34,7 @@ export function LanguageToggle({ className }: { className?: string }) {
           {getLanguageLabel(language)}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-32">
+      <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="min-w-32">
         <DropdownMenuItem onClick={() => setLanguage('en')}>
           <span className="mr-2">🇬🇧</span> English
         </DropdownMenuItem>

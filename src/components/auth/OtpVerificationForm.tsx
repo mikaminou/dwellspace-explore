@@ -30,7 +30,7 @@ export function OtpVerificationForm({
     handleVerifyOTP
   } = useOtpVerification(phoneNumber, countryCode, onError);
 
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
 
   return (
     <form onSubmit={handleVerifyOTP} className="space-y-4">
@@ -52,7 +52,7 @@ export function OtpVerificationForm({
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="otp" className="block text-center mb-2">{t('otp.title')}</Label>
+        <Label htmlFor="otp" className={`block text-center mb-2 ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('otp.title')}</Label>
         <div className="flex justify-center mb-4">
           <InputOTP maxLength={6} value={otp} onChange={setOtp}>
             <InputOTPGroup>
@@ -65,19 +65,19 @@ export function OtpVerificationForm({
             </InputOTPGroup>
           </InputOTP>
         </div>
-        <p className="text-xs text-muted-foreground text-center">
+        <p className={`text-xs text-muted-foreground text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
           {isDemoMode 
             ? t('otp.demoSubtitle')
             : `${t('otp.subtitle')} ${countryCode} ${phoneNumber}`}
         </p>
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Verifying..." : t('otp.verify')}
+        {loading ? t('otp.verifying') : t('otp.verify')}
       </Button>
       <Button 
         type="button" 
         variant="outline" 
-        className="w-full mt-2" 
+        className={`w-full mt-2 ${dir === 'rtl' ? 'arabic-text' : ''}`} 
         onClick={onBack}
         disabled={loading}
       >
