@@ -37,15 +37,12 @@ export function useEmailSignUp(onError: (message: string) => void) {
       if (result?.confirmationRequired) {
         setConfirmationSent(true); // Update confirmation state
         
-        // Encode email for URL and log for debugging
+        // Encode email for URL
         const encodedEmail = encodeURIComponent(email);
-        console.log("Navigating to email confirmation page with email:", encodedEmail);
+        console.log("Confirmation required. Email:", encodedEmail);
         
-        // Force navigation with replace to prevent back navigation
-        setTimeout(() => {
-          navigate(`/email-confirmation?email=${encodedEmail}`, { replace: true });
-        }, 100); // Small delay to ensure state updates complete
-        
+        // Use window.location for direct navigation to ensure it works
+        window.location.href = `/email-confirmation?email=${encodedEmail}`;
         return result;
       }
 

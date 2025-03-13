@@ -44,10 +44,9 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     // Clear any existing errors
     setError("");
     
-    // Direct call to handleSubmit which already has navigation logic
+    // Call handleSubmit directly
     handleSubmit(e).catch((err: Error) => {
       console.error("Signup error:", err);
-      // Error handling is already in the hook
     });
   };
 
