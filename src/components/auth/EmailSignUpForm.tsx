@@ -19,6 +19,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
   const [displayName, setDisplayName] = useState("");
   const [userRole, setUserRole] = useState("buyer");
   const [loading, setLoading] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
   const [error, setError] = useState("");
   const { signUp } = useAuth();
   const navigate = useNavigate();
@@ -39,6 +40,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       
       // Check if confirmation is required
       if (result?.confirmationRequired) {
+        setConfirmationSent(true);
         // Redirect to the confirmation page with the email
         navigate(`/email-confirmation?email=${encodeURIComponent(email)}`);
       } else {
@@ -62,6 +64,15 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         </Alert>
       )}
       
+      {confirmationSent && (
+        <Alert className="mb-4 bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
+          <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+          <AlertDescription className="text-amber-600 dark:text-amber-400">
+            Confirmation email sent! Please check your inbox to verify your email address.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       <div className="space-y-2">
         <Label htmlFor="name">Full Name</Label>
         <Input 
@@ -70,7 +81,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           required
-          disabled={loading}
+          disabled={loading || confirmationSent}
         />
       </div>
       <div className="space-y-2">
@@ -82,7 +93,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          disabled={loading}
+          disabled={loading || confirmationSent}
         />
       </div>
       <div className="space-y-2">
@@ -94,7 +105,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          disabled={loading}
+          disabled={loading || confirmationSent}
         />
         <p className="text-xs text-muted-foreground">Password must be at least 6 characters long</p>
       </div>
@@ -103,7 +114,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         <Select 
           value={userRole} 
           onValueChange={setUserRole}
-          disabled={loading}
+          disabled={loading || confirmationSent}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select your role" />
@@ -119,9 +130,9 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       <Button 
         type="submit" 
         className="w-full" 
-        disabled={loading}
+        disabled={loading || confirmationSent}
       >
-        {loading ? "Creating account..." : "Create Account"}
+        {loading ? "Creating account..." : confirmationSent ? "Confirmation Email Sent" : "Create Account"}
       </Button>
     </form>
   );
