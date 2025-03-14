@@ -27,6 +27,9 @@ import { LanguageToggle } from "./LanguageToggle";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+// Logo URL configuration
+const LOGO_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/logo.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9sb2dvLnBuZyIsImlhdCI6MTc0MTk1NDY3NCwiZXhwIjoxNzczNDkwNjc0fQ.dMTbe4oil_mCFEgZ9OkyMyMG4icSwpaM3sUye-EcXYA";
+
 export function MainNav() {
   const { session, currentUser, isLoaded, signOut } = useAuth();
   const { t, dir } = useLanguage();
@@ -51,7 +54,11 @@ export function MainNav() {
     <div className="border-b glass">
       <div className={`flex h-16 items-center px-4 container mx-auto ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
         <Link to="/" className={`${dir === 'rtl' ? 'ml-6' : 'mr-6'} flex items-center space-x-2`}>
-          <span className={`text-xl font-bold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('site.name')}</span>
+          <img 
+            src={LOGO_URL} 
+            alt="Osken Logo" 
+            className="h-8" 
+          />
         </Link>
         <NavigationMenu dir={dir}>
           <NavigationMenuList>
