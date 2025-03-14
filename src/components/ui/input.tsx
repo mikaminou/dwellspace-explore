@@ -1,9 +1,21 @@
-import * as React from "react"
 
+import * as React from "react"
+import { useLanguage } from "@/contexts/language/LanguageContext"
 import { cn } from "@/lib/utils"
 
-const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
-  ({ className, type, ...props }, ref) => {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  translatable?: boolean;
+}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, translatable = false, value, ...props }, ref) => {
+    const { translateUserInput } = useLanguage();
+    
+    // If translatable is true and we have a value, translate it for display
+    const displayValue = translatable && typeof value === 'string' 
+      ? translateUserInput(value)
+      : value;
+    
     return (
       <input
         type={type}
@@ -12,6 +24,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           className
         )}
         ref={ref}
+        value={displayValue}
         {...props}
       />
     )

@@ -1,12 +1,22 @@
-import * as React from "react"
 
+import * as React from "react"
+import { useLanguage } from "@/contexts/language/LanguageContext"
 import { cn } from "@/lib/utils"
 
 export interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  translatable?: boolean;
+}
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, translatable = false, value, ...props }, ref) => {
+    const { translateUserInput } = useLanguage();
+    
+    // If translatable is true and we have a value, translate it for display
+    const displayValue = translatable && typeof value === 'string' 
+      ? translateUserInput(value)
+      : value;
+    
     return (
       <textarea
         className={cn(
@@ -14,6 +24,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           className
         )}
         ref={ref}
+        value={displayValue}
         {...props}
       />
     )
