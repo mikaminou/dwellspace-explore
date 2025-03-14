@@ -15,7 +15,7 @@ export default function PropertyDetails() {
   const { id } = useParams();
   const { toast } = useToast();
   const property = properties.find((p) => p.id === parseInt(id as string));
-  const { t, dir } = useLanguage();
+  const { t, dir, translateUserInput } = useLanguage();
 
   if (!property) {
     return (
@@ -69,7 +69,7 @@ export default function PropertyDetails() {
           <div className="md:col-span-2 aspect-video rounded-lg overflow-hidden">
             <img 
               src={property.images[0]} 
-              alt={property.title} 
+              alt={translateUserInput(property.title)} 
               className="w-full h-full object-cover"
             />
           </div>
@@ -78,7 +78,7 @@ export default function PropertyDetails() {
               <div key={index} className="aspect-square rounded-lg overflow-hidden">
                 <img 
                   src={image} 
-                  alt={`${property.title} - View ${index + 2}`} 
+                  alt={`${translateUserInput(property.title)} - View ${index + 2}`} 
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -89,10 +89,10 @@ export default function PropertyDetails() {
         {/* Property Header */}
         <div className={`flex flex-col md:flex-row justify-between items-start gap-4 mb-6 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
           <div className={dir === 'rtl' ? 'text-right' : ''}>
-            <h1 className="text-3xl font-bold mb-2">{property.title}</h1>
+            <h1 className="text-3xl font-bold mb-2">{translateUserInput(property.title)}</h1>
             <div className={`flex items-center text-muted-foreground mb-2 ${dir === 'rtl' ? 'justify-end arabic-text' : ''}`}>
               <MapPinIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-1' : 'mr-1'}`} />
-              <span>{property.location}</span>
+              <span>{translateUserInput(property.location)}</span>
             </div>
             <div className={`flex items-center gap-4 ${dir === 'rtl' ? 'justify-end arabic-text' : ''}`}>
               <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
@@ -101,7 +101,7 @@ export default function PropertyDetails() {
               </span>
               <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 <HomeIcon className="h-4 w-4" />
-                {property.type}
+                {translateUserInput(property.type)}
               </span>
               {property.yearBuilt && (
                 <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
@@ -135,7 +135,7 @@ export default function PropertyDetails() {
               {t('property.details') || "Property Details"}
             </h2>
             <p className={`text-muted-foreground mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-              {property.description}
+              {translateUserInput(property.description)}
             </p>
             
             <h3 className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
@@ -145,7 +145,7 @@ export default function PropertyDetails() {
               {property.features.map((feature, index) => (
                 <div key={index} className={`flex items-center ${dir === 'rtl' ? 'flex-row-reverse justify-end arabic-text' : ''}`}>
                   <div className={`h-2 w-2 rounded-full bg-primary ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                  <span>{feature}</span>
+                  <span>{translateUserInput(feature)}</span>
                 </div>
               ))}
             </div>
@@ -156,7 +156,7 @@ export default function PropertyDetails() {
                   {t('property.additionalInfo') || "Additional Information"}
                 </h3>
                 <p className={`text-muted-foreground mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-                  {property.additionalDetails}
+                  {translateUserInput(property.additionalDetails)}
                 </p>
               </>
             )}
@@ -170,8 +170,8 @@ export default function PropertyDetails() {
                   <AvatarFallback>{property.agent.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold">{property.agent.name}</h3>
-                  <p className="text-sm text-muted-foreground">{property.agent.agency}</p>
+                  <h3 className="font-semibold">{translateUserInput(property.agent.name)}</h3>
+                  <p className="text-sm text-muted-foreground">{translateUserInput(property.agent.agency)}</p>
                 </div>
               </div>
               <div className="space-y-4 mb-4">
