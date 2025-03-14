@@ -28,7 +28,7 @@ import { useLanguage } from "@/contexts/language/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Logo URL configuration
-const LOGO_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/logo.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9sb2dvLnBuZyIsImlhdCI6MTc0MTk1NDY3NCwiZXhwIjoxNzczNDkwNjc0fQ.dMTbe4oil_mCFEgZ9OkyMyMG4icSwpaM3sUye-EcXYA";
+const LOGO_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/logo.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9sb2dvLnBuZyIsImlhdCI6MTc0MTk1NDgzOCwiZXhwIjoxNzczNDkwODM4fQ.8WLPyFQhA5EnkDuoHlClDrI2JzmZ5wKbpGE1clp8VrU";
 
 export function MainNav() {
   const { session, currentUser, isLoaded, signOut } = useAuth();
