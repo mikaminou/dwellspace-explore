@@ -50,6 +50,9 @@ const frTranslations = {
   'property.shareDescription': 'Le lien de la propriété a été copié dans votre presse-papiers.',
   'property.contactTitle': 'Message Envoyé',
   'property.contactDescription': 'Votre message a été envoyé au propriétaire.',
+  'property.view': 'Vue',
+  'property.condominium': 'Frais de copropriété',
+  
   'account.myAccount': 'Mon Compte',
   'signin.title': 'Se Connecter',
   'signin.subtitle': 'Entrez votre email et mot de passe pour vous connecter',

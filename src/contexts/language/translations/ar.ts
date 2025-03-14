@@ -50,6 +50,9 @@ const arTranslations = {
   'property.shareDescription': 'تم نسخ رابط العقار إلى الحافظة.',
   'property.contactTitle': 'تم إرسال الرسالة',
   'property.contactDescription': 'تم إرسال رسالتك إلى مالك العقار.',
+  'property.view': 'عرض',
+  'property.condominium': 'رسوم المجمع السكني',
+  
   'account.myAccount': 'حسابي',
   'signin.title': 'تسجيل الدخول',
   'signin.subtitle': 'أدخل بريدك الإلكتروني وكلمة المرور لتسجيل الدخول',

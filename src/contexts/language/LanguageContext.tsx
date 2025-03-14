@@ -44,16 +44,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return translations[language]?.[key as keyof typeof translations.fr] || defaultText || key;
   };
 
-  // Function to display user input in the selected language
-  // For a real implementation, you would need to integrate with a translation API
+  // Enhanced function to display user input in the selected language
   const translateUserInput = (text: string, originalLanguage?: SupportedLanguage): string => {
-    // In a real app, you would call a translation API here
-    // For this demo, we're just returning the original text
-    // as implementing actual translation requires external APIs
+    if (!text) return '';
     
-    // For demonstration purposes only:
-    // This simulates translation for a few hardcoded phrases
+    // For demonstration purposes: expanded translation dictionary
     const demoTranslations: Record<string, Record<SupportedLanguage, string>> = {
+      // Common phrases
       "Hello World": {
         en: "Hello World",
         fr: "Bonjour le Monde",
@@ -78,12 +75,152 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         en: "I am an agent",
         fr: "Je suis un agent",
         ar: "أنا وكيل"
+      },
+      // Property types
+      "Apartment": {
+        en: "Apartment",
+        fr: "Appartement",
+        ar: "شقة"
+      },
+      "Villa": {
+        en: "Villa",
+        fr: "Villa",
+        ar: "فيلا"
+      },
+      "Duplex": {
+        en: "Duplex",
+        fr: "Duplex",
+        ar: "دوبلكس"
+      },
+      "Studio": {
+        en: "Studio",
+        fr: "Studio",
+        ar: "استوديو"
+      },
+      // Locations
+      "Hydra, Algiers": {
+        en: "Hydra, Algiers",
+        fr: "Hydra, Alger",
+        ar: "حيدرة، الجزائر"
+      },
+      "Modern Apartment in Hydra": {
+        en: "Modern Apartment in Hydra",
+        fr: "Appartement Moderne à Hydra",
+        ar: "شقة عصرية في حيدرة"
+      },
+      // Property features
+      "Air conditioning": {
+        en: "Air conditioning",
+        fr: "Climatisation",
+        ar: "تكييف الهواء"
+      },
+      "Parking": {
+        en: "Parking",
+        fr: "Stationnement",
+        ar: "موقف سيارات"
+      },
+      "Elevator": {
+        en: "Elevator",
+        fr: "Ascenseur",
+        ar: "مصعد"
+      },
+      "Swimming pool": {
+        en: "Swimming pool",
+        fr: "Piscine",
+        ar: "حمام سباحة"
+      },
+      "Balcony": {
+        en: "Balcony",
+        fr: "Balcon",
+        ar: "شرفة"
+      },
+      "Garden": {
+        en: "Garden",
+        fr: "Jardin",
+        ar: "حديقة"
+      },
+      "Security system": {
+        en: "Security system",
+        fr: "Système de sécurité",
+        ar: "نظام أمني"
+      },
+      "Furnished": {
+        en: "Furnished",
+        fr: "Meublé",
+        ar: "مفروش"
+      },
+      "Granite countertops": {
+        en: "Granite countertops",
+        fr: "Comptoirs en granit",
+        ar: "أسطح جرانيت"
+      },
+      "Ceramic floors": {
+        en: "Ceramic floors",
+        fr: "Sols en céramique",
+        ar: "أرضيات سيراميك"
+      },
+      "Central air conditioning": {
+        en: "Central air conditioning",
+        fr: "Climatisation centrale",
+        ar: "تكييف مركزي"
+      },
+      "Built-in wardrobes": {
+        en: "Built-in wardrobes",
+        fr: "Placards intégrés",
+        ar: "خزائن مدمجة"
+      },
+      "Private parking": {
+        en: "Private parking",
+        fr: "Parking privé",
+        ar: "موقف سيارات خاص"
+      },
+      "Security 24/7": {
+        en: "Security 24/7",
+        fr: "Sécurité 24/7",
+        ar: "أمن على مدار الساعة"
+      },
+      // Agency names
+      "Dar Immobilier": {
+        en: "Dar Real Estate",
+        fr: "Dar Immobilier",
+        ar: "دار العقارية"
+      },
+      // Agent names
+      "Amina Benali": {
+        en: "Amina Benali",
+        fr: "Amina Benali",
+        ar: "أمينة بن علي"
+      },
+      // Property descriptions
+      "A beautiful modern apartment in the upscale neighborhood of Hydra with stunning city views. This 3-bedroom, 2-bathroom unit features high ceilings, ceramic floors, and an open floor plan perfect for entertaining. The kitchen is equipped with high-end appliances and granite countertops. The primary bedroom has a walk-in closet and ensuite bathroom.": {
+        en: "A beautiful modern apartment in the upscale neighborhood of Hydra with stunning city views. This 3-bedroom, 2-bathroom unit features high ceilings, ceramic floors, and an open floor plan perfect for entertaining. The kitchen is equipped with high-end appliances and granite countertops. The primary bedroom has a walk-in closet and ensuite bathroom.",
+        fr: "Un bel appartement moderne dans le quartier huppé de Hydra avec une vue imprenable sur la ville. Cet appartement de 3 chambres et 2 salles de bains présente des plafonds hauts, des sols en céramique et un plan ouvert parfait pour recevoir. La cuisine est équipée d'appareils haut de gamme et de comptoirs en granit. La chambre principale dispose d'un dressing et d'une salle de bains attenante.",
+        ar: "شقة عصرية جميلة في حي حيدرة الراقي مع إطلالات خلابة على المدينة. تتميز هذه الوحدة المكونة من 3 غرف نوم وحمامين بأسقف عالية وأرضيات سيراميك وتصميم مفتوح مثالي للترفيه. المطبخ مجهز بأجهزة عالية الجودة وأسطح جرانيت. تحتوي غرفة النوم الرئيسية على خزانة ملابس كبيرة وحمام داخلي."
+      },
+      "Condominium fees: 10,000 DZD/month. Includes water, trash, security, and building maintenance.": {
+        en: "Condominium fees: 10,000 DZD/month. Includes water, trash, security, and building maintenance.",
+        fr: "Frais de copropriété: 10 000 DZD/mois. Comprend l'eau, les ordures, la sécurité et l'entretien du bâtiment.",
+        ar: "رسوم المجمع السكني: 10,000 دج/شهر. تشمل الماء والنفايات والأمن وصيانة المبنى."
+      },
+      "View": {
+        en: "View",
+        fr: "Vue",
+        ar: "عرض"
       }
     };
     
-    // Check if we have a translation for this text
+    // Check if we have a direct translation for this text
     if (demoTranslations[text] && demoTranslations[text][language]) {
       return demoTranslations[text][language];
+    }
+    
+    // If no direct match, check if any key in our translations is a substring of the text
+    // This helps with partial matches like "Modern Apartment" in "Modern Apartment with Garden"
+    for (const key in demoTranslations) {
+      if (text.includes(key) && demoTranslations[key][language]) {
+        // Replace just that part with the translation
+        return text.replace(key, demoTranslations[key][language]);
+      }
     }
     
     return text; // Return original text if no translation is available

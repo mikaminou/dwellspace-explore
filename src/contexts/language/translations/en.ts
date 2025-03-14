@@ -50,6 +50,9 @@ const enTranslations = {
   'property.shareDescription': 'Property link has been copied to your clipboard.',
   'property.contactTitle': 'Message Sent',
   'property.contactDescription': 'Your message has been sent to the property owner.',
+  'property.view': 'View',
+  'property.condominium': 'Condominium fees',
+  
   'account.myAccount': 'My Account',
   'signin.title': 'Sign In',
   'signin.subtitle': 'Enter your email and password to sign in',

@@ -10,12 +10,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { properties } from "@/data/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function PropertyDetails() {
   const { id } = useParams();
   const { toast } = useToast();
   const property = properties.find((p) => p.id === parseInt(id as string));
-  const { t, dir, translateUserInput } = useLanguage();
+  const { t, dir, translateUserInput, language } = useLanguage();
 
   if (!property) {
     return (
@@ -23,14 +25,14 @@ export default function PropertyDetails() {
         <MainNav />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className={`text-3xl font-bold mb-4 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-            {t('property.notFound') || "Property Not Found"}
+            {t('property.notFound')}
           </h1>
           <p className={`text-muted-foreground mb-8 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-            {t('property.notFoundDescription') || "The property you're looking for doesn't exist or has been removed."}
+            {t('property.notFoundDescription')}
           </p>
           <Button asChild>
             <a href="/" className={dir === 'rtl' ? 'arabic-text' : ''}>
-              {t('notFound.returnHome') || "Return Home"}
+              {t('notFound.returnHome')}
             </a>
           </Button>
         </div>
@@ -40,22 +42,22 @@ export default function PropertyDetails() {
 
   const handleSave = () => {
     toast({
-      title: t('property.savedTitle') || "Property Saved",
-      description: t('property.savedDescription') || "This property has been added to your favorites.",
+      title: t('property.savedTitle'),
+      description: t('property.savedDescription'),
     });
   };
 
   const handleShare = () => {
     toast({
-      title: t('property.shareTitle') || "Share Link Copied",
-      description: t('property.shareDescription') || "Property link has been copied to your clipboard.",
+      title: t('property.shareTitle'),
+      description: t('property.shareDescription'),
     });
   };
 
   const handleContact = () => {
     toast({
-      title: t('property.contactTitle') || "Message Sent",
-      description: t('property.contactDescription') || "Your message has been sent to the property owner.",
+      title: t('property.contactTitle'),
+      description: t('property.contactDescription'),
     });
   };
 
@@ -78,7 +80,7 @@ export default function PropertyDetails() {
               <div key={index} className="aspect-square rounded-lg overflow-hidden">
                 <img 
                   src={image} 
-                  alt={`${translateUserInput(property.title)} - View ${index + 2}`} 
+                  alt={`${translateUserInput(property.title)} - ${t('property.view')} ${index + 2}`} 
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -106,7 +108,7 @@ export default function PropertyDetails() {
               {property.yearBuilt && (
                 <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                   <CalendarIcon className="h-4 w-4" />
-                  {t('property.built') || "Built"} {property.yearBuilt}
+                  {t('property.built')} {property.yearBuilt}
                 </span>
               )}
             </div>
@@ -120,7 +122,7 @@ export default function PropertyDetails() {
               </Button>
               <Button variant="outline" size="sm" onClick={handleShare}>
                 <ShareIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                {t('property.share') || "Share"}
+                {t('property.share')}
               </Button>
             </div>
           </div>
@@ -132,14 +134,14 @@ export default function PropertyDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           <div className="lg:col-span-2">
             <h2 className={`text-2xl font-semibold mb-4 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-              {t('property.details') || "Property Details"}
+              {t('property.details')}
             </h2>
             <p className={`text-muted-foreground mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
               {translateUserInput(property.description)}
             </p>
             
             <h3 className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-              {t('property.features') || "Features & Amenities"}
+              {t('property.features')}
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4 mb-6">
               {property.features.map((feature, index) => (
@@ -153,7 +155,7 @@ export default function PropertyDetails() {
             {property.additionalDetails && (
               <>
                 <h3 className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-                  {t('property.additionalInfo') || "Additional Information"}
+                  {t('property.additionalInfo')}
                 </h3>
                 <p className={`text-muted-foreground mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
                   {translateUserInput(property.additionalDetails)}
@@ -175,17 +177,17 @@ export default function PropertyDetails() {
                 </div>
               </div>
               <div className="space-y-4 mb-4">
-                <textarea 
+                <Textarea 
                   className={`w-full min-h-[100px] p-3 border rounded-md ${dir === 'rtl' ? 'text-right' : ''}`}
-                  placeholder={t('property.contactPlaceholder') || "I'm interested in this property and would like to schedule a viewing."}
+                  placeholder={t('property.contactPlaceholder')}
                   dir={dir}
                 />
                 <Button className="w-full" onClick={handleContact}>
-                  {t('property.contactAgent') || "Contact Agent"}
+                  {t('property.contactAgent')}
                 </Button>
               </div>
               <p className={`text-xs text-muted-foreground text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('property.contactDisclaimer') || "Your contact information will be shared with the agent"}
+                {t('property.contactDisclaimer')}
               </p>
             </Card>
           </div>
