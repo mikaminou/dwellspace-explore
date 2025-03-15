@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { MainNav } from "@/components/MainNav";
 import HeroSection from "@/components/home/HeroSection";
 import LuxuryPropertiesSection from "@/components/home/LuxuryPropertiesSection";
@@ -7,28 +7,29 @@ import FeaturedPropertiesSection from "@/components/home/FeaturedPropertiesSecti
 import CtaSection from "@/components/home/CtaSection";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useProperties } from "@/hooks/useProperties";
+import { properties as mockProperties } from "@/data/properties";
 
 export default function Index() {
-  // Use the properties hook but handle errors gracefully
-  const propertiesData = useProperties();
-  const [error, setError] = React.useState<string | null>(null);
+  const {
+    properties = [],
+    loading = false,
+    error: propertiesError = null
+  } = useProperties() || {};
+  
+  const [error, setError] = useState<string | null>(null);
 
-  React.useEffect(() => {
-    // Setup a global error handler to catch any rendering errors
-    const originalConsoleError = console.error;
-    console.error = (...args) => {
-      // Check if this is a rendering error
-      const errorMessage = args.join(' ');
-      if (errorMessage.includes('Cannot read properties of undefined')) {
-        setError('There was a problem rendering the page. Please try refreshing.');
-      }
-      originalConsoleError(...args);
-    };
+  // Ensure we have data to display even if the API fails
+  const safeProperties = properties && properties.length > 0 
+    ? properties 
+    : mockProperties;
 
-    return () => {
-      console.error = originalConsoleError;
-    };
-  }, []);
+  useEffect(() => {
+    // Handle any existing property errors
+    if (propertiesError) {
+      console.error("Properties error:", propertiesError);
+      setError("There was a problem loading properties. Using fallback data.");
+    }
+  }, [propertiesError]);
 
   if (error) {
     return (
@@ -48,22 +49,14 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <MainNav />
       
-      {/* Wrap each section in an error boundary */}
-      <React.Suspense fallback={<div>Loading hero section...</div>}>
-        <HeroSection />
-      </React.Suspense>
-
-      <React.Suspense fallback={<div>Loading luxury properties...</div>}>
-        <LuxuryPropertiesSection propertiesData={propertiesData} />
-      </React.Suspense>
-
-      <React.Suspense fallback={<div>Loading featured properties...</div>}>
-        <FeaturedPropertiesSection propertiesData={propertiesData} />
-      </React.Suspense>
-
-      <React.Suspense fallback={<div>Loading CTA section...</div>}>
-        <CtaSection />
-      </React.Suspense>
+      {/* Main content with guaranteed fallbacks */}
+      <HeroSection />
+      
+      <LuxuryPropertiesSection properties={safeProperties} loading={loading} />
+      
+      <FeaturedPropertiesSection properties={safeProperties} loading={loading} />
+      
+      <CtaSection />
     </div>
   );
 }

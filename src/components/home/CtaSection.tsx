@@ -19,8 +19,7 @@ export default function CtaSection() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
-            size="xl" 
-            variant="cta"
+            size="lg" 
             className={`font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
             asChild
           >
@@ -30,8 +29,8 @@ export default function CtaSection() {
             </Link>
           </Button>
           <Button 
-            size="xl" 
-            variant="secondary" 
+            size="lg" 
+            variant="outline" 
             className={`font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
             asChild
           >
