@@ -43,10 +43,12 @@ const LoadingFallback = () => (
 
 // Error boundary for catching rendering errors
 const ErrorBoundary = ({ children }) => {
+  console.log("ErrorBoundary rendering");
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    console.log("ErrorBoundary effect - setting up error listener");
     const handleError = (event) => {
       console.error("Global error caught:", event.error);
       setHasError(true);
@@ -59,7 +61,10 @@ const ErrorBoundary = ({ children }) => {
     };
 
     window.addEventListener("error", handleError);
-    return () => window.removeEventListener("error", handleError);
+    return () => {
+      console.log("ErrorBoundary cleanup - removing error listener");
+      window.removeEventListener("error", handleError);
+    };
   }, []);
 
   if (hasError) {
@@ -81,17 +86,22 @@ const ErrorBoundary = ({ children }) => {
 };
 
 const App = () => {
+  console.log("App component rendering");
   const [fallbackError, setFallbackError] = useState(false);
 
   // Global error handling
   useEffect(() => {
+    console.log("App effect - setting up unhandled rejection listener");
     const handleUnhandledRejection = (event) => {
       console.error("Unhandled Promise Rejection:", event.reason);
       setFallbackError(true);
     };
 
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
-    return () => window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    return () => {
+      console.log("App cleanup - removing unhandled rejection listener");
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+    };
   }, []);
 
   if (fallbackError) {
@@ -109,6 +119,7 @@ const App = () => {
     );
   }
 
+  console.log("App rendering routes");
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

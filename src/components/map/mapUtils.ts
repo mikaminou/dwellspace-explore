@@ -10,22 +10,27 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   }
 
   try {
+    console.log(`Generating coordinates for property ${id} with location "${location}"`);
+    
     // Extract city from location (assuming format is "Area, City")
     const parts = location.split(',');
     const cityPart = parts.length > 1 ? parts[parts.length - 1].trim() : location;
+    
+    console.log(`Extracted city part: "${cityPart}" from location "${location}"`);
     
     // Get base coordinates for the city
     const cityCoords = getCityCoordinates(cityPart);
     
     if (!cityCoords) {
-      // Fallback to Algiers if city not found
-      console.warn(`City not recognized in location "${location}", using Algiers as fallback`);
+      console.warn(`City not recognized in location "${location}" for property ${id}, using Algiers as fallback`);
       const fallbackCoords = { lat: 36.752887, lng: 3.042048 };
       return {
         lat: fallbackCoords.lat + (Math.sin(id) * 0.01),
         lng: fallbackCoords.lng + (Math.cos(id) * 0.01)
       };
     }
+    
+    console.log(`Found coordinates for city "${cityPart}": lat=${cityCoords.lat}, lng=${cityCoords.lng}`);
     
     // Generate slightly different coordinates based on the id to spread markers within the city
     return {
@@ -41,11 +46,15 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
 // Helper function to get city coordinates
 // In a real app, you would have this data in your database
 export function getCityCoordinates(city: string): { lat: number, lng: number } | null {
-  if (!city) return null;
+  if (!city) {
+    console.warn("Empty city name provided to getCityCoordinates");
+    return null;
+  }
 
   try {
     // Normalize city name for comparison (remove leading/trailing spaces, case insensitive)
     const normalizedCity = city.trim().toLowerCase();
+    console.log(`Looking up coordinates for normalized city: "${normalizedCity}"`);
     
     // Check if the normalized city name contains any of our known cities
     const cities: {[key: string]: { lat: number, lng: number }} = {
@@ -66,10 +75,12 @@ export function getCityCoordinates(city: string): { lat: number, lng: number } |
     // Try to find a matching city
     for (const [knownCity, coords] of Object.entries(cities)) {
       if (normalizedCity.includes(knownCity)) {
+        console.log(`Found matching city: "${knownCity}" for input "${normalizedCity}"`);
         return coords;
       }
     }
     
+    console.warn(`No matching city found for "${normalizedCity}"`);
     return null;
   } catch (error) {
     console.error("Error in getCityCoordinates:", error);

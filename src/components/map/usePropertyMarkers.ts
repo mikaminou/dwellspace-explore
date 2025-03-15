@@ -20,6 +20,13 @@ export function usePropertyMarkers({
 }) {
   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  
+  console.log('usePropertyMarkers rendering', { 
+    mapLoaded, 
+    loading, 
+    propertiesCount: properties?.length || 0,
+    mapExists: !!map.current
+  });
 
   // Update marker z-index based on active state
   const updateMarkerZIndex = (propertyId: number | null) => {
@@ -42,11 +49,28 @@ export function usePropertyMarkers({
 
   // Update markers when properties change
   useEffect(() => {
-    if (!map.current || !mapLoaded || loading) return;
+    console.log('usePropertyMarkers effect triggered', { 
+      mapLoaded, 
+      loading, 
+      propertiesCount: properties?.length || 0,
+      mapExists: !!map.current
+    });
+    
+    if (!map.current || !mapLoaded || loading) {
+      console.log('Skipping marker update - map not ready or loading');
+      return;
+    }
     
     try {
       // Remove existing markers
-      Object.values(markersRef.current).forEach(marker => marker.remove());
+      console.log('Removing existing markers');
+      Object.values(markersRef.current).forEach(marker => {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.error('Error removing marker:', e);
+        }
+      });
       markersRef.current = {};
 
       if (!properties || properties.length === 0) {
@@ -58,6 +82,7 @@ export function usePropertyMarkers({
       let propertiesWithCoords = 0;
       let missingCoords = 0;
 
+      console.log(`Creating markers for ${properties.length} properties`);
       properties.forEach(property => {
         if (!property || !property.location) {
           console.warn(`Property ${property?.id} has no location information`);
@@ -72,6 +97,7 @@ export function usePropertyMarkers({
             return;
           }
 
+          console.log(`Creating marker for property ${property.id} at [${coords.lng}, ${coords.lat}]`);
           bounds.extend([coords.lng, coords.lat]);
           propertiesWithCoords++;
 
@@ -98,9 +124,15 @@ export function usePropertyMarkers({
             priceElement.setAttribute('data-city', cityMatch[1].trim());
           }
 
+          // Add click event with better error handling
           priceElement.addEventListener('click', (e) => {
             e.stopPropagation();
-            onMarkerClick(property, [coords.lng, coords.lat]);
+            try {
+              console.log(`Marker clicked for property ${property.id}`);
+              onMarkerClick(property, [coords.lng, coords.lat]);
+            } catch (error) {
+              console.error('Error in marker click handler:', error);
+            }
           });
 
           markersRef.current[property.id] = marker;
@@ -111,6 +143,7 @@ export function usePropertyMarkers({
 
       if (propertiesWithCoords > 0) {
         try {
+          console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
           map.current.fitBounds(bounds, {
             padding: 50,
             maxZoom: 15
