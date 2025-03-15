@@ -17,7 +17,7 @@ export function PropertyPopup({ property }: PropertyPopupProps): string {
           alt="${property.title}" 
           class="w-full h-full object-cover"
         />
-        ${property.listing_type === 'premium' || property.isPremium ? 
+        ${property.isPremium || property.listing_type === 'premium' ? 
           `<div class="absolute top-2 right-2 bg-amber-500 text-white text-xs px-2 py-1 rounded">Premium</div>` : ''}
         ${property.listing_type ? 
           `<div class="absolute bottom-2 left-2 bg-primary bg-opacity-90 text-white text-xs px-2 py-1 rounded capitalize">${property.listing_type}</div>` : ''}
