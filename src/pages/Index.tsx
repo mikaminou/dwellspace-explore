@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
 import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon, StarIcon } from "lucide-react";
@@ -29,6 +30,17 @@ export default function Index() {
   
   // Initialize with the fallback URL, then try to get a public URL if available
   const [videoUrl, setVideoUrl] = useState(FALLBACK_SIGNED_URL);
+
+  // Define property types explicitly with proper translations
+  const propertyTypes = [
+    { value: "any", label: t('search.anyPropertyType') },
+    { value: "apartment", label: t('search.apartment') },
+    { value: "villa", label: t('search.villa') },
+    { value: "house", label: t('search.house') },
+    { value: "land", label: t('search.land') },
+    { value: "studio", label: t('search.studio') },
+    { value: "duplex", label: t('search.duplex') },
+  ];
 
   // Function to check if video exists in storage and get appropriate URL
   useEffect(() => {
@@ -155,11 +167,15 @@ export default function Index() {
                   </SelectTrigger>
                   <SelectContent dir={dir}>
                     <SelectGroup>
-                      <SelectItem value="any" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.anyPropertyType')}</SelectItem>
-                      <SelectItem value="apartment" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.apartment')}</SelectItem>
-                      <SelectItem value="villa" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.villa')}</SelectItem>
-                      <SelectItem value="house" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.house')}</SelectItem>
-                      <SelectItem value="land" className={dir === 'rtl' ? 'arabic-text text-right' : ''}>{t('search.land')}</SelectItem>
+                      {propertyTypes.map((type) => (
+                        <SelectItem 
+                          key={type.value} 
+                          value={type.value} 
+                          className={dir === 'rtl' ? 'arabic-text text-right' : ''}
+                        >
+                          {type.label}
+                        </SelectItem>
+                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
