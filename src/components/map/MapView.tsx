@@ -78,8 +78,9 @@ export function MapView() {
     // Create popup with property information - no close button
     popupRef.current = new mapboxgl.Popup({ 
       closeOnClick: false,
-      closeButton: false, // Remove the close button
-      maxWidth: '300px'
+      closeButton: false,
+      maxWidth: '300px',
+      className: 'property-popup-container'
     })
       .setLngLat(coordinates)
       .setHTML(`<div id="property-popup-${property.id}" class="property-popup"></div>`)
@@ -155,18 +156,29 @@ export function MapView() {
       bounds.extend([coords.lng, coords.lat]);
       propertiesWithCoords++;
 
-      // Create a marker element
+      // Create a marker element - using a div instead of HTML string for better control
       const markerEl = document.createElement('div');
-      markerEl.className = 'custom-marker flex items-center justify-center';
-      markerEl.innerHTML = `<div class="bg-primary text-white p-2 rounded-full">${property.price}</div>`;
-
-      // Create and add the marker
-      const marker = new mapboxgl.Marker(markerEl)
+      markerEl.className = 'custom-marker-container relative';
+      
+      // Create the marker
+      const marker = new mapboxgl.Marker({
+        element: markerEl,
+        anchor: 'bottom',
+        offset: [0, 0],
+        clickTolerance: 10 // Lower click tolerance to make clicking easier
+      })
         .setLngLat([coords.lng, coords.lat])
         .addTo(map.current!);
 
-      // Add click event to show popup
-      marker.getElement().addEventListener('click', () => {
+      // Create the price element with proper styling
+      const priceElement = document.createElement('div');
+      priceElement.className = 'bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
+      priceElement.innerText = formatPrice(property.price);
+      markerEl.appendChild(priceElement);
+
+      // Add click event directly to the price element
+      priceElement.addEventListener('click', (e) => {
+        e.stopPropagation(); // Stop event propagation
         showPropertyPopup(property, [coords.lng, coords.lat]);
       });
 
