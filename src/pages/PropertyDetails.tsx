@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -60,13 +59,13 @@ export default function PropertyDetails() {
       <div className="min-h-screen bg-background">
         <MainNav />
         <div className="container mx-auto px-4 py-16 text-center">
-          <TransHeading as="h1" className="text-3xl font-bold mb-4">property.notFound</TransHeading>
+          <TransHeading as="h1" id="property.notFound" className="text-3xl font-bold mb-4" />
           <p className="text-muted-foreground mb-8">
-            <Trans>property.notFoundDescription</Trans>
+            <Trans id="property.notFoundDescription" />
           </p>
           <Button asChild>
             <a href="/">
-              <Trans>notFound.returnHome</Trans>
+              <Trans id="notFound.returnHome" />
             </a>
           </Button>
         </div>
@@ -139,7 +138,7 @@ export default function PropertyDetails() {
             <div className={`flex items-center gap-4 ${dir === 'rtl' ? 'justify-end arabic-text' : ''}`}>
               <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 <BedDoubleIcon className="h-4 w-4" />
-                {property.beds} <Trans>property.beds</Trans>
+                {property.beds} <Trans id="property.beds" />
               </span>
               <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 <HomeIcon className="h-4 w-4" />
@@ -148,7 +147,7 @@ export default function PropertyDetails() {
               {property.year_built && (
                 <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                   <CalendarIcon className="h-4 w-4" />
-                  <Trans>property.built</Trans> {property.year_built}
+                  <Trans id="property.built" /> {property.year_built}
                 </span>
               )}
             </div>
@@ -158,11 +157,11 @@ export default function PropertyDetails() {
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={handleSave}>
                 <HeartIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                <Trans>property.save</Trans>
+                <Trans id="property.save" />
               </Button>
               <Button variant="outline" size="sm" onClick={handleShare}>
                 <ShareIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                <Trans>property.share</Trans>
+                <Trans id="property.share" />
               </Button>
             </div>
           </div>
@@ -173,16 +172,12 @@ export default function PropertyDetails() {
         {/* Property Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           <div className="lg:col-span-2">
-            <TransHeading as="h2" className={`text-2xl font-semibold mb-4 ${dir === 'rtl' ? 'text-right' : ''}`}>
-              property.details
-            </TransHeading>
+            <TransHeading as="h2" id="property.details" className={`text-2xl font-semibold mb-4 ${dir === 'rtl' ? 'text-right' : ''}`} />
             <div className={`mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
               {property.description}
             </div>
             
-            <TransHeading as="h3" className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right' : ''}`}>
-              property.features
-            </TransHeading>
+            <TransHeading as="h3" id="property.features" className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right' : ''}`} />
             <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4 mb-6">
               {(property.features || []).map((feature: string, index: number) => (
                 <div key={index} className={`flex items-center ${dir === 'rtl' ? 'flex-row-reverse justify-end arabic-text' : ''}`}>
@@ -194,9 +189,7 @@ export default function PropertyDetails() {
             
             {property.additional_details && (
               <>
-                <TransHeading as="h3" className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right' : ''}`}>
-                  property.additionalInfo
-                </TransHeading>
+                <TransHeading as="h3" id="property.additionalInfo" className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right' : ''}`} />
                 <div className={`mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
                   {property.additional_details}
                 </div>
@@ -229,11 +222,11 @@ export default function PropertyDetails() {
                   onChange={(e) => setMessage(e.target.value)}
                 />
                 <Button className="w-full" onClick={handleContact}>
-                  <Trans>property.contactAgent</Trans>
+                  <Trans id="property.contactAgent" />
                 </Button>
               </div>
               <p className={`text-xs text-muted-foreground text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                <Trans>property.contactDisclaimer</Trans>
+                <Trans id="property.contactDisclaimer" />
               </p>
             </Card>
           </div>

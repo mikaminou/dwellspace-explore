@@ -5,14 +5,14 @@ import { en } from './en';
 export type TranslationKeys = typeof en;
 
 // Simple utility to get nested keys with dot notation
-export function t(key: string, translations = en): string {
+export function t(key: string, defaultText?: string): string {
   const keys = key.split('.');
-  let current: any = translations;
+  let current: any = en; // Always use English translations for now
   
   for (const k of keys) {
     if (current[k] === undefined) {
       console.warn(`Translation key not found: ${key}`);
-      return key;
+      return defaultText || key;
     }
     current = current[k];
   }

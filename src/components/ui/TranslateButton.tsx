@@ -21,7 +21,7 @@ export function TranslateButton({ originalText, onTranslated, className = "" }: 
       size="sm" 
       className={`text-xs ${className}`}
     >
-      {t('ui.translate', 'Translate')}
+      {t('ui.translate')}
     </Button>
   );
 }
