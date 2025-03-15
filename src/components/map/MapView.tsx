@@ -8,7 +8,7 @@ import { Property } from '@/api/properties';
 import { PropertyPopup } from './PropertyPopup';
 import { useLanguage } from '@/contexts/language/LanguageContext';
 import { getOwnersForProperties } from '@/api/agents';
-import { generateCoordsFromLocation, getCityCoordinates } from './mapUtils';
+import { generateCoordsFromLocation, getCityCoordinates, formatPrice } from './mapUtils';
 import { MapLoadingState, MapEmptyState } from './MapStates';
 import { useMapSetup } from './useMapSetup';
 import mapboxgl from 'mapbox-gl';
