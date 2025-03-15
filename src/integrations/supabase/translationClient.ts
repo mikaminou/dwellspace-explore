@@ -39,7 +39,8 @@ export const useTranslatedSupabase = () => {
     }),
     
     rpc: async (fn: string, params?: any) => {
-      const { data, error } = await supabase.rpc(fn as any, params);
+      // Fix: Use a more specific type assertion to avoid the "not assignable to parameter of type 'never'" error
+      const { data, error } = await (supabase.rpc as any)(fn, params);
       if (error) throw error;
       return { data: await translateData(data), error };
     },
