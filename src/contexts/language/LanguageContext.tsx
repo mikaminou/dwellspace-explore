@@ -257,7 +257,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // New function to automatically translate data objects coming from backend
-  const translateData = async <T>(data: T): Promise<T> => {
+  const translateData = async <T,>(data: T): Promise<T> => {
     if (!data) return data;
 
     // For objects like API responses
