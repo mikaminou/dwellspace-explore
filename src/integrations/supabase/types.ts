@@ -64,6 +64,7 @@ export type Database = {
           id: number
           image: string | null
           images: Json | null
+          listing_type: string
           location: string
           owner_id: string
           price: string
@@ -84,6 +85,7 @@ export type Database = {
           id?: number
           image?: string | null
           images?: Json | null
+          listing_type?: string
           location: string
           owner_id: string
           price: string
@@ -104,6 +106,7 @@ export type Database = {
           id?: number
           image?: string | null
           images?: Json | null
+          listing_type?: string
           location?: string
           owner_id?: string
           price?: string

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -99,18 +100,42 @@ export default function PropertyDetails() {
   const ownerName = owner ? `${owner.first_name} ${owner.last_name}`.trim() : 'Unknown';
   const ownerInitials = ownerName !== 'Unknown' ? ownerName.charAt(0) : '?';
 
+  // Get the correct label for the listing type
+  const getListingTypeLabel = (type: string) => {
+    switch (type) {
+      case 'sale': return t('property.forSale') || 'For Sale';
+      case 'rent': return t('property.forRent') || 'For Rent';
+      case 'construction': return t('property.underConstruction') || 'Under Construction';
+      default: return t('property.forSale') || 'For Sale';
+    }
+  };
+
+  // Get the correct color class for the listing type badge
+  const getListingTypeBadgeClass = (type: string) => {
+    switch (type) {
+      case 'sale': return 'bg-green-500 text-white';
+      case 'rent': return 'bg-blue-500 text-white';
+      case 'construction': return 'bg-amber-500 text-white';
+      default: return 'bg-green-500 text-white';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <MainNav />
       
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="md:col-span-2 aspect-video rounded-lg overflow-hidden">
+          <div className="md:col-span-2 aspect-video rounded-lg overflow-hidden relative">
             <img 
               src={property.featured_image_url || '/placeholder.svg'} 
               alt={property.title}
               className="w-full h-full object-cover"
             />
+            {/* Add listing type badge */}
+            <div className={`absolute top-4 left-4 px-3 py-1.5 text-sm font-semibold rounded-md ${getListingTypeBadgeClass(property.listing_type)}`}>
+              {getListingTypeLabel(property.listing_type)}
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {(property.gallery_image_urls || []).slice(1, 5).map((image: string, index: number) => (

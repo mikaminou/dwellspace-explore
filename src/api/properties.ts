@@ -22,6 +22,7 @@ export type Property = {
   owner_id: string;
   created_at: string;
   updated_at: string;
+  listing_type: 'sale' | 'rent' | 'construction';
   // Make owner explicitly optional with proper typing
   owner?: Agent;
   // Add these properties for compatibility with mock data
@@ -82,6 +83,7 @@ export const searchProperties = async (
     maxPrice?: number;
     minBeds?: number;
     features?: string[];
+    listingType?: 'sale' | 'rent' | 'construction' | 'any';
   } = {}
 ): Promise<Property[]> => {
   try {
@@ -109,6 +111,11 @@ export const searchProperties = async (
     // Apply minimum bedrooms filter
     if (filters.minBeds && filters.minBeds > 0) {
       query = query.gte('beds', filters.minBeds);
+    }
+
+    // Apply listing type filter
+    if (filters.listingType && filters.listingType !== 'any') {
+      query = query.eq('listing_type', filters.listingType);
     }
 
     const { data, error } = await query;

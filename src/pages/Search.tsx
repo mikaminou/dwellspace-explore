@@ -18,6 +18,7 @@ export default function Search() {
   const [searchTerm, setSearchTerm] = useState("");
   const [propertyType, setPropertyType] = useState<string>("any");
   const [selectedCity, setSelectedCity] = useState<string>("any");
+  const [listingType, setListingType] = useState<string>("any");
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(50000000);
   const [minBeds, setMinBeds] = useState(0);
@@ -46,6 +47,14 @@ export default function Search() {
     { value: "Traditional House", label: t('search.traditionalHouse') },
     { value: "Loft", label: t('search.loft') },
     { value: "Chalet", label: t('search.chalet') }
+  ];
+
+  // Define listing types
+  const listingTypes = [
+    { value: "any", label: t('search.anyListingType') || "Any Type" },
+    { value: "sale", label: t('search.forSale') || "For Sale" },
+    { value: "rent", label: t('search.forRent') || "For Rent" },
+    { value: "construction", label: t('search.underConstruction') || "Under Construction" }
   ];
 
   // Fetch properties and extract cities on component mount
@@ -94,7 +103,8 @@ export default function Search() {
         minPrice,
         maxPrice,
         minBeds: minBeds > 0 ? minBeds : undefined,
-        features: selectedFeatures.length > 0 ? selectedFeatures : undefined
+        features: selectedFeatures.length > 0 ? selectedFeatures : undefined,
+        listingType: listingType !== 'any' ? listingType as 'sale' | 'rent' | 'construction' : undefined
       });
       
       setProperties(filteredProperties);
@@ -118,6 +128,7 @@ export default function Search() {
     setSearchTerm("");
     setPropertyType("any");
     setSelectedCity("any");
+    setListingType("any");
     setMinPrice(0);
     setMaxPrice(50000000);
     setMinBeds(0);
@@ -188,6 +199,31 @@ export default function Search() {
                 <SelectContent>
                   <SelectGroup>
                     {propertyTypes.map((type) => (
+                      <SelectItem 
+                        key={type.value} 
+                        value={type.value} 
+                        className={dir === 'rtl' ? 'arabic-text' : ''}
+                      >
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* New Listing Type Filter */}
+            <div>
+              <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+                {t('search.listingType') || 'Listing Type'}
+              </label>
+              <Select value={listingType} onValueChange={setListingType}>
+                <SelectTrigger className={dir === 'rtl' ? 'arabic-text' : ''}>
+                  <SelectValue placeholder={t('search.anyListingType') || 'Any Type'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {listingTypes.map((type) => (
                       <SelectItem 
                         key={type.value} 
                         value={type.value} 
@@ -375,6 +411,16 @@ export default function Search() {
                       alt={property.title}
                       className="h-64 w-full object-cover rounded-t-lg"
                     />
+                    {/* Add listing type badge */}
+                    <div className={`absolute top-4 left-4 px-2 py-1 text-xs font-semibold rounded-md ${
+                      property.listing_type === 'sale' ? 'bg-green-500 text-white' : 
+                      property.listing_type === 'rent' ? 'bg-blue-500 text-white' : 
+                      'bg-amber-500 text-white'
+                    }`}>
+                      {property.listing_type === 'sale' ? t('property.forSale') || 'For Sale' : 
+                       property.listing_type === 'rent' ? t('property.forRent') || 'For Rent' : 
+                       t('property.underConstruction') || 'Under Construction'}
+                    </div>
                     <Button
                       variant="secondary"
                       size="sm"
