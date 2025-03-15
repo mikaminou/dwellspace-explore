@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -31,8 +31,8 @@ function MapView() {
   // Get properties with owner data
   const { propertiesWithOwners } = usePropertiesWithOwners(properties);
 
-  // Set up popup functionality
-  const { popupRef, showPropertyPopup } = usePropertyPopup({
+  // Set up popup functionality with improved handling
+  const { popupRef, showPropertyPopup, cleanupPopup } = usePropertyPopup({
     map,
     onSaveProperty: handleSaveProperty,
     onMessageOwner: handleMessageOwner,
@@ -46,12 +46,28 @@ function MapView() {
     mapLoaded,
     loading,
     onMarkerClick: (property, coordinates) => {
+      // Close any existing popup before showing a new one
+      if (popupRef.current) {
+        cleanupPopup();
+      }
+      
+      // Show the popup for the clicked property
       showPropertyPopup(property, coordinates, setActiveMarkerId, updateMarkerZIndex);
     }
   });
 
   // Handle city selection
   useCitySelection({ map, mapLoaded, selectedCity });
+  
+  // Cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      // Clean up popup when component unmounts
+      if (popupRef.current) {
+        cleanupPopup();
+      }
+    };
+  }, []);
 
   return (
     <div className="relative flex-1 w-full">

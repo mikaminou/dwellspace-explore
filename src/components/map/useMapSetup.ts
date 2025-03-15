@@ -15,24 +15,12 @@ export function useMapSetup() {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<Error | null>(null);
 
-  // Initialize map only once
+  // Initialize map
   useEffect(() => {
-    // Debugging
-    console.log('useMapSetup: Initializing map effect');
-    
-    if (!mapContainer.current || map.current) {
-      console.log('useMapSetup: Skipping initialization - map already exists or container not ready');
-      return;
-    }
+    if (!mapContainer.current || map.current) return;
 
     try {
-      console.log('Initializing map with token:', mapboxgl.accessToken.substring(0, 10) + '...');
-      
-      // Check if mapboxgl is available
-      if (!mapboxgl) {
-        console.error('Mapbox GL JS is not available');
-        throw new Error('Mapbox GL JS is not available');
-      }
+      console.log('Initializing map with token:', mapboxgl.accessToken);
       
       // Create the map instance
       map.current = new mapboxgl.Map({
@@ -43,8 +31,6 @@ export function useMapSetup() {
         attributionControl: false,
         failIfMajorPerformanceCaveat: false // Helps with some devices
       });
-
-      console.log('useMapSetup: Map instance created');
 
       // Add navigation controls
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -74,13 +60,9 @@ export function useMapSetup() {
 
       // Clean up on unmount
       return () => {
-        console.log('useMapSetup: Cleaning up map instance');
         if (map.current) {
-          try {
-            map.current.remove();
-          } catch (error) {
-            console.error('Error removing map:', error);
-          }
+          console.log('Cleaning up map instance');
+          map.current.remove();
           map.current = null;
         }
       };

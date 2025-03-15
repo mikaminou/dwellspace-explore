@@ -43,16 +43,12 @@ const LoadingFallback = () => (
 
 // Error boundary for catching rendering errors
 const ErrorBoundary = ({ children }) => {
-  console.log("ErrorBoundary rendering");
   const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    console.log("ErrorBoundary effect - setting up error listener");
-    const handleError = (event) => {
-      console.error("Global error caught:", event.error);
+    const handleError = (error) => {
+      console.error("Global error caught:", error);
       setHasError(true);
-      setErrorMessage(event.error?.message || "Unknown error");
       toast({
         variant: "destructive",
         title: "Something went wrong",
@@ -61,17 +57,14 @@ const ErrorBoundary = ({ children }) => {
     };
 
     window.addEventListener("error", handleError);
-    return () => {
-      console.log("ErrorBoundary cleanup - removing error listener");
-      window.removeEventListener("error", handleError);
-    };
+    return () => window.removeEventListener("error", handleError);
   }, []);
 
   if (hasError) {
     return (
       <div className="flex flex-col items-center justify-center h-screen p-4">
         <h2 className="text-2xl font-bold text-destructive mb-4">Something went wrong</h2>
-        <p className="mb-4">Error details: {errorMessage}</p>
+        <p className="mb-4">The application encountered an error.</p>
         <button 
           onClick={() => window.location.reload()} 
           className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
@@ -85,83 +78,47 @@ const ErrorBoundary = ({ children }) => {
   return children;
 };
 
-const App = () => {
-  console.log("App component rendering");
-  const [fallbackError, setFallbackError] = useState(false);
-
-  // Global error handling
-  useEffect(() => {
-    console.log("App effect - setting up unhandled rejection listener");
-    const handleUnhandledRejection = (event) => {
-      console.error("Unhandled Promise Rejection:", event.reason);
-      setFallbackError(true);
-    };
-
-    window.addEventListener("unhandledrejection", handleUnhandledRejection);
-    return () => {
-      console.log("App cleanup - removing unhandled rejection listener");
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
-    };
-  }, []);
-
-  if (fallbackError) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen p-4">
-        <h2 className="text-2xl font-bold text-destructive mb-4">Application Error</h2>
-        <p className="mb-4">An unexpected error occurred. The application needs to be restarted.</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
-        >
-          Reload Application
-        </button>
-      </div>
-    );
-  }
-
-  console.log("App rendering routes");
-  return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <LanguageProvider>
-            <BrowserRouter>
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/search" element={<Search />} />
-                  <Route path="/map" element={<Map />} />
-                  <Route path="/property/:id" element={<PropertyDetails />} />
-                  <Route path="/signin" element={<SignIn />} />
-                  <Route path="/signup" element={<SignUp />} />
-                  <Route path="/email-confirmation" element={<EmailConfirmation />} />
-                  <Route 
-                    path="/profile" 
-                    element={
-                      <ProtectedRoute>
-                        <Profile />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/favorites" 
-                    element={
-                      <ProtectedRoute>
-                        <NotFound />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-                <Toaster />
-                <Sonner />
-              </Suspense>
-            </BrowserRouter>
-          </LanguageProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
-  );
-};
+const App = () => (
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <LanguageProvider>
+          <BrowserRouter>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/map" element={<Map />} />
+                <Route path="/property/:id" element={<PropertyDetails />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/email-confirmation" element={<EmailConfirmation />} />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/favorites" 
+                  element={
+                    <ProtectedRoute>
+                      <NotFound />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Toaster />
+              <Sonner />
+            </Suspense>
+          </BrowserRouter>
+        </LanguageProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
+);
 
 export default App;

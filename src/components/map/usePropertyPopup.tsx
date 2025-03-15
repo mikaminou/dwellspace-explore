@@ -19,112 +19,107 @@ export function usePropertyPopup({
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   const popupRootRef = useRef<Record<number, any>>({});
   
-  // Cleanup function to properly dispose React roots and popups
+  // Cleanup function to safely unmount React roots and remove popups
   const cleanupPopup = () => {
-    console.log("Cleaning up popup and React roots");
-    
-    // Remove popup
     if (popupRef.current) {
-      try {
-        popupRef.current.remove();
-      } catch (e) {
-        console.error('Error removing popup:', e);
-      }
+      popupRef.current.remove();
       popupRef.current = null;
     }
-    
-    // Unmount any React roots
+
+    // Safely unmount React roots
     Object.entries(popupRootRef.current).forEach(([id, root]) => {
       try {
-        console.log(`Unmounting popup root for property ${id}`);
         root.unmount();
       } catch (e) {
-        console.error(`Error unmounting popup root for property ${id}:`, e);
+        console.error(`Error unmounting popup for property ${id}:`, e);
       }
     });
     
-    //Clear the roots reference
+    // Reset roots object
     popupRootRef.current = {};
   };
 
-  // Show property popup
+  // Show property popup with improved error handling and cleanup
   const showPropertyPopup = (
     property: Property, 
     coordinates: [number, number],
     setActiveMarkerId: (id: number | null) => void,
     updateMarkerZIndex: (id: number | null) => void
   ) => {
-    console.log(`Showing popup for property ${property.id}`);
+    if (!map.current) return;
     
-    if (!map.current) {
-      console.warn('Map not initialized');
-      return;
-    }
-    
-    try {
-      // Clean up any existing popup and roots
-      cleanupPopup();
+    // Clean up any existing popup before creating a new one
+    cleanupPopup();
 
+    try {
       // Set active marker
       setActiveMarkerId(property.id);
       updateMarkerZIndex(property.id);
 
-      // Create new popup
+      // Create popup with specific options for better positioning and user interaction
       popupRef.current = new mapboxgl.Popup({ 
         closeOnClick: false,
-        closeButton: true,
+        closeButton: true, // Added close button for better UX
         maxWidth: '320px',
-        className: 'property-popup-container'
+        className: 'property-popup-container',
+        offset: [0, -15], // Offset to position popup better above markers
+        anchor: 'bottom' // Position popup above the marker
       })
         .setLngLat(coordinates)
         .setHTML(`<div id="property-popup-${property.id}" class="property-popup"></div>`)
         .addTo(map.current);
 
+      // Render the React component into the popup
       const popupElement = document.getElementById(`property-popup-${property.id}`);
-      if (!popupElement) {
-        console.error(`Popup element not found for property ${property.id}`);
-        return;
+      if (popupElement) {
+        const root = createRoot(popupElement);
+        popupRootRef.current[property.id] = root;
+        
+        root.render(
+          <PropertyPopup 
+            property={property} 
+            onSave={onSaveProperty}
+            onMessageOwner={onMessageOwner}
+            onClick={() => navigate(`/property/${property.id}`)}
+          />
+        );
       }
 
-      // Create React root and render popup content
-      console.log(`Creating React root for property ${property.id}`);
-      const root = createRoot(popupElement);
-      popupRootRef.current[property.id] = root;
-      
-      root.render(
-        <PropertyPopup 
-          property={property} 
-          onSave={onSaveProperty}
-          onMessageOwner={onMessageOwner}
-          onClick={() => navigate(`/property/${property.id}`)}
-        />
-      );
-
-      // Add cleanup for popup close
-      popupRef.current.once('close', () => {
-        console.log(`Popup closed for property ${property.id}`);
-        cleanupPopup();
+      // Reset active marker when popup is closed by user clicking the close button
+      popupRef.current.on('close', () => {
         setActiveMarkerId(null);
         updateMarkerZIndex(null);
+        
+        // Clean up React root when popup is closed
+        if (popupRootRef.current[property.id]) {
+          try {
+            popupRootRef.current[property.id].unmount();
+            delete popupRootRef.current[property.id];
+          } catch (e) {
+            console.error(`Error unmounting popup for property ${property.id}:`, e);
+          }
+        }
       });
-
-      // Add map event listeners
-      ['dragstart', 'zoomstart', 'click'].forEach(event => {
-        map.current?.once(event, () => {
-          console.log(`Map ${event} triggered, cleaning up popup`);
-          cleanupPopup();
-          setActiveMarkerId(null);
-          updateMarkerZIndex(null);
-        });
+      
+      // Handle map interactions that should close popup
+      // Using once() to avoid multiple event binding
+      const mapEvents = ['dragstart', 'zoomstart'];
+      mapEvents.forEach(event => {
+        map.current?.once(event, cleanupPopup);
       });
+      
     } catch (error) {
       console.error('Error showing property popup:', error);
+      // Reset state on error
+      setActiveMarkerId(null);
+      updateMarkerZIndex(null);
       cleanupPopup();
     }
   };
 
   return {
     popupRef,
-    showPropertyPopup
+    showPropertyPopup,
+    cleanupPopup // Export cleanup function for component unmount
   };
 }
