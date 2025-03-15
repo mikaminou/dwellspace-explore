@@ -76,7 +76,7 @@ export function PropertyPopup({
               aria-label="Message owner"
               onClick={(e) => {
                 e.stopPropagation();
-                onMessageOwner(property.owner?.id || 0);
+                onMessageOwner(property.owner?.id ? parseInt(property.owner.id, 10) : 0);
               }}
             >
               <MessageCircle className="h-4 w-4" />
