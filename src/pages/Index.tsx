@@ -68,14 +68,14 @@ export default function Index() {
   };
 
   const getListingTypeColor = (property: Property): string => {
-    if (property.listingType === 'rent') return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
-    if (property.listingType === 'construction') return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
+    if (property.listing_type === 'rent') return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
+    if (property.listing_type === 'construction') return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
     return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'; // default for sale
   };
 
   const getListingTypeText = (property: Property): string => {
-    if (property.listingType === 'rent') return t('property.forRent');
-    if (property.listingType === 'construction') return t('property.underConstruction');
+    if (property.listing_type === 'rent') return t('property.forRent');
+    if (property.listing_type === 'construction') return t('property.underConstruction');
     return t('property.forSale'); // default for sale
   };
 
@@ -460,3 +460,4 @@ export default function Index() {
     </div>
   );
 }
+
