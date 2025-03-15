@@ -79,7 +79,7 @@ export function MapView() {
     popupRef.current = new mapboxgl.Popup({ 
       closeOnClick: false,
       closeButton: false,
-      maxWidth: '300px',
+      maxWidth: '320px',
       className: 'property-popup-container'
     })
       .setLngLat(coordinates)
@@ -173,7 +173,7 @@ export function MapView() {
       // Create the price element with proper styling
       const priceElement = document.createElement('div');
       priceElement.className = 'bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
-      priceElement.innerText = formatPrice(property.price);
+      priceElement.innerText = property.price; // Use original price format
       markerEl.appendChild(priceElement);
 
       // Add click event directly to the price element
