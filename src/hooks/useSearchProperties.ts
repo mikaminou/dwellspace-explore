@@ -1,16 +1,17 @@
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { searchProperties } from "@/api";
 import { Property } from "@/api/properties";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/language/LanguageContext";
-import { getMaxPropertyPrice, getMaxLivingArea, getAllCities } from "@/integrations/supabase/client";
+import { getMaxPropertyPrice, getMaxLivingArea, getAllCities, getCityWithLowestPropertyCount } from "@/integrations/supabase/client";
 
 export function useSearchProperties() {
   const [searchTerm, setSearchTerm] = useState('');
   const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedCity, setSelectedCity] = useState('any');
+  const [selectedCity, setSelectedCity] = useState('');
   const [propertyType, setPropertyType] = useState<string[]>([]);
   const [listingType, setListingType] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState(0);
@@ -24,13 +25,17 @@ export function useSearchProperties() {
   const [maxPriceLimit, setMaxPriceLimit] = useState(50000000);
   const [maxLivingAreaLimit, setMaxLivingAreaLimit] = useState(500);
   const [activeFilterSection, setActiveFilterSection] = useState<string | null>(null);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
   
   const { t } = useLanguage();
   const filtersApplied = useRef(false);
 
   useEffect(() => {
-    const fetchLimits = async () => {
+    const fetchInitialData = async () => {
       try {
+        setLoading(true);
+        
+        // 1. Fetch limits
         const maxPrice = await getMaxPropertyPrice();
         setMaxPriceLimit(maxPrice);
         setMaxPrice(maxPrice);
@@ -39,25 +44,43 @@ export function useSearchProperties() {
         setMaxLivingAreaLimit(maxLiving);
         setMaxLivingArea(maxLiving);
 
-        const cities = await getAllCities();
-        setCities(['any', ...cities]);
+        // 2. Fetch all cities
+        const citiesList = await getAllCities();
+        setCities(['any', ...citiesList]);
         
-        handleSearch();
+        // 3. Get the city with the lowest property count
+        const defaultCity = await getCityWithLowestPropertyCount();
+        
+        // 4. Set the default city
+        setSelectedCity(defaultCity);
+        
+        // 5. Set initial load done flag
+        setInitialLoadDone(true);
       } catch (error) {
-        console.error("Error fetching limits:", error);
+        console.error("Error fetching initial data:", error);
         toast.error(t('search.errorFetchingLimits'));
+        setInitialLoadDone(true);
       }
     };
 
-    fetchLimits();
-  }, []);
+    fetchInitialData();
+  }, [t]);
+
+  // Effect to trigger search after initial data is loaded
+  useEffect(() => {
+    if (initialLoadDone && selectedCity) {
+      handleSearch();
+    }
+  }, [initialLoadDone, selectedCity]);
 
   const handleSearch = useCallback(async () => {
+    if (!selectedCity) return;
+    
     setLoading(true);
     filtersApplied.current = true;
     try {
       const results = await searchProperties(searchTerm, {
-        city: selectedCity,
+        city: selectedCity === 'any' ? undefined : selectedCity,
         propertyType: propertyType.join(','),
         minPrice: minPrice,
         maxPrice: maxPrice,
@@ -184,6 +207,7 @@ export function useSearchProperties() {
     handleSearch,
     handleReset,
     getActiveFiltersCount,
-    handleFilterRemoval
+    handleFilterRemoval,
+    initialLoadDone
   };
 }

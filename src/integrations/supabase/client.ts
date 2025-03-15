@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
@@ -165,5 +164,22 @@ export const getAllCities = async (): Promise<string[]> => {
   } catch (error) {
     console.error('Unexpected error getting cities:', error);
     return [];
+  }
+};
+
+// Get the city with the lowest property count
+export const getCityWithLowestPropertyCount = async (): Promise<string> => {
+  try {
+    const { data, error } = await supabase.rpc('get_city_with_lowest_property_count');
+    
+    if (error) {
+      console.error('Error fetching city with lowest property count:', error);
+      return 'any';
+    }
+    
+    return data || 'any';
+  } catch (error) {
+    console.error('Unexpected error getting city with lowest property count:', error);
+    return 'any';
   }
 };
