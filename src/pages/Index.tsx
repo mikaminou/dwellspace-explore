@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
 import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon, StarIcon } from "lucide-react";
@@ -18,6 +19,16 @@ const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
 // Fallback direct signed URL provided by the user (long expiry)
 const FALLBACK_SIGNED_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/hero.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9oZXJvLm1wNCIsImlhdCI6MTc0MTg5MTQyMCwiZXhwIjoxNzczNDI3NDIwfQ.ocQCcfFXgHHMW8do_xssp2P5csUFT-efMRtqqw_L1_M";
+
+// Define property types for the dropdown
+const propertyTypeOptions = [
+  { value: "any", label: "Any Type" },
+  { value: "apartment", label: "Apartment" },
+  { value: "house", label: "House" },
+  { value: "villa", label: "Villa" },
+  { value: "office", label: "Office" },
+  { value: "commercial", label: "Commercial" },
+];
 
 export default function Index() {
   const { t, dir } = useLanguage();
@@ -98,7 +109,7 @@ export default function Index() {
   };
 
   // Function to handle video error
-  const handleVideoError = (error) => {
+  const handleVideoError = (error: any) => {
     console.error("Error loading video:", error);
     setVideoError(true);
     setIsVideoLoading(false);
@@ -183,7 +194,7 @@ export default function Index() {
                   </SelectTrigger>
                   <SelectContent dir={dir}>
                     <SelectGroup>
-                      {propertyTypes.map((type) => (
+                      {propertyTypeOptions.map((type) => (
                         <SelectItem 
                           key={type.value} 
                           value={type.value} 

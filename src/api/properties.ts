@@ -22,7 +22,7 @@ export type Property = {
   owner_id: string;
   created_at: string;
   updated_at: string;
-  // Include the owner property for type compatibility with existing code
+  // Make owner a required property
   owner?: Agent;
   // Add these properties for compatibility with mock data
   image?: string;

@@ -15,14 +15,25 @@ export function useProperties() {
     try {
       const data = await getAllProperties();
       
-      // Ensure all properties have the required fields
-      const normalizedData = data.map(property => ({
-        ...property,
-        // Set fallback values for compatibility with both mock and DB data
-        featured_image_url: property.featured_image_url || property.image || '',
-        gallery_image_urls: property.gallery_image_urls || property.images || [],
-        image: property.image || property.featured_image_url || '',
-        images: property.images || property.gallery_image_urls || [],
+      // Ensure all properties have the required fields including owner
+      const normalizedData = await Promise.all(data.map(async property => {
+        let owner = undefined;
+        
+        // If property has an owner_id, fetch the owner details
+        if (property.owner_id) {
+          owner = await getAgentById(property.owner_id);
+        }
+        
+        return {
+          ...property,
+          // Set fallback values for compatibility with both mock and DB data
+          featured_image_url: property.featured_image_url || property.image || '',
+          gallery_image_urls: property.gallery_image_urls || property.images || [],
+          image: property.image || property.featured_image_url || '',
+          images: property.images || property.gallery_image_urls || [],
+          owner: owner || undefined,
+          isPremium: property.isPremium || false,
+        };
       }));
       
       setProperties(normalizedData);
@@ -52,7 +63,8 @@ export function useProperties() {
             featured_image_url: propertyData.featured_image_url || propertyData.image || '',
             gallery_image_urls: propertyData.gallery_image_urls || propertyData.images || [],
             image: propertyData.image || propertyData.featured_image_url || '',
-            images: propertyData.images || propertyData.gallery_image_urls || []
+            images: propertyData.images || propertyData.gallery_image_urls || [],
+            isPremium: propertyData.isPremium || false,
           };
         }
       }
@@ -63,7 +75,8 @@ export function useProperties() {
         featured_image_url: propertyData.featured_image_url || propertyData.image || '',
         gallery_image_urls: propertyData.gallery_image_urls || propertyData.images || [],
         image: propertyData.image || propertyData.featured_image_url || '',
-        images: propertyData.images || propertyData.gallery_image_urls || []
+        images: propertyData.images || propertyData.gallery_image_urls || [],
+        isPremium: propertyData.isPremium || false,
       } : null;
     } catch (err: any) {
       console.error(`Error fetching property with ID ${id}:`, err);
@@ -90,14 +103,25 @@ export function useProperties() {
     try {
       const data = await searchProperties(searchTerm, filters);
       
-      // Normalize the data for consistency
-      const normalizedData = data.map(property => ({
-        ...property,
-        // Set fallback values for compatibility
-        featured_image_url: property.featured_image_url || property.image || '',
-        gallery_image_urls: property.gallery_image_urls || property.images || [],
-        image: property.image || property.featured_image_url || '',
-        images: property.images || property.gallery_image_urls || []
+      // Normalize the data for consistency and fetch owners
+      const normalizedData = await Promise.all(data.map(async property => {
+        let owner = undefined;
+        
+        // If property has an owner_id, fetch the owner details
+        if (property.owner_id) {
+          owner = await getAgentById(property.owner_id);
+        }
+        
+        return {
+          ...property,
+          // Set fallback values for compatibility
+          featured_image_url: property.featured_image_url || property.image || '',
+          gallery_image_urls: property.gallery_image_urls || property.images || [],
+          image: property.image || property.featured_image_url || '',
+          images: property.images || property.gallery_image_urls || [],
+          owner: owner || undefined,
+          isPremium: property.isPremium || false,
+        };
       }));
       
       setProperties(normalizedData);
