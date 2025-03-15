@@ -64,7 +64,7 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
       .in('id', propertyIds)
       .eq('owner_type', 'agent');
 
-    if (propertiesError) {
+    if (propertiesError || !properties) {
       console.error('Error fetching property-agent relationships:', propertiesError);
       return {};
     }
@@ -80,24 +80,26 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
       .select('*')
       .in('id', agentIds);
 
-    if (agentsError) {
+    if (agentsError || !agents) {
       console.error('Error fetching agents:', agentsError);
       return {};
     }
 
     // Create a map of agent_id to agent
-    const agentMap = agents.reduce((acc: {[key: string]: Agent}, agent: Agent) => {
-      acc[agent.id] = agent;
-      return acc;
-    }, {});
+    const agentMap: {[key: string]: Agent} = {};
+    agents.forEach((agent: Agent) => {
+      agentMap[agent.id] = agent;
+    });
 
     // Finally, create a map of property_id to agent
-    return properties.reduce((acc: {[key: number]: Agent}, property: any) => {
+    const propertyAgentMap: {[key: number]: Agent} = {};
+    properties.forEach((property: any) => {
       if (agentMap[property.owner_id]) {
-        acc[property.id] = agentMap[property.owner_id];
+        propertyAgentMap[property.id] = agentMap[property.owner_id];
       }
-      return acc;
-    }, {});
+    });
+
+    return propertyAgentMap;
   } catch (error) {
     console.error('Unexpected error fetching agents for properties:', error);
     return {};
