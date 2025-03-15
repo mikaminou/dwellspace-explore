@@ -49,15 +49,18 @@ export function usePropertyMarkers({
       Object.values(markersRef.current).forEach(marker => marker.remove());
       markersRef.current = {};
 
-      if (properties.length === 0) return;
+      if (!properties || properties.length === 0) {
+        console.log('No properties to display on map');
+        return;
+      }
 
       const bounds = new mapboxgl.LngLatBounds();
       let propertiesWithCoords = 0;
       let missingCoords = 0;
 
       properties.forEach(property => {
-        if (!property.location) {
-          console.warn(`Property ${property.id} has no location information`);
+        if (!property || !property.location) {
+          console.warn(`Property ${property?.id} has no location information`);
           return;
         }
 
@@ -86,7 +89,7 @@ export function usePropertyMarkers({
 
           const priceElement = document.createElement('div');
           priceElement.className = 'price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
-          priceElement.innerText = property.price;
+          priceElement.innerText = property.price || '$0';
           markerEl.appendChild(priceElement);
 
           // Add city name as data attribute for debugging
@@ -107,10 +110,14 @@ export function usePropertyMarkers({
       });
 
       if (propertiesWithCoords > 0) {
-        map.current.fitBounds(bounds, {
-          padding: 50,
-          maxZoom: 15
-        });
+        try {
+          map.current.fitBounds(bounds, {
+            padding: 50,
+            maxZoom: 15
+          });
+        } catch (boundsError) {
+          console.error('Error fitting bounds:', boundsError);
+        }
       } else {
         console.warn('No properties with valid coordinates found');
       }

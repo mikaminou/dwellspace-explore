@@ -20,7 +20,12 @@ export function useMapSetup() {
     if (!mapContainer.current || map.current) return;
 
     try {
-      console.log('Initializing map with token:', mapboxgl.accessToken);
+      console.log('Initializing map with token:', mapboxgl.accessToken.substring(0, 10) + '...');
+      
+      // Check if mapboxgl is available
+      if (!mapboxgl) {
+        throw new Error('Mapbox GL JS is not available');
+      }
       
       // Create the map instance
       map.current = new mapboxgl.Map({
