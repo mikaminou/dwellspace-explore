@@ -1,18 +1,15 @@
 
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { ProfileAvatar } from "./ProfileAvatar";
+import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/language/LanguageContext";
 
 interface ProfileSidebarProps {
-  userAvatar?: string;
+  userAvatar?: string | null;
   userName: string;
-  userEmail?: string;
+  userEmail?: string | null;
   userRole?: string;
+  userAgency?: string;
   userInitials: string;
 }
 
@@ -20,31 +17,55 @@ export function ProfileSidebar({
   userAvatar, 
   userName, 
   userEmail, 
-  userRole,
-  userInitials
+  userRole, 
+  userAgency,
+  userInitials 
 }: ProfileSidebarProps) {
+  const { t, dir } = useLanguage();
+  
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          Profile
-        </CardTitle>
-        <CardDescription>
-          Your personal information
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col items-center">
-        <ProfileAvatar 
-          userAvatar={userAvatar}
-          userName={userName}
-          userInitials={userInitials}
-        />
-        <h3 className="text-lg font-medium">
-          {userName}
-        </h3>
-        {userEmail && <p className="text-sm text-muted-foreground">{userEmail}</p>}
-        {userRole && <p className="text-sm mt-2 capitalize">{userRole}</p>}
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <Card>
+        <CardContent className="pt-6 flex flex-col items-center gap-4">
+          <ProfileAvatar avatarUrl={userAvatar} initials={userInitials} />
+          
+          <div className="text-center">
+            <h3 className={`text-xl font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{userName}</h3>
+            
+            {userRole && (
+              <div className="mb-1 mt-2">
+                <Badge variant="secondary" className="capitalize">
+                  {userRole}
+                </Badge>
+              </div>
+            )}
+            
+            {userRole === 'agent' && userAgency && (
+              <p className="text-sm text-muted-foreground mt-1">{userAgency}</p>
+            )}
+            
+            {userEmail && (
+              <p className="text-sm text-muted-foreground mt-1">{userEmail}</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardContent className="pt-6">
+          <h4 className={`font-medium mb-2 ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('profile.accountType') || "Account Type"}</h4>
+          
+          <div className="flex flex-col gap-1">
+            <div className="text-sm">
+              <span className="text-muted-foreground">{t('profile.role') || "Role"}:</span> <span className="capitalize">{userRole || "Buyer"}</span>
+            </div>
+            
+            <div className="text-sm">
+              <span className="text-muted-foreground">{t('profile.memberSince') || "Member Since"}:</span> <span>March 2025</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

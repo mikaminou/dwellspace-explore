@@ -16,6 +16,7 @@ const profileSchema = z.object({
   phone_number: z.string().optional(),
   bio: z.string().optional(),
   role: z.enum(["buyer", "seller", "agent", "admin"]),
+  agency: z.string().optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -36,6 +37,7 @@ export function useProfile() {
       phone_number: "",
       bio: "",
       role: "buyer",
+      agency: "",
     },
   });
 
@@ -65,6 +67,7 @@ export function useProfile() {
             phone_number: data.phone_number || "",
             bio: data.bio || "",
             role: data.role,
+            agency: data.agency || "",
           });
           setProfileData(data as ProfileFormValues);
         }
@@ -93,6 +96,7 @@ export function useProfile() {
           phone_number: values.phone_number,
           bio: values.bio,
           role: values.role,
+          agency: values.agency,
           updated_at: new Date().toISOString(),
         })
         .eq("id", session?.user.id);
@@ -118,6 +122,7 @@ export function useProfile() {
   const userEmail = session?.user?.email;
   const userAvatar = session?.user?.user_metadata?.avatar_url;
   const userName = profileData?.first_name || session?.user?.user_metadata?.first_name || "";
+  const userAgency = profileData?.agency || session?.user?.user_metadata?.agency || "";
   const userInitials = userName 
     ? userName.slice(0, 2).toUpperCase() 
     : userEmail 
@@ -135,6 +140,7 @@ export function useProfile() {
       userName,
       userInitials,
       userRole: profileData?.role,
+      userAgency,
     },
     isLoaded
   };

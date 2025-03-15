@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 export const authService = {
-  signUp: async (email: string, password: string, displayName: string, role: string = "buyer") => {
+  signUp: async (email: string, password: string, displayName: string, role: string = "buyer", agency: string = "") => {
     try {
       // Get base URL - ensure it's the absolute URL including protocol
       const baseUrl = window.location.origin;
@@ -12,16 +12,24 @@ export const authService = {
       console.log("Starting Supabase signup process for:", email);
       console.log("Using redirect URL:", baseUrl);
       
+      // Prepare user metadata including role and agency if applicable
+      const userMetadata: Record<string, any> = {
+        first_name: displayName.split(' ')[0],
+        last_name: displayName.split(' ').slice(1).join(' '),
+        role: role,
+      };
+      
+      // Only add agency field if role is agent and agency is provided
+      if (role === 'agent' && agency) {
+        userMetadata.agency = agency;
+      }
+      
       // Sign up with proper redirect URL
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
-          data: {
-            first_name: displayName.split(' ')[0],
-            last_name: displayName.split(' ').slice(1).join(' '),
-            role: role,
-          },
+          data: userMetadata,
           emailRedirectTo: `${baseUrl}/email-confirmation`
         }
       });

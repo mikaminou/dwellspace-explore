@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
 
@@ -8,12 +8,20 @@ export function useEmailSignUp(onError: (message: string) => void) {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [userRole, setUserRole] = useState("buyer");
+  const [agency, setAgency] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
+
+  // Show/hide agency field based on role
+  const [showAgencyField, setShowAgencyField] = useState(false);
+  
+  useEffect(() => {
+    setShowAgencyField(userRole === 'agent');
+  }, [userRole]);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) {
@@ -28,12 +36,19 @@ export function useEmailSignUp(onError: (message: string) => void) {
       return;
     }
 
+    // Validate agency name for agents
+    if (userRole === 'agent' && !agency.trim()) {
+      const errorMsg = "Agency name is required for agents";
+      onError(errorMsg);
+      return;
+    }
+
     try {
       setLoading(true);
       console.log("Starting signup process for:", email);
       
       try {
-        const result = await signUp(email, password, displayName, userRole);
+        const result = await signUp(email, password, displayName, userRole, agency);
         console.log("Signup result:", result);
 
         // Check if confirmation is required
@@ -110,6 +125,9 @@ export function useEmailSignUp(onError: (message: string) => void) {
     setDisplayName,
     userRole,
     setUserRole,
+    agency,
+    setAgency,
+    showAgencyField,
     loading,
     confirmationSent,
     showPassword,

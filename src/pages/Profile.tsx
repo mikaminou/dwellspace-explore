@@ -25,6 +25,7 @@ export default function ProfilePage() {
                 userName={`${userInfo.userName} ${form.getValues().last_name || ""}`}
                 userEmail={userInfo.userEmail}
                 userRole={userInfo.userRole}
+                userAgency={userInfo.userAgency}
                 userInitials={userInfo.userInitials}
               />
             </div>

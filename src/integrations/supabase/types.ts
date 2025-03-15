@@ -9,41 +9,9 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      agents: {
-        Row: {
-          agency: string
-          avatar: string | null
-          created_at: string
-          email: string | null
-          id: string
-          name: string
-          phone: string | null
-          updated_at: string
-        }
-        Insert: {
-          agency: string
-          avatar?: string | null
-          created_at?: string
-          email?: string | null
-          id?: string
-          name: string
-          phone?: string | null
-          updated_at?: string
-        }
-        Update: {
-          agency?: string
-          avatar?: string | null
-          created_at?: string
-          email?: string | null
-          id?: string
-          name?: string
-          phone?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
+          agency: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string
@@ -56,6 +24,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          agency?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -68,6 +37,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          agency?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -142,15 +112,7 @@ export type Database = {
           updated_at?: string
           year_built?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "properties_agent_id_fkey"
-            columns: ["agent_id"]
-            isOneToOne: false
-            referencedRelation: "agents"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
