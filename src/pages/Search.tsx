@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -32,6 +31,18 @@ export default function Search() {
 
   // Get unique cities from properties data
   const cities = ["any", ...Array.from(new Set(properties.map(property => property.city)))];
+
+  // Define property types explicitly
+  const propertyTypes = [
+    { value: "any", label: t('search.anyPropertyType') },
+    { value: "Villa", label: t('search.villa') },
+    { value: "Apartment", label: t('search.apartment') },
+    { value: "Studio", label: t('search.studio') },
+    { value: "Duplex", label: t('search.duplex') },
+    { value: "Traditional House", label: t('search.traditionalHouse') },
+    { value: "Loft", label: t('search.loft') },
+    { value: "Chalet", label: t('search.chalet') }
+  ];
 
   const filteredProperties = properties.filter((property) => {
     const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -101,30 +112,15 @@ export default function Search() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="any" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.anyPropertyType')}
-                    </SelectItem>
-                    <SelectItem value="Villa" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.villa')}
-                    </SelectItem>
-                    <SelectItem value="Apartment" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.apartment')}
-                    </SelectItem>
-                    <SelectItem value="Studio" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.studio')}
-                    </SelectItem>
-                    <SelectItem value="Duplex" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.duplex')}
-                    </SelectItem>
-                    <SelectItem value="Traditional House" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.traditionalHouse')}
-                    </SelectItem>
-                    <SelectItem value="Loft" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.loft')}
-                    </SelectItem>
-                    <SelectItem value="Chalet" className={dir === 'rtl' ? 'arabic-text' : ''}>
-                      {t('search.chalet')}
-                    </SelectItem>
+                    {propertyTypes.map((type) => (
+                      <SelectItem 
+                        key={type.value} 
+                        value={type.value} 
+                        className={dir === 'rtl' ? 'arabic-text' : ''}
+                      >
+                        {type.label}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
