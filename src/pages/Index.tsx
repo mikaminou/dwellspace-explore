@@ -59,7 +59,7 @@ export default function Index() {
     .slice(0, 3);
 
   // Function to get property image
-  const getPropertyImage = (property: Property) => {
+  const getPropertyImage = (property: Property): string => {
     // For database properties
     if (property.featured_image_url) return property.featured_image_url;
     if (property.gallery_image_urls && property.gallery_image_urls.length > 0) 
