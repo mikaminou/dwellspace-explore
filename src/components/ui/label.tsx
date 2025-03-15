@@ -30,8 +30,9 @@ const Label = React.forwardRef<
   return (
     <LabelPrimitive.Root
       ref={ref}
-      className={cn(labelVariants(), 
-        dir === 'rtl' ? 'arabic-text' : '',
+      className={cn(
+        labelVariants(), 
+        dir === 'rtl' ? 'arabic-text text-right w-full' : '',
         className
       )}
       {...props}

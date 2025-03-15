@@ -5,7 +5,7 @@ import { useLanguage } from '@/contexts/language/LanguageContext';
 interface TransProps {
   id?: string;
   children?: React.ReactNode;
-  values?: Record<string, string>;
+  values?: Record<string, string | number>;
   defaultText?: string;
   className?: string;
 }
@@ -28,7 +28,7 @@ export function Trans({ id, children, values = {}, defaultText, className }: Tra
   // Replace any placeholders with values
   if (values && Object.keys(values).length > 0) {
     Object.entries(values).forEach(([key, value]) => {
-      translation = translation.replace(new RegExp(`{${key}}`, 'g'), value);
+      translation = translation.replace(new RegExp(`{${key}}`, 'g'), String(value));
     });
   }
   
@@ -60,7 +60,7 @@ export function TransHeading({ as: Component = 'h2', id, children, values, defau
   // Replace any placeholders with values
   if (values && Object.keys(values).length > 0) {
     Object.entries(values).forEach(([key, value]) => {
-      translation = translation.replace(new RegExp(`{${key}}`, 'g'), value);
+      translation = translation.replace(new RegExp(`{${key}}`, 'g'), String(value));
     });
   }
   

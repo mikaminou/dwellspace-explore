@@ -12,6 +12,7 @@ import { properties } from "@/data/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Textarea } from "@/components/ui/textarea";
+import { Trans, TransHeading } from "@/components/ui/trans";
 
 export default function PropertyDetails() {
   const { id } = useParams();
@@ -24,15 +25,13 @@ export default function PropertyDetails() {
       <div className="min-h-screen bg-background">
         <MainNav />
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className={`text-3xl font-bold mb-4 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-            {t('property.notFound')}
-          </h1>
-          <p className={`text-muted-foreground mb-8 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-            {t('property.notFoundDescription')}
+          <TransHeading as="h1" className="text-3xl font-bold mb-4">property.notFound</TransHeading>
+          <p className="text-muted-foreground mb-8">
+            <Trans>property.notFoundDescription</Trans>
           </p>
           <Button asChild>
-            <a href="/" className={dir === 'rtl' ? 'arabic-text' : ''}>
-              {t('notFound.returnHome')}
+            <a href="/">
+              <Trans>notFound.returnHome</Trans>
             </a>
           </Button>
         </div>
@@ -99,7 +98,7 @@ export default function PropertyDetails() {
             <div className={`flex items-center gap-4 ${dir === 'rtl' ? 'justify-end arabic-text' : ''}`}>
               <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 <BedDoubleIcon className="h-4 w-4" />
-                {property.beds} {t('property.beds')}
+                {property.beds} <Trans>property.beds</Trans>
               </span>
               <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 <HomeIcon className="h-4 w-4" />
@@ -108,7 +107,7 @@ export default function PropertyDetails() {
               {property.yearBuilt && (
                 <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                   <CalendarIcon className="h-4 w-4" />
-                  {t('property.built')} {property.yearBuilt}
+                  <Trans>property.built</Trans> {property.yearBuilt}
                 </span>
               )}
             </div>
@@ -118,11 +117,11 @@ export default function PropertyDetails() {
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={handleSave}>
                 <HeartIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                {t('property.save')}
+                <Trans>property.save</Trans>
               </Button>
               <Button variant="outline" size="sm" onClick={handleShare}>
                 <ShareIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                {t('property.share')}
+                <Trans>property.share</Trans>
               </Button>
             </div>
           </div>
@@ -133,16 +132,16 @@ export default function PropertyDetails() {
         {/* Property Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           <div className="lg:col-span-2">
-            <h2 className={`text-2xl font-semibold mb-4 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-              {t('property.details')}
-            </h2>
+            <TransHeading as="h2" className={`text-2xl font-semibold mb-4 ${dir === 'rtl' ? 'text-right' : ''}`}>
+              property.details
+            </TransHeading>
             <p className={`text-muted-foreground mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
               {translateUserInput(property.description)}
             </p>
             
-            <h3 className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-              {t('property.features')}
-            </h3>
+            <TransHeading as="h3" className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right' : ''}`}>
+              property.features
+            </TransHeading>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4 mb-6">
               {property.features.map((feature, index) => (
                 <div key={index} className={`flex items-center ${dir === 'rtl' ? 'flex-row-reverse justify-end arabic-text' : ''}`}>
@@ -154,9 +153,9 @@ export default function PropertyDetails() {
             
             {property.additionalDetails && (
               <>
-                <h3 className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-                  {t('property.additionalInfo')}
-                </h3>
+                <TransHeading as="h3" className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right' : ''}`}>
+                  property.additionalInfo
+                </TransHeading>
                 <p className={`text-muted-foreground mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
                   {translateUserInput(property.additionalDetails)}
                 </p>
@@ -179,15 +178,16 @@ export default function PropertyDetails() {
               <div className="space-y-4 mb-4">
                 <Textarea 
                   className={`w-full min-h-[100px] p-3 border rounded-md ${dir === 'rtl' ? 'text-right' : ''}`}
-                  placeholder={t('property.contactPlaceholder')}
+                  placeholder="property.contactPlaceholder"
+                  translatePlaceholder={true}
                   dir={dir}
                 />
                 <Button className="w-full" onClick={handleContact}>
-                  {t('property.contactAgent')}
+                  <Trans>property.contactAgent</Trans>
                 </Button>
               </div>
               <p className={`text-xs text-muted-foreground text-center ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('property.contactDisclaimer')}
+                <Trans>property.contactDisclaimer</Trans>
               </p>
             </Card>
           </div>
