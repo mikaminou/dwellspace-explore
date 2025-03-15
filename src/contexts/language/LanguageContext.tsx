@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations, SupportedLanguage, TranslationKey } from './translations';
 
@@ -8,6 +7,7 @@ type LanguageContextType = {
   t: (key: string, defaultText?: string) => string;
   dir: 'rtl' | 'ltr';
   translateUserInput: (text: string, originalLanguage?: SupportedLanguage) => string;
+  translateData: <T>(data: T) => Promise<T>;
 };
 
 const LanguageContext = createContext<LanguageContextType>({
@@ -16,6 +16,7 @@ const LanguageContext = createContext<LanguageContextType>({
   t: (key: string) => key,
   dir: 'ltr',
   translateUserInput: (text: string) => text,
+  translateData: async (data) => data,
 });
 
 export const useLanguage = () => useContext(LanguageContext);
@@ -261,13 +262,54 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return text; // Return original text if no translation is available
   };
 
+  // New function to automatically translate data objects coming from backend
+  const translateData = async <T>(data: T): Promise<T> => {
+    if (!data) return data;
+
+    // For objects like API responses
+    if (typeof data === 'object' && data !== null) {
+      // Handle arrays
+      if (Array.isArray(data)) {
+        const translatedArray = await Promise.all(
+          data.map(async (item) => await translateData(item))
+        );
+        return translatedArray as unknown as T;
+      }
+
+      // Handle plain objects by recursively translating their string properties
+      const translatedObj = { ...data };
+      for (const key in translatedObj) {
+        if (Object.prototype.hasOwnProperty.call(translatedObj, key)) {
+          const value = translatedObj[key];
+          if (typeof value === 'string') {
+            // Translate string values
+            translatedObj[key] = translateUserInput(value) as any;
+          } else if (typeof value === 'object' && value !== null) {
+            // Recursively translate nested objects
+            translatedObj[key] = await translateData(value) as any;
+          }
+        }
+      }
+      return translatedObj;
+    }
+
+    // For simple string values
+    if (typeof data === 'string') {
+      return translateUserInput(data) as unknown as T;
+    }
+
+    // Return unchanged for other types
+    return data;
+  };
+
   return (
     <LanguageContext.Provider value={{ 
       language, 
       setLanguage, 
       t,
       dir: language === 'ar' ? 'rtl' : 'ltr',
-      translateUserInput
+      translateUserInput,
+      translateData
     }}>
       {children}
     </LanguageContext.Provider>
