@@ -112,7 +112,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         fr: "Je suis un agent",
         ar: "أنا وكيل"
       },
-      // Property types
       "Apartment": {
         en: "Apartment",
         fr: "Appartement",
@@ -133,7 +132,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         fr: "Studio",
         ar: "استوديو"
       },
-      // Locations
       "Hydra, Algiers": {
         en: "Hydra, Algiers",
         fr: "Hydra, Alger",
@@ -144,7 +142,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         fr: "Appartement Moderne à Hydra",
         ar: "شقة عصرية في حيدرة"
       },
-      // Property features
       "Air conditioning": {
         en: "Air conditioning",
         fr: "Climatisation",
@@ -215,19 +212,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         fr: "Sécurité 24/7",
         ar: "أمن على مدار الساعة"
       },
-      // Agency names
       "Dar Immobilier": {
         en: "Dar Real Estate",
         fr: "Dar Immobilier",
         ar: "دار العقارية"
       },
-      // Agent names
       "Amina Benali": {
         en: "Amina Benali",
         fr: "Amina Benali",
         ar: "أمينة بن علي"
       },
-      // Property descriptions
       "A beautiful modern apartment in the upscale neighborhood of Hydra with stunning city views. This 3-bedroom, 2-bathroom unit features high ceilings, ceramic floors, and an open floor plan perfect for entertaining. The kitchen is equipped with high-end appliances and granite countertops. The primary bedroom has a walk-in closet and ensuite bathroom.": {
         en: "A beautiful modern apartment in the upscale neighborhood of Hydra with stunning city views. This 3-bedroom, 2-bathroom unit features high ceilings, ceramic floors, and an open floor plan perfect for entertaining. The kitchen is equipped with high-end appliances and granite countertops. The primary bedroom has a walk-in closet and ensuite bathroom.",
         fr: "Un bel appartement moderne dans le quartier huppé de Hydra avec une vue imprenable sur la ville. Cet appartement de 3 chambres et 2 salles de bains présente des plafonds hauts, des sols en céramique et un plan ouvert parfait pour recevoir. La cuisine est équipée d'appareils haut de gamme et de comptoirs en granit. La chambre principale dispose d'un dressing et d'une salle de bains attenante.",
