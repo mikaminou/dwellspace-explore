@@ -33,6 +33,9 @@ const enTranslations = {
   'cta.contact': 'Contact Us',
   
   'property.beds': 'beds',
+  'property.baths': 'baths',
+  'property.sqft': 'sq ft',
+  'property.sqm': 'sq m',
   'property.save': 'Save',
   'property.share': 'Share',
   'property.built': 'Built',
@@ -52,6 +55,8 @@ const enTranslations = {
   'property.contactDescription': 'Your message has been sent to the property owner.',
   'property.view': 'View',
   'property.condominium': 'Condominium fees',
+  'property.message': 'Message',
+  'property.send': 'Send Message',
   
   'account.myAccount': 'My Account',
   'signin.title': 'Sign In',
@@ -61,6 +66,8 @@ const enTranslations = {
   'signin.button': 'Sign In',
   'signin.noAccount': 'Don\'t have an account?',
   'signin.create': 'Create account',
+  'signin.forgotPassword': 'Forgot password?',
+  'signin.loading': 'Signing in...',
   'signup.title': 'Create an Account',
   'signup.subtitle': 'Enter your information to create an account',
   'signup.emailAlert': 'A confirmation email will be sent to verify your account. Please check your inbox after signing up.',
@@ -76,6 +83,7 @@ const enTranslations = {
   'notifications.propertyMatch': 'A new property matching your criteria has been listed',
   'notifications.priceAlert': 'Price Drop Alert',
   'notFound.title': 'Oops! Page not found',
+  'notFound.message': 'The page you\'re looking for doesn\'t exist or has been moved.',
   'notFound.returnHome': 'Return to Home',
   'otp.title': 'Enter verification code',
   'otp.subtitle': 'A verification code has been sent to',
@@ -137,10 +145,33 @@ const enTranslations = {
   'search.noPropertiesFound': 'No properties found',
   'search.adjustSearchCriteria': 'Try adjusting your search criteria to find more properties.',
   'search.resetFilters': 'Reset Filters',
-  
-  // Hero section translations
   'search.location': 'Location, property name, or keyword',
   'search.search': 'Search',
+  
+  // Profile page
+  'profile.title': 'My Profile',
+  'profile.personalInfo': 'Personal Information',
+  'profile.preferences': 'Preferences',
+  'profile.settings': 'Account Settings',
+  'profile.save': 'Save Changes',
+  'profile.saved': 'Changes saved successfully',
+  'profile.error': 'Error saving changes',
+  
+  // Common UI elements
+  'ui.loading': 'Loading...',
+  'ui.error': 'An error occurred',
+  'ui.retry': 'Retry',
+  'ui.cancel': 'Cancel',
+  'ui.save': 'Save',
+  'ui.delete': 'Delete',
+  'ui.edit': 'Edit',
+  'ui.close': 'Close',
+  'ui.confirm': 'Confirm',
+  'ui.yes': 'Yes',
+  'ui.no': 'No',
+  'ui.continue': 'Continue',
+  'ui.back': 'Back',
+  'ui.next': 'Next',
 };
 
 export default enTranslations;

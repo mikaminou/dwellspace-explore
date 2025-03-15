@@ -5,16 +5,23 @@ import { cn } from "@/lib/utils"
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   translatable?: boolean;
+  translatePlaceholder?: boolean;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, translatable = false, value, ...props }, ref) => {
-    const { translateUserInput } = useLanguage();
+  ({ className, type, translatable = false, translatePlaceholder = true, value, placeholder, ...props }, ref) => {
+    const { translateUserInput, t, dir } = useLanguage();
     
     // If translatable is true and we have a value, translate it for display
     const displayValue = translatable && typeof value === 'string' 
       ? translateUserInput(value)
       : value;
+    
+    // If translatePlaceholder is true and we have a placeholder, try to translate it
+    // First try to use it as a translation key, then as direct text
+    const displayPlaceholder = translatePlaceholder && typeof placeholder === 'string'
+      ? t(placeholder, translateUserInput(placeholder))
+      : placeholder;
     
     return (
       <input
@@ -25,6 +32,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
         ref={ref}
         value={displayValue}
+        placeholder={displayPlaceholder as string}
+        dir={props.dir || dir}
         {...props}
       />
     )

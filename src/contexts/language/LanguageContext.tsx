@@ -22,9 +22,20 @@ export const useLanguage = () => useContext(LanguageContext);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<SupportedLanguage>(() => {
-    // Try to get saved language preference from localStorage
+    // First try to get saved language preference from localStorage
     const savedLang = localStorage.getItem('language');
-    return (savedLang === 'ar' ? 'ar' : savedLang === 'en' ? 'en' : 'fr');
+    if (savedLang === 'ar' || savedLang === 'en' || savedLang === 'fr') {
+      return savedLang;
+    }
+    
+    // Then try to detect browser language
+    const browserLang = navigator.language.split('-')[0];
+    if (browserLang === 'ar') return 'ar';
+    if (browserLang === 'en') return 'en';
+    if (browserLang === 'fr') return 'fr';
+    
+    // Default to French if no preference is found
+    return 'fr';
   });
 
   const setLanguage = (lang: SupportedLanguage) => {
@@ -38,10 +49,34 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // Set initial direction based on language
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
+    
+    // Add a special class to the body when using RTL
+    if (language === 'ar') {
+      document.body.classList.add('rtl-active');
+    } else {
+      document.body.classList.remove('rtl-active');
+    }
   }, [language]);
 
+  // Enhanced translation function with fallback
   const t = (key: string, defaultText?: string): string => {
-    return translations[language]?.[key as keyof typeof translations.fr] || defaultText || key;
+    // Check if the key exists in the current language translations
+    const translation = translations[language]?.[key as keyof typeof translations.fr];
+    
+    // If translation exists, return it
+    if (translation) return translation;
+    
+    // If no translation exists but default text is provided, return that
+    if (defaultText) return defaultText;
+    
+    // If the key doesn't exist in current language but exists in English, use English as fallback
+    if (language !== 'en') {
+      const fallbackTranslation = translations.en?.[key as keyof typeof translations.en];
+      if (fallbackTranslation) return fallbackTranslation;
+    }
+    
+    // Last resort: return the key itself as a string
+    return key;
   };
 
   // Enhanced function to display user input in the selected language
