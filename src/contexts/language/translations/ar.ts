@@ -1,5 +1,6 @@
 
-export const ar = {
+// Arabic translations
+const arTranslations = {
   // Auth Screen
   'signin.title': 'تسجيل الدخول',
   'signin.subtitle': 'أهلا بك مرة أخرى! الرجاء تسجيل الدخول للمتابعة.',
@@ -108,3 +109,5 @@ export const ar = {
   'translate.success': 'تم ترجمة النص',
   'notFound.returnHome': 'العودة إلى الصفحة الرئيسية'
 };
+
+export default arTranslations;
