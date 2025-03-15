@@ -22,14 +22,14 @@ export function SortByControl({ sortOption, setSortOption }: SortByControlProps)
   ];
 
   return (
-    <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium text-muted-foreground">
-        {t('search.sortBy')}:
-      </span>
+    <div className="flex items-center">
+      <div className="inline-flex items-center mr-2">
+        <span className="text-sm text-muted-foreground whitespace-nowrap">{t('search.sortBy')}:</span>
+      </div>
       <Select value={sortOption} onValueChange={setSortOption}>
         <SelectTrigger 
           className={cn(
-            "h-9 min-w-[180px] transition-all duration-200 hover:bg-muted/50 focus:ring-primary", 
+            "h-9 min-w-[140px] transition-all duration-200 hover:bg-muted/50 focus:ring-primary", 
             dir === 'rtl' ? 'arabic-text' : ''
           )}
         >
@@ -37,7 +37,7 @@ export function SortByControl({ sortOption, setSortOption }: SortByControlProps)
         </SelectTrigger>
         <SelectContent
           className="min-w-[180px]"
-          align="start"
+          align="end"
           sideOffset={8}
           position="popper"
         >

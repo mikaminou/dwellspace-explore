@@ -1,3 +1,4 @@
+
 import React, { useMemo } from "react";
 import { MainNav } from "@/components/MainNav";
 import { useLanguage } from "@/contexts/language/LanguageContext";
@@ -115,11 +116,9 @@ export default function Search() {
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6 animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-3">
-            <div className="flex items-center">
-              <h1 className="text-xl font-medium mr-4">{t('search.results')} ({properties.length})</h1>
-              <SortByControl sortOption={sortOption} setSortOption={setSortOption} />
-            </div>
+          <div className="flex justify-between items-center mb-3">
+            <h1 className="text-xl font-medium">{t('search.results')} ({properties.length})</h1>
+            <SortByControl sortOption={sortOption} setSortOption={setSortOption} />
           </div>
           <FilterChips {...filterChipProps} />
         </div>
