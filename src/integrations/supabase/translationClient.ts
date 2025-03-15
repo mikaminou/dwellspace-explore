@@ -1,26 +1,21 @@
 
 import { supabase } from './client';
-import { useLanguage } from '@/contexts/language/LanguageContext';
 import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 import { GenericSchema } from '@supabase/supabase-js/dist/module/lib/types';
 
 export const useTranslatedSupabase = () => {
-  const { translateData } = useLanguage();
-
-  // Create wrapped Supabase methods that automatically translate returned data
+  // Return regular Supabase client methods without translation
   return {
     from: (table: string) => ({
       select: async (columns: string = '*', options?: any) => {
         // Use type assertion to tell TypeScript this is valid
-        const { data, error } = await (supabase
+        const result = await (supabase
           .from(table as any)
           .select(columns, options) as any);
           
-        if (error) throw error;
-        return { data: await translateData(data), error };
+        return result;
       },
       
-      // Add other query methods as needed
       insert: async (values: any, options?: any) => {
         const result = await (supabase
           .from(table as any)
@@ -39,10 +34,8 @@ export const useTranslatedSupabase = () => {
     }),
     
     rpc: async (fn: string, params?: any) => {
-      // Fix: Use a more specific type assertion to avoid the "not assignable to parameter of type 'never'" error
-      const { data, error } = await (supabase.rpc as any)(fn, params);
-      if (error) throw error;
-      return { data: await translateData(data), error };
+      const result = await (supabase.rpc as any)(fn, params);
+      return result;
     },
     
     storage: {
@@ -50,7 +43,5 @@ export const useTranslatedSupabase = () => {
     },
     
     auth: supabase.auth,
-    
-    // Add more methods as needed
   };
 };

@@ -1,10 +1,9 @@
 
 import { useState, useEffect } from 'react';
-import { useLanguage } from '@/contexts/language/LanguageContext';
 
 /**
- * A custom hook that fetches data and automatically translates it
- * before returning it to the component
+ * A custom hook that fetches data
+ * Simplified to remove translation logic
  */
 export function useTranslatedData<T>(
   fetchFn: () => Promise<T>,
@@ -13,7 +12,6 @@ export function useTranslatedData<T>(
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const { translateData } = useLanguage();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,11 +19,7 @@ export function useTranslatedData<T>(
       try {
         // Fetch the data using the provided function
         const result = await fetchFn();
-        
-        // Automatically translate the data based on user's language
-        const translatedResult = await translateData(result);
-        
-        setData(translatedResult);
+        setData(result);
         setError(null);
       } catch (err) {
         console.error('Error fetching data:', err);

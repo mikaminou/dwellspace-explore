@@ -11,7 +11,7 @@ import {
 import { Globe } from "lucide-react";
 
 export function LanguageToggle({ className }: { className?: string }) {
-  const { language, setLanguage, t, dir } = useLanguage();
+  const { language, setLanguage } = useLanguage();
 
   const getLanguageLabel = (code: string) => {
     switch(code) {
@@ -19,15 +19,6 @@ export function LanguageToggle({ className }: { className?: string }) {
       case 'fr': return 'Français';
       case 'en': return 'English';
       default: return code;
-    }
-  };
-
-  const getLanguageFlag = (code: string) => {
-    switch(code) {
-      case 'ar': return '🇩🇿';
-      case 'fr': return '🇫🇷';
-      case 'en': return '🇬🇧';
-      default: return '🌐';
     }
   };
 
@@ -43,15 +34,15 @@ export function LanguageToggle({ className }: { className?: string }) {
           {getLanguageLabel(language)}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={dir === 'rtl' ? 'start' : 'end'} className="min-w-32">
+      <DropdownMenuContent align="end" className="min-w-32">
         <DropdownMenuItem onClick={() => setLanguage('en')} className="hover:bg-muted cursor-pointer">
-          <span className="mr-2" role="img" aria-label="GB flag">{getLanguageFlag('en')}</span> English
+          <span className="mr-2" role="img" aria-label="GB flag">🇬🇧</span> English
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setLanguage('fr')} className="hover:bg-muted cursor-pointer">
-          <span className="mr-2" role="img" aria-label="FR flag">{getLanguageFlag('fr')}</span> Français
+          <span className="mr-2" role="img" aria-label="FR flag">🇫🇷</span> Français
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setLanguage('ar')} className="hover:bg-muted cursor-pointer">
-          <span className="mr-2" role="img" aria-label="DZ flag">{getLanguageFlag('ar')}</span> العربية
+          <span className="mr-2" role="img" aria-label="DZ flag">🇩🇿</span> العربية
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
