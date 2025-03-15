@@ -1,4 +1,3 @@
-
 export const en = {
   // Navigation
   nav: {
@@ -188,7 +187,10 @@ export const en = {
     noProperties: "No properties found in this area",
     showFilters: "Show Filters",
     hideFilters: "Hide Filters",
-    clearAll: "Clear All"
+    clearAll: "Clear All",
+    saved: "Property saved",
+    messageSuccess: "Message sent to owner",
+    propertySaved: "Property saved to favorites"
   },
   
   // Error pages

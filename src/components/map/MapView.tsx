@@ -1,6 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useSearch } from '@/contexts/search/SearchContext';
 import { Property } from '@/api/properties';
 import { PropertyPopup } from './PropertyPopup';
@@ -12,11 +14,26 @@ import { useMapSetup } from './useMapSetup';
 import mapboxgl from 'mapbox-gl';
 
 export function MapView() {
+  const navigate = useNavigate();
   const { mapContainer, map, markersRef, popupRef, mapLoaded } = useMapSetup();
   
   const [propertiesWithOwners, setPropertiesWithOwners] = useState<Property[]>([]);
   const { properties, loading, selectedCity } = useSearch();
   const { t } = useLanguage();
+
+  // Handle property save
+  const handleSaveProperty = (propertyId: number) => {
+    // Here you would implement actual saving logic
+    console.log('Saving property:', propertyId);
+    toast.success('Property saved to favorites');
+  };
+
+  // Handle message to owner
+  const handleMessageOwner = (ownerId: number) => {
+    // Here you would implement actual messaging logic
+    console.log('Messaging owner:', ownerId);
+    toast.success('Message panel opened');
+  };
 
   // Fetch owners for the properties
   useEffect(() => {
@@ -58,8 +75,12 @@ export function MapView() {
       popupRef.current.remove();
     }
 
-    // Create popup with property information
-    popupRef.current = new mapboxgl.Popup({ closeOnClick: false })
+    // Create popup with property information - no close button
+    popupRef.current = new mapboxgl.Popup({ 
+      closeOnClick: false,
+      closeButton: false, // Remove the close button
+      maxWidth: '300px'
+    })
       .setLngLat(coordinates)
       .setHTML(`<div id="property-popup-${property.id}" class="property-popup"></div>`)
       .addTo(map.current);
@@ -67,10 +88,46 @@ export function MapView() {
     // Render React component into popup
     const popupElement = document.getElementById(`property-popup-${property.id}`);
     if (popupElement) {
-      // In a real-world app, you'd use ReactDOM.render or a portal
-      // For simplicity, we'll just set the HTML content
-      popupElement.innerHTML = PropertyPopup({ property });
+      popupElement.innerHTML = PropertyPopup({ 
+        property, 
+        onSave: handleSaveProperty,
+        onMessageOwner: handleMessageOwner
+      });
+
+      // Add click event listener to handle popup clicks
+      popupElement.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        const clickedElement = target.closest('[data-action]');
+        
+        if (clickedElement) {
+          // Handle action buttons
+          const action = clickedElement.getAttribute('data-action');
+          
+          if (action === 'save') {
+            e.stopPropagation();
+            const propertyId = Number(clickedElement.getAttribute('data-property-id'));
+            handleSaveProperty(propertyId);
+          } else if (action === 'message') {
+            e.stopPropagation();
+            const ownerId = Number(clickedElement.getAttribute('data-owner-id'));
+            handleMessageOwner(ownerId);
+          }
+        } else {
+          // Navigate to property details on general popup click
+          navigate(`/property/${property.id}`);
+        }
+      });
     }
+
+    // Add event handlers to close popup when interacting with map
+    ['dragstart', 'zoomstart', 'click'].forEach(event => {
+      map.current?.once(event, () => {
+        if (popupRef.current) {
+          popupRef.current.remove();
+          popupRef.current = null;
+        }
+      });
+    });
   };
 
   // Update markers when properties change
@@ -123,7 +180,7 @@ export function MapView() {
         maxZoom: 15
       });
     }
-  }, [propertiesWithOwners, mapLoaded, loading]);
+  }, [propertiesWithOwners, mapLoaded, loading, navigate]);
 
   // Update map center when selected city changes
   useEffect(() => {
