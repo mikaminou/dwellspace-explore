@@ -54,7 +54,6 @@ export type Database = {
       properties: {
         Row: {
           additional_details: string | null
-          agent_id: string
           area: number | null
           baths: number | null
           beds: number
@@ -66,6 +65,7 @@ export type Database = {
           image: string | null
           images: Json | null
           location: string
+          owner_id: string
           price: string
           title: string
           type: string
@@ -74,7 +74,6 @@ export type Database = {
         }
         Insert: {
           additional_details?: string | null
-          agent_id: string
           area?: number | null
           baths?: number | null
           beds: number
@@ -86,6 +85,7 @@ export type Database = {
           image?: string | null
           images?: Json | null
           location: string
+          owner_id: string
           price: string
           title: string
           type: string
@@ -94,7 +94,6 @@ export type Database = {
         }
         Update: {
           additional_details?: string | null
-          agent_id?: string
           area?: number | null
           baths?: number | null
           beds?: number
@@ -106,13 +105,22 @@ export type Database = {
           image?: string | null
           images?: Json | null
           location?: string
+          owner_id?: string
           price?: string
           title?: string
           type?: string
           updated_at?: string
           year_built?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "properties_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
