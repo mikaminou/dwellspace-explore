@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getAllProperties, searchProperties, getPropertyById } from '@/api';
 import { Property } from '@/api/properties';
+import { getAgentById } from '@/api/agents';
 
 export function useProperties() {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -26,8 +27,18 @@ export function useProperties() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getPropertyById(id);
-      return data;
+      const propertyData = await getPropertyById(id);
+      
+      // If property exists and has an owner_id of type 'agent', fetch the agent details
+      if (propertyData && propertyData.owner_type === 'agent') {
+        const agentData = await getAgentById(propertyData.owner_id);
+        if (agentData) {
+          // Add the agent data to the property
+          return { ...propertyData, agent: agentData };
+        }
+      }
+      
+      return propertyData;
     } catch (err: any) {
       console.error(`Error fetching property with ID ${id}:`, err);
       setError(err.message || `Failed to fetch property with ID ${id}`);

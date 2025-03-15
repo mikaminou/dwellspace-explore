@@ -1,5 +1,7 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, transformPropertyData } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
+import { Agent } from "./agents";
 
 export type Property = {
   id: number;
@@ -8,18 +10,21 @@ export type Property = {
   location: string;
   city: string;
   beds: number;
-  baths: number;
-  area: number;
+  baths: number | null;
+  area: number | null;
   type: string;
   description: string;
-  year_built: number;
+  year_built: number | null;
   features: string[];
-  additional_details: string;
+  additional_details: string | null;
   featured_image_url: string;
   gallery_image_urls: string[];
-  agent_id: string;
+  owner_type: 'agent' | 'seller';
+  owner_id: string;
   created_at: string;
   updated_at: string;
+  // Include the agent property for type compatibility with existing code
+  agent?: Agent;
 };
 
 // Function to get all properties
@@ -27,19 +32,15 @@ export const getAllProperties = async (): Promise<Property[]> => {
   try {
     const { data, error } = await supabase
       .from('properties')
-      .select('*, agent:agents(*)');
+      .select('*');
 
     if (error) {
       console.error('Error fetching properties:', error);
       return [];
     }
 
-    // Transform the JSONB array to a proper JS array for features
-    return data.map((property: any) => ({
-      ...property,
-      features: property.features || [],
-      gallery_image_urls: property.gallery_image_urls || [],
-    }));
+    // Transform and normalize the data
+    return data.map(transformPropertyData);
   } catch (error) {
     console.error('Unexpected error fetching properties:', error);
     return [];
@@ -51,8 +52,8 @@ export const getPropertyById = async (id: string | number): Promise<Property | n
   try {
     const { data, error } = await supabase
       .from('properties')
-      .select('*, agent:agents(*)')
-      .eq('id', id)
+      .select('*')
+      .eq('id', typeof id === 'string' ? parseInt(id, 10) : id)
       .single();
 
     if (error) {
@@ -60,12 +61,8 @@ export const getPropertyById = async (id: string | number): Promise<Property | n
       return null;
     }
 
-    // Transform the JSONB array to a proper JS array for features
-    return {
-      ...data,
-      features: data.features || [],
-      gallery_image_urls: data.gallery_image_urls || [],
-    };
+    // Transform the data to ensure consistent property structure
+    return transformPropertyData(data);
   } catch (error) {
     console.error(`Unexpected error fetching property with ID ${id}:`, error);
     return null;
@@ -87,7 +84,7 @@ export const searchProperties = async (
   try {
     let query = supabase
       .from('properties')
-      .select('*, agent:agents(*)');
+      .select('*');
 
     // Apply search term filter (search in title, location, or description)
     if (searchTerm) {
@@ -111,9 +108,6 @@ export const searchProperties = async (
       query = query.gte('beds', filters.minBeds);
     }
 
-    // We cannot directly filter on price because it's stored as a string with currency
-    // So we'll filter on the client side for price
-
     const { data, error } = await query;
 
     if (error) {
@@ -121,8 +115,9 @@ export const searchProperties = async (
       return [];
     }
 
-    // Apply price filtering on the client side and transform the data
+    // Transform and filter the results
     return data
+      .map(transformPropertyData)
       .filter(property => {
         // Extract numeric value from price string
         const numericPrice = parseInt(property.price.replace(/[^0-9]/g, ''));
@@ -134,7 +129,7 @@ export const searchProperties = async (
         // Check features if we're filtering by them
         if (filters.features && filters.features.length > 0) {
           // Convert features to lowercase for case-insensitive matching
-          const propertyFeatures = (property.features || []).map((f: string) => f.toLowerCase());
+          const propertyFeatures = property.features.map(f => f.toLowerCase());
           
           // Check if all required features exist
           for (const feature of filters.features) {
@@ -147,12 +142,7 @@ export const searchProperties = async (
         }
         
         return true;
-      })
-      .map((property: any) => ({
-        ...property,
-        features: property.features || [],
-        gallery_image_urls: property.gallery_image_urls || [],
-      }));
+      });
   } catch (error) {
     console.error('Unexpected error searching properties:', error);
     return [];

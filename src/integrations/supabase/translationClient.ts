@@ -3,7 +3,7 @@ import { supabase } from './client';
 import { useLanguage } from '@/contexts/language/LanguageContext';
 
 export const useTranslatedSupabase = () => {
-  const { currentLanguage } = useLanguage();
+  const { language } = useLanguage();
   
   // Function to modify select query to include translations
   const selectWithTranslation = (query: any, fields?: string) => {

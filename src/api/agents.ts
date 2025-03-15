@@ -4,9 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 export type Agent = {
   id: string;
   name: string;
-  avatar: string;
-  phone: string;
-  email: string;
+  avatar: string | null;
+  phone: string | null;
+  email: string | null;
   agency: string;
   created_at: string;
   updated_at: string;
@@ -57,11 +57,12 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
   if (propertyIds.length === 0) return {};
 
   try {
-    // First get the agent_ids for these properties
+    // First get the owner_ids for properties with owner_type = 'agent'
     const { data: properties, error: propertiesError } = await supabase
       .from('properties')
-      .select('id, agent_id')
-      .in('id', propertyIds);
+      .select('id, owner_id, owner_type')
+      .in('id', propertyIds)
+      .eq('owner_type', 'agent');
 
     if (propertiesError) {
       console.error('Error fetching property-agent relationships:', propertiesError);
@@ -69,7 +70,7 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
     }
 
     // Extract unique agent ids
-    const agentIds = [...new Set(properties.map(p => p.agent_id))];
+    const agentIds = [...new Set(properties.map(p => p.owner_id))];
     
     if (agentIds.length === 0) return {};
 
@@ -92,8 +93,8 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
 
     // Finally, create a map of property_id to agent
     return properties.reduce((acc: {[key: number]: Agent}, property: any) => {
-      if (agentMap[property.agent_id]) {
-        acc[property.id] = agentMap[property.agent_id];
+      if (agentMap[property.owner_id]) {
+        acc[property.id] = agentMap[property.owner_id];
       }
       return acc;
     }, {});
