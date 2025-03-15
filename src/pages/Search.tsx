@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { MainNav } from "@/components/MainNav";
 import { Button } from "@/components/ui/button";
@@ -790,4 +791,504 @@ export default function Search() {
                               onCheckedChange={() => handleFeatureChange(feature.id as keyof typeof features)}
                               className="data-[state=checked]:bg-cta data-[state=checked]:border-cta"
                             />
-                            <label htmlFor={`mobile-${feature.id}`} className={
+                            <label htmlFor={`mobile-${feature.id}`} className={dir === 'rtl' ? 'arabic-text mr-2' : ''}>
+                              {feature.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Filter action buttons */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" onClick={handleReset} className="w-full">
+                    <X size={16} className="mr-1" />
+                    {t('search.resetFilters')}
+                  </Button>
+                  <Button variant="cta" onClick={handleSearch} className="w-full">
+                    <Check size={16} className="mr-1" />
+                    {t('search.applyFilters')}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              /* Desktop filters */
+              <div className="space-y-6">
+                <div className="grid grid-cols-3 lg:grid-cols-5 gap-4">
+                  {/* Quick filter buttons for Property Types */}
+                  <div className="col-span-2 lg:col-span-3">
+                    <label className="block text-sm font-medium mb-2">
+                      {t('search.propertyType')}
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {propertyTypes.map((type) => (
+                        <Button
+                          key={type.value}
+                          variant={propertyType.includes(type.value) ? "active" : "filter"}
+                          size="sm"
+                          onClick={() => togglePropertyType(type.value)}
+                          className="transition-all duration-200"
+                        >
+                          {type.icon}
+                          <span className="ml-1">{type.label}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Location selector */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t('search.location')}
+                    </label>
+                    <Select value={selectedCity} onValueChange={setSelectedCity}>
+                      <SelectTrigger className={`${dir === 'rtl' ? 'arabic-text' : ''} border-2 h-10`}>
+                        <MapPin className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <SelectValue placeholder={t('search.anyCity')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {cities.map(city => (
+                            <SelectItem key={city} value={city} className={dir === 'rtl' ? 'arabic-text' : ''}>
+                              {city === "any" ? t('search.anyCity') : city}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Sort options */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t('search.sortBy')}
+                    </label>
+                    <Select value={sortOption} onValueChange={setSortOption}>
+                      <SelectTrigger className={`${dir === 'rtl' ? 'arabic-text' : ''} border-2 h-10`}>
+                        <SelectValue placeholder={t('search.sortBy')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {sortOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value} className={dir === 'rtl' ? 'arabic-text' : ''}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <Separator className="my-2" />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Price Range */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-medium">
+                        {t('search.priceRange')}
+                      </label>
+                      <span className="text-xs text-muted-foreground">
+                        DZD
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mb-2 gap-2">
+                      <div className="relative flex-1">
+                        <Input
+                          className={dir === 'rtl' ? 'arabic-text text-right pr-10 border-2' : 'pl-10 border-2'}
+                          value={minPrice.toLocaleString()}
+                          onChange={(e) => handlePriceInputChange('min', e.target.value)}
+                          onBlur={() => {
+                            if (minPrice > maxPrice) {
+                              setMinPrice(maxPrice);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.currentTarget.blur();
+                            }
+                          }}
+                        />
+                        <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
+                          DZD
+                        </span>
+                      </div>
+                      <span>-</span>
+                      <div className="relative flex-1">
+                        <Input
+                          className={dir === 'rtl' ? 'arabic-text text-right pr-10 border-2' : 'pl-10 border-2'}
+                          value={maxPrice.toLocaleString()}
+                          onChange={(e) => handlePriceInputChange('max', e.target.value)}
+                          onBlur={() => {
+                            if (maxPrice < minPrice) {
+                              setMaxPrice(minPrice);
+                            } else if (maxPrice > maxPriceLimit) {
+                              setMaxPrice(maxPriceLimit);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.currentTarget.blur();
+                            }
+                          }}
+                        />
+                        <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
+                          DZD
+                        </span>
+                      </div>
+                    </div>
+                    <Slider 
+                      min={0} 
+                      max={maxPriceLimit} 
+                      step={500000} 
+                      value={[minPrice, maxPrice]}
+                      onValueChange={([min, max]) => {
+                        setMinPrice(min);
+                        setMaxPrice(max);
+                      }}
+                      className="my-4"
+                    />
+                    <div className="grid grid-cols-2 gap-1 mt-2">
+                      {pricePresets.map((preset, index) => (
+                        <Button 
+                          key={index}
+                          variant="filter"
+                          size="sm"
+                          onClick={() => applyPricePreset(preset.min, preset.max)}
+                          className="text-xs"
+                        >
+                          {preset.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Living Space Range */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-sm font-medium">
+                        {t('search.livingSpaceRange')}
+                      </label>
+                      <span className="text-xs text-muted-foreground">
+                        m²
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between mb-2 gap-2">
+                      <div className="relative flex-1">
+                        <Input
+                          className={dir === 'rtl' ? 'arabic-text text-right pr-10 border-2' : 'pl-10 border-2'}
+                          value={minLivingArea}
+                          onChange={(e) => handleLivingAreaInputChange('min', e.target.value)}
+                          onBlur={() => {
+                            if (minLivingArea > maxLivingArea) {
+                              setMinLivingArea(maxLivingArea);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.currentTarget.blur();
+                            }
+                          }}
+                        />
+                        <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
+                          m²
+                        </span>
+                      </div>
+                      <span>-</span>
+                      <div className="relative flex-1">
+                        <Input
+                          className={dir === 'rtl' ? 'arabic-text text-right pr-10 border-2' : 'pl-10 border-2'}
+                          value={maxLivingArea}
+                          onChange={(e) => handleLivingAreaInputChange('max', e.target.value)}
+                          onBlur={() => {
+                            if (maxLivingArea < minLivingArea) {
+                              setMaxLivingArea(minLivingArea);
+                            } else if (maxLivingArea > maxLivingAreaLimit) {
+                              setMaxLivingArea(maxLivingAreaLimit);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.currentTarget.blur();
+                            }
+                          }}
+                        />
+                        <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
+                          m²
+                        </span>
+                      </div>
+                    </div>
+                    <Slider 
+                      min={0} 
+                      max={maxLivingAreaLimit} 
+                      step={10} 
+                      value={[minLivingArea, maxLivingArea]}
+                      onValueChange={([min, max]) => {
+                        setMinLivingArea(min);
+                        setMaxLivingArea(max);
+                      }}
+                      className="my-4"
+                    />
+                  </div>
+                  
+                  {/* Beds & Baths */}
+                  <div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        {t('search.bedrooms')}
+                      </label>
+                      <div className="flex space-x-1">
+                        {[0, 1, 2, 3, 4, 5].map((num) => (
+                          <Button
+                            key={num}
+                            variant={minBeds === num ? "active" : "filter"}
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => setMinBeds(num)}
+                          >
+                            {num === 0 ? t('search.any') : `${num}+`}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium mb-2">
+                        {t('search.bathrooms')}
+                      </label>
+                      <div className="flex space-x-1">
+                        {[0, 1, 2, 3, 4].map((num) => (
+                          <Button
+                            key={num}
+                            variant={minBaths === num ? "active" : "filter"}
+                            size="sm"
+                            className="flex-1"
+                            onClick={() => setMinBaths(num)}
+                          >
+                            {num === 0 ? t('search.any') : `${num}+`}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Feature checkboxes */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t('search.features')}
+                    </label>
+                    <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+                      {featuresList.map((feature) => (
+                        <div key={feature.id} className="flex items-center space-x-2 transition-all duration-200 hover:text-cta">
+                          <Checkbox 
+                            id={feature.id} 
+                            checked={features[feature.id as keyof typeof features]} 
+                            onCheckedChange={() => handleFeatureChange(feature.id as keyof typeof features)}
+                            className="data-[state=checked]:bg-cta data-[state=checked]:border-cta"
+                          />
+                          <label htmlFor={feature.id} className={dir === 'rtl' ? 'arabic-text mr-2' : ''}>
+                            {feature.label}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between pt-2 border-t border-gray-200">
+                  {/* Listing Type filter buttons */}
+                  <div className="flex space-x-2">
+                    {listingTypes.map((type) => (
+                      <Button
+                        key={type.value}
+                        variant={listingType.includes(type.value) ? "active" : "filter"}
+                        size="sm"
+                        onClick={() => toggleListingType(type.value)}
+                      >
+                        {type.icon}
+                        <span className="ml-1">{type.label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                  
+                  {/* Action buttons */}
+                  <div className="flex space-x-2">
+                    <Button variant="outline" onClick={handleReset} size="sm">
+                      <X size={16} className="mr-1" />
+                      {t('search.resetFilters')}
+                    </Button>
+                    <Button variant="cta" onClick={handleSearch} size="sm">
+                      <Check size={16} className="mr-1" />
+                      {t('search.applyFilters')}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-6">
+          <h1 className={`text-2xl font-bold ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+            {loading ? (
+              <span>{t('ui.loading')}</span>
+            ) : (
+              <span>
+                {properties.length} {t('search.propertiesFound')}
+                {searchTerm && <span className="ml-1 text-muted-foreground font-normal text-lg">"{searchTerm}"</span>}
+              </span>
+            )}
+          </h1>
+          
+          {/* Applied Filters Pills */}
+          {getActiveFiltersCount() > 0 && filtersApplied.current && (
+            <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+              {selectedCity !== 'any' && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  <MapPin size={12} className="mr-1" />
+                  {selectedCity}
+                  <button 
+                    onClick={() => setSelectedCity('any')} 
+                    className="ml-1 text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              
+              {propertyType.length > 0 && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  <Home size={12} className="mr-1" />
+                  {propertyType.length === 1 ? 
+                    propertyType[0] : 
+                    t('search.multiplePropertyTypes', { count: propertyType.length })}
+                  <button 
+                    onClick={() => setPropertyType([])} 
+                    className="ml-1 text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              
+              {listingType.length > 0 && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  {listingType[0] === 'sale' ? <DollarSign size={12} className="mr-1" /> : 
+                   listingType[0] === 'rent' ? <Clock size={12} className="mr-1" /> : 
+                   <Home size={12} className="mr-1" />}
+                  {listingType.length === 1 ? 
+                    (listingType[0] === 'sale' ? t('search.forSale') : 
+                     listingType[0] === 'rent' ? t('search.forRent') : 
+                     t('search.underConstruction')) : 
+                    t('search.multipleListingTypes')}
+                  <button 
+                    onClick={() => setListingType([])} 
+                    className="ml-1 text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              
+              {minBeds > 0 && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  <Bed size={12} className="mr-1" />
+                  {t('search.minBeds', { count: minBeds })}
+                  <button 
+                    onClick={() => setMinBeds(0)} 
+                    className="ml-1 text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              
+              {minBaths > 0 && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  <Bath size={12} className="mr-1" />
+                  {t('search.minBaths', { count: minBaths })}
+                  <button 
+                    onClick={() => setMinBaths(0)} 
+                    className="ml-1 text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              
+              {(minPrice > 0 || maxPrice < maxPriceLimit) && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  <DollarSign size={12} className="mr-1" />
+                  {minPrice.toLocaleString()} - {maxPrice.toLocaleString()} DZD
+                  <button 
+                    onClick={() => { setMinPrice(0); setMaxPrice(maxPriceLimit); }} 
+                    className="ml-1 text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+              
+              {(minLivingArea > 0 || maxLivingArea < maxLivingAreaLimit) && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                  <Ruler size={12} className="mr-1" />
+                  {minLivingArea} - {maxLivingArea} m²
+                  <button 
+                    onClick={() => { setMinLivingArea(0); setMaxLivingArea(maxLivingAreaLimit); }} 
+                    className="ml-1 text-gray-500 hover:text-gray-700"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+        
+        <Separator className="my-4" />
+        
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="h-64 bg-gray-200 rounded-t-lg"></div>
+                <div className="p-4 border border-t-0 rounded-b-lg">
+                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-5 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-1"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-1"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {properties.length > 0 ? (
+              properties.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <h3 className={`text-xl font-semibold mb-2 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+                  {t('search.noPropertiesFound')}
+                </h3>
+                <p className={`text-muted-foreground mb-4 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+                  {t('search.adjustSearchCriteria')}
+                </p>
+                <Button onClick={handleReset} variant="cta" className={dir === 'rtl' ? 'arabic-text' : ''}>
+                  {t('search.resetFilters')}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
