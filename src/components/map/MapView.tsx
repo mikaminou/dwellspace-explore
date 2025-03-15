@@ -11,7 +11,7 @@ import { usePropertyPopup } from './usePropertyPopup';
 import { useCitySelection } from './useCitySelection';
 import { usePropertiesWithOwners } from './usePropertiesWithOwners';
 
-export function MapView() {
+function MapView() {
   const navigate = useNavigate();
   const { mapContainer, map, mapLoaded } = useMapSetup();
   const { properties, loading, selectedCity } = useSearch();
@@ -61,3 +61,5 @@ export function MapView() {
     </div>
   );
 }
+
+export default MapView;

@@ -1,10 +1,13 @@
 
-import React from "react";
+import React, { Suspense } from "react";
 import { MainNav } from "@/components/MainNav";
-import { MapView } from "@/components/map/MapView";
 import { MapFilters } from "@/components/map/MapFilters";
 import { SearchProvider } from "@/contexts/search/SearchContext";
 import { Filters } from "@/components/search/Filters";
+import { Loader2 } from "lucide-react";
+
+// Lazy load the MapView component to prevent issues with Mapbox initialization
+const MapViewLazy = React.lazy(() => import("@/components/map/MapView"));
 
 export default function Map() {
   return (
@@ -14,7 +17,14 @@ export default function Map() {
         <div className="flex flex-col h-[calc(100vh-4rem)]">
           <MapFilters />
           <Filters />
-          <MapView />
+          <Suspense fallback={
+            <div className="flex-1 flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2 text-primary">Loading map...</span>
+            </div>
+          }>
+            <MapViewLazy />
+          </Suspense>
         </div>
       </div>
     </SearchProvider>
