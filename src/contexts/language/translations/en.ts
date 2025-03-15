@@ -124,6 +124,8 @@ const enTranslations = {
   'search.anyPropertyType': 'Any property type',
   'search.villa': 'Villa',
   'search.apartment': 'Apartment',
+  'search.house': 'House',
+  'search.land': 'Land',
   'search.studio': 'Studio',
   'search.duplex': 'Duplex',
   'search.traditionalHouse': 'Traditional House',

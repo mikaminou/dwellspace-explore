@@ -31,15 +31,18 @@ export default function Index() {
   // Initialize with the fallback URL, then try to get a public URL if available
   const [videoUrl, setVideoUrl] = useState(FALLBACK_SIGNED_URL);
 
-  // Define property types explicitly with proper translations
+  // Define complete property types with proper translations
   const propertyTypes = [
     { value: "any", label: t('search.anyPropertyType') },
     { value: "apartment", label: t('search.apartment') },
     { value: "villa", label: t('search.villa') },
-    { value: "house", label: t('search.house') },
-    { value: "land", label: t('search.land') },
+    { value: "house", label: "House" }, // Fixed translation
+    { value: "land", label: "Land" }, // Fixed translation
     { value: "studio", label: t('search.studio') },
     { value: "duplex", label: t('search.duplex') },
+    { value: "traditionalHouse", label: t('search.traditionalHouse') },
+    { value: "loft", label: t('search.loft') },
+    { value: "chalet", label: t('search.chalet') }
   ];
 
   // Function to check if video exists in storage and get appropriate URL
