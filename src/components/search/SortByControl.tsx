@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ArrowDown } from "lucide-react";
+import { Star } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ export function SortByControl({ sortOption, setSortOption }: SortByControlProps)
   return (
     <div className="flex items-center">
       <div className="inline-flex items-center mr-2">
+        <Star className="h-4 w-4 text-accent mr-1.5" />
         <span className="text-sm text-muted-foreground whitespace-nowrap">{t('search.sortBy')}:</span>
       </div>
       <Select value={sortOption} onValueChange={setSortOption}>
