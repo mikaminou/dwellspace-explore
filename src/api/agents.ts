@@ -55,61 +55,61 @@ export const getAgentById = async (id: string): Promise<Agent | null> => {
   }
 };
 
-// Function to get agents for a list of properties
-export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[key: number]: Agent}> => {
+// Function to get property owners for a list of properties
+export const getOwnersForProperties = async (propertyIds: number[]): Promise<{[key: number]: Agent}> => {
   if (propertyIds.length === 0) return {};
 
   try {
-    // First get the agent_ids for the properties
+    // First get the owner_ids for the properties
     const { data: properties, error: propertiesError } = await supabase
       .from('properties')
-      .select('id, agent_id')
+      .select('id, owner_id')
       .in('id', propertyIds);
 
     if (propertiesError || !properties) {
-      console.error('Error fetching property-agent relationships:', propertiesError);
+      console.error('Error fetching property-owner relationships:', propertiesError);
       return {};
     }
 
-    // Extract unique agent ids
-    const agentIds: string[] = [];
+    // Extract unique owner ids
+    const ownerIds: string[] = [];
     properties.forEach(property => {
-      if (property.agent_id && !agentIds.includes(property.agent_id)) {
-        agentIds.push(property.agent_id);
+      if (property.owner_id && !ownerIds.includes(property.owner_id)) {
+        ownerIds.push(property.owner_id);
       }
     });
     
-    if (agentIds.length === 0) return {};
+    if (ownerIds.length === 0) return {};
 
-    // Fetch all agent profiles
-    const { data: agents, error: agentsError } = await supabase
+    // Fetch all profiles (both agents and sellers)
+    const { data: owners, error: ownersError } = await supabase
       .from('profiles')
       .select('*')
-      .in('id', agentIds)
-      .eq('role', 'agent');
+      .in('id', ownerIds)
+      .in('role', ['agent', 'seller']);
 
-    if (agentsError || !agents) {
-      console.error('Error fetching agents:', agentsError);
+    if (ownersError || !owners) {
+      console.error('Error fetching property owners:', ownersError);
       return {};
     }
 
-    // Create a map of agent_id to agent
-    const agentMap: {[key: string]: Agent} = {};
-    agents.forEach((agent) => {
-      agentMap[agent.id] = agent;
+    // Create a map of owner_id to profile
+    const ownerMap: {[key: string]: Agent} = {};
+    owners.forEach((owner) => {
+      ownerMap[owner.id] = owner;
     });
 
-    // Finally, create a map of property_id to agent
-    const propertyAgentMap: {[key: number]: Agent} = {};
+    // Finally, create a map of property_id to owner
+    const propertyOwnerMap: {[key: number]: Agent} = {};
     properties.forEach(property => {
-      if (property.agent_id && agentMap[property.agent_id]) {
-        propertyAgentMap[property.id] = agentMap[property.agent_id];
+      if (property.owner_id && ownerMap[property.owner_id]) {
+        propertyOwnerMap[property.id] = ownerMap[property.owner_id];
       }
     });
 
-    return propertyAgentMap;
+    return propertyOwnerMap;
   } catch (error) {
-    console.error('Unexpected error fetching agents for properties:', error);
+    console.error('Unexpected error fetching owners for properties:', error);
     return {};
   }
 };

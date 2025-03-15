@@ -95,15 +95,15 @@ export default function PropertyDetails() {
     setMessage("");
   };
 
-  // Convert property.agent to the right format
-  const agent = property.agent as any;
+  const owner = property?.owner;
+  const ownerName = owner ? `${owner.first_name} ${owner.last_name}`.trim() : 'Unknown';
+  const ownerInitials = ownerName !== 'Unknown' ? ownerName.charAt(0) : '?';
 
   return (
     <div className="min-h-screen bg-background">
       <MainNav />
       
       <div className="container mx-auto px-4 py-8">
-        {/* Property Images */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="md:col-span-2 aspect-video rounded-lg overflow-hidden">
             <img 
@@ -125,7 +125,6 @@ export default function PropertyDetails() {
           </div>
         </div>
         
-        {/* Property Header */}
         <div className={`flex flex-col md:flex-row justify-between items-start gap-4 mb-6 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
           <div className={dir === 'rtl' ? 'text-right' : ''}>
             <h1 className="text-3xl font-bold mb-2">
@@ -169,7 +168,6 @@ export default function PropertyDetails() {
         
         <Separator className="my-6" />
         
-        {/* Property Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
           <div className="lg:col-span-2">
             <TransHeading as="h2" id="property.details" className={`text-2xl font-semibold mb-4 ${dir === 'rtl' ? 'text-right' : ''}`} />
@@ -201,15 +199,15 @@ export default function PropertyDetails() {
             <Card className="p-6">
               <div className="flex items-center gap-4 mb-4">
                 <Avatar>
-                  <AvatarImage src={agent?.avatar} />
-                  <AvatarFallback>{agent?.name?.charAt(0) || '?'}</AvatarFallback>
+                  <AvatarImage src={owner?.avatar_url} />
+                  <AvatarFallback>{ownerInitials}</AvatarFallback>
                 </Avatar>
                 <div>
                   <h3 className="font-semibold">
-                    {agent?.name}
+                    {ownerName}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {agent?.agency}
+                    {owner?.agency || (owner?.role === 'seller' ? 'Private Seller' : '')}
                   </p>
                 </div>
               </div>

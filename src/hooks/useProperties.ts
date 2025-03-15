@@ -29,12 +29,12 @@ export function useProperties() {
     try {
       const propertyData = await getPropertyById(id);
       
-      // If property exists and has an agent_id, fetch the agent details
-      if (propertyData && propertyData.agent_id) {
-        const agentData = await getAgentById(propertyData.agent_id);
-        if (agentData) {
-          // Add the agent data to the property
-          return { ...propertyData, agent: agentData };
+      // If property exists and has an owner_id, fetch the owner details
+      if (propertyData && propertyData.owner_id) {
+        const ownerData = await getAgentById(propertyData.owner_id);
+        if (ownerData) {
+          // Add the owner data to the property
+          return { ...propertyData, owner: ownerData };
         }
       }
       
