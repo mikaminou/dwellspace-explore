@@ -3,7 +3,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
     --background: 210 33% 98%;  /* #F8F9FA */
@@ -291,11 +291,14 @@ html[dir="rtl"] .text-right {
 .custom-marker-container {
   transform: translateY(-50%);
   cursor: pointer !important;
+  display: inline-block;
+  width: auto;
 }
 
-.custom-marker {
-  pointer-events: auto !important;
-  cursor: pointer !important; 
+.price-bubble {
+  display: inline-block;
+  white-space: nowrap;
+  user-select: none;
 }
 
 /* Property popup styling */
