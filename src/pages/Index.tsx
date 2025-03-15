@@ -12,6 +12,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useProperties } from "@/hooks/useProperties";
 import { Property } from "@/api/properties";
+import { properties as mockProperties } from "@/data/properties"; // Import mock properties
 
 // Video configuration
 const VIDEO_BUCKET = "herosection";
@@ -31,13 +32,21 @@ export default function Index() {
   // Fetch properties from the database
   const { properties, loading, error } = useProperties();
   
-  // Take first properties for featured display (if we have enough)
-  const featuredProperties = properties.slice(0, 3);
+  // If we have no properties from the database, use mock data instead
+  const allProperties = properties.length > 0 ? properties : mockProperties;
   
-  // Create luxury properties from the rest, if we have enough
-  const luxuryProperties = properties.length > 3 
-    ? properties.slice(3, 6).map(p => ({...p, luxury: true}))
-    : properties.slice(0, Math.min(3, properties.length)).map(p => ({...p, luxury: true}));
+  // Find premium properties (marked with isPremium or properties from premium users)
+  const premiumProperties = allProperties.filter(p => 
+    // From mock data we use the isPremium flag
+    (p.isPremium === true) || 
+    // For database properties, we could check if owner/agent has a premium role
+    (p.owner && p.owner.role === 'seller') // Premium users are typically sellers in our model
+  ).slice(0, 3);
+
+  // Take properties for featured display (exclude premium ones)
+  const featuredProperties = allProperties
+    .filter(p => !premiumProperties.some(pp => pp.id === p.id))
+    .slice(0, 3);
 
   // Define complete property types with proper translations
   const propertyTypes = [
@@ -102,9 +111,16 @@ export default function Index() {
 
   // Function to get property image
   const getPropertyImage = (property: Property) => {
+    // For database properties
     if (property.featured_image_url) return property.featured_image_url;
     if (property.gallery_image_urls && property.gallery_image_urls.length > 0) 
       return property.gallery_image_urls[0];
+    
+    // For mock data properties
+    if (property.image) return property.image;
+    if (property.images && property.images.length > 0)
+      return property.images[0];
+      
     return "/img/placeholder-property.jpg"; // Fallback image
   };
 
@@ -230,6 +246,86 @@ export default function Index() {
         </div>
       </section>
       
+      {/* Luxury Properties Section - Moved to appear before Featured Properties */}
+      <section className="py-16 bg-gray-50 dark:bg-secondary/10">
+        <div className="container mx-auto px-4">
+          <div className={`flex justify-between items-center mb-8 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+            <h2 className={`text-3xl font-bold flex items-center gap-2 ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`}>
+              <StarIcon className="h-6 w-6 text-luxury" />
+              {t('luxury.title')}
+            </h2>
+            <Button variant="luxury" asChild>
+              <Link to="/search?luxury=true" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                {t('luxury.viewAll')}
+                <ArrowRightIcon className={`h-4 w-4 ${dir === 'rtl' ? 'rotate-180' : ''}`} />
+              </Link>
+            </Button>
+          </div>
+          
+          {loading ? (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground">Loading properties...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-destructive">Failed to load properties</p>
+            </div>
+          ) : premiumProperties.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground">No luxury properties found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {premiumProperties.map((property) => (
+                <Link 
+                  to={`/property/${property.id}`}
+                  key={property.id} 
+                  className="property-card premium-property fade-in group hover:scale-[1.02] transition-all bg-white dark:bg-card"
+                >
+                  <div className="relative">
+                    <div className="luxury-badge">
+                      {t('luxury.badge')}
+                    </div>
+                    <img
+                      src={getPropertyImage(property)}
+                      alt={property.title}
+                      className="property-image"
+                    />
+                    <Button
+                      variant="white"
+                      size="sm"
+                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      {t('property.save')}
+                    </Button>
+                  </div>
+                  <div className={`property-details ${dir === 'rtl' ? 'text-right' : ''}`}>
+                    <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                      <h3 className="text-lg font-semibold">{property.title}</h3>
+                      <span className="text-luxury font-semibold">{property.price}</span>
+                    </div>
+                    <div className={`flex items-center gap-4 text-muted-foreground ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
+                        <MapPinIcon className="h-4 w-4" />
+                        {property.location}
+                      </span>
+                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
+                        <BedDoubleIcon className="h-4 w-4" />
+                        {property.beds} {t('property.beds')}
+                      </span>
+                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
+                        <HomeIcon className="h-4 w-4" />
+                        {property.type}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+      
       {/* Featured Properties Section */}
       <section className="py-16 container mx-auto px-4 animate-fade-in">
         <div className={`flex justify-between items-center mb-8 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
@@ -302,86 +398,6 @@ export default function Index() {
             ))}
           </div>
         )}
-      </section>
-      
-      {/* Luxury Properties Section */}
-      <section className="py-16 bg-gray-50 dark:bg-secondary/10">
-        <div className="container mx-auto px-4">
-          <div className={`flex justify-between items-center mb-8 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-            <h2 className={`text-3xl font-bold flex items-center gap-2 ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`}>
-              <StarIcon className="h-6 w-6 text-luxury" />
-              {t('luxury.title')}
-            </h2>
-            <Button variant="luxury" asChild>
-              <Link to="/search?luxury=true" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                {t('luxury.viewAll')}
-                <ArrowRightIcon className={`h-4 w-4 ${dir === 'rtl' ? 'rotate-180' : ''}`} />
-              </Link>
-            </Button>
-          </div>
-          
-          {loading ? (
-            <div className="text-center py-20">
-              <p className="text-muted-foreground">Loading properties...</p>
-            </div>
-          ) : error ? (
-            <div className="text-center py-20">
-              <p className="text-destructive">Failed to load properties</p>
-            </div>
-          ) : luxuryProperties.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-muted-foreground">No luxury properties found</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {luxuryProperties.map((property) => (
-                <Link 
-                  to={`/property/${property.id}`}
-                  key={property.id} 
-                  className="property-card premium-property fade-in group hover:scale-[1.02] transition-all bg-white dark:bg-card"
-                >
-                  <div className="relative">
-                    <div className="luxury-badge">
-                      {t('luxury.badge')}
-                    </div>
-                    <img
-                      src={getPropertyImage(property)}
-                      alt={property.title}
-                      className="property-image"
-                    />
-                    <Button
-                      variant="white"
-                      size="sm"
-                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {t('property.save')}
-                    </Button>
-                  </div>
-                  <div className={`property-details ${dir === 'rtl' ? 'text-right' : ''}`}>
-                    <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                      <h3 className="text-lg font-semibold">{property.title}</h3>
-                      <span className="text-luxury font-semibold">{property.price}</span>
-                    </div>
-                    <div className={`flex items-center gap-4 text-muted-foreground ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                        <MapPinIcon className="h-4 w-4" />
-                        {property.location}
-                      </span>
-                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                        <BedDoubleIcon className="h-4 w-4" />
-                        {property.beds} {t('property.beds')}
-                      </span>
-                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                        <HomeIcon className="h-4 w-4" />
-                        {property.type}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
       </section>
       
       {/* CTA Section */}
