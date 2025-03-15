@@ -11,7 +11,7 @@ export type Property = {
   city: string;
   beds: number;
   baths: number | null;
-  area: number | null;
+  postal_code: number | null;
   living_area: number | null;
   plot_area: number | null;
   type: string;
@@ -84,6 +84,8 @@ export const searchProperties = async (
     minPrice?: number;
     maxPrice?: number;
     minBeds?: number;
+    minLivingArea?: number;
+    maxLivingArea?: number;
     features?: string[];
     listingType?: 'sale' | 'rent' | 'construction' | 'any';
   } = {}
@@ -113,6 +115,15 @@ export const searchProperties = async (
     // Apply minimum bedrooms filter
     if (filters.minBeds && filters.minBeds > 0) {
       query = query.gte('beds', filters.minBeds);
+    }
+
+    // Apply living area range filter
+    if (filters.minLivingArea && filters.minLivingArea > 0) {
+      query = query.gte('living_area', filters.minLivingArea);
+    }
+    
+    if (filters.maxLivingArea && filters.maxLivingArea > 0) {
+      query = query.lte('living_area', filters.maxLivingArea);
     }
 
     // Apply listing type filter

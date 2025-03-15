@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
 import { Button } from "@/components/ui/button";
-import { MapPinIcon, BedDoubleIcon, HomeIcon, HeartIcon, ShareIcon, CalendarIcon } from "lucide-react";
+import { MapPinIcon, BedDoubleIcon, HomeIcon, HeartIcon, ShareIcon, CalendarIcon, SquareIcon, TreesIcon, MailIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -154,8 +155,11 @@ export default function PropertyDetails() {
             <div className={`flex items-center text-muted-foreground mb-2 ${dir === 'rtl' ? 'justify-end arabic-text' : ''}`}>
               <MapPinIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-1' : 'mr-1'}`} />
               {property.location}
+              {property.postal_code && (
+                <span className="ml-2">{property.postal_code}</span>
+              )}
             </div>
-            <div className={`flex items-center gap-4 ${dir === 'rtl' ? 'justify-end arabic-text' : ''}`}>
+            <div className={`flex flex-wrap items-center gap-4 ${dir === 'rtl' ? 'justify-end arabic-text' : ''}`}>
               <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 <BedDoubleIcon className="h-4 w-4" />
                 {property.beds} <Trans id="property.beds" />
@@ -168,6 +172,18 @@ export default function PropertyDetails() {
                 <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                   <CalendarIcon className="h-4 w-4" />
                   <Trans id="property.built" /> {property.year_built}
+                </span>
+              )}
+              {property.living_area && (
+                <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                  <SquareIcon className="h-4 w-4" />
+                  {property.living_area} m² <Trans id="property.livingSpace" />
+                </span>
+              )}
+              {property.plot_area && (
+                <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                  <TreesIcon className="h-4 w-4" />
+                  {property.plot_area} m² <Trans id="property.plotSpace" />
                 </span>
               )}
             </div>

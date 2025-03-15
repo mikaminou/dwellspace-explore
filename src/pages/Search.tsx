@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -22,6 +23,8 @@ export default function Search() {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(50000000);
   const [minBeds, setMinBeds] = useState(0);
+  const [minLivingArea, setMinLivingArea] = useState(0);
+  const [maxLivingArea, setMaxLivingArea] = useState(500);
   const [showFilters, setShowFilters] = useState(false);
   const [features, setFeatures] = useState({
     parking: false,
@@ -97,6 +100,8 @@ export default function Search() {
         minPrice,
         maxPrice,
         minBeds: minBeds > 0 ? minBeds : undefined,
+        minLivingArea: minLivingArea > 0 ? minLivingArea : undefined,
+        maxLivingArea: maxLivingArea < 500 ? maxLivingArea : undefined,
         features: selectedFeatures.length > 0 ? selectedFeatures : undefined,
         listingType: listingType !== 'any' ? listingType as 'sale' | 'rent' | 'construction' : undefined
       });
@@ -124,6 +129,8 @@ export default function Search() {
     setMinPrice(0);
     setMaxPrice(50000000);
     setMinBeds(0);
+    setMinLivingArea(0);
+    setMaxLivingArea(500);
     setFeatures({
       parking: false,
       furnished: false,
@@ -300,6 +307,26 @@ export default function Search() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+            </div>
+            
+            <div>
+              <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+                {t('search.livingSpaceRange')}
+              </label>
+              <div className="flex items-center justify-between mb-2">
+                <span className={dir === 'rtl' ? 'arabic-text' : ''}>{minLivingArea} m²</span>
+                <span className={dir === 'rtl' ? 'arabic-text' : ''}>{maxLivingArea} m²</span>
+              </div>
+              <Slider 
+                min={0} 
+                max={500} 
+                step={10} 
+                value={[minLivingArea, maxLivingArea]}
+                onValueChange={([min, max]) => {
+                  setMinLivingArea(min);
+                  setMaxLivingArea(max);
+                }}
+              />
             </div>
             
             <div className="md:col-span-2 lg:col-span-4">

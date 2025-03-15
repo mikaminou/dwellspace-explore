@@ -95,6 +95,8 @@ export function useProperties() {
       minPrice?: number;
       maxPrice?: number;
       minBeds?: number;
+      minLivingArea?: number;
+      maxLivingArea?: number;
       features?: string[];
     } = {}
   ) => {

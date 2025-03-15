@@ -54,7 +54,6 @@ export type Database = {
       properties: {
         Row: {
           additional_details: string | null
-          area: number | null
           baths: number | null
           beds: number
           city: string
@@ -65,8 +64,11 @@ export type Database = {
           image: string | null
           images: Json | null
           listing_type: string
+          living_area: number
           location: string
           owner_id: string
+          plot_area: number | null
+          postal_code: number | null
           price: string
           title: string
           type: string
@@ -75,7 +77,6 @@ export type Database = {
         }
         Insert: {
           additional_details?: string | null
-          area?: number | null
           baths?: number | null
           beds: number
           city: string
@@ -86,8 +87,11 @@ export type Database = {
           image?: string | null
           images?: Json | null
           listing_type?: string
+          living_area?: number
           location: string
           owner_id: string
+          plot_area?: number | null
+          postal_code?: number | null
           price: string
           title: string
           type: string
@@ -96,7 +100,6 @@ export type Database = {
         }
         Update: {
           additional_details?: string | null
-          area?: number | null
           baths?: number | null
           beds?: number
           city?: string
@@ -107,8 +110,11 @@ export type Database = {
           image?: string | null
           images?: Json | null
           listing_type?: string
+          living_area?: number
           location?: string
           owner_id?: string
+          plot_area?: number | null
+          postal_code?: number | null
           price?: string
           title?: string
           type?: string

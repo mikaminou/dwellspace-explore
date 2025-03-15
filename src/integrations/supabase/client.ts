@@ -37,7 +37,7 @@ export const transformPropertyData = (property: any) => {
     city: property.city || '',
     beds: property.beds || 0,
     baths: property.baths || null,
-    area: property.area || null,
+    postal_code: property.postal_code || null,
     living_area: property.living_area || null,
     plot_area: property.plot_area || null,
     type: property.type || 'House',

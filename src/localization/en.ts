@@ -1,3 +1,4 @@
+
 export const en = {
   // Navigation
   nav: {
@@ -50,6 +51,7 @@ export const en = {
     anyCity: "Any City",
     priceRange: "Price Range",
     minimumBedrooms: "Minimum Bedrooms",
+    livingSpaceRange: "Living Space Range",
     any: "Any",
     features: "Features",
     parking: "Parking",
@@ -104,7 +106,8 @@ export const en = {
     forRent: "For Rent",
     underConstruction: "Under Construction",
     livingSpace: "Living Space",
-    plotSpace: "Plot Space"
+    plotSpace: "Plot Space",
+    postalCode: "Postal Code"
   },
   
   // Authentication
