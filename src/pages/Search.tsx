@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -35,7 +34,6 @@ export default function Search() {
   const [cities, setCities] = useState<string[]>(['any']);
   const [loading, setLoading] = useState(true);
 
-  // Define property types explicitly
   const propertyTypes = [
     { value: "any", label: t('search.anyPropertyType') },
     { value: "Villa", label: t('search.villa') },
@@ -49,15 +47,13 @@ export default function Search() {
     { value: "Chalet", label: t('search.chalet') }
   ];
 
-  // Define listing types
   const listingTypes = [
-    { value: "any", label: t('search.anyListingType') || "Any Type" },
-    { value: "sale", label: t('search.forSale') || "For Sale" },
-    { value: "rent", label: t('search.forRent') || "For Rent" },
-    { value: "construction", label: t('search.underConstruction') || "Under Construction" }
+    { value: "any", label: t('search.anyListingType') },
+    { value: "sale", label: t('search.forSale') },
+    { value: "rent", label: t('search.forRent') },
+    { value: "construction", label: t('search.underConstruction') }
   ];
 
-  // Fetch properties and extract cities on component mount
   useEffect(() => {
     const fetchAllProperties = async () => {
       setLoading(true);
@@ -65,7 +61,6 @@ export default function Search() {
         const allProperties = await searchProperties();
         setProperties(allProperties);
         
-        // Extract unique cities
         const uniqueCities = ['any', ...Array.from(new Set(allProperties.map(p => p.city)))];
         setCities(uniqueCities);
       } catch (error) {
@@ -78,11 +73,9 @@ export default function Search() {
     fetchAllProperties();
   }, []);
 
-  // Handle search with filters
   const handleSearch = async () => {
     setLoading(true);
     try {
-      // Convert selected features to array
       const selectedFeatures = Object.entries(features)
         .filter(([_, selected]) => selected)
         .map(([feature]) => {
@@ -115,7 +108,6 @@ export default function Search() {
     }
   };
 
-  // Handle feature checkbox changes
   const handleFeatureChange = (feature: keyof typeof features) => {
     setFeatures(prev => ({
       ...prev,
@@ -123,7 +115,6 @@ export default function Search() {
     }));
   };
 
-  // Reset all filters
   const resetFilters = async () => {
     setSearchTerm("");
     setPropertyType("any");
@@ -141,7 +132,6 @@ export default function Search() {
       petFriendly: false,
     });
     
-    // Fetch all properties again
     setLoading(true);
     try {
       const allProperties = await searchProperties();
@@ -212,14 +202,13 @@ export default function Search() {
               </Select>
             </div>
             
-            {/* New Listing Type Filter */}
             <div>
               <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.listingType') || 'Listing Type'}
+                {t('search.listingType')}
               </label>
               <Select value={listingType} onValueChange={setListingType}>
                 <SelectTrigger className={dir === 'rtl' ? 'arabic-text' : ''}>
-                  <SelectValue placeholder={t('search.anyListingType') || 'Any Type'} />
+                  <SelectValue placeholder={t('search.anyListingType')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -411,15 +400,14 @@ export default function Search() {
                       alt={property.title}
                       className="h-64 w-full object-cover rounded-t-lg"
                     />
-                    {/* Add listing type badge */}
                     <div className={`absolute top-4 left-4 px-2 py-1 text-xs font-semibold rounded-md ${
                       property.listing_type === 'sale' ? 'bg-green-500 text-white' : 
                       property.listing_type === 'rent' ? 'bg-blue-500 text-white' : 
                       'bg-amber-500 text-white'
                     }`}>
-                      {property.listing_type === 'sale' ? t('property.forSale') || 'For Sale' : 
-                       property.listing_type === 'rent' ? t('property.forRent') || 'For Rent' : 
-                       t('property.underConstruction') || 'Under Construction'}
+                      {property.listing_type === 'sale' ? t('property.forSale') : 
+                       property.listing_type === 'rent' ? t('property.forRent') : 
+                       t('property.underConstruction')}
                     </div>
                     <Button
                       variant="secondary"

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -100,17 +99,15 @@ export default function PropertyDetails() {
   const ownerName = owner ? `${owner.first_name} ${owner.last_name}`.trim() : 'Unknown';
   const ownerInitials = ownerName !== 'Unknown' ? ownerName.charAt(0) : '?';
 
-  // Get the correct label for the listing type
   const getListingTypeLabel = (type: string) => {
     switch (type) {
-      case 'sale': return t('property.forSale') || 'For Sale';
-      case 'rent': return t('property.forRent') || 'For Rent';
-      case 'construction': return t('property.underConstruction') || 'Under Construction';
-      default: return t('property.forSale') || 'For Sale';
+      case 'sale': return t('property.forSale');
+      case 'rent': return t('property.forRent');
+      case 'construction': return t('property.underConstruction');
+      default: return t('property.forSale');
     }
   };
 
-  // Get the correct color class for the listing type badge
   const getListingTypeBadgeClass = (type: string) => {
     switch (type) {
       case 'sale': return 'bg-green-500 text-white';
@@ -132,7 +129,6 @@ export default function PropertyDetails() {
               alt={property.title}
               className="w-full h-full object-cover"
             />
-            {/* Add listing type badge */}
             <div className={`absolute top-4 left-4 px-3 py-1.5 text-sm font-semibold rounded-md ${getListingTypeBadgeClass(property.listing_type)}`}>
               {getListingTypeLabel(property.listing_type)}
             </div>

@@ -72,7 +72,12 @@ export const en = {
     traditionalHouse: "Traditional House",
     loft: "Loft",
     chalet: "Chalet",
-    location: "Location"
+    location: "Location",
+    listingType: "Listing Type",
+    anyListingType: "Any Type",
+    forSale: "For Sale",
+    forRent: "For Rent",
+    underConstruction: "Under Construction"
   },
   
   // Property details
@@ -95,7 +100,10 @@ export const en = {
     contactTitle: "Message Sent",
     contactDescription: "Your message has been sent to the agent.",
     notFound: "Property Not Found",
-    notFoundDescription: "The property you're looking for doesn't exist or has been removed."
+    notFoundDescription: "The property you're looking for doesn't exist or has been removed.",
+    forSale: "For Sale",
+    forRent: "For Rent",
+    underConstruction: "Under Construction"
   },
   
   // Authentication
