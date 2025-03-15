@@ -3,18 +3,15 @@ import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
 import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon, StarIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-import { properties } from "@/data/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase, getMediaUrl, checkFileExists, getSignedUrl } from "@/integrations/supabase/client";
+import { supabase, getMediaUrl, checkFileExists } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-
-// Take first 6 properties for featured display
-const featuredProperties = properties.slice(0, 3);
-const luxuryProperties = properties.slice(3, 6).map(p => ({...p, luxury: true}));
+import { useProperties } from "@/hooks/useProperties";
+import { Property } from "@/api/properties";
 
 // Video configuration
 const VIDEO_BUCKET = "herosection";
@@ -30,6 +27,17 @@ export default function Index() {
   
   // Initialize with the fallback URL, then try to get a public URL if available
   const [videoUrl, setVideoUrl] = useState(FALLBACK_SIGNED_URL);
+
+  // Fetch properties from the database
+  const { properties, loading, error } = useProperties();
+  
+  // Take first properties for featured display (if we have enough)
+  const featuredProperties = properties.slice(0, 3);
+  
+  // Create luxury properties from the rest, if we have enough
+  const luxuryProperties = properties.length > 3 
+    ? properties.slice(3, 6).map(p => ({...p, luxury: true}))
+    : properties.slice(0, Math.min(3, properties.length)).map(p => ({...p, luxury: true}));
 
   // Define complete property types with proper translations
   const propertyTypes = [
@@ -64,10 +72,6 @@ export default function Index() {
           // Try to get a public URL first, which works better for new tabs
           const publicUrl = getMediaUrl(VIDEO_BUCKET, VIDEO_PATH);
           setVideoUrl(publicUrl);
-          
-          // If you still want to use signed URLs, you could do:
-          // const signedUrl = await getSignedUrl(VIDEO_BUCKET, VIDEO_PATH, 24 * 60 * 60); // 24 hour expiry
-          // if (signedUrl) setVideoUrl(signedUrl);
         }
       } catch (err) {
         console.error("Error checking video:", err);
@@ -94,6 +98,14 @@ export default function Index() {
       description: "Could not load the hero video. Using fallback image instead.",
       variant: "destructive",
     });
+  };
+
+  // Function to get property image
+  const getPropertyImage = (property: Property) => {
+    if (property.featured_image_url) return property.featured_image_url;
+    if (property.gallery_image_urls && property.gallery_image_urls.length > 0) 
+      return property.gallery_image_urls[0];
+    return "/img/placeholder-property.jpg"; // Fallback image
   };
 
   return (
@@ -231,80 +243,30 @@ export default function Index() {
             </Link>
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredProperties.map((property) => (
-            <Link 
-              to={`/property/${property.id}`}
-              key={property.id} 
-              className="property-card fade-in group hover:scale-[1.02] transition-all bg-white dark:bg-card"
-            >
-              <div className="relative">
-                <img
-                  src={property.image || property.images[0]}
-                  alt={property.title}
-                  className="property-image"
-                />
-                <Button
-                  variant="white"
-                  size="sm"
-                  className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  {t('property.save')}
-                </Button>
-              </div>
-              <div className={`property-details ${dir === 'rtl' ? 'text-right' : ''}`}>
-                <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                  <h3 className="text-lg font-semibold">{property.title}</h3>
-                  <span className="text-primary font-semibold">{property.price}</span>
-                </div>
-                <div className={`flex items-center gap-4 text-muted-foreground ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                  <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                    <MapPinIcon className="h-4 w-4" />
-                    {property.location}
-                  </span>
-                  <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                    <BedDoubleIcon className="h-4 w-4" />
-                    {property.beds} {t('property.beds')}
-                  </span>
-                  <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                    <HomeIcon className="h-4 w-4" />
-                    {property.type}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-      
-      {/* Luxury Properties Section */}
-      <section className="py-16 bg-gray-50 dark:bg-secondary/10">
-        <div className="container mx-auto px-4">
-          <div className={`flex justify-between items-center mb-8 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-            <h2 className={`text-3xl font-bold flex items-center gap-2 ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`}>
-              <StarIcon className="h-6 w-6 text-luxury" />
-              {t('luxury.title')}
-            </h2>
-            <Button variant="luxury" asChild>
-              <Link to="/search?luxury=true" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                {t('luxury.viewAll')}
-                <ArrowRightIcon className={`h-4 w-4 ${dir === 'rtl' ? 'rotate-180' : ''}`} />
-              </Link>
-            </Button>
+
+        {loading ? (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground">Loading properties...</p>
           </div>
+        ) : error ? (
+          <div className="text-center py-20">
+            <p className="text-destructive">Failed to load properties</p>
+          </div>
+        ) : featuredProperties.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-muted-foreground">No properties found</p>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {luxuryProperties.map((property) => (
+            {featuredProperties.map((property) => (
               <Link 
                 to={`/property/${property.id}`}
                 key={property.id} 
-                className="property-card premium-property fade-in group hover:scale-[1.02] transition-all bg-white dark:bg-card"
+                className="property-card fade-in group hover:scale-[1.02] transition-all bg-white dark:bg-card"
               >
                 <div className="relative">
-                  <div className="luxury-badge">
-                    {t('luxury.badge')}
-                  </div>
                   <img
-                    src={property.image || property.images[0]}
+                    src={getPropertyImage(property)}
                     alt={property.title}
                     className="property-image"
                   />
@@ -319,7 +281,7 @@ export default function Index() {
                 <div className={`property-details ${dir === 'rtl' ? 'text-right' : ''}`}>
                   <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                     <h3 className="text-lg font-semibold">{property.title}</h3>
-                    <span className="text-luxury font-semibold">{property.price}</span>
+                    <span className="text-primary font-semibold">{property.price}</span>
                   </div>
                   <div className={`flex items-center gap-4 text-muted-foreground ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                     <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
@@ -339,6 +301,86 @@ export default function Index() {
               </Link>
             ))}
           </div>
+        )}
+      </section>
+      
+      {/* Luxury Properties Section */}
+      <section className="py-16 bg-gray-50 dark:bg-secondary/10">
+        <div className="container mx-auto px-4">
+          <div className={`flex justify-between items-center mb-8 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+            <h2 className={`text-3xl font-bold flex items-center gap-2 ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`}>
+              <StarIcon className="h-6 w-6 text-luxury" />
+              {t('luxury.title')}
+            </h2>
+            <Button variant="luxury" asChild>
+              <Link to="/search?luxury=true" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                {t('luxury.viewAll')}
+                <ArrowRightIcon className={`h-4 w-4 ${dir === 'rtl' ? 'rotate-180' : ''}`} />
+              </Link>
+            </Button>
+          </div>
+          
+          {loading ? (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground">Loading properties...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-destructive">Failed to load properties</p>
+            </div>
+          ) : luxuryProperties.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground">No luxury properties found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {luxuryProperties.map((property) => (
+                <Link 
+                  to={`/property/${property.id}`}
+                  key={property.id} 
+                  className="property-card premium-property fade-in group hover:scale-[1.02] transition-all bg-white dark:bg-card"
+                >
+                  <div className="relative">
+                    <div className="luxury-badge">
+                      {t('luxury.badge')}
+                    </div>
+                    <img
+                      src={getPropertyImage(property)}
+                      alt={property.title}
+                      className="property-image"
+                    />
+                    <Button
+                      variant="white"
+                      size="sm"
+                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      {t('property.save')}
+                    </Button>
+                  </div>
+                  <div className={`property-details ${dir === 'rtl' ? 'text-right' : ''}`}>
+                    <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                      <h3 className="text-lg font-semibold">{property.title}</h3>
+                      <span className="text-luxury font-semibold">{property.price}</span>
+                    </div>
+                    <div className={`flex items-center gap-4 text-muted-foreground ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
+                        <MapPinIcon className="h-4 w-4" />
+                        {property.location}
+                      </span>
+                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
+                        <BedDoubleIcon className="h-4 w-4" />
+                        {property.beds} {t('property.beds')}
+                      </span>
+                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
+                        <HomeIcon className="h-4 w-4" />
+                        {property.type}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
       
