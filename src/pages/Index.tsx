@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
 import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon, StarIcon } from "lucide-react";
@@ -37,10 +36,10 @@ export default function Index() {
   
   // Find premium properties (marked with isPremium or properties from premium users)
   const premiumProperties = allProperties.filter(p => 
-    // From mock data we use the isPremium flag
+    // Consider a property premium if it has isPremium set to true
     (p.isPremium === true) || 
-    // For database properties, we could check if owner/agent has a premium role
-    (p.owner && p.owner.role === 'seller') // Premium users are typically sellers in our model
+    // Or if the owner exists and has a role of 'seller'
+    (p.owner && p.owner.role === 'seller')
   ).slice(0, 3);
 
   // Take properties for featured display (exclude premium ones)
@@ -48,19 +47,20 @@ export default function Index() {
     .filter(p => !premiumProperties.some(pp => pp.id === p.id))
     .slice(0, 3);
 
-  // Define complete property types with proper translations
-  const propertyTypes = [
-    { value: "any", label: t('search.anyPropertyType') },
-    { value: "apartment", label: t('search.apartment') },
-    { value: "villa", label: t('search.villa') },
-    { value: "house", label: "House" }, // Fixed translation
-    { value: "land", label: "Land" }, // Fixed translation
-    { value: "studio", label: t('search.studio') },
-    { value: "duplex", label: t('search.duplex') },
-    { value: "traditionalHouse", label: t('search.traditionalHouse') },
-    { value: "loft", label: t('search.loft') },
-    { value: "chalet", label: t('search.chalet') }
-  ];
+  // Function to get property image
+  const getPropertyImage = (property: Property) => {
+    // For database properties
+    if (property.featured_image_url) return property.featured_image_url;
+    if (property.gallery_image_urls && property.gallery_image_urls.length > 0) 
+      return property.gallery_image_urls[0];
+    
+    // For mock data properties
+    if (property.image) return property.image;
+    if (property.images && property.images.length > 0)
+      return property.images[0];
+      
+    return "/img/placeholder-property.jpg"; // Fallback image
+  };
 
   // Function to check if video exists in storage and get appropriate URL
   useEffect(() => {
@@ -107,21 +107,6 @@ export default function Index() {
       description: "Could not load the hero video. Using fallback image instead.",
       variant: "destructive",
     });
-  };
-
-  // Function to get property image
-  const getPropertyImage = (property: Property) => {
-    // For database properties
-    if (property.featured_image_url) return property.featured_image_url;
-    if (property.gallery_image_urls && property.gallery_image_urls.length > 0) 
-      return property.gallery_image_urls[0];
-    
-    // For mock data properties
-    if (property.image) return property.image;
-    if (property.images && property.images.length > 0)
-      return property.images[0];
-      
-    return "/img/placeholder-property.jpg"; // Fallback image
   };
 
   return (

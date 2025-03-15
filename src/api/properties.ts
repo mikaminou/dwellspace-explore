@@ -24,6 +24,10 @@ export type Property = {
   updated_at: string;
   // Include the owner property for type compatibility with existing code
   owner?: Agent;
+  // Add these properties for compatibility with mock data
+  image?: string;
+  images?: string[];
+  isPremium?: boolean;
 };
 
 // Function to get all properties
