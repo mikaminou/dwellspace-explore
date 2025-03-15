@@ -1,6 +1,7 @@
 
 import { useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
+import ReactDOM from 'react-dom';
 import { Property } from '@/api/properties';
 import { PropertyPopup } from './PropertyPopup';
 
@@ -47,32 +48,15 @@ export function usePropertyPopup({
 
     const popupElement = document.getElementById(`property-popup-${property.id}`);
     if (popupElement) {
-      popupElement.innerHTML = PropertyPopup({ 
-        property, 
-        onSave: onSaveProperty,
-        onMessageOwner: onMessageOwner
-      });
-
-      popupElement.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
-        const clickedElement = target.closest('[data-action]');
-        
-        if (clickedElement) {
-          const action = clickedElement.getAttribute('data-action');
-          
-          if (action === 'save') {
-            e.stopPropagation();
-            const propertyId = Number(clickedElement.getAttribute('data-property-id'));
-            onSaveProperty(propertyId);
-          } else if (action === 'message') {
-            e.stopPropagation();
-            const ownerId = Number(clickedElement.getAttribute('data-owner-id'));
-            onMessageOwner(ownerId);
-          }
-        } else {
-          navigate(`/property/${property.id}`);
-        }
-      });
+      ReactDOM.render(
+        <PropertyPopup 
+          property={property} 
+          onSave={onSaveProperty}
+          onMessageOwner={onMessageOwner}
+          onClick={() => navigate(`/property/${property.id}`)}
+        />,
+        popupElement
+      );
     }
 
     // Reset active marker when popup is closed
