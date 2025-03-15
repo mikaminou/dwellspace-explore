@@ -299,16 +299,16 @@ export default function Index() {
                     <div className="luxury-badge">
                       {t('luxury.badge')}
                     </div>
+                    <Badge className={`absolute top-2 left-2 flex items-center gap-1 z-10 ${getListingTypeColor(property as Property)}`}>
+                      <TicketIcon className="h-3 w-3 mr-1" />
+                      {getListingTypeText(property as Property)}
+                    </Badge>
                     <img
                       src={getPropertyImage(property as Property)}
                       alt={property.title}
                       className="property-image"
                     />
-                    <div className="absolute top-2 right-2 flex gap-2">
-                      <Badge className={`flex items-center gap-1 ${getListingTypeColor(property as Property)}`}>
-                        <TicketIcon className="h-3 w-3 mr-1" />
-                        {getListingTypeText(property as Property)}
-                      </Badge>
+                    <div className="absolute top-2 right-2">
                       <Button
                         variant="white"
                         size="sm"
@@ -379,16 +379,16 @@ export default function Index() {
                 className="property-card fade-in group hover:scale-[1.02] transition-all bg-white dark:bg-card"
               >
                 <div className="relative">
+                  <Badge className={`absolute top-2 left-2 flex items-center gap-1 z-10 ${getListingTypeColor(property as Property)}`}>
+                    <TicketIcon className="h-3 w-3 mr-1" />
+                    {getListingTypeText(property as Property)}
+                  </Badge>
                   <img
                     src={getPropertyImage(property as Property)}
                     alt={property.title}
                     className="property-image"
                   />
-                  <div className="absolute top-2 right-2 flex gap-2">
-                    <Badge className={`flex items-center gap-1 ${getListingTypeColor(property as Property)}`}>
-                      <TicketIcon className="h-3 w-3 mr-1" />
-                      {getListingTypeText(property as Property)}
-                    </Badge>
+                  <div className="absolute top-2 right-2">
                     <Button
                       variant="white"
                       size="sm"

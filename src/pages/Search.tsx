@@ -7,10 +7,11 @@ import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, FilterIcon } from "lucide-react";
+import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, FilterIcon, TicketIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { searchProperties } from "@/api";
 import { Property } from "@/api/properties";
+import { Badge } from "@/components/ui/badge";
 
 export default function Search() {
   const { t, dir } = useLanguage();
@@ -141,6 +142,18 @@ export default function Search() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getListingTypeColor = (property: Property): string => {
+    if (property.listing_type === 'rent') return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
+    if (property.listing_type === 'construction') return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
+    return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300';
+  };
+
+  const getListingTypeText = (property: Property): string => {
+    if (property.listing_type === 'rent') return t('property.forRent');
+    if (property.listing_type === 'construction') return t('property.underConstruction');
+    return t('property.forSale');
   };
 
   return (
@@ -392,30 +405,27 @@ export default function Search() {
                 <Link 
                   to={`/property/${property.id}`} 
                   key={property.id} 
-                  className="property-card group hover:scale-[1.02] transition-all"
+                  className="property-card group hover:scale-[1.02] transition-all bg-white dark:bg-card"
                 >
                   <div className="relative">
+                    <Badge className={`absolute top-2 left-2 flex items-center gap-1 z-10 ${getListingTypeColor(property)}`}>
+                      <TicketIcon className="h-3 w-3 mr-1" />
+                      {getListingTypeText(property)}
+                    </Badge>
                     <img
                       src={property.featured_image_url || '/placeholder.svg'}
                       alt={property.title}
                       className="h-64 w-full object-cover rounded-t-lg"
                     />
-                    <div className={`absolute top-4 left-4 px-2 py-1 text-xs font-semibold rounded-md ${
-                      property.listing_type === 'sale' ? 'bg-green-500 text-white' : 
-                      property.listing_type === 'rent' ? 'bg-blue-500 text-white' : 
-                      'bg-amber-500 text-white'
-                    }`}>
-                      {property.listing_type === 'sale' ? t('property.forSale') : 
-                       property.listing_type === 'rent' ? t('property.forRent') : 
-                       t('property.underConstruction')}
+                    <div className="absolute top-2 right-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        {t('property.save')}
+                      </Button>
                     </div>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {t('property.save')}
-                    </Button>
                   </div>
                   <div className="p-4 border border-t-0 rounded-b-lg">
                     <div className="flex justify-between items-start mb-2">
