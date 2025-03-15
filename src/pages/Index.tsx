@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
-import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon, StarIcon } from "lucide-react";
+import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon, StarIcon, TicketIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useProperties } from "@/hooks/useProperties";
 import { Property } from "@/api/properties";
 import { properties as mockProperties } from "@/data/properties";
+import { Badge } from "@/components/ui/badge";
 
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
@@ -64,6 +65,18 @@ export default function Index() {
       return property.images[0];
       
     return "/img/placeholder-property.jpg";
+  };
+
+  const getListingTypeColor = (property: Property): string => {
+    if (property.listingType === 'rent') return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
+    if (property.listingType === 'construction') return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
+    return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'; // default for sale
+  };
+
+  const getListingTypeText = (property: Property): string => {
+    if (property.listingType === 'rent') return t('property.forRent');
+    if (property.listingType === 'construction') return t('property.underConstruction');
+    return t('property.forSale'); // default for sale
   };
 
   useEffect(() => {
@@ -291,13 +304,19 @@ export default function Index() {
                       alt={property.title}
                       className="property-image"
                     />
-                    <Button
-                      variant="white"
-                      size="sm"
-                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {t('property.save')}
-                    </Button>
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      <Badge className={`flex items-center gap-1 ${getListingTypeColor(property as Property)}`}>
+                        <TicketIcon className="h-3 w-3 mr-1" />
+                        {getListingTypeText(property as Property)}
+                      </Badge>
+                      <Button
+                        variant="white"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        {t('property.save')}
+                      </Button>
+                    </div>
                   </div>
                   <div className={`property-details ${dir === 'rtl' ? 'text-right' : ''}`}>
                     <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
@@ -365,13 +384,19 @@ export default function Index() {
                     alt={property.title}
                     className="property-image"
                   />
-                  <Button
-                    variant="white"
-                    size="sm"
-                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    {t('property.save')}
-                  </Button>
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    <Badge className={`flex items-center gap-1 ${getListingTypeColor(property as Property)}`}>
+                      <TicketIcon className="h-3 w-3 mr-1" />
+                      {getListingTypeText(property as Property)}
+                    </Badge>
+                    <Button
+                      variant="white"
+                      size="sm"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      {t('property.save')}
+                    </Button>
+                  </div>
                 </div>
                 <div className={`property-details ${dir === 'rtl' ? 'text-right' : ''}`}>
                   <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
