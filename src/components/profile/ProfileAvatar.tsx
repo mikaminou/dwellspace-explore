@@ -2,15 +2,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ProfileAvatarProps {
-  userAvatar?: string;
-  userName: string;
+  avatarUrl?: string | null;
   userInitials: string;
+  userName?: string;
 }
 
-export function ProfileAvatar({ userAvatar, userName, userInitials }: ProfileAvatarProps) {
+export function ProfileAvatar({ avatarUrl, userInitials, userName }: ProfileAvatarProps) {
   return (
     <Avatar className="h-24 w-24 mb-4">
-      <AvatarImage src={userAvatar} alt={userName} />
+      <AvatarImage src={avatarUrl} alt={userName || userInitials} />
       <AvatarFallback className="text-xl">{userInitials}</AvatarFallback>
     </Avatar>
   );

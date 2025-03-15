@@ -27,7 +27,7 @@ export function ProfileSidebar({
     <div className="space-y-4">
       <Card>
         <CardContent className="pt-6 flex flex-col items-center gap-4">
-          <ProfileAvatar avatarUrl={userAvatar} initials={userInitials} />
+          <ProfileAvatar avatarUrl={userAvatar} userInitials={userInitials} userName={userName} />
           
           <div className="text-center">
             <h3 className={`text-xl font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{userName}</h3>

@@ -3,11 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type Agent = {
   id: string;
-  name: string;
-  avatar: string | null;
-  phone: string | null;
+  first_name: string;
+  last_name: string;
+  avatar_url: string | null;
+  phone_number: string | null;
   email: string | null;
-  agency: string;
+  agency: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -16,8 +17,9 @@ export type Agent = {
 export const getAllAgents = async (): Promise<Agent[]> => {
   try {
     const { data, error } = await supabase
-      .from('agents')
-      .select('*');
+      .from('profiles')
+      .select('*')
+      .eq('role', 'agent');
 
     if (error) {
       console.error('Error fetching agents:', error);
@@ -35,9 +37,10 @@ export const getAllAgents = async (): Promise<Agent[]> => {
 export const getAgentById = async (id: string): Promise<Agent | null> => {
   try {
     const { data, error } = await supabase
-      .from('agents')
+      .from('profiles')
       .select('*')
       .eq('id', id)
+      .eq('role', 'agent')
       .single();
 
     if (error) {
@@ -78,11 +81,12 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
     
     if (agentIds.length === 0) return {};
 
-    // Fetch all these agents
+    // Fetch all agent profiles
     const { data: agents, error: agentsError } = await supabase
-      .from('agents')
+      .from('profiles')
       .select('*')
-      .in('id', agentIds);
+      .in('id', agentIds)
+      .eq('role', 'agent');
 
     if (agentsError || !agents) {
       console.error('Error fetching agents:', agentsError);
@@ -91,7 +95,7 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
 
     // Create a map of agent_id to agent
     const agentMap: {[key: string]: Agent} = {};
-    agents.forEach((agent: Agent) => {
+    agents.forEach((agent) => {
       agentMap[agent.id] = agent;
     });
 
