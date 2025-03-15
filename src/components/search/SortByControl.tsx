@@ -4,14 +4,11 @@ import { Star } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useSearch } from "@/contexts/search/SearchContext";
 
-interface SortByControlProps {
-  sortOption: string;
-  setSortOption: (option: string) => void;
-}
-
-export function SortByControl({ sortOption, setSortOption }: SortByControlProps) {
+export function SortByControl() {
   const { t, dir } = useLanguage();
+  const { sortOption, setSortOption } = useSearch();
 
   const sortOptions = [
     { value: 'relevance', label: t('search.relevance') },

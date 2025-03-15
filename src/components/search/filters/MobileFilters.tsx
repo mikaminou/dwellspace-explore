@@ -8,35 +8,37 @@ import { PriceRangeFilter } from "./PriceRangeFilter";
 import { BedsBathsFilter } from "./BedsBathsFilter";
 import { LivingAreaFilter } from "./LivingAreaFilter";
 import { FilterActions } from "./FilterActions";
-import { FilterProps } from "./FilterTypes";
+import { useSearch } from "@/contexts/search/SearchContext";
 
-export function MobileFilters({ 
-  selectedCity,
-  setSelectedCity,
-  propertyType,
-  setPropertyType,
-  listingType,
-  setListingType,
-  minPrice,
-  setMinPrice,
-  maxPrice,
-  setMaxPrice,
-  minBeds,
-  setMinBeds,
-  minBaths,
-  setMinBaths,
-  minLivingArea,
-  setMinLivingArea,
-  maxLivingArea,
-  setMaxLivingArea,
-  maxPriceLimit,
-  maxLivingAreaLimit,
-  cities,
-  handleReset,
-  handleSearch,
-  activeFilterSection,
-  setActiveFilterSection,
-}: Omit<FilterProps, 'showFilters'>) {
+export function MobileFilters() {
+  const {
+    selectedCity,
+    setSelectedCity,
+    propertyType,
+    setPropertyType,
+    listingType,
+    setListingType,
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setMaxPrice,
+    minBeds,
+    setMinBeds,
+    minBaths,
+    setMinBaths,
+    minLivingArea,
+    setMinLivingArea,
+    maxLivingArea,
+    setMaxLivingArea,
+    maxPriceLimit,
+    maxLivingAreaLimit,
+    cities,
+    handleReset,
+    handleSearch,
+    activeFilterSection,
+    setActiveFilterSection
+  } = useSearch();
+
   const toggleFilterSection = (section: string) => {
     setActiveFilterSection(activeFilterSection === section ? null : section);
   };

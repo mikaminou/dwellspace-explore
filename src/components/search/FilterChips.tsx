@@ -3,33 +3,22 @@ import React from "react";
 import { MapPin, Home, DollarSign, Clock, Bed, Bath, Ruler, X } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Badge } from "@/components/ui/badge";
+import { useSearch } from "@/contexts/search/SearchContext";
 
-interface FilterChipsProps {
-  selectedCity: string;
-  propertyType: string[];
-  listingType: string[];
-  minBeds: number;
-  minBaths: number;
-  minLivingArea: number;
-  maxLivingArea: number;
-  maxLivingAreaLimit: number;
-  filtersApplied: React.MutableRefObject<boolean>;
-  handleFilterRemoval: (filterType: string, value?: string) => void;
-}
-
-export function FilterChips({
-  selectedCity,
-  propertyType,
-  listingType,
-  minBeds,
-  minBaths,
-  minLivingArea,
-  maxLivingArea,
-  maxLivingAreaLimit,
-  filtersApplied,
-  handleFilterRemoval
-}: FilterChipsProps) {
+export function FilterChips() {
   const { t } = useLanguage();
+  const {
+    selectedCity,
+    propertyType,
+    listingType,
+    minBeds,
+    minBaths,
+    minLivingArea,
+    maxLivingArea,
+    maxLivingAreaLimit,
+    filtersApplied,
+    handleFilterRemoval
+  } = useSearch();
 
   if (!filtersApplied.current) return null;
 

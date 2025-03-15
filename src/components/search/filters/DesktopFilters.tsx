@@ -8,33 +8,35 @@ import { PriceRangeFilter } from "./PriceRangeFilter";
 import { BedsBathsFilter } from "./BedsBathsFilter";
 import { LivingAreaFilter } from "./LivingAreaFilter";
 import { FilterActions } from "./FilterActions";
-import { FilterProps } from "./FilterTypes";
+import { useSearch } from "@/contexts/search/SearchContext";
 
-export function DesktopFilters({ 
-  selectedCity,
-  setSelectedCity,
-  propertyType,
-  setPropertyType,
-  listingType,
-  setListingType,
-  minPrice,
-  setMinPrice,
-  maxPrice,
-  setMaxPrice,
-  minBeds,
-  setMinBeds,
-  minBaths,
-  setMinBaths,
-  minLivingArea,
-  setMinLivingArea,
-  maxLivingArea,
-  setMaxLivingArea,
-  maxPriceLimit,
-  maxLivingAreaLimit,
-  cities,
-  handleReset,
-  handleSearch,
-}: Omit<FilterProps, 'showFilters' | 'activeFilterSection' | 'setActiveFilterSection'>) {
+export function DesktopFilters() {
+  const {
+    selectedCity,
+    setSelectedCity,
+    propertyType,
+    setPropertyType,
+    listingType,
+    setListingType,
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setMaxPrice,
+    minBeds,
+    setMinBeds,
+    minBaths,
+    setMinBaths,
+    minLivingArea,
+    setMinLivingArea,
+    maxLivingArea,
+    setMaxLivingArea,
+    maxPriceLimit,
+    maxLivingAreaLimit,
+    cities,
+    handleReset,
+    handleSearch
+  } = useSearch();
+
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">

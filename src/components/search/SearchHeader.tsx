@@ -4,27 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search as SearchIcon, Filter as FilterIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { useSearch } from "@/contexts/search/SearchContext";
 
-interface SearchHeaderProps {
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
-  showFilters: boolean;
-  setShowFilters: (show: boolean) => void;
-  getActiveFiltersCount: () => number;
-  handleSearch: () => void;
-}
-
-export function SearchHeader({
-  searchTerm,
-  setSearchTerm,
-  showFilters,
-  setShowFilters,
-  getActiveFiltersCount,
-  handleSearch
-}: SearchHeaderProps) {
+export function SearchHeader() {
   const [searchHeaderSticky, setSearchHeaderSticky] = useState(false);
   const searchHeaderRef = useRef<HTMLDivElement>(null);
   const { t, dir } = useLanguage();
+  const { 
+    searchTerm, 
+    setSearchTerm, 
+    showFilters, 
+    setShowFilters, 
+    getActiveFiltersCount, 
+    handleSearch 
+  } = useSearch();
 
   useEffect(() => {
     const handleScroll = () => {
