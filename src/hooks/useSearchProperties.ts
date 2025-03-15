@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { searchProperties } from "@/api";
 import { Property } from "@/api/properties";
 import { toast } from "sonner";
@@ -30,22 +30,29 @@ export function useSearchProperties() {
 
   useEffect(() => {
     const fetchLimits = async () => {
-      const maxPrice = await getMaxPropertyPrice();
-      setMaxPriceLimit(maxPrice);
-      setMaxPrice(maxPrice);
+      try {
+        const maxPrice = await getMaxPropertyPrice();
+        setMaxPriceLimit(maxPrice);
+        setMaxPrice(maxPrice);
 
-      const maxLiving = await getMaxLivingArea();
-      setMaxLivingAreaLimit(maxLiving);
-      setMaxLivingArea(maxLiving);
+        const maxLiving = await getMaxLivingArea();
+        setMaxLivingAreaLimit(maxLiving);
+        setMaxLivingArea(maxLiving);
 
-      const cities = await getAllCities();
-      setCities(['any', ...cities]);
+        const cities = await getAllCities();
+        setCities(['any', ...cities]);
+        
+        handleSearch();
+      } catch (error) {
+        console.error("Error fetching limits:", error);
+        toast.error(t('search.errorFetchingLimits'));
+      }
     };
 
     fetchLimits();
   }, []);
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     setLoading(true);
     filtersApplied.current = true;
     try {
@@ -66,9 +73,12 @@ export function useSearchProperties() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    searchTerm, selectedCity, propertyType, minPrice, maxPrice, 
+    minBeds, minLivingArea, maxLivingArea, listingType, t
+  ]);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setSearchTerm('');
     setSelectedCity('any');
     setPropertyType([]);
@@ -81,10 +91,13 @@ export function useSearchProperties() {
     setMaxLivingArea(maxLivingAreaLimit);
     setSortOption('relevance');
     filtersApplied.current = false;
-    handleSearch();
-  };
+    
+    setTimeout(() => {
+      handleSearch();
+    }, 0);
+  }, [maxPriceLimit, maxLivingAreaLimit, handleSearch]);
 
-  const getActiveFiltersCount = () => {
+  const getActiveFiltersCount = useCallback(() => {
     let count = 0;
     if (selectedCity !== 'any') count++;
     if (propertyType.length > 0) count++;
@@ -94,9 +107,12 @@ export function useSearchProperties() {
     if (minLivingArea > 0) count++;
     if (maxLivingArea < maxLivingAreaLimit) count++;
     return count;
-  };
+  }, [
+    selectedCity, propertyType, listingType, minBeds, 
+    minBaths, minLivingArea, maxLivingArea, maxLivingAreaLimit
+  ]);
 
-  const handleFilterRemoval = (filterType: string, value?: string) => {
+  const handleFilterRemoval = useCallback((filterType: string, value?: string) => {
     switch (filterType) {
       case 'city':
         setSelectedCity('any');
@@ -128,7 +144,9 @@ export function useSearchProperties() {
     setTimeout(() => {
       handleSearch();
     }, 0);
-  };
+  }, [
+    propertyType, listingType, maxLivingAreaLimit, handleSearch
+  ]);
 
   return {
     searchTerm,

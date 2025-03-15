@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { MainNav } from "@/components/MainNav";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { SearchHeader } from "@/components/search/SearchHeader";
@@ -49,6 +49,59 @@ export default function Search() {
     handleFilterRemoval
   } = useSearchProperties();
 
+  // Memoize filter props to prevent unnecessary re-renders
+  const filterProps = useMemo(() => ({
+    showFilters,
+    selectedCity,
+    setSelectedCity,
+    propertyType,
+    setPropertyType,
+    listingType,
+    setListingType,
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setMaxPrice,
+    minBeds,
+    setMinBeds,
+    minBaths,
+    setMinBaths,
+    minLivingArea,
+    setMinLivingArea,
+    maxLivingArea,
+    setMaxLivingArea,
+    sortOption,
+    setSortOption,
+    maxPriceLimit,
+    maxLivingAreaLimit,
+    cities,
+    handleReset,
+    handleSearch,
+    activeFilterSection,
+    setActiveFilterSection
+  }), [
+    showFilters, selectedCity, propertyType, listingType, minPrice, maxPrice,
+    minBeds, minBaths, minLivingArea, maxLivingArea, sortOption, 
+    maxPriceLimit, maxLivingAreaLimit, cities, activeFilterSection
+  ]);
+
+  // Memoize filter chip props
+  const filterChipProps = useMemo(() => ({
+    selectedCity,
+    propertyType,
+    listingType,
+    minBeds,
+    minBaths,
+    minLivingArea,
+    maxLivingArea,
+    maxLivingAreaLimit,
+    filtersApplied,
+    handleFilterRemoval
+  }), [
+    selectedCity, propertyType, listingType, minBeds, minBaths,
+    minLivingArea, maxLivingArea, maxLivingAreaLimit, filtersApplied
+  ]);
+
   return (
     <div className="min-h-screen bg-background">
       <MainNav />
@@ -62,52 +115,12 @@ export default function Search() {
         handleSearch={handleSearch}
       />
       
-      <Filters
-        showFilters={showFilters}
-        selectedCity={selectedCity}
-        setSelectedCity={setSelectedCity}
-        propertyType={propertyType}
-        setPropertyType={setPropertyType}
-        listingType={listingType}
-        setListingType={setListingType}
-        minPrice={minPrice}
-        setMinPrice={setMinPrice}
-        maxPrice={maxPrice}
-        setMaxPrice={setMaxPrice}
-        minBeds={minBeds}
-        setMinBeds={setMinBeds}
-        minBaths={minBaths}
-        setMinBaths={setMinBaths}
-        minLivingArea={minLivingArea}
-        setMinLivingArea={setMinLivingArea}
-        maxLivingArea={maxLivingArea}
-        setMaxLivingArea={setMaxLivingArea}
-        sortOption={sortOption}
-        setSortOption={setSortOption}
-        maxPriceLimit={maxPriceLimit}
-        maxLivingAreaLimit={maxLivingAreaLimit}
-        cities={cities}
-        handleReset={handleReset}
-        handleSearch={handleSearch}
-        activeFilterSection={activeFilterSection}
-        setActiveFilterSection={setActiveFilterSection}
-      />
+      <Filters {...filterProps} />
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-xl font-medium mb-3">{t('search.results')} ({properties.length})</h1>
-          <FilterChips
-            selectedCity={selectedCity}
-            propertyType={propertyType}
-            listingType={listingType}
-            minBeds={minBeds}
-            minBaths={minBaths}
-            minLivingArea={minLivingArea}
-            maxLivingArea={maxLivingArea}
-            maxLivingAreaLimit={maxLivingAreaLimit}
-            filtersApplied={filtersApplied}
-            handleFilterRemoval={handleFilterRemoval}
-          />
+          <FilterChips {...filterChipProps} />
         </div>
         
         <PropertyGrid

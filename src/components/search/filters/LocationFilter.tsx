@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { memo } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 
@@ -9,7 +9,12 @@ interface LocationFilterProps {
   cities: string[];
 }
 
-export function LocationFilter({ selectedCity, setSelectedCity, cities }: LocationFilterProps) {
+// Use memo to prevent unnecessary re-renders
+export const LocationFilter = memo(function LocationFilter({ 
+  selectedCity, 
+  setSelectedCity, 
+  cities 
+}: LocationFilterProps) {
   const { t, dir } = useLanguage();
 
   return (
@@ -31,4 +36,4 @@ export function LocationFilter({ selectedCity, setSelectedCity, cities }: Locati
       </Select>
     </div>
   );
-}
+});
