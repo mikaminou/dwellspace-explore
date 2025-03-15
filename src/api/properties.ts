@@ -1,4 +1,3 @@
-
 import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 import { Agent } from "./agents";
@@ -19,8 +18,7 @@ export type Property = {
   additional_details: string | null;
   featured_image_url: string;
   gallery_image_urls: string[];
-  owner_type: 'agent' | 'seller';
-  owner_id: string;
+  agent_id: string;
   created_at: string;
   updated_at: string;
   // Include the agent property for type compatibility with existing code
