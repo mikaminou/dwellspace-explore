@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPinIcon, BedDoubleIcon, HomeIcon, TicketIcon } from "lucide-react";
+import { MapPinIcon, BedDoubleIcon, HomeIcon, TicketIcon, BookmarkIcon } from "lucide-react";
 import { Property } from "@/api/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 
@@ -62,10 +62,11 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         />
         <div className="absolute top-2 right-2">
           <Button
-            variant={isPremiumProperty ? "white" : "secondary"}
+            variant="white"
             size="sm"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            className="opacity-0 group-hover:opacity-100 transition-opacity hover:brightness-110 hover:shadow-md"
           >
+            <BookmarkIcon className="h-4 w-4 mr-1" />
             {t('property.save')}
           </Button>
         </div>

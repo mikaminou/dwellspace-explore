@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 hover:brightness-105",
   {
     variants: {
       variant: {
@@ -17,11 +17,11 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80 hover:shadow-sm hover:shadow-destructive/40",
         outline: "text-foreground hover:shadow-sm",
         success: 
-          "border-transparent bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 hover:bg-green-100 hover:shadow-sm hover:shadow-green-200/60 dark:hover:shadow-green-900/60",
+          "border-transparent bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 hover:bg-green-100 hover:shadow-sm hover:brightness-110",
         info: 
-          "border-transparent bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 hover:bg-blue-100 hover:shadow-sm hover:shadow-blue-200/60 dark:hover:shadow-blue-900/60",
+          "border-transparent bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 hover:bg-blue-100 hover:shadow-sm hover:brightness-110",
         warning: 
-          "border-transparent bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300 hover:bg-orange-100 hover:shadow-sm hover:shadow-orange-200/60 dark:hover:shadow-orange-900/60",
+          "border-transparent bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300 hover:bg-orange-100 hover:shadow-sm hover:brightness-110",
       },
     },
     defaultVariants: {
