@@ -6,6 +6,7 @@ import { SearchHeader } from "@/components/search/SearchHeader";
 import { Filters } from "@/components/search/Filters";
 import { FilterChips } from "@/components/search/FilterChips";
 import { PropertyGrid } from "@/components/search/PropertyGrid";
+import { SortByControl } from "@/components/search/SortByControl";
 import { useSearchProperties } from "@/hooks/useSearchProperties";
 
 export default function Search() {
@@ -70,8 +71,6 @@ export default function Search() {
     setMinLivingArea,
     maxLivingArea,
     setMaxLivingArea,
-    sortOption,
-    setSortOption,
     maxPriceLimit,
     maxLivingAreaLimit,
     cities,
@@ -81,7 +80,7 @@ export default function Search() {
     setActiveFilterSection
   }), [
     showFilters, selectedCity, propertyType, listingType, minPrice, maxPrice,
-    minBeds, minBaths, minLivingArea, maxLivingArea, sortOption, 
+    minBeds, minBaths, minLivingArea, maxLivingArea, 
     maxPriceLimit, maxLivingAreaLimit, cities, activeFilterSection
   ]);
 
@@ -119,7 +118,10 @@ export default function Search() {
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-xl font-medium mb-3">{t('search.results')} ({properties.length})</h1>
+          <div className="flex justify-between items-center mb-3">
+            <h1 className="text-xl font-medium">{t('search.results')} ({properties.length})</h1>
+            <SortByControl sortOption={sortOption} setSortOption={setSortOption} />
+          </div>
           <FilterChips {...filterChipProps} />
         </div>
         

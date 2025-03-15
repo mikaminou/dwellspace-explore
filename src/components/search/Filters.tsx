@@ -31,8 +31,6 @@ interface FiltersProps {
   setMinLivingArea: (area: number) => void;
   maxLivingArea: number;
   setMaxLivingArea: (area: number) => void;
-  sortOption: string;
-  setSortOption: (option: string) => void;
   maxPriceLimit: number;
   maxLivingAreaLimit: number;
   cities: string[];
@@ -62,8 +60,6 @@ export function Filters({
   setMinLivingArea,
   maxLivingArea,
   setMaxLivingArea,
-  sortOption,
-  setSortOption,
   maxPriceLimit,
   maxLivingAreaLimit,
   cities,
@@ -163,8 +159,6 @@ export function Filters({
             </div>
 
             <FilterActions
-              sortOption={sortOption}
-              setSortOption={setSortOption}
               handleReset={handleReset}
               handleSearch={handleSearch}
               isMobile={true}
@@ -216,8 +210,6 @@ export function Filters({
             <Separator className="my-4" />
             
             <FilterActions
-              sortOption={sortOption}
-              setSortOption={setSortOption}
               handleReset={handleReset}
               handleSearch={handleSearch}
             />
