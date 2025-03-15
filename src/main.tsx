@@ -11,10 +11,16 @@ import "./styles/map.css"; // Import map styles
 import "./styles/property.css"; // Import property styles
 import { AuthProvider } from "./contexts/auth";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </React.StrictMode>
+// Add a global error handler
+window.addEventListener('error', (event) => {
+  console.error('Global error caught:', event.error);
+});
+
+// Create the root and render the app with strict mode disabled in development
+// to avoid double rendering which can cause issues with auth providers
+const root = ReactDOM.createRoot(document.getElementById("root")!);
+root.render(
+  <AuthProvider>
+    <App />
+  </AuthProvider>
 );
