@@ -4,7 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 
 // Default Mapbox token - users should replace this with their own
-mapboxgl.accessToken = 'pk.eyJ1IjoiZGVtby1vc2tlbiIsImEiOiJjbHpwb2tud3Uxa2ZvMnFvNzk0NzM5Y21qIn0.9EeqezxzJfQNuQvuw-dPiA';
+mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtODZlMWQ3ZDAzeGcyaXNlemlmd2hyeDUifQ.ExxxOcYTr6vkVwBw6J_CYA';
 
 export function useMapSetup() {
   const mapContainer = useRef<HTMLDivElement>(null);
