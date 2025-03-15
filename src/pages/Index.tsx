@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
-import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon, StarIcon, TicketIcon } from "lucide-react";
+import { SearchIcon, ArrowRightIcon, StarIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useProperties } from "@/hooks/useProperties";
 import { Property } from "@/api/properties";
 import { properties as mockProperties } from "@/data/properties";
-import { Badge } from "@/components/ui/badge";
+import PropertyCard from "@/components/PropertyCard";
 
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
@@ -290,55 +290,7 @@ export default function Index() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {premiumProperties.map((property) => (
-                <Link 
-                  to={`/property/${property.id}`}
-                  key={property.id} 
-                  className="property-card premium-property fade-in group hover:scale-[1.02] transition-all bg-white dark:bg-card"
-                >
-                  <div className="relative">
-                    <div className="luxury-badge">
-                      {t('luxury.badge')}
-                    </div>
-                    <Badge className={`absolute top-2 left-2 flex items-center gap-1 z-10 ${getListingTypeColor(property as Property)}`}>
-                      <TicketIcon className="h-3 w-3 mr-1" />
-                      {getListingTypeText(property as Property)}
-                    </Badge>
-                    <img
-                      src={getPropertyImage(property as Property)}
-                      alt={property.title}
-                      className="property-image"
-                    />
-                    <div className="absolute top-2 right-2">
-                      <Button
-                        variant="white"
-                        size="sm"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        {t('property.save')}
-                      </Button>
-                    </div>
-                  </div>
-                  <div className={`property-details ${dir === 'rtl' ? 'text-right' : ''}`}>
-                    <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                      <h3 className="text-lg font-semibold">{property.title}</h3>
-                      <span className="text-luxury font-semibold">{property.price}</span>
-                    </div>
-                    <div className={`flex items-center gap-4 text-muted-foreground ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                        <MapPinIcon className="h-4 w-4" />
-                        {property.location}
-                      </span>
-                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                        <BedDoubleIcon className="h-4 w-4" />
-                        {property.beds} {t('property.beds')}
-                      </span>
-                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                        <HomeIcon className="h-4 w-4" />
-                        {property.type}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
+                <PropertyCard key={property.id} property={property as Property} />
               ))}
             </div>
           )}
@@ -373,52 +325,7 @@ export default function Index() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProperties.map((property) => (
-              <Link 
-                to={`/property/${property.id}`}
-                key={property.id} 
-                className="property-card fade-in group hover:scale-[1.02] transition-all bg-white dark:bg-card"
-              >
-                <div className="relative">
-                  <Badge className={`absolute top-2 left-2 flex items-center gap-1 z-10 ${getListingTypeColor(property as Property)}`}>
-                    <TicketIcon className="h-3 w-3 mr-1" />
-                    {getListingTypeText(property as Property)}
-                  </Badge>
-                  <img
-                    src={getPropertyImage(property as Property)}
-                    alt={property.title}
-                    className="property-image"
-                  />
-                  <div className="absolute top-2 right-2">
-                    <Button
-                      variant="white"
-                      size="sm"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {t('property.save')}
-                    </Button>
-                  </div>
-                </div>
-                <div className={`property-details ${dir === 'rtl' ? 'text-right' : ''}`}>
-                  <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                    <h3 className="text-lg font-semibold">{property.title}</h3>
-                    <span className="text-primary font-semibold">{property.price}</span>
-                  </div>
-                  <div className={`flex items-center gap-4 text-muted-foreground ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                    <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                      <MapPinIcon className="h-4 w-4" />
-                      {property.location}
-                    </span>
-                    <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                      <BedDoubleIcon className="h-4 w-4" />
-                      {property.beds} {t('property.beds')}
-                    </span>
-                    <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
-                      <HomeIcon className="h-4 w-4" />
-                      {property.type}
-                    </span>
-                  </div>
-                </div>
-              </Link>
+              <PropertyCard key={property.id} property={property as Property} />
             ))}
           </div>
         )}
@@ -460,4 +367,3 @@ export default function Index() {
     </div>
   );
 }
-

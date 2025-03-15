@@ -7,11 +7,11 @@ import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, FilterIcon, TicketIcon } from "lucide-react";
+import { SearchIcon, FilterIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { searchProperties } from "@/api";
 import { Property } from "@/api/properties";
-import { Badge } from "@/components/ui/badge";
+import PropertyCard from "@/components/PropertyCard";
 
 export default function Search() {
   const { t, dir } = useLanguage();
@@ -402,52 +402,7 @@ export default function Search() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {properties.length > 0 ? (
               properties.map((property) => (
-                <Link 
-                  to={`/property/${property.id}`} 
-                  key={property.id} 
-                  className="property-card group hover:scale-[1.02] transition-all bg-white dark:bg-card"
-                >
-                  <div className="relative">
-                    <Badge className={`absolute top-2 left-2 flex items-center gap-1 z-10 ${getListingTypeColor(property)}`}>
-                      <TicketIcon className="h-3 w-3 mr-1" />
-                      {getListingTypeText(property)}
-                    </Badge>
-                    <img
-                      src={property.featured_image_url || '/placeholder.svg'}
-                      alt={property.title}
-                      className="h-64 w-full object-cover rounded-t-lg"
-                    />
-                    <div className="absolute top-2 right-2">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        {t('property.save')}
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="p-4 border border-t-0 rounded-b-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className={`text-lg font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{property.title}</h3>
-                      <span className={`text-primary font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{property.price}</span>
-                    </div>
-                    <div className="flex flex-col space-y-1 text-muted-foreground">
-                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                        <MapPinIcon className="h-4 w-4" />
-                        {property.location}
-                      </span>
-                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                        <BedDoubleIcon className="h-4 w-4" />
-                        {property.beds} {t('property.beds')}
-                      </span>
-                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                        <HomeIcon className="h-4 w-4" />
-                        {property.type}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
+                <PropertyCard key={property.id} property={property} />
               ))
             ) : (
               <div className="col-span-full text-center py-12">
