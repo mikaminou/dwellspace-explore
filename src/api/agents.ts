@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export type Agent = {
@@ -9,6 +8,7 @@ export type Agent = {
   phone_number: string | null;
   email: string | null;
   agency: string | null;
+  role: string;
   created_at: string;
   updated_at: string;
 };
