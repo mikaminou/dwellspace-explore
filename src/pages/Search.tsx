@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -151,6 +150,30 @@ export default function Search() {
     }
   };
 
+  const handlePriceInputChange = (type: 'min' | 'max', value: string) => {
+    const numericValue = parseInt(value.replace(/\D/g, ''));
+    
+    if (!isNaN(numericValue)) {
+      if (type === 'min') {
+        setMinPrice(numericValue);
+      } else {
+        setMaxPrice(numericValue);
+      }
+    }
+  };
+
+  const handleLivingAreaInputChange = (type: 'min' | 'max', value: string) => {
+    const numericValue = parseInt(value.replace(/\D/g, ''));
+    
+    if (!isNaN(numericValue)) {
+      if (type === 'min') {
+        setMinLivingArea(numericValue);
+      } else {
+        setMaxLivingArea(numericValue);
+      }
+    }
+  };
+
   const getListingTypeColor = (property: Property): string => {
     if (property.listing_type === 'rent') return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
     if (property.listing_type === 'construction') return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
@@ -270,9 +293,48 @@ export default function Search() {
               <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
                 {t('search.priceRange')}
               </label>
-              <div className="flex items-center justify-between mb-2">
-                <span className={dir === 'rtl' ? 'arabic-text' : ''}>{minPrice.toLocaleString()} DZD</span>
-                <span className={dir === 'rtl' ? 'arabic-text' : ''}>{maxPrice.toLocaleString()} DZD</span>
+              <div className="flex items-center justify-between mb-2 gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    className={dir === 'rtl' ? 'arabic-text text-right pr-10' : 'pl-10'}
+                    value={minPrice.toLocaleString()}
+                    onChange={(e) => handlePriceInputChange('min', e.target.value)}
+                    onBlur={() => {
+                      if (minPrice > maxPrice) {
+                        setMinPrice(maxPrice);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                      }
+                    }}
+                  />
+                  <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
+                    DZD
+                  </span>
+                </div>
+                <span>-</span>
+                <div className="relative flex-1">
+                  <Input
+                    className={dir === 'rtl' ? 'arabic-text text-right pr-10' : 'pl-10'}
+                    value={maxPrice.toLocaleString()}
+                    onChange={(e) => handlePriceInputChange('max', e.target.value)}
+                    onBlur={() => {
+                      if (maxPrice < minPrice) {
+                        setMaxPrice(minPrice);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                      }
+                    }}
+                  />
+                  <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
+                    DZD
+                  </span>
+                </div>
               </div>
               <Slider 
                 min={0} 
@@ -313,9 +375,48 @@ export default function Search() {
               <label className={`text-sm font-medium mb-2 block ${dir === 'rtl' ? 'arabic-text' : ''}`}>
                 {t('search.livingSpaceRange')}
               </label>
-              <div className="flex items-center justify-between mb-2">
-                <span className={dir === 'rtl' ? 'arabic-text' : ''}>{minLivingArea} m²</span>
-                <span className={dir === 'rtl' ? 'arabic-text' : ''}>{maxLivingArea} m²</span>
+              <div className="flex items-center justify-between mb-2 gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    className={dir === 'rtl' ? 'arabic-text text-right pr-10' : 'pl-10'}
+                    value={minLivingArea}
+                    onChange={(e) => handleLivingAreaInputChange('min', e.target.value)}
+                    onBlur={() => {
+                      if (minLivingArea > maxLivingArea) {
+                        setMinLivingArea(maxLivingArea);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                      }
+                    }}
+                  />
+                  <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
+                    m²
+                  </span>
+                </div>
+                <span>-</span>
+                <div className="relative flex-1">
+                  <Input
+                    className={dir === 'rtl' ? 'arabic-text text-right pr-10' : 'pl-10'}
+                    value={maxLivingArea}
+                    onChange={(e) => handleLivingAreaInputChange('max', e.target.value)}
+                    onBlur={() => {
+                      if (maxLivingArea < minLivingArea) {
+                        setMaxLivingArea(minLivingArea);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                      }
+                    }}
+                  />
+                  <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
+                    m²
+                  </span>
+                </div>
               </div>
               <Slider 
                 min={0} 
@@ -450,3 +551,4 @@ export default function Search() {
     </div>
   );
 }
+
