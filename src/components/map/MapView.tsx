@@ -7,6 +7,7 @@ import { Property } from '@/api/properties';
 import { PropertyPopup } from './PropertyPopup';
 import { useLanguage } from '@/contexts/language/LanguageContext';
 import { MapPin, Loader2 } from 'lucide-react';
+import { getOwnersForProperties } from '@/api/agents';
 
 // Default Mapbox token - users should replace this with their own
 mapboxgl.accessToken = 'pk.eyJ1IjoiZGVtby1vc2tlbiIsImEiOiJjbHpwb2tud3Uxa2ZvMnFvNzk0NzM5Y21qIn0.9EeqezxzJfQNuQvuw-dPiA';
@@ -18,8 +19,40 @@ export function MapView() {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [propertiesWithOwners, setPropertiesWithOwners] = useState<Property[]>([]);
   const { properties, loading, selectedCity } = useSearch();
   const { t } = useLanguage();
+
+  // Fetch owners for the properties
+  useEffect(() => {
+    async function fetchOwners() {
+      // Only fetch if we have properties
+      if (properties.length > 0) {
+        try {
+          // Get all property IDs
+          const propertyIds = properties.map(p => p.id);
+          
+          // Fetch owners for these properties
+          const ownersMap = await getOwnersForProperties(propertyIds);
+          
+          // Attach owners to properties
+          const propertiesWithOwnerData = properties.map(property => ({
+            ...property,
+            owner: ownersMap[property.id]
+          }));
+          
+          setPropertiesWithOwners(propertiesWithOwnerData);
+        } catch (error) {
+          console.error('Error fetching property owners:', error);
+          setPropertiesWithOwners(properties);
+        }
+      } else {
+        setPropertiesWithOwners([]);
+      }
+    }
+    
+    fetchOwners();
+  }, [properties]);
 
   // Initialize map
   useEffect(() => {
@@ -60,12 +93,12 @@ export function MapView() {
     markersRef.current = {};
 
     // If there are no properties, don't try to fit bounds
-    if (properties.length === 0) return;
+    if (propertiesWithOwners.length === 0) return;
 
     const bounds = new mapboxgl.LngLatBounds();
     let propertiesWithCoords = 0;
 
-    properties.forEach(property => {
+    propertiesWithOwners.forEach(property => {
       // Skip properties without location info
       if (!property.location) return;
 
@@ -102,7 +135,7 @@ export function MapView() {
         maxZoom: 15
       });
     }
-  }, [properties, mapLoaded, loading]);
+  }, [propertiesWithOwners, mapLoaded, loading]);
 
   // Update map center when selected city changes
   useEffect(() => {
@@ -155,7 +188,7 @@ export function MapView() {
         </div>
       )}
       
-      {properties.length === 0 && !loading && (
+      {propertiesWithOwners.length === 0 && !loading && (
         <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-10">
           <div className="flex flex-col items-center space-y-4 max-w-md text-center px-4">
             <MapPin className="h-12 w-12 text-muted-foreground" />

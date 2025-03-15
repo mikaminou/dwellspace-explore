@@ -70,6 +70,7 @@ export type Database = {
           plot_area: number | null
           postal_code: number | null
           price: string
+          street_name: string
           title: string
           type: string
           updated_at: string
@@ -93,6 +94,7 @@ export type Database = {
           plot_area?: number | null
           postal_code?: number | null
           price: string
+          street_name?: string
           title: string
           type: string
           updated_at?: string
@@ -116,6 +118,7 @@ export type Database = {
           plot_area?: number | null
           postal_code?: number | null
           price?: string
+          street_name?: string
           title?: string
           type?: string
           updated_at?: string
