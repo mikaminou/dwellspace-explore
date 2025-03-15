@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
 import { SearchIcon, ArrowRightIcon, StarIcon } from "lucide-react";
@@ -42,20 +43,29 @@ export default function Index() {
   
   const [videoUrl, setVideoUrl] = useState(FALLBACK_SIGNED_URL);
 
-  const { properties, loading, error } = useProperties();
+  // Use the properties hook but handle errors gracefully
+  const { properties = [], loading = false, error = null } = useProperties() || {};
   
-  const allProperties = properties.length > 0 ? properties : mockProperties;
+  // Ensure we always have properties to display
+  const allProperties = properties && properties.length > 0 ? properties : mockProperties;
   
-  const premiumProperties = allProperties.filter((p: Property) => 
-    (p.isPremium === true) || 
-    (p.owner && p.owner.role === 'seller')
-  ).slice(0, 3);
-
-  const featuredProperties = allProperties
-    .filter((p: Property) => !premiumProperties.some(pp => pp.id === p.id))
+  // Filter premium properties safely
+  const premiumProperties = allProperties
+    .filter((p: Property) => 
+      (p && p.isPremium === true) || 
+      (p && p.owner && p.owner.role === 'seller')
+    )
     .slice(0, 3);
 
+  // Filter featured properties safely
+  const featuredProperties = allProperties
+    .filter((p: Property) => p && !premiumProperties.some(pp => pp.id === p.id))
+    .slice(0, 3);
+
+  // Get property image with fallback
   const getPropertyImage = (property: Property): string => {
+    if (!property) return "/img/placeholder-property.jpg";
+    
     if (property.featured_image_url) return property.featured_image_url;
     if (property.gallery_image_urls && property.gallery_image_urls.length > 0) 
       return property.gallery_image_urls[0];
@@ -67,59 +77,71 @@ export default function Index() {
     return "/img/placeholder-property.jpg";
   };
 
+  // Get listing type color with fallback
   const getListingTypeColor = (property: Property): string => {
-    if (property.listing_type === 'rent') return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
-    if (property.listing_type === 'construction') return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
+    if (!property || !property.listing_type) 
+      return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300';
+      
+    if (property.listing_type === 'rent') 
+      return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
+    if (property.listing_type === 'construction') 
+      return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
+    
     return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'; // default for sale
   };
 
+  // Get listing type text with fallback
   const getListingTypeText = (property: Property): string => {
+    if (!property || !property.listing_type) return t('property.forSale');
+    
     if (property.listing_type === 'rent') return t('property.forRent');
     if (property.listing_type === 'construction') return t('property.underConstruction');
+    
     return t('property.forSale'); // default for sale
   };
 
+  // Check for video existence but handle errors gracefully
   useEffect(() => {
     const checkVideoExists = async () => {
       try {
+        // Try to check if video exists, but don't block rendering if it fails
         const fileExists = await checkFileExists(VIDEO_BUCKET, VIDEO_PATH);
         
         if (!fileExists) {
-          console.error("Video file not found in storage");
+          console.log("Video file not found in storage");
           setVideoError(true);
           setShowAlert(true);
-          toast({
-            title: "Video file not found",
-            description: "The hero video is not available. Please upload it to the Supabase storage.",
-            variant: "destructive",
-          });
         } else {
           const publicUrl = getMediaUrl(VIDEO_BUCKET, VIDEO_PATH);
           setVideoUrl(publicUrl);
         }
       } catch (err) {
-        console.error("Error checking video:", err);
+        console.log("Error checking video:", err);
         setVideoError(true);
+      } finally {
+        // Ensure video loading state is completed even if there's an error
+        setIsVideoLoading(false);
       }
     };
     
-    checkVideoExists();
+    checkVideoExists().catch(() => {
+      // Fallback error handling
+      setVideoError(true);
+      setIsVideoLoading(false);
+    });
   }, []);
 
+  // Handle video load
   const handleVideoLoad = () => {
     console.log("Video loaded successfully");
     setIsVideoLoading(false);
   };
 
-  const handleVideoError = (error: any) => {
-    console.error("Error loading video:", error);
+  // Handle video error
+  const handleVideoError = () => {
+    console.log("Error loading video, using fallback image");
     setVideoError(true);
     setIsVideoLoading(false);
-    toast({
-      title: "Video loading error",
-      description: "Could not load the hero video. Using fallback image instead.",
-      variant: "destructive",
-    });
   };
 
   return (
@@ -199,7 +221,7 @@ export default function Index() {
                           value={type.value} 
                           className={dir === 'rtl' ? 'arabic-text text-right' : ''}
                         >
-                          {type.label}
+                          {t(`search.${type.value === 'any' ? 'anyPropertyType' : type.value}`)}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -289,8 +311,8 @@ export default function Index() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {premiumProperties.map((property) => (
-                <PropertyCard key={property.id} property={property as Property} />
+              {premiumProperties.map((property: Property) => (
+                <PropertyCard key={property.id} property={property} />
               ))}
             </div>
           )}
@@ -324,8 +346,8 @@ export default function Index() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property as Property} />
+            {featuredProperties.map((property: Property) => (
+              <PropertyCard key={property.id} property={property} />
             ))}
           </div>
         )}
