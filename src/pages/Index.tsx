@@ -11,15 +11,12 @@ import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useProperties } from "@/hooks/useProperties";
 import { Property } from "@/api/properties";
-import { properties as mockProperties } from "@/data/properties"; // Import mock properties
+import { properties as mockProperties } from "@/data/properties";
 
-// Video configuration
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
-// Fallback direct signed URL provided by the user (long expiry)
 const FALLBACK_SIGNED_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/hero.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9oZXJvLm1wNCIsImlhdCI6MTc0MTg5MTQyMCwiZXhwIjoxNzczNDI3NDIwfQ.ocQCcfFXgHHMW8do_xssp2P5csUFT-efMRtqqw_L1_M";
 
-// Define property types for the dropdown
 const propertyTypeOptions = [
   { value: "any", label: "Any Type" },
   { value: "apartment", label: "Apartment" },
@@ -29,50 +26,46 @@ const propertyTypeOptions = [
   { value: "commercial", label: "Commercial" },
 ];
 
+const listingTypeOptions = [
+  { value: "any", label: "Any Type" },
+  { value: "sale", label: "For Sale" },
+  { value: "rent", label: "For Rent" },
+  { value: "construction", label: "Under Construction" },
+];
+
 export default function Index() {
   const { t, dir } = useLanguage();
   const [videoError, setVideoError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   
-  // Initialize with the fallback URL, then try to get a public URL if available
   const [videoUrl, setVideoUrl] = useState(FALLBACK_SIGNED_URL);
 
-  // Fetch properties from the database
   const { properties, loading, error } = useProperties();
   
-  // If we have no properties from the database, use mock data instead
   const allProperties = properties.length > 0 ? properties : mockProperties;
   
-  // Find premium properties (marked with isPremium or properties from premium users)
   const premiumProperties = allProperties.filter((p: Property) => 
-    // Consider a property premium if it has isPremium set to true
     (p.isPremium === true) || 
-    // Or if the owner exists and has a role of 'seller'
     (p.owner && p.owner.role === 'seller')
   ).slice(0, 3);
 
-  // Take properties for featured display (exclude premium ones)
   const featuredProperties = allProperties
     .filter((p: Property) => !premiumProperties.some(pp => pp.id === p.id))
     .slice(0, 3);
 
-  // Function to get property image
   const getPropertyImage = (property: Property): string => {
-    // For database properties
     if (property.featured_image_url) return property.featured_image_url;
     if (property.gallery_image_urls && property.gallery_image_urls.length > 0) 
       return property.gallery_image_urls[0];
     
-    // For mock data properties
     if (property.image) return property.image;
     if (property.images && property.images.length > 0)
       return property.images[0];
       
-    return "/img/placeholder-property.jpg"; // Fallback image
+    return "/img/placeholder-property.jpg";
   };
 
-  // Function to check if video exists in storage and get appropriate URL
   useEffect(() => {
     const checkVideoExists = async () => {
       try {
@@ -88,7 +81,6 @@ export default function Index() {
             variant: "destructive",
           });
         } else {
-          // Try to get a public URL first, which works better for new tabs
           const publicUrl = getMediaUrl(VIDEO_BUCKET, VIDEO_PATH);
           setVideoUrl(publicUrl);
         }
@@ -101,13 +93,11 @@ export default function Index() {
     checkVideoExists();
   }, []);
 
-  // Function to handle video load event
   const handleVideoLoad = () => {
     console.log("Video loaded successfully");
     setIsVideoLoading(false);
   };
 
-  // Function to handle video error
   const handleVideoError = (error: any) => {
     console.error("Error loading video:", error);
     setVideoError(true);
@@ -123,7 +113,6 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <MainNav />
       
-      {/* Admin Alert for Missing Video */}
       {showAlert && (
         <Alert variant="destructive" className="mb-4 mx-4">
           <AlertTitle>Video File Missing</AlertTitle>
@@ -134,7 +123,6 @@ export default function Index() {
         </Alert>
       )}
       
-      {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center bg-secondary/90">
         <div className="absolute inset-0 overflow-hidden z-0">
           {!videoError ? (
@@ -176,7 +164,6 @@ export default function Index() {
             {t('hero.subtitle')}
           </p>
           
-          {/* Modern Search Bar */}
           <div className="bg-white dark:bg-card p-2 rounded-lg shadow-lg mb-8 max-w-3xl mx-auto animate-slide-up delay-100">
             <div className="flex flex-col md:flex-row">
               <div className="flex-grow md:border-r dark:border-gray-700 p-2">
@@ -186,7 +173,7 @@ export default function Index() {
                   dir={dir}
                 />
               </div>
-              <div className="md:w-48 p-2">
+              <div className="md:w-44 p-2">
                 <Select>
                   <SelectTrigger className={`h-12 border-0 shadow-none ${dir === 'rtl' ? 'arabic-text text-right' : ''}`} dir={dir}>
                     <SelectValue placeholder={t('search.propertyType')} />
@@ -206,6 +193,26 @@ export default function Index() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="md:w-44 p-2">
+                <Select>
+                  <SelectTrigger className={`h-12 border-0 shadow-none ${dir === 'rtl' ? 'arabic-text text-right' : ''}`} dir={dir}>
+                    <SelectValue placeholder={t('search.listingType')} />
+                  </SelectTrigger>
+                  <SelectContent dir={dir}>
+                    <SelectGroup>
+                      {listingTypeOptions.map((type) => (
+                        <SelectItem 
+                          key={type.value} 
+                          value={type.value} 
+                          className={dir === 'rtl' ? 'arabic-text text-right' : ''}
+                        >
+                          {t(`search.${type.value === 'any' ? 'anyListingType' : type.value === 'sale' ? 'forSale' : type.value === 'rent' ? 'forRent' : 'underConstruction'}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="p-2">
                 <Button className={`w-full h-12 bg-primary hover:bg-primary/90 text-white ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`} size="lg">
                   <SearchIcon className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
@@ -215,7 +222,6 @@ export default function Index() {
             </div>
           </div>
           
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
@@ -241,7 +247,6 @@ export default function Index() {
         </div>
       </section>
       
-      {/* Luxury Properties Section - Moved to appear before Featured Properties */}
       <section className="py-16 bg-gray-50 dark:bg-secondary/10">
         <div className="container mx-auto px-4">
           <div className={`flex justify-between items-center mb-8 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
@@ -321,7 +326,6 @@ export default function Index() {
         </div>
       </section>
       
-      {/* Featured Properties Section */}
       <section className="py-16 container mx-auto px-4 animate-fade-in">
         <div className={`flex justify-between items-center mb-8 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
           <h2 className={`text-3xl font-bold ${dir === 'rtl' ? 'arabic-text' : ''}`}>
@@ -395,7 +399,6 @@ export default function Index() {
         )}
       </section>
       
-      {/* CTA Section */}
       <section className="py-24 bg-primary/10 dark:bg-primary/5">
         <div className="container mx-auto px-4 text-center">
           <h2 className={`text-3xl md:text-4xl font-bold mb-6 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
