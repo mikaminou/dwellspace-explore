@@ -18,28 +18,8 @@ export function usePropertyPopup({
 }) {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   const popupRootRef = useRef<Record<number, any>>({});
-  
-  // Cleanup function to safely unmount React roots and remove popups
-  const cleanupPopup = () => {
-    if (popupRef.current) {
-      popupRef.current.remove();
-      popupRef.current = null;
-    }
 
-    // Safely unmount React roots
-    Object.entries(popupRootRef.current).forEach(([id, root]) => {
-      try {
-        root.unmount();
-      } catch (e) {
-        console.error(`Error unmounting popup for property ${id}:`, e);
-      }
-    });
-    
-    // Reset roots object
-    popupRootRef.current = {};
-  };
-
-  // Show property popup with improved error handling and cleanup
+  // Show property popup
   const showPropertyPopup = (
     property: Property, 
     coordinates: [number, number],
@@ -48,30 +28,39 @@ export function usePropertyPopup({
   ) => {
     if (!map.current) return;
     
-    // Clean up any existing popup before creating a new one
-    cleanupPopup();
+    if (popupRef.current) {
+      popupRef.current.remove();
+      popupRef.current = null;
+    }
 
-    try {
-      // Set active marker
-      setActiveMarkerId(property.id);
-      updateMarkerZIndex(property.id);
+    // Clean up any existing roots
+    Object.values(popupRootRef.current).forEach(root => {
+      try {
+        root.unmount();
+      } catch (e) {
+        console.error('Error unmounting popup:', e);
+      }
+    });
+    popupRootRef.current = {};
 
-      // Create popup with specific options for better positioning and user interaction
-      popupRef.current = new mapboxgl.Popup({ 
-        closeOnClick: false,
-        closeButton: true, // Added close button for better UX
-        maxWidth: '320px',
-        className: 'property-popup-container',
-        offset: [0, -15], // Offset to position popup better above markers
-        anchor: 'bottom' // Position popup above the marker
-      })
-        .setLngLat(coordinates)
-        .setHTML(`<div id="property-popup-${property.id}" class="property-popup"></div>`)
-        .addTo(map.current);
+    // Set active marker
+    setActiveMarkerId(property.id);
+    updateMarkerZIndex(property.id);
 
-      // Render the React component into the popup
-      const popupElement = document.getElementById(`property-popup-${property.id}`);
-      if (popupElement) {
+    popupRef.current = new mapboxgl.Popup({ 
+      closeOnClick: false,
+      closeButton: false,
+      maxWidth: '320px',
+      className: 'property-popup-container'
+    })
+      .setLngLat(coordinates)
+      .setHTML(`<div id="property-popup-${property.id}" class="property-popup"></div>`)
+      .addTo(map.current);
+
+    const popupElement = document.getElementById(`property-popup-${property.id}`);
+    if (popupElement) {
+      try {
+        // Create a root using React 18's createRoot API instead of ReactDOM.render
         const root = createRoot(popupElement);
         popupRootRef.current[property.id] = root;
         
@@ -83,43 +72,36 @@ export function usePropertyPopup({
             onClick={() => navigate(`/property/${property.id}`)}
           />
         );
+      } catch (error) {
+        console.error('Error rendering property popup:', error);
       }
+    }
 
-      // Reset active marker when popup is closed by user clicking the close button
-      popupRef.current.on('close', () => {
-        setActiveMarkerId(null);
-        updateMarkerZIndex(null);
-        
-        // Clean up React root when popup is closed
-        if (popupRootRef.current[property.id]) {
-          try {
-            popupRootRef.current[property.id].unmount();
-            delete popupRootRef.current[property.id];
-          } catch (e) {
-            console.error(`Error unmounting popup for property ${property.id}:`, e);
-          }
+    // Reset active marker when popup is closed
+    ['dragstart', 'zoomstart', 'click'].forEach(event => {
+      map.current?.once(event, () => {
+        if (popupRef.current) {
+          popupRef.current.remove();
+          popupRef.current = null;
+          setActiveMarkerId(null);
+          updateMarkerZIndex(null);
+          
+          // Clean up roots
+          Object.values(popupRootRef.current).forEach(root => {
+            try {
+              root.unmount();
+            } catch (e) {
+              console.error('Error unmounting popup:', e);
+            }
+          });
+          popupRootRef.current = {};
         }
       });
-      
-      // Handle map interactions that should close popup
-      // Using once() to avoid multiple event binding
-      const mapEvents = ['dragstart', 'zoomstart'];
-      mapEvents.forEach(event => {
-        map.current?.once(event, cleanupPopup);
-      });
-      
-    } catch (error) {
-      console.error('Error showing property popup:', error);
-      // Reset state on error
-      setActiveMarkerId(null);
-      updateMarkerZIndex(null);
-      cleanupPopup();
-    }
+    });
   };
 
   return {
     popupRef,
-    showPropertyPopup,
-    cleanupPopup // Export cleanup function for component unmount
+    showPropertyPopup
   };
 }
