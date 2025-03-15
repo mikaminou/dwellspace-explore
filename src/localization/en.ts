@@ -101,7 +101,10 @@ export const en = {
     baths: "Baths",
     loading: "Loading...",
     bedsBaths: "Beds & Baths",
-    livingArea: "Living Area"
+    livingArea: "Living Area",
+    searchFailed: "Search failed",
+    errorFetchingLimits: "Error fetching limits",
+    clearAll: "Clear All"
   },
   
   // Property details
@@ -177,6 +180,15 @@ export const en = {
     saveChanges: "Save Changes",
     changesSaved: "Your changes have been saved successfully!",
     loading: "Loading your profile..."
+  },
+  
+  // Map page
+  map: {
+    loading: "Loading map...",
+    noProperties: "No properties found in this area",
+    showFilters: "Show Filters",
+    hideFilters: "Hide Filters",
+    clearAll: "Clear All"
   },
   
   // Error pages

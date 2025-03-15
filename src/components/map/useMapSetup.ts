@@ -17,13 +17,16 @@ export function useMapSetup() {
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
+    // Create the map instance
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v11',
       center: [3.042048, 36.752887], // Default center (Algiers)
-      zoom: 12
+      zoom: 12,
+      attributionControl: false
     });
 
+    // Add navigation controls
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
     map.current.addControl(new mapboxgl.FullscreenControl());
     map.current.addControl(new mapboxgl.GeolocateControl({
@@ -33,13 +36,27 @@ export function useMapSetup() {
       trackUserLocation: true
     }));
 
+    // Add attribution control in the bottom-right
+    map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
+
+    // Set map loaded state when the map is ready
     map.current.on('load', () => {
+      console.log('Map loaded successfully');
       setMapLoaded(true);
     });
 
+    // Handle map error
+    map.current.on('error', (e) => {
+      console.error('Map error:', e);
+    });
+
+    // Clean up on unmount
     return () => {
-      map.current?.remove();
-      map.current = null;
+      if (map.current) {
+        console.log('Cleaning up map instance');
+        map.current.remove();
+        map.current = null;
+      }
     };
   }, []);
 

@@ -13,7 +13,7 @@ export function PropertyMarker({ price, onClick }: PropertyMarkerProps) {
       className="custom-marker flex items-center justify-center cursor-pointer"
       onClick={onClick}
     >
-      <div className="bg-primary text-white p-2 rounded-full hover:bg-primary/90 transition-colors">
+      <div className="bg-primary text-white px-2 py-1 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors">
         {formatPrice(price)}
       </div>
     </div>
