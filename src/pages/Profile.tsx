@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -210,7 +211,6 @@ export default function ProfilePage() {
                                   {...field} 
                                   className={dir === 'rtl' ? 'text-right' : ''}
                                   dir={dir}
-                                  translatable={true}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -230,7 +230,6 @@ export default function ProfilePage() {
                                   {...field} 
                                   className={dir === 'rtl' ? 'text-right' : ''}
                                   dir={dir}
-                                  translatable={true}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -251,7 +250,6 @@ export default function ProfilePage() {
                                 {...field} 
                                 className={dir === 'rtl' ? 'text-right' : ''}
                                 dir={dir}
-                                translatable={true}
                               />
                             </FormControl>
                             <FormMessage />
@@ -301,7 +299,6 @@ export default function ProfilePage() {
                                 {...field} 
                                 className={dir === 'rtl' ? 'text-right' : ''}
                                 dir={dir}
-                                translatable={true}
                               />
                             </FormControl>
                             <FormMessage />

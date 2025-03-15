@@ -8,6 +8,23 @@ interface TranslateButtonProps {
 }
 
 export function TranslateButton({ originalText, onTranslated, className = "" }: TranslateButtonProps) {
-  // Simplified placeholder without translation UI
-  return null;
+  const handleTranslate = () => {
+    // This is a placeholder for actual translation logic
+    // In a real implementation, you would call a translation API
+    console.log("Translation requested for:", originalText);
+    
+    // For now, just pass back the original text
+    onTranslated(originalText);
+  };
+
+  return (
+    <Button 
+      onClick={handleTranslate} 
+      variant="outline" 
+      size="sm" 
+      className={`text-xs ${className}`}
+    >
+      Translate
+    </Button>
+  );
 }
