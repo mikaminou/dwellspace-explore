@@ -18,7 +18,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguage } from "@/contexts/language/LanguageContext";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
@@ -40,16 +39,14 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ form, onSubmit, loading }: ProfileFormProps) {
-  const { t, dir } = useLanguage();
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle className={dir === 'rtl' ? 'text-right arabic-text' : ''}>
-          {t('profile.editTitle') || "Edit Profile"}
+        <CardTitle>
+          Edit Profile
         </CardTitle>
-        <CardDescription className={dir === 'rtl' ? 'text-right arabic-text' : ''}>
-          {t('profile.editSubtitle') || "Update your profile information"}
+        <CardDescription>
+          Update your profile information
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -61,15 +58,11 @@ export function ProfileForm({ form, onSubmit, loading }: ProfileFormProps) {
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
-                      {t('profile.firstName') || "First Name"}
+                    <FormLabel>
+                      First Name
                     </FormLabel>
                     <FormControl>
-                      <Input 
-                        {...field} 
-                        className={dir === 'rtl' ? 'text-right' : ''}
-                        dir={dir}
-                      />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -80,15 +73,11 @@ export function ProfileForm({ form, onSubmit, loading }: ProfileFormProps) {
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
-                      {t('profile.lastName') || "Last Name"}
+                    <FormLabel>
+                      Last Name
                     </FormLabel>
                     <FormControl>
-                      <Input 
-                        {...field} 
-                        className={dir === 'rtl' ? 'text-right' : ''}
-                        dir={dir}
-                      />
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -100,15 +89,11 @@ export function ProfileForm({ form, onSubmit, loading }: ProfileFormProps) {
               name="phone_number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
-                    {t('phone.label') || "Phone Number"}
+                  <FormLabel>
+                    Phone Number
                   </FormLabel>
                   <FormControl>
-                    <Input 
-                      {...field} 
-                      className={dir === 'rtl' ? 'text-right' : ''}
-                      dir={dir}
-                    />
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -119,23 +104,23 @@ export function ProfileForm({ form, onSubmit, loading }: ProfileFormProps) {
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
-                    {t('role.label') || "I am a"}
+                  <FormLabel>
+                    I am a
                   </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className={dir === 'rtl' ? 'text-right' : ''}>
-                        <SelectValue placeholder={t('profile.selectRole') || "Select a role"} />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="buyer">{t('role.buyer') || "Buyer"}</SelectItem>
-                      <SelectItem value="seller">{t('role.seller') || "Seller"}</SelectItem>
-                      <SelectItem value="agent">{t('role.agent') || "Agent"}</SelectItem>
-                      <SelectItem value="admin">{t('profile.admin') || "Admin"}</SelectItem>
+                      <SelectItem value="buyer">Buyer</SelectItem>
+                      <SelectItem value="seller">Seller</SelectItem>
+                      <SelectItem value="agent">Agent</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -147,16 +132,14 @@ export function ProfileForm({ form, onSubmit, loading }: ProfileFormProps) {
               name="bio"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={dir === 'rtl' ? 'text-right block arabic-text' : ''}>
-                    {t('profile.aboutMe') || "About Me"}
+                  <FormLabel>
+                    About Me
                   </FormLabel>
                   <FormControl>
                     <Textarea 
                       rows={4}
-                      placeholder={t('profile.aboutMePlaceholder') || "Tell us a little about yourself"}
+                      placeholder="Tell us a little about yourself"
                       {...field} 
-                      className={dir === 'rtl' ? 'text-right' : ''}
-                      dir={dir}
                     />
                   </FormControl>
                   <FormMessage />
@@ -164,7 +147,7 @@ export function ProfileForm({ form, onSubmit, loading }: ProfileFormProps) {
               )}
             />
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (t('profile.saving') || "Saving...") : (t('profile.saveChanges') || "Save Changes")}
+              {loading ? "Saving..." : "Save Changes"}
             </Button>
           </form>
         </Form>

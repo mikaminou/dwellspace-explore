@@ -12,6 +12,6 @@ export function TranslatableText({
   as = 'p', 
   className = '',
 }: TranslatableTextProps) {
-  // Simply render the original text without translation UI
+  // Simply render the original text without translation
   return React.createElement(as, { className }, originalText);
 }

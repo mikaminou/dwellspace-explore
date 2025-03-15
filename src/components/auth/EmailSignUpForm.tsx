@@ -8,8 +8,6 @@ import { PasswordField } from "./PasswordField";
 import { RoleSelector } from "./RoleSelector";
 import { useEmailSignUp } from "@/hooks/useEmailSignUp";
 import { useState } from "react";
-import { useLanguage } from "@/contexts/language/LanguageContext";
-import { Trans } from "@/components/ui/trans";
 
 interface EmailSignUpFormProps {
   onError: (message: string) => void;
@@ -34,7 +32,6 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
   } = useEmailSignUp(onError);
 
   const [error, setError] = useState("");
-  const { t, dir } = useLanguage();
 
   const handleLocalError = (message: string) => {
     setError(message);
@@ -66,44 +63,39 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="name" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('name.label')}</Label>
+        <Label htmlFor="name">Full Name</Label>
         <Input 
           id="name" 
-          placeholder={t('name.placeholder')} 
+          placeholder="Your name" 
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           required
           disabled={loading || confirmationSent}
-          className={dir === 'rtl' ? 'text-right' : ''}
-          dir={dir}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('email.label')}</Label>
+        <Label htmlFor="email">Email</Label>
         <Input 
           id="email" 
           type="email" 
-          placeholder={t('email.placeholder')} 
+          placeholder="your@email.com" 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           disabled={loading || confirmationSent}
-          className={dir === 'rtl' ? 'text-right' : ''}
-          dir={dir}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('password.label')}</Label>
+        <Label htmlFor="password">Password</Label>
         <PasswordField
           password={password}
           setPassword={setPassword}
           showPassword={showPassword}
           togglePasswordVisibility={togglePasswordVisibility}
           disabled={loading || confirmationSent}
-          dir={dir}
         />
-        <p className={`text-xs text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-          <Trans>password.requirement</Trans>
+        <p className="text-xs text-muted-foreground">
+          Password must be at least 6 characters long
         </p>
       </div>
       
@@ -115,12 +107,12 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       
       <Button 
         type="submit" 
-        className={`w-full ${dir === 'rtl' ? 'arabic-text' : ''}`} 
+        className="w-full" 
         disabled={loading || confirmationSent}
       >
-        {loading ? <Trans>signup.creating</Trans> : 
-         confirmationSent ? (demoMode ? <Trans>signup.demoActive</Trans> : <Trans>signup.emailSent</Trans>) : 
-         <Trans>signup.button</Trans>}
+        {loading ? "Creating account..." : 
+         confirmationSent ? (demoMode ? "Demo Mode Active" : "Confirmation Email Sent") : 
+         "Create Account"}
       </Button>
     </form>
   );

@@ -14,7 +14,7 @@ interface TransProps {
  * Simplified translation component placeholder
  */
 export function Trans({ id, children, values = {}, defaultText, className, userContent = false }: TransProps) {
-  // Simply render the children or default text without translation UI
+  // Simply render the children or default text
   return (
     <span className={className}>
       {typeof children === 'string' ? children : defaultText || ''}
@@ -30,7 +30,7 @@ interface TransHeadingProps extends TransProps {
 }
 
 export function TransHeading({ as: Component = 'h2', id, children, values, defaultText, className, userContent = false }: TransHeadingProps) {
-  // Simply render the component with children or default text without translation UI
+  // Simply render the component with children or default text
   return React.createElement(
     Component,
     { className },

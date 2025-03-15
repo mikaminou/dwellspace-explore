@@ -7,7 +7,6 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { ProfileAvatar } from "./ProfileAvatar";
-import { useLanguage } from "@/contexts/language/LanguageContext";
 
 interface ProfileSidebarProps {
   userAvatar?: string;
@@ -24,16 +23,14 @@ export function ProfileSidebar({
   userRole,
   userInitials
 }: ProfileSidebarProps) {
-  const { t, dir } = useLanguage();
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle className={dir === 'rtl' ? 'text-right arabic-text' : ''}>
-          {t('profile.title') || "Profile"}
+        <CardTitle>
+          Profile
         </CardTitle>
-        <CardDescription className={dir === 'rtl' ? 'text-right arabic-text' : ''}>
-          {t('profile.subtitle') || "Your personal information"}
+        <CardDescription>
+          Your personal information
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center">

@@ -1,32 +1,19 @@
 
 import { supabase } from './client';
-import { useLanguage } from '@/contexts/language/LanguageContext';
 
 export const useTranslatedSupabase = () => {
-  const { language } = useLanguage();
-  
-  // Function to modify select query to include translations
-  const selectWithTranslation = (query: any, fields?: string) => {
-    // Default to all fields if not specified
-    const columns = fields || '*';
-    
-    // For now, we're just returning the regular query without translation
-    // We'll modify this when implementing proper translation support
-    return query.select(columns);
-  };
-  
+  // Return the regular supabase client without translation functionality
   return {
     from: (table: string) => ({
       select: async (columns: string = '*', options?: any) => {
         try {
-          // Use type assertion to tell TypeScript this is valid
           const result = await (supabase
             .from(table as any)
             .select(columns, options) as any);
             
           return result;
         } catch (error) {
-          console.error(`Error in translated select from ${table}:`, error);
+          console.error(`Error in select from ${table}:`, error);
           return { data: [], error };
         }
       },
@@ -39,7 +26,7 @@ export const useTranslatedSupabase = () => {
             
           return result;
         } catch (error) {
-          console.error(`Error in translated insert to ${table}:`, error);
+          console.error(`Error in insert to ${table}:`, error);
           return { data: null, error };
         }
       },
@@ -52,7 +39,7 @@ export const useTranslatedSupabase = () => {
             
           return result;
         } catch (error) {
-          console.error(`Error in translated update to ${table}:`, error);
+          console.error(`Error in update to ${table}:`, error);
           return { data: null, error };
         }
       },
@@ -65,7 +52,7 @@ export const useTranslatedSupabase = () => {
             
           return result;
         } catch (error) {
-          console.error(`Error in translated delete from ${table}:`, error);
+          console.error(`Error in delete from ${table}:`, error);
           return { data: null, error };
         }
       },
@@ -80,7 +67,7 @@ export const useTranslatedSupabase = () => {
             
           return result;
         } catch (error) {
-          console.error(`Error in translated eq query on ${table}:`, error);
+          console.error(`Error in eq query on ${table}:`, error);
           return { data: [], error };
         }
       },
@@ -94,7 +81,7 @@ export const useTranslatedSupabase = () => {
             
           return result;
         } catch (error) {
-          console.error(`Error in translated gt query on ${table}:`, error);
+          console.error(`Error in gt query on ${table}:`, error);
           return { data: [], error };
         }
       },
@@ -108,7 +95,7 @@ export const useTranslatedSupabase = () => {
             
           return result;
         } catch (error) {
-          console.error(`Error in translated lt query on ${table}:`, error);
+          console.error(`Error in lt query on ${table}:`, error);
           return { data: [], error };
         }
       },
@@ -119,7 +106,7 @@ export const useTranslatedSupabase = () => {
         const result = await (supabase.rpc as any)(fn, params);
         return result;
       } catch (error) {
-        console.error(`Error in translated rpc call to ${fn}:`, error);
+        console.error(`Error in rpc call to ${fn}:`, error);
         return { data: null, error };
       }
     },
