@@ -33,7 +33,7 @@ export function useProperties() {
           images: property.images || property.gallery_image_urls || [],
           owner: owner || undefined,
           isPremium: property.isPremium || false,
-        };
+        } as Property; // Explicitly cast to Property type
       }));
       
       setProperties(normalizedData);
@@ -65,7 +65,7 @@ export function useProperties() {
             image: propertyData.image || propertyData.featured_image_url || '',
             images: propertyData.images || propertyData.gallery_image_urls || [],
             isPremium: propertyData.isPremium || false,
-          };
+          } as Property; // Explicitly cast to Property type
         }
       }
       
@@ -77,7 +77,7 @@ export function useProperties() {
         image: propertyData.image || propertyData.featured_image_url || '',
         images: propertyData.images || propertyData.gallery_image_urls || [],
         isPremium: propertyData.isPremium || false,
-      } : null;
+      } as Property : null; // Explicitly cast to Property type
     } catch (err: any) {
       console.error(`Error fetching property with ID ${id}:`, err);
       setError(err.message || `Failed to fetch property with ID ${id}`);
@@ -121,7 +121,7 @@ export function useProperties() {
           images: property.images || property.gallery_image_urls || [],
           owner: owner || undefined,
           isPremium: property.isPremium || false,
-        };
+        } as Property; // Explicitly cast to Property type
       }));
       
       setProperties(normalizedData);

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
 import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, ArrowRightIcon, StarIcon } from "lucide-react";
@@ -46,7 +45,7 @@ export default function Index() {
   const allProperties = properties.length > 0 ? properties : mockProperties;
   
   // Find premium properties (marked with isPremium or properties from premium users)
-  const premiumProperties = allProperties.filter(p => 
+  const premiumProperties = allProperties.filter((p: Property) => 
     // Consider a property premium if it has isPremium set to true
     (p.isPremium === true) || 
     // Or if the owner exists and has a role of 'seller'
@@ -55,7 +54,7 @@ export default function Index() {
 
   // Take properties for featured display (exclude premium ones)
   const featuredProperties = allProperties
-    .filter(p => !premiumProperties.some(pp => pp.id === p.id))
+    .filter((p: Property) => !premiumProperties.some(pp => pp.id === p.id))
     .slice(0, 3);
 
   // Function to get property image
@@ -283,7 +282,7 @@ export default function Index() {
                       {t('luxury.badge')}
                     </div>
                     <img
-                      src={getPropertyImage(property)}
+                      src={getPropertyImage(property as Property)}
                       alt={property.title}
                       className="property-image"
                     />
@@ -358,7 +357,7 @@ export default function Index() {
               >
                 <div className="relative">
                   <img
-                    src={getPropertyImage(property)}
+                    src={getPropertyImage(property as Property)}
                     alt={property.title}
                     className="property-image"
                   />

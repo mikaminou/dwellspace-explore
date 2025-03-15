@@ -22,7 +22,7 @@ export type Property = {
   owner_id: string;
   created_at: string;
   updated_at: string;
-  // Make owner a required property
+  // Make owner explicitly optional with proper typing
   owner?: Agent;
   // Add these properties for compatibility with mock data
   image?: string;
@@ -151,4 +151,3 @@ export const searchProperties = async (
     return [];
   }
 };
-
