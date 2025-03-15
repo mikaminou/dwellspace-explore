@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +20,7 @@ export function MapView() {
   const [propertiesWithOwners, setPropertiesWithOwners] = useState<Property[]>([]);
   const { properties, loading, selectedCity } = useSearch();
   const { t } = useLanguage();
+  const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
 
   // Handle property save
   const handleSaveProperty = (propertyId: number) => {
@@ -56,13 +58,33 @@ export function MapView() {
     fetchOwners();
   }, [properties]);
 
+  // Update marker z-index based on active state
+  const updateMarkerZIndex = (propertyId: number | null) => {
+    // Reset all markers to default z-index
+    Object.entries(markersRef.current).forEach(([id, marker]) => {
+      const markerEl = marker.getElement();
+      markerEl.style.zIndex = '1';
+    });
+
+    // Set the active marker to higher z-index
+    if (propertyId !== null && markersRef.current[propertyId]) {
+      const activeMarkerEl = markersRef.current[propertyId].getElement();
+      activeMarkerEl.style.zIndex = '3';
+    }
+  };
+
   // Show property popup
   const showPropertyPopup = (property: Property, coordinates: [number, number]) => {
     if (!map.current) return;
     
     if (popupRef.current) {
       popupRef.current.remove();
+      popupRef.current = null;
     }
+
+    // Set active marker
+    setActiveMarkerId(property.id);
+    updateMarkerZIndex(property.id);
 
     popupRef.current = new mapboxgl.Popup({ 
       closeOnClick: false,
@@ -104,11 +126,14 @@ export function MapView() {
       });
     }
 
+    // Reset active marker when popup is closed
     ['dragstart', 'zoomstart', 'click'].forEach(event => {
       map.current?.once(event, () => {
         if (popupRef.current) {
           popupRef.current.remove();
           popupRef.current = null;
+          setActiveMarkerId(null);
+          updateMarkerZIndex(null);
         }
       });
     });

@@ -12,8 +12,8 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
   // Create HTML string for the popup
   // In a real React app, you'd use ReactDOM.render or portals
   return `
-    <div class="property-popup-content cursor-pointer p-3" data-property-id="${property.id}">
-      <div class="relative w-full h-44 bg-gray-200 mb-3 rounded-md overflow-hidden">
+    <div class="property-popup-content cursor-pointer p-4" data-property-id="${property.id}">
+      <div class="relative w-full h-48 bg-gray-200 mb-3 rounded-md overflow-hidden">
         <img 
           src="${property.featured_image_url || property.image || '/placeholder.svg'}" 
           alt="${property.title}" 
