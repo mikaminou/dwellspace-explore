@@ -24,7 +24,7 @@ export const getAllAgents = async (): Promise<Agent[]> => {
       return [];
     }
 
-    return data;
+    return data || [];
   } catch (error) {
     console.error('Unexpected error fetching agents:', error);
     return [];
@@ -70,7 +70,12 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
     }
 
     // Extract unique agent ids
-    const agentIds = [...new Set(properties.map(p => p.owner_id))];
+    const agentIds = properties.reduce((ids: string[], property) => {
+      if (property.owner_id && !ids.includes(property.owner_id)) {
+        ids.push(property.owner_id);
+      }
+      return ids;
+    }, []);
     
     if (agentIds.length === 0) return {};
 
@@ -93,8 +98,8 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
 
     // Finally, create a map of property_id to agent
     const propertyAgentMap: {[key: number]: Agent} = {};
-    properties.forEach((property: any) => {
-      if (agentMap[property.owner_id]) {
+    properties.forEach((property) => {
+      if (property.owner_id && agentMap[property.owner_id]) {
         propertyAgentMap[property.id] = agentMap[property.owner_id];
       }
     });
