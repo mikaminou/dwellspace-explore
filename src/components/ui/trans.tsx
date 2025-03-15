@@ -16,7 +16,7 @@ interface TransProps {
  */
 export function Trans({ id, children, values = {}, defaultText, className, userContent = false }: TransProps) {
   // Get the translated text using the id
-  const translatedText = t(id);
+  const translatedText = t(id, defaultText || (children as string));
   
   // Return the translated text
   return (
@@ -35,7 +35,7 @@ interface TransHeadingProps extends TransProps {
 
 export function TransHeading({ as: Component = 'h2', id, children, values, defaultText, className, userContent = false }: TransHeadingProps) {
   // Get the translated text using the id
-  const translatedText = t(id);
+  const translatedText = t(id, defaultText || (children as string));
   
   // Render the component with the translated text
   return React.createElement(

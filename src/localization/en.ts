@@ -11,6 +11,34 @@ export const en = {
     logOut: "Log Out"
   },
   
+  // Hero section
+  hero: {
+    title: "Find Your Dream Home in Algeria",
+    subtitle: "Discover the perfect property with our extensive listings across the country",
+    list: "List Your Property",
+    browse: "Browse Listings"
+  },
+  
+  // Featured and Luxury sections
+  featured: {
+    title: "Featured Properties",
+    viewAll: "View All"
+  },
+  
+  luxury: {
+    title: "Luxury Properties",
+    viewAll: "View All Luxury",
+    badge: "Premium"
+  },
+  
+  // Call to action
+  cta: {
+    title: "Ready to Find Your Perfect Home?",
+    subtitle: "Browse our extensive property listings or contact us for personalized assistance",
+    search: "Start Searching",
+    contact: "Contact Us"
+  },
+  
   // Search page
   search: {
     placeholder: "Search for properties...",
@@ -43,7 +71,8 @@ export const en = {
     duplex: "Duplex",
     traditionalHouse: "Traditional House",
     loft: "Loft",
-    chalet: "Chalet"
+    chalet: "Chalet",
+    location: "Location"
   },
   
   // Property details
@@ -134,6 +163,7 @@ export const en = {
     view: "View",
     confirm: "Confirm",
     send: "Send",
-    close: "Close"
+    close: "Close",
+    translate: "Translate"
   }
 };
