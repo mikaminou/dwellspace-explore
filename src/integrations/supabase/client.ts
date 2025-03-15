@@ -138,3 +138,32 @@ export const getMaxLivingArea = async (): Promise<number> => {
     return 500; // Default fallback
   }
 };
+
+// Get all unique cities from the database
+export const getAllCities = async (): Promise<string[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('properties')
+      .select('city')
+      .not('city', 'is', null);
+
+    if (error) {
+      console.error('Error fetching cities:', error);
+      return [];
+    }
+
+    // Extract unique cities
+    const uniqueCities = Array.from(
+      new Set(
+        data
+          .map(property => property.city)
+          .filter(city => city && city.trim().length > 0)
+      )
+    );
+
+    return uniqueCities;
+  } catch (error) {
+    console.error('Unexpected error getting cities:', error);
+    return [];
+  }
+};

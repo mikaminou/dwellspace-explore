@@ -22,6 +22,8 @@ const buttonVariants = cva(
         cta: "bg-cta text-white hover:bg-cta-dark",
         luxury: "bg-luxury text-white hover:bg-luxury-dark",
         white: "bg-white text-foreground hover:bg-gray-100 border border-gray-200",
+        filter: "bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 shadow-sm hover:border-cta/40 transition-all duration-200",
+        active: "bg-white border border-cta text-cta shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",
