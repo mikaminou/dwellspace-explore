@@ -70,12 +70,12 @@ export const getAgentsForProperties = async (propertyIds: number[]): Promise<{[k
     }
 
     // Extract unique agent ids
-    const agentIds = properties.reduce((ids: string[], property) => {
-      if (property.owner_id && !ids.includes(property.owner_id)) {
-        ids.push(property.owner_id);
+    const agentIds: string[] = [];
+    for (const property of properties) {
+      if (property.owner_id && !agentIds.includes(property.owner_id)) {
+        agentIds.push(property.owner_id);
       }
-      return ids;
-    }, []);
+    }
     
     if (agentIds.length === 0) return {};
 

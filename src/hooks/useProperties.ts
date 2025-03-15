@@ -29,8 +29,8 @@ export function useProperties() {
     try {
       const propertyData = await getPropertyById(id);
       
-      // If property exists and has an owner_id of type 'agent', fetch the agent details
-      if (propertyData && propertyData.owner_type === 'agent') {
+      // If property exists and has an owner_type of 'agent', fetch the agent details
+      if (propertyData && propertyData.owner_type === 'agent' && propertyData.owner_id) {
         const agentData = await getAgentById(propertyData.owner_id);
         if (agentData) {
           // Add the agent data to the property
