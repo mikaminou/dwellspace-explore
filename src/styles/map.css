@@ -1,0 +1,45 @@
+
+/* Custom marker styles */
+.mapboxgl-marker {
+  cursor: pointer !important;
+  z-index: 1;
+}
+
+.mapboxgl-marker:hover {
+  z-index: 2;
+}
+
+.custom-marker-container {
+  transform: translateY(-50%);
+  cursor: pointer !important;
+  display: inline-block;
+  width: auto;
+}
+
+.price-bubble {
+  display: inline-block;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Property popup styling */
+.property-popup-container {
+  margin-top: -10px;
+  z-index: 10 !important; /* Ensure popup is always on top */
+}
+
+.mapboxgl-popup {
+  z-index: 10 !important; /* Higher z-index than markers */
+}
+
+.mapboxgl-popup-content {
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.property-popup-content {
+  border-radius: 8px;
+  padding: 12px !important; /* Add more padding as requested */
+}
