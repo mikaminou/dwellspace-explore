@@ -30,14 +30,15 @@ export default function PropertyDetails() {
       try {
         // Try to fetch from Supabase if integrated
         try {
-          const { data } = await translatedSupabase
+          const response = await translatedSupabase
             .from('properties')
-            .select('*, agent:agents(*)')
-            .eq('id', id)
-            .single();
+            .select('*, agent:agents(*)');
+            
+          // We need to handle the filtering on the client-side since our wrapper doesn't support it yet
+          const filteredData = response.data?.find((item: any) => item.id === parseInt(id as string));
           
-          if (data) {
-            setProperty(data);
+          if (filteredData) {
+            setProperty(filteredData);
             setLoading(false);
             return;
           }

@@ -1,6 +1,8 @@
 
 import { supabase } from './client';
 import { useLanguage } from '@/contexts/language/LanguageContext';
+import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
+import { GenericSchema } from '@supabase/supabase-js/dist/module/lib/types';
 
 export const useTranslatedSupabase = () => {
   const { translateData } = useLanguage();
@@ -9,9 +11,10 @@ export const useTranslatedSupabase = () => {
   return {
     from: (table: string) => ({
       select: async (columns: string = '*', options?: any) => {
-        const { data, error } = await supabase
-          .from(table)
-          .select(columns, options);
+        // Use type assertion to tell TypeScript this is valid
+        const { data, error } = await (supabase
+          .from(table as any)
+          .select(columns, options) as any);
           
         if (error) throw error;
         return { data: await translateData(data), error };
@@ -19,24 +22,24 @@ export const useTranslatedSupabase = () => {
       
       // Add other query methods as needed
       insert: async (values: any, options?: any) => {
-        const result = await supabase
-          .from(table)
-          .insert(values, options);
+        const result = await (supabase
+          .from(table as any)
+          .insert(values, options) as any);
           
         return result;
       },
       
       update: async (values: any, options?: any) => {
-        const result = await supabase
-          .from(table)
-          .update(values, options);
+        const result = await (supabase
+          .from(table as any)
+          .update(values, options) as any);
           
         return result;
       },
     }),
     
     rpc: async (fn: string, params?: any) => {
-      const { data, error } = await supabase.rpc(fn, params);
+      const { data, error } = await supabase.rpc(fn as any, params);
       if (error) throw error;
       return { data: await translateData(data), error };
     },
