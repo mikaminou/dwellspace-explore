@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { t } from '@/localization';
 
 interface TranslateButtonProps {
   originalText: string;
@@ -20,7 +21,7 @@ export function TranslateButton({ originalText, onTranslated, className = "" }: 
       size="sm" 
       className={`text-xs ${className}`}
     >
-      Translate
+      {t('ui.translate', 'Translate')}
     </Button>
   );
 }

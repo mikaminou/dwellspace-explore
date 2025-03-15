@@ -2,8 +2,11 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
+import { useLanguage } from "@/contexts/language/LanguageContext";
 
 export function LanguageToggle({ className }: { className?: string }) {
+  const { language } = useLanguage();
+  
   return (
     <Button 
       variant="outline" 
@@ -12,7 +15,7 @@ export function LanguageToggle({ className }: { className?: string }) {
       disabled={true}
     >
       <Globe className="h-4 w-4 mr-1" />
-      English
+      {language === 'en' ? 'English' : language}
     </Button>
   );
 }

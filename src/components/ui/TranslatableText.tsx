@@ -1,17 +1,18 @@
 
 import React from 'react';
+import { t } from '@/localization';
 
 interface TranslatableTextProps {
-  originalText: string;
+  textKey: string;
   as?: 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'span' | 'div';
   className?: string;
 }
 
 export function TranslatableText({ 
-  originalText, 
+  textKey, 
   as = 'p', 
   className = '',
 }: TranslatableTextProps) {
-  // Simply render the original text without translation
-  return React.createElement(as, { className }, originalText);
+  const translatedText = t(textKey);
+  return React.createElement(as, { className }, translatedText);
 }

@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext } from 'react';
+import { t as translate, defaultLocale } from '@/localization';
 
 type LanguageContextType = {
   language: string;
@@ -22,18 +23,23 @@ const LanguageContext = createContext<LanguageContextType>({
 export const useLanguage = () => useContext(LanguageContext);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Simplified provider with no actual translation functionality
-  
-  // Simple passthrough functions
+  // Use our translation utility
   const t = (key: string, defaultText?: string): string => {
-    return defaultText || key;
+    const translated = translate(key);
+    // If the key was not found and defaultText is provided, return defaultText
+    if (translated === key && defaultText) {
+      return defaultText;
+    }
+    return translated;
   };
 
   const translateUserInput = (text: string): string => {
+    // No translation for user input for now
     return text;
   };
 
   const translateData = async <T,>(data: T): Promise<T> => {
+    // No translation for data for now
     return data;
   };
 

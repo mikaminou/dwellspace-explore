@@ -1,8 +1,9 @@
 
 import React from 'react';
+import { t } from '@/localization';
 
 interface TransProps {
-  id?: string;
+  id: string;
   children?: React.ReactNode;
   values?: Record<string, string | number>;
   defaultText?: string;
@@ -11,29 +12,35 @@ interface TransProps {
 }
 
 /**
- * Simplified translation component placeholder
+ * Translation component that uses the localization system
  */
 export function Trans({ id, children, values = {}, defaultText, className, userContent = false }: TransProps) {
-  // Simply render the children or default text
+  // Get the translated text using the id
+  const translatedText = t(id);
+  
+  // Return the translated text
   return (
     <span className={className}>
-      {typeof children === 'string' ? children : defaultText || ''}
+      {translatedText}
     </span>
   );
 }
 
 /**
- * Simplified heading translation component placeholder
+ * Heading translation component
  */
 interface TransHeadingProps extends TransProps {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 
 export function TransHeading({ as: Component = 'h2', id, children, values, defaultText, className, userContent = false }: TransHeadingProps) {
-  // Simply render the component with children or default text
+  // Get the translated text using the id
+  const translatedText = t(id);
+  
+  // Render the component with the translated text
   return React.createElement(
     Component,
     { className },
-    typeof children === 'string' ? children : defaultText || ''
+    translatedText
   );
 }

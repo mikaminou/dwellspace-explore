@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 
 /**
  * A custom hook that fetches data
- * Simplified to remove translation logic
+ * Simplified without translation logic
  */
 export function useTranslatedData<T>(
   fetchFn: () => Promise<T>,
