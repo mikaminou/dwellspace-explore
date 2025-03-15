@@ -45,7 +45,8 @@ export default function Search() {
     filtersApplied,
     handleSearch,
     handleReset,
-    getActiveFiltersCount
+    getActiveFiltersCount,
+    handleFilterRemoval
   } = useSearchProperties();
 
   return (
@@ -94,7 +95,7 @@ export default function Search() {
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <h1 className="text-xl font-medium mb-2">{`${t('search.results')} (${properties.length})`}</h1>
+          <h1 className="text-xl font-medium mb-3">{t('search.results')} ({properties.length})</h1>
           <FilterChips
             selectedCity={selectedCity}
             propertyType={propertyType}
@@ -105,6 +106,7 @@ export default function Search() {
             maxLivingArea={maxLivingArea}
             maxLivingAreaLimit={maxLivingAreaLimit}
             filtersApplied={filtersApplied}
+            handleFilterRemoval={handleFilterRemoval}
           />
         </div>
         

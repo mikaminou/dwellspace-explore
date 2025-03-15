@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { searchProperties } from "@/api";
 import { Property } from "@/api/properties";
@@ -97,6 +96,40 @@ export function useSearchProperties() {
     return count;
   };
 
+  const handleFilterRemoval = (filterType: string, value?: string) => {
+    switch (filterType) {
+      case 'city':
+        setSelectedCity('any');
+        break;
+      case 'propertyType':
+        if (value) {
+          setPropertyType(propertyType.filter(type => type !== value));
+        }
+        break;
+      case 'listingType':
+        if (value) {
+          setListingType(listingType.filter(type => type !== value));
+        }
+        break;
+      case 'beds':
+        setMinBeds(0);
+        break;
+      case 'baths':
+        setMinBaths(0);
+        break;
+      case 'livingArea':
+        setMinLivingArea(0);
+        setMaxLivingArea(maxLivingAreaLimit);
+        break;
+      default:
+        break;
+    }
+    
+    setTimeout(() => {
+      handleSearch();
+    }, 0);
+  };
+
   return {
     searchTerm,
     setSearchTerm,
@@ -132,6 +165,7 @@ export function useSearchProperties() {
     filtersApplied,
     handleSearch,
     handleReset,
-    getActiveFiltersCount
+    getActiveFiltersCount,
+    handleFilterRemoval
   };
 }
