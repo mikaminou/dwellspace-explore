@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,14 @@ import { useLanguage } from "@/contexts/language/LanguageContext";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Textarea } from "@/components/ui/textarea";
 import { Trans, TransHeading } from "@/components/ui/trans";
+import { TranslatableText } from "@/components/ui/TranslatableText";
 
 export default function PropertyDetails() {
   const { id } = useParams();
   const { toast } = useToast();
   const property = properties.find((p) => p.id === parseInt(id as string));
-  const { t, dir, translateUserInput, language } = useLanguage();
+  const { t, dir } = useLanguage();
+  const [message, setMessage] = useState("");
 
   if (!property) {
     return (
@@ -58,6 +60,7 @@ export default function PropertyDetails() {
       title: t('property.contactTitle'),
       description: t('property.contactDescription'),
     });
+    setMessage("");
   };
 
   return (
@@ -70,7 +73,7 @@ export default function PropertyDetails() {
           <div className="md:col-span-2 aspect-video rounded-lg overflow-hidden">
             <img 
               src={property.images[0]} 
-              alt={translateUserInput(property.title)} 
+              alt={property.title}
               className="w-full h-full object-cover"
             />
           </div>
@@ -79,7 +82,7 @@ export default function PropertyDetails() {
               <div key={index} className="aspect-square rounded-lg overflow-hidden">
                 <img 
                   src={image} 
-                  alt={`${translateUserInput(property.title)} - ${t('property.view')} ${index + 2}`} 
+                  alt={`${property.title} - ${t('property.view')} ${index + 2}`} 
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -90,10 +93,12 @@ export default function PropertyDetails() {
         {/* Property Header */}
         <div className={`flex flex-col md:flex-row justify-between items-start gap-4 mb-6 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
           <div className={dir === 'rtl' ? 'text-right' : ''}>
-            <h1 className="text-3xl font-bold mb-2">{translateUserInput(property.title)}</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              <TranslatableText originalText={property.title} as="span" />
+            </h1>
             <div className={`flex items-center text-muted-foreground mb-2 ${dir === 'rtl' ? 'justify-end arabic-text' : ''}`}>
               <MapPinIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-1' : 'mr-1'}`} />
-              <span>{translateUserInput(property.location)}</span>
+              <TranslatableText originalText={property.location} as="span" />
             </div>
             <div className={`flex items-center gap-4 ${dir === 'rtl' ? 'justify-end arabic-text' : ''}`}>
               <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
@@ -102,7 +107,7 @@ export default function PropertyDetails() {
               </span>
               <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                 <HomeIcon className="h-4 w-4" />
-                {translateUserInput(property.type)}
+                <TranslatableText originalText={property.type} as="span" showTranslateButton={false} />
               </span>
               {property.yearBuilt && (
                 <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
@@ -135,9 +140,9 @@ export default function PropertyDetails() {
             <TransHeading as="h2" className={`text-2xl font-semibold mb-4 ${dir === 'rtl' ? 'text-right' : ''}`}>
               property.details
             </TransHeading>
-            <p className={`text-muted-foreground mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-              {translateUserInput(property.description)}
-            </p>
+            <div className={`mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
+              <TranslatableText originalText={property.description} className="text-muted-foreground" />
+            </div>
             
             <TransHeading as="h3" className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right' : ''}`}>
               property.features
@@ -146,7 +151,7 @@ export default function PropertyDetails() {
               {property.features.map((feature, index) => (
                 <div key={index} className={`flex items-center ${dir === 'rtl' ? 'flex-row-reverse justify-end arabic-text' : ''}`}>
                   <div className={`h-2 w-2 rounded-full bg-primary ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                  <span>{translateUserInput(feature)}</span>
+                  <TranslatableText originalText={feature} as="span" />
                 </div>
               ))}
             </div>
@@ -156,9 +161,9 @@ export default function PropertyDetails() {
                 <TransHeading as="h3" className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right' : ''}`}>
                   property.additionalInfo
                 </TransHeading>
-                <p className={`text-muted-foreground mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-                  {translateUserInput(property.additionalDetails)}
-                </p>
+                <div className={`mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
+                  <TranslatableText originalText={property.additionalDetails} className="text-muted-foreground" />
+                </div>
               </>
             )}
           </div>
@@ -171,8 +176,12 @@ export default function PropertyDetails() {
                   <AvatarFallback>{property.agent.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h3 className="font-semibold">{translateUserInput(property.agent.name)}</h3>
-                  <p className="text-sm text-muted-foreground">{translateUserInput(property.agent.agency)}</p>
+                  <h3 className="font-semibold">
+                    <TranslatableText originalText={property.agent.name} as="span" />
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    <TranslatableText originalText={property.agent.agency} as="span" />
+                  </p>
                 </div>
               </div>
               <div className="space-y-4 mb-4">
@@ -181,6 +190,8 @@ export default function PropertyDetails() {
                   placeholder="property.contactPlaceholder"
                   translatePlaceholder={true}
                   dir={dir}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                 />
                 <Button className="w-full" onClick={handleContact}>
                   <Trans>property.contactAgent</Trans>

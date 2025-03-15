@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -177,10 +176,10 @@ export default function ProfilePage() {
                     <AvatarFallback className="text-xl">{userInitials}</AvatarFallback>
                   </Avatar>
                   <h3 className="text-lg font-medium">
-                    {translateUserInput(profileData?.first_name || "")} {translateUserInput(profileData?.last_name || "")}
+                    {profileData?.first_name || ""} {profileData?.last_name || ""}
                   </h3>
                   <p className="text-sm text-muted-foreground">{userEmail}</p>
-                  <p className="text-sm mt-2 capitalize">{translateUserInput(profileData?.role || "")}</p>
+                  <p className="text-sm mt-2 capitalize">{profileData?.role || ""}</p>
                 </CardContent>
               </Card>
             </div>

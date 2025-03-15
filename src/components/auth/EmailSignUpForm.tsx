@@ -9,6 +9,7 @@ import { RoleSelector } from "./RoleSelector";
 import { useEmailSignUp } from "@/hooks/useEmailSignUp";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { Trans } from "@/components/ui/trans";
 
 interface EmailSignUpFormProps {
   onError: (message: string) => void;
@@ -101,7 +102,9 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           disabled={loading || confirmationSent}
           dir={dir}
         />
-        <p className={`text-xs text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('password.requirement')}</p>
+        <p className={`text-xs text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+          <Trans>password.requirement</Trans>
+        </p>
       </div>
       
       <RoleSelector 
@@ -115,7 +118,9 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         className={`w-full ${dir === 'rtl' ? 'arabic-text' : ''}`} 
         disabled={loading || confirmationSent}
       >
-        {loading ? t('signup.creating') : confirmationSent ? (demoMode ? t('signup.demoActive') : t('signup.emailSent')) : t('signup.button')}
+        {loading ? <Trans>signup.creating</Trans> : 
+         confirmationSent ? (demoMode ? <Trans>signup.demoActive</Trans> : <Trans>signup.emailSent</Trans>) : 
+         <Trans>signup.button</Trans>}
       </Button>
     </form>
   );

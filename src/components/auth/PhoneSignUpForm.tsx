@@ -9,6 +9,7 @@ import { RoleSelector } from "./RoleSelector";
 import { CountryCodeSelector } from "./CountryCodeSelector";
 import { usePhoneSignUp } from "@/hooks/usePhoneSignUp";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { Trans } from "@/components/ui/trans";
 
 interface PhoneSignUpFormProps {
   onShowOtp: () => void;
@@ -42,15 +43,19 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
       {twilioConfigIssue && (
         <Alert className="mb-4">
           <Info className="h-4 w-4" />
-          <AlertTitle className={dir === 'rtl' ? 'arabic-text' : ''}>{t('demo.title')}</AlertTitle>
+          <AlertTitle className={dir === 'rtl' ? 'arabic-text' : ''}>
+            <Trans>demo.title</Trans>
+          </AlertTitle>
           <AlertDescription className={dir === 'rtl' ? 'arabic-text' : ''}>
-            {t('demo.description')}
+            <Trans>demo.description</Trans>
           </AlertDescription>
         </Alert>
       )}
       
       <div className="space-y-2">
-        <Label htmlFor="phone" className={dir === 'rtl' ? 'arabic-text' : ''}>{t('phone.label')}</Label>
+        <Label htmlFor="phone" className={dir === 'rtl' ? 'arabic-text' : ''}>
+          <Trans>phone.label</Trans>
+        </Label>
         <div className="flex gap-2">
           <CountryCodeSelector 
             countryCode={countryCode} 
@@ -68,13 +73,15 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
             dir={dir}
           />
         </div>
-        <p className={`text-xs text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>{t('phone.subtitle')}</p>
+        <p className={`text-xs text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+          <Trans>phone.subtitle</Trans>
+        </p>
       </div>
       
       <RoleSelector userRole={userRole} setUserRole={setUserRole} />
       
       <Button type="submit" className={`w-full ${dir === 'rtl' ? 'arabic-text' : ''}`} disabled={loading}>
-        {loading ? t('phone.sending') : t('phone.send')}
+        {loading ? <Trans>phone.sending</Trans> : <Trans>phone.send</Trans>}
       </Button>
     </form>
   );
