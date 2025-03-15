@@ -193,7 +193,6 @@ export default function Search() {
       >
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-            {/* Main search field */}
             <div className="relative w-full md:flex-1">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input 
@@ -209,7 +208,6 @@ export default function Search() {
               />
             </div>
             
-            {/* Filter toggle button */}
             <Button 
               variant={showFilters ? "active" : "filter"} 
               size="lg"
@@ -225,7 +223,6 @@ export default function Search() {
               )}
             </Button>
 
-            {/* Search button */}
             <Button 
               onClick={handleSearch} 
               variant="cta" 
@@ -243,11 +240,8 @@ export default function Search() {
         <div className="bg-white border-t border-b border-gray-200 py-4 overflow-hidden transition-all duration-300">
           <div className="container mx-auto px-4">
             {isMobile ? (
-              /* Mobile filters */
               <div className="space-y-4">
-                {/* Filter sections as accordion */}
                 <div className="rounded-lg border border-gray-200 overflow-hidden">
-                  {/* Location filter section */}
                   <div className="border-b border-gray-200 last:border-b-0">
                     <button 
                       onClick={() => toggleFilterSection('location')}
@@ -277,7 +271,6 @@ export default function Search() {
                     )}
                   </div>
 
-                  {/* Property Type filter section */}
                   <div className="border-b border-gray-200 last:border-b-0">
                     <button 
                       onClick={() => toggleFilterSection('propertyType')}
@@ -316,7 +309,6 @@ export default function Search() {
                     )}
                   </div>
 
-                  {/* Listing Type filter section */}
                   <div className="border-b border-gray-200 last:border-b-0">
                     <button 
                       onClick={() => toggleFilterSection('listingType')}
@@ -355,7 +347,6 @@ export default function Search() {
                     )}
                   </div>
 
-                  {/* Price Range filter section */}
                   <div className="border-b border-gray-200 last:border-b-0">
                     <button 
                       onClick={() => toggleFilterSection('priceRange')}
@@ -398,7 +389,6 @@ export default function Search() {
                     )}
                   </div>
 
-                  {/* Beds & Baths filter section */}
                   <div className="border-b border-gray-200 last:border-b-0">
                     <button 
                       onClick={() => toggleFilterSection('bedsBaths')}
@@ -432,7 +422,6 @@ export default function Search() {
                     )}
                   </div>
 
-                  {/* Living Area filter section */}
                   <div className="border-b border-gray-200 last:border-b-0">
                     <button 
                       onClick={() => toggleFilterSection('livingArea')}
@@ -511,10 +500,8 @@ export default function Search() {
                 </div>
               </div>
             ) : (
-              /* Desktop filters */
               <div>
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  {/* Location filter */}
                   <div>
                     <h4 className="text-sm font-medium mb-2">{t('search.location')}</h4>
                     <Select value={selectedCity} onValueChange={setSelectedCity}>
@@ -533,7 +520,6 @@ export default function Search() {
                     </Select>
                   </div>
 
-                  {/* Property Type filter */}
                   <div>
                     <h4 className="text-sm font-medium mb-2">{t('search.propertyType')}</h4>
                     <div className="space-y-2">
@@ -561,7 +547,6 @@ export default function Search() {
                     </div>
                   </div>
 
-                  {/* Listing Type filter */}
                   <div>
                     <h4 className="text-sm font-medium mb-2">{t('search.listingType')}</h4>
                     <div className="space-y-2">
@@ -589,7 +574,6 @@ export default function Search() {
                     </div>
                   </div>
 
-                  {/* Price Range filter */}
                   <div>
                     <h4 className="text-sm font-medium mb-2">{t('search.priceRange')}</h4>
                     <div className="space-y-2">
@@ -621,7 +605,6 @@ export default function Search() {
                     </div>
                   </div>
 
-                  {/* Beds & Baths filter */}
                   <div>
                     <h4 className="text-sm font-medium mb-2">{t('search.bedsBaths')}</h4>
                     <div className="space-y-2">
@@ -633,7 +616,6 @@ export default function Search() {
                           onChange={(e) => setMinBeds(Number(e.target.value))}
                           className="w-24 text-sm border-2"
                         />
-                        {/* Min Baths Input */}
                         <Input
                           type="number"
                           placeholder={t('search.minBaths')}
@@ -645,7 +627,6 @@ export default function Search() {
                     </div>
                   </div>
 
-                  {/* Living Area filter */}
                   <div>
                     <h4 className="text-sm font-medium mb-2">{t('search.livingArea')}</h4>
                     <div className="space-y-2">
@@ -720,9 +701,8 @@ export default function Search() {
       )}
       
       <div className="container mx-auto px-4 py-8">
-        {/* Results count and applied filters */}
         <div className="mb-6">
-          <h1 className="text-xl font-medium mb-2">{t('search.results', { count: properties.length })}</h1>
+          <h1 className="text-xl font-medium mb-2">{`${t('search.results')} (${properties.length})`}</h1>
           {filtersApplied.current && (
             <div className="flex flex-wrap gap-2">
               {selectedCity !== 'any' && (
@@ -759,10 +739,8 @@ export default function Search() {
           )}
         </div>
         
-        {/* Property Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
-            // Loading state placeholders
             Array.from({ length: 6 }).map((_, index) => (
               <div 
                 key={index} 
@@ -772,12 +750,10 @@ export default function Search() {
               </div>
             ))
           ) : properties.length > 0 ? (
-            // Render properties
             properties.map((property) => (
               <PropertyCard key={property.id} property={property} />
             ))
           ) : (
-            // No properties found
             <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-12 text-center">
               <SearchIcon className="h-16 w-16 text-gray-300 mb-4" />
               <h3 className="text-xl font-medium mb-2">{t('search.noPropertiesFound')}</h3>
