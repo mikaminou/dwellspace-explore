@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPinIcon, BedDoubleIcon, HomeIcon, TicketIcon, BookmarkIcon } from "lucide-react";
+import { MapPinIcon, BedDoubleIcon, HomeIcon, TicketIcon, BookmarkIcon, SquareIcon, TreesIcon } from "lucide-react";
 import { Property } from "@/api/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 
@@ -91,6 +91,18 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             <HomeIcon className="h-4 w-4" />
             {property.type}
           </span>
+          {property.living_area && (
+            <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
+              <SquareIcon className="h-4 w-4" />
+              {property.living_area} m² {t('property.livingSpace')}
+            </span>
+          )}
+          {property.plot_area && (
+            <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}>
+              <TreesIcon className="h-4 w-4" />
+              {property.plot_area} m² {t('property.plotSpace')}
+            </span>
+          )}
         </div>
       </div>
     </Link>

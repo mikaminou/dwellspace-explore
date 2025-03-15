@@ -38,6 +38,8 @@ export const transformPropertyData = (property: any) => {
     beds: property.beds || 0,
     baths: property.baths || null,
     area: property.area || null,
+    living_area: property.living_area || null,
+    plot_area: property.plot_area || null,
     type: property.type || 'House',
     description: property.description,
     year_built: property.year_built || null,

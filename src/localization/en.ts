@@ -1,4 +1,3 @@
-
 export const en = {
   // Navigation
   nav: {
@@ -103,7 +102,9 @@ export const en = {
     notFoundDescription: "The property you're looking for doesn't exist or has been removed.",
     forSale: "For Sale",
     forRent: "For Rent",
-    underConstruction: "Under Construction"
+    underConstruction: "Under Construction",
+    livingSpace: "Living Space",
+    plotSpace: "Plot Space"
   },
   
   // Authentication

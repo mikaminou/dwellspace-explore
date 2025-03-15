@@ -12,6 +12,8 @@ export type Property = {
   beds: number;
   baths: number | null;
   area: number | null;
+  living_area: number | null;
+  plot_area: number | null;
   type: string;
   description: string;
   year_built: number | null;
