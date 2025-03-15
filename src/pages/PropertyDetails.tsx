@@ -11,15 +11,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Textarea } from "@/components/ui/textarea";
 import { Trans, TransHeading } from "@/components/ui/trans";
-import { TranslatableText } from "@/components/ui/TranslatableText";
-import { useTranslatedSupabase } from "@/integrations/supabase/translationClient";
-import { properties } from "@/data/properties"; // Temporary fallback for demo
+import { getPropertyById } from "@/api";
+import { Property } from "@/api/properties";
 
 export default function PropertyDetails() {
   const { id } = useParams();
   const { toast } = useToast();
-  const translatedSupabase = useTranslatedSupabase();
-  const [property, setProperty] = useState<any>(null);
+  const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const { t, dir } = useLanguage();
   const [message, setMessage] = useState("");
@@ -28,27 +26,10 @@ export default function PropertyDetails() {
     const fetchPropertyDetails = async () => {
       setLoading(true);
       try {
-        // Try to fetch from Supabase if integrated
-        try {
-          const response = await translatedSupabase
-            .from('properties')
-            .select('*, agent:agents(*)');
-            
-          // We need to handle the filtering on the client-side since our wrapper doesn't support it yet
-          const filteredData = response.data?.find((item: any) => item.id === parseInt(id as string));
-          
-          if (filteredData) {
-            setProperty(filteredData);
-            setLoading(false);
-            return;
-          }
-        } catch (err) {
-          console.log('Supabase fetch error or not integrated yet:', err);
-        }
+        if (!id) throw new Error("Property ID is required");
         
-        // Fallback to demo data if Supabase fetch fails or not integrated
-        const demoProperty = properties.find((p) => p.id === parseInt(id as string));
-        setProperty(demoProperty || null);
+        const fetchedProperty = await getPropertyById(id);
+        setProperty(fetchedProperty);
       } catch (error) {
         console.error('Error fetching property details:', error);
       } finally {
@@ -115,6 +96,9 @@ export default function PropertyDetails() {
     setMessage("");
   };
 
+  // Convert property.agent to the right format
+  const agent = property.agent as any;
+
   return (
     <div className="min-h-screen bg-background">
       <MainNav />
@@ -124,13 +108,13 @@ export default function PropertyDetails() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div className="md:col-span-2 aspect-video rounded-lg overflow-hidden">
             <img 
-              src={property.images?.[0] || '/placeholder.svg'} 
+              src={property.featured_image_url || '/placeholder.svg'} 
               alt={property.title}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            {(property.images || []).slice(1, 5).map((image: string, index: number) => (
+            {(property.gallery_image_urls || []).slice(1, 5).map((image: string, index: number) => (
               <div key={index} className="aspect-square rounded-lg overflow-hidden">
                 <img 
                   src={image} 
@@ -161,10 +145,10 @@ export default function PropertyDetails() {
                 <HomeIcon className="h-4 w-4" />
                 {property.type}
               </span>
-              {property.yearBuilt && (
+              {property.year_built && (
                 <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                   <CalendarIcon className="h-4 w-4" />
-                  <Trans>property.built</Trans> {property.yearBuilt}
+                  <Trans>property.built</Trans> {property.year_built}
                 </span>
               )}
             </div>
@@ -208,13 +192,13 @@ export default function PropertyDetails() {
               ))}
             </div>
             
-            {property.additionalDetails && (
+            {property.additional_details && (
               <>
                 <TransHeading as="h3" className={`text-xl font-semibold mb-3 ${dir === 'rtl' ? 'text-right' : ''}`}>
                   property.additionalInfo
                 </TransHeading>
                 <div className={`mb-6 ${dir === 'rtl' ? 'text-right arabic-text' : ''}`}>
-                  {property.additionalDetails}
+                  {property.additional_details}
                 </div>
               </>
             )}
@@ -224,15 +208,15 @@ export default function PropertyDetails() {
             <Card className="p-6">
               <div className="flex items-center gap-4 mb-4">
                 <Avatar>
-                  <AvatarImage src={property.agent?.avatar} />
-                  <AvatarFallback>{property.agent?.name?.charAt(0) || '?'}</AvatarFallback>
+                  <AvatarImage src={agent?.avatar} />
+                  <AvatarFallback>{agent?.name?.charAt(0) || '?'}</AvatarFallback>
                 </Avatar>
                 <div>
                   <h3 className="font-semibold">
-                    {property.agent?.name}
+                    {agent?.name}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {property.agent?.agency}
+                    {agent?.agency}
                   </p>
                 </div>
               </div>

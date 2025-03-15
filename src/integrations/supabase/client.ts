@@ -61,3 +61,39 @@ export const checkFileExists = async (bucket: string, path: string): Promise<boo
     return false;
   }
 };
+
+// Optional: Helper to handle the image/gallery URL fields
+export const transformPropertyData = (property: any) => {
+  // If the data comes from an older schema with 'image' and 'images'
+  if (property.image && !property.featured_image_url) {
+    property.featured_image_url = property.image;
+  }
+  
+  if (property.images && !property.gallery_image_urls) {
+    property.gallery_image_urls = property.images;
+  }
+  
+  // Ensure features is an array
+  if (property.features && typeof property.features === 'string') {
+    try {
+      property.features = JSON.parse(property.features);
+    } catch (e) {
+      property.features = [];
+    }
+  } else if (!property.features) {
+    property.features = [];
+  }
+  
+  // Ensure gallery_image_urls is an array
+  if (property.gallery_image_urls && typeof property.gallery_image_urls === 'string') {
+    try {
+      property.gallery_image_urls = JSON.parse(property.gallery_image_urls);
+    } catch (e) {
+      property.gallery_image_urls = [];
+    }
+  } else if (!property.gallery_image_urls) {
+    property.gallery_image_urls = [];
+  }
+  
+  return property;
+};

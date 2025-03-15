@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,9 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SearchIcon, MapPinIcon, BedDoubleIcon, HomeIcon, FilterIcon } from "lucide-react";
-import { properties } from "@/data/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { searchProperties } from "@/api";
+import { Property } from "@/api/properties";
 
 export default function Search() {
   const { t, dir } = useLanguage();
@@ -28,15 +30,17 @@ export default function Search() {
     security: false,
     petFriendly: false,
   });
-
-  // Get unique cities from properties data
-  const cities = ["any", ...Array.from(new Set(properties.map(property => property.city)))];
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [cities, setCities] = useState<string[]>(['any']);
+  const [loading, setLoading] = useState(true);
 
   // Define property types explicitly
   const propertyTypes = [
     { value: "any", label: t('search.anyPropertyType') },
     { value: "Villa", label: t('search.villa') },
     { value: "Apartment", label: t('search.apartment') },
+    { value: "House", label: t('search.house') || "House" },
+    { value: "Land", label: t('search.land') || "Land" },
     { value: "Studio", label: t('search.studio') },
     { value: "Duplex", label: t('search.duplex') },
     { value: "Traditional House", label: t('search.traditionalHouse') },
@@ -44,35 +48,98 @@ export default function Search() {
     { value: "Chalet", label: t('search.chalet') }
   ];
 
-  const filteredProperties = properties.filter((property) => {
-    const matchesSearch = property.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          property.location.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = propertyType === "any" || property.type.toLowerCase() === propertyType.toLowerCase();
-    
-    const matchesCity = selectedCity === "any" || property.city === selectedCity;
-    
-    const price = parseInt(property.price.replace(/[^0-9]/g, ""));
-    const matchesPrice = price >= minPrice && price <= maxPrice;
-    
-    const matchesBeds = property.beds >= minBeds;
-    
-    let matchesFeatures = true;
-    if (features.parking && !property.features.some(f => f.toLowerCase().includes("parking"))) matchesFeatures = false;
-    if (features.furnished && !property.features.some(f => f.toLowerCase().includes("furnished"))) matchesFeatures = false;
-    if (features.pool && !property.features.some(f => f.toLowerCase().includes("pool"))) matchesFeatures = false;
-    if (features.garden && !property.features.some(f => f.toLowerCase().includes("garden"))) matchesFeatures = false;
-    if (features.security && !property.features.some(f => f.toLowerCase().includes("security"))) matchesFeatures = false;
-    if (features.petFriendly && !property.features.some(f => f.toLowerCase().includes("pet"))) matchesFeatures = false;
-    
-    return matchesSearch && matchesType && matchesCity && matchesPrice && matchesBeds && matchesFeatures;
-  });
+  // Fetch properties and extract cities on component mount
+  useEffect(() => {
+    const fetchAllProperties = async () => {
+      setLoading(true);
+      try {
+        const allProperties = await searchProperties();
+        setProperties(allProperties);
+        
+        // Extract unique cities
+        const uniqueCities = ['any', ...Array.from(new Set(allProperties.map(p => p.city)))];
+        setCities(uniqueCities);
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchAllProperties();
+  }, []);
+
+  // Handle search with filters
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      // Convert selected features to array
+      const selectedFeatures = Object.entries(features)
+        .filter(([_, selected]) => selected)
+        .map(([feature]) => {
+          switch (feature) {
+            case 'parking': return 'parking';
+            case 'furnished': return 'furnished';
+            case 'pool': return 'pool';
+            case 'garden': return 'garden';
+            case 'security': return 'security';
+            case 'petFriendly': return 'pet';
+            default: return feature;
+          }
+        });
+
+      const filteredProperties = await searchProperties(searchTerm, {
+        propertyType: propertyType !== 'any' ? propertyType : undefined,
+        city: selectedCity !== 'any' ? selectedCity : undefined,
+        minPrice,
+        maxPrice,
+        minBeds: minBeds > 0 ? minBeds : undefined,
+        features: selectedFeatures.length > 0 ? selectedFeatures : undefined
+      });
+      
+      setProperties(filteredProperties);
+    } catch (error) {
+      console.error('Error searching properties:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle feature checkbox changes
   const handleFeatureChange = (feature: keyof typeof features) => {
     setFeatures(prev => ({
       ...prev,
       [feature]: !prev[feature]
     }));
+  };
+
+  // Reset all filters
+  const resetFilters = async () => {
+    setSearchTerm("");
+    setPropertyType("any");
+    setSelectedCity("any");
+    setMinPrice(0);
+    setMaxPrice(50000000);
+    setMinBeds(0);
+    setFeatures({
+      parking: false,
+      furnished: false,
+      pool: false,
+      garden: false,
+      security: false,
+      petFriendly: false,
+    });
+    
+    // Fetch all properties again
+    setLoading(true);
+    try {
+      const allProperties = await searchProperties();
+      setProperties(allProperties);
+    } catch (error) {
+      console.error('Error fetching properties:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -88,6 +155,11 @@ export default function Search() {
               placeholder={t('search.placeholder')} 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                }
+              }}
             />
           </div>
           <Button 
@@ -97,6 +169,9 @@ export default function Search() {
           >
             <FilterIcon className={`${dir === 'rtl' ? 'ml-2' : 'mr-2'} h-4 w-4`} />
             {showFilters ? t('search.hideFilters') : t('search.showFilters')}
+          </Button>
+          <Button onClick={handleSearch}>
+            {t('search.search')}
           </Button>
         </div>
         
@@ -261,84 +336,90 @@ export default function Search() {
         
         <div className="mb-4">
           <h1 className={`text-2xl font-bold ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-            {filteredProperties.length} {t('search.propertiesFound')}
+            {loading ? (
+              <span>{t('ui.loading')}</span>
+            ) : (
+              <span>{properties.length} {t('search.propertiesFound')}</span>
+            )}
           </h1>
           <Separator className="my-4" />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProperties.length > 0 ? (
-            filteredProperties.map((property) => (
-              <Link 
-                to={`/property/${property.id}`} 
-                key={property.id} 
-                className="property-card group hover:scale-[1.02] transition-all"
-              >
-                <div className="relative">
-                  <img
-                    src={property.image || property.images[0]}
-                    alt={property.title}
-                    className="h-64 w-full object-cover rounded-t-lg"
-                  />
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    {t('property.save')}
-                  </Button>
-                </div>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((_, index) => (
+              <div key={index} className="animate-pulse">
+                <div className="h-64 bg-gray-200 rounded-t-lg"></div>
                 <div className="p-4 border border-t-0 rounded-b-lg">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className={`text-lg font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{property.title}</h3>
-                    <span className={`text-primary font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{property.price}</span>
-                  </div>
-                  <div className="flex flex-col space-y-1 text-muted-foreground">
-                    <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                      <MapPinIcon className="h-4 w-4" />
-                      {property.location}
-                    </span>
-                    <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                      <BedDoubleIcon className="h-4 w-4" />
-                      {property.beds} {t('property.beds')}
-                    </span>
-                    <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                      <HomeIcon className="h-4 w-4" />
-                      {property.type}
-                    </span>
-                  </div>
+                  <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-5 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-1"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-1"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
                 </div>
-              </Link>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <h3 className={`text-xl font-semibold mb-2 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.noPropertiesFound')}
-              </h3>
-              <p className={`text-muted-foreground mb-4 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
-                {t('search.adjustSearchCriteria')}
-              </p>
-              <Button onClick={() => {
-                setSearchTerm("");
-                setPropertyType("any");
-                setSelectedCity("any");
-                setMinPrice(0);
-                setMaxPrice(50000000);
-                setMinBeds(0);
-                setFeatures({
-                  parking: false,
-                  furnished: false,
-                  pool: false,
-                  garden: false,
-                  security: false,
-                  petFriendly: false,
-                });
-              }} className={dir === 'rtl' ? 'arabic-text' : ''}>
-                {t('search.resetFilters')}
-              </Button>
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {properties.length > 0 ? (
+              properties.map((property) => (
+                <Link 
+                  to={`/property/${property.id}`} 
+                  key={property.id} 
+                  className="property-card group hover:scale-[1.02] transition-all"
+                >
+                  <div className="relative">
+                    <img
+                      src={property.featured_image_url || '/placeholder.svg'}
+                      alt={property.title}
+                      className="h-64 w-full object-cover rounded-t-lg"
+                    />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      {t('property.save')}
+                    </Button>
+                  </div>
+                  <div className="p-4 border border-t-0 rounded-b-lg">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className={`text-lg font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{property.title}</h3>
+                      <span className={`text-primary font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{property.price}</span>
+                    </div>
+                    <div className="flex flex-col space-y-1 text-muted-foreground">
+                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+                        <MapPinIcon className="h-4 w-4" />
+                        {property.location}
+                      </span>
+                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+                        <BedDoubleIcon className="h-4 w-4" />
+                        {property.beds} {t('property.beds')}
+                      </span>
+                      <span className={`flex items-center gap-1 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+                        <HomeIcon className="h-4 w-4" />
+                        {property.type}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <h3 className={`text-xl font-semibold mb-2 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+                  {t('search.noPropertiesFound')}
+                </h3>
+                <p className={`text-muted-foreground mb-4 ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+                  {t('search.adjustSearchCriteria')}
+                </p>
+                <Button onClick={resetFilters} className={dir === 'rtl' ? 'arabic-text' : ''}>
+                  {t('search.resetFilters')}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agents: {
+        Row: {
+          agency: string
+          avatar: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency: string
+          avatar?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency?: string
+          avatar?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -47,6 +80,77 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      properties: {
+        Row: {
+          additional_details: string | null
+          agent_id: string
+          area: number | null
+          baths: number | null
+          beds: number
+          city: string
+          created_at: string
+          description: string
+          features: Json | null
+          id: number
+          image: string | null
+          images: Json | null
+          location: string
+          price: string
+          title: string
+          type: string
+          updated_at: string
+          year_built: number | null
+        }
+        Insert: {
+          additional_details?: string | null
+          agent_id: string
+          area?: number | null
+          baths?: number | null
+          beds: number
+          city: string
+          created_at?: string
+          description: string
+          features?: Json | null
+          id?: number
+          image?: string | null
+          images?: Json | null
+          location: string
+          price: string
+          title: string
+          type: string
+          updated_at?: string
+          year_built?: number | null
+        }
+        Update: {
+          additional_details?: string | null
+          agent_id?: string
+          area?: number | null
+          baths?: number | null
+          beds?: number
+          city?: string
+          created_at?: string
+          description?: string
+          features?: Json | null
+          id?: number
+          image?: string | null
+          images?: Json | null
+          location?: string
+          price?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          year_built?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "properties_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
