@@ -31,226 +31,109 @@ import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/use-mobile";
 
 export default function Search() {
-  const { t, dir } = useLanguage();
-  const isMobile = useMediaQuery("(max-width: 768px)");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('any');
   const [propertyType, setPropertyType] = useState<string[]>([]);
-  const [selectedCity, setSelectedCity] = useState<string>("any");
   const [listingType, setListingType] = useState<string[]>([]);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(50000000);
-  const [maxPriceLimit, setMaxPriceLimit] = useState(50000000);
   const [minBeds, setMinBeds] = useState(0);
   const [minBaths, setMinBaths] = useState(0);
   const [minLivingArea, setMinLivingArea] = useState(0);
   const [maxLivingArea, setMaxLivingArea] = useState(500);
+  const [sortOption, setSortOption] = useState('relevance');
+  const [cities, setCities] = useState<string[]>([]);
+  const [maxPriceLimit, setMaxPriceLimit] = useState(50000000);
   const [maxLivingAreaLimit, setMaxLivingAreaLimit] = useState(500);
-  const [showFilters, setShowFilters] = useState(false);
-  const [features, setFeatures] = useState({
-    parking: false,
-    furnished: false,
-    pool: false,
-    garden: false,
-    security: false,
-    petFriendly: false,
-    airConditioning: false,
-    balcony: false,
-    elevator: false,
-    fireplace: false,
-  });
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [cities, setCities] = useState<string[]>(['any']);
-  const [loading, setLoading] = useState(true);
-  const [sortOption, setSortOption] = useState("newest");
   const [searchHeaderSticky, setSearchHeaderSticky] = useState(false);
-  const [activeFilterSection, setActiveFilterSection] = useState<string | null>(null);
   const searchHeaderRef = useRef<HTMLDivElement>(null);
+  const [activeFilterSection, setActiveFilterSection] = useState<string | null>(null);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const { t, dir } = useLanguage();
+
   const filtersApplied = useRef(false);
 
-  // Pricing presets
-  const pricePresets = [
-    { label: t('search.lowRange'), min: 0, max: 5000000 },
-    { label: t('search.midRange'), min: 5000000, max: 15000000 },
-    { label: t('search.highRange'), min: 15000000, max: 30000000 },
-    { label: t('search.luxuryRange'), min: 30000000, max: maxPriceLimit },
-  ];
-
   const propertyTypes = [
-    { value: "Villa", label: t('search.villa'), icon: <Home size={16} /> },
-    { value: "Apartment", label: t('search.apartment'), icon: <Home size={16} /> },
-    { value: "House", label: t('search.house') || "House", icon: <Home size={16} /> },
-    { value: "Land", label: t('search.land') || "Land", icon: <MapPin size={16} /> },
-    { value: "Studio", label: t('search.studio'), icon: <Home size={16} /> },
-    { value: "Duplex", label: t('search.duplex'), icon: <Home size={16} /> },
-    { value: "Traditional House", label: t('search.traditionalHouse'), icon: <Home size={16} /> },
-    { value: "Loft", label: t('search.loft'), icon: <Home size={16} /> },
-    { value: "Chalet", label: t('search.chalet'), icon: <Home size={16} /> }
+    { value: 'House', label: t('search.house') },
+    { value: 'Apartment', label: t('search.apartment') },
+    { value: 'Villa', label: t('search.villa') },
+    { value: 'Land', label: t('search.land') },
   ];
 
   const listingTypes = [
-    { value: "sale", label: t('search.forSale'), icon: <DollarSign size={16} /> },
-    { value: "rent", label: t('search.forRent'), icon: <Clock size={16} /> },
-    { value: "construction", label: t('search.underConstruction'), icon: <Home size={16} /> }
-  ];
-
-  const featuresList = [
-    { id: "parking", label: t('search.parking') },
-    { id: "furnished", label: t('search.furnished') },
-    { id: "pool", label: t('search.pool') },
-    { id: "garden", label: t('search.garden') },
-    { id: "security", label: t('search.security') },
-    { id: "petFriendly", label: t('search.petFriendly') },
-    { id: "airConditioning", label: t('search.airConditioning') },
-    { id: "balcony", label: t('search.balcony') },
-    { id: "elevator", label: t('search.elevator') },
-    { id: "fireplace", label: t('search.fireplace') },
+    { value: 'sale', label: t('search.sale') },
+    { value: 'rent', label: t('search.rent') },
+    { value: 'construction', label: t('search.construction') },
   ];
 
   const sortOptions = [
-    { value: "newest", label: t('search.newest') },
-    { value: "price_asc", label: t('search.priceLowToHigh') },
-    { value: "price_desc", label: t('search.priceHighToLow') },
-    { value: "popular", label: t('search.mostPopular') },
+    { value: 'relevance', label: t('search.relevance') },
+    { value: 'priceAsc', label: t('search.priceAsc') },
+    { value: 'priceDesc', label: t('search.priceDesc') },
+    { value: 'areaAsc', label: t('search.areaAsc') },
+    { value: 'areaDesc', label: t('search.areaDesc') },
   ];
 
-  // Handle sticky header on scroll
+  useEffect(() => {
+    const fetchLimits = async () => {
+      const maxPrice = await getMaxPropertyPrice();
+      setMaxPriceLimit(maxPrice);
+      setMaxPrice(maxPrice);
+
+      const maxLiving = await getMaxLivingArea();
+      setMaxLivingAreaLimit(maxLiving);
+      setMaxLivingArea(maxLiving);
+
+      const cities = await getAllCities();
+      setCities(['any', ...cities]);
+    };
+
+    fetchLimits();
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       if (searchHeaderRef.current) {
-        const scrollPosition = window.scrollY;
-        setSearchHeaderSticky(scrollPosition > 100);
+        const rect = searchHeaderRef.current.getBoundingClientRect();
+        setSearchHeaderSticky(rect.top <= 0);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
-  // Fetch max values from the database
-  useEffect(() => {
-    const fetchMaxValues = async () => {
-      try {
-        const fetchedMaxPrice = await getMaxPropertyPrice();
-        const fetchedMaxLivingArea = await getMaxLivingArea();
-        const fetchedCities = await getAllCities();
-        
-        // Update state with fetched max values
-        setMaxPriceLimit(fetchedMaxPrice);
-        setMaxPrice(fetchedMaxPrice);
-        setMaxLivingAreaLimit(fetchedMaxLivingArea);
-        setMaxLivingArea(fetchedMaxLivingArea);
-        setCities(['any', ...fetchedCities]);
-      } catch (error) {
-        console.error('Error fetching max values:', error);
-      }
-    };
-
-    fetchMaxValues();
-  }, []);
-
-  useEffect(() => {
-    const fetchAllProperties = async () => {
-      setLoading(true);
-      try {
-        const allProperties = await searchProperties();
-        setProperties(allProperties);
-      } catch (error) {
-        console.error('Error fetching properties:', error);
-        toast.error(t('search.errorFetchingProperties'));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAllProperties();
-  }, [t]);
 
   const handleSearch = async () => {
-    filtersApplied.current = true;
     setLoading(true);
-    setActiveFilterSection(null);
-    
+    filtersApplied.current = true;
     try {
-      const selectedFeatures = Object.entries(features)
-        .filter(([_, selected]) => selected)
-        .map(([feature]) => {
-          switch (feature) {
-            case 'parking': return 'parking';
-            case 'furnished': return 'furnished';
-            case 'pool': return 'pool';
-            case 'garden': return 'garden';
-            case 'security': return 'security';
-            case 'petFriendly': return 'pet';
-            case 'airConditioning': return 'air_conditioning';
-            case 'balcony': return 'balcony';
-            case 'elevator': return 'elevator';
-            case 'fireplace': return 'fireplace';
-            default: return feature;
-          }
-        });
-
-      const filteredProperties = await searchProperties(searchTerm, {
-        propertyType: propertyType.length > 0 ? propertyType.join(',') : undefined,
-        city: selectedCity !== 'any' ? selectedCity : undefined,
-        minPrice,
-        maxPrice,
-        minBeds: minBeds > 0 ? minBeds : undefined,
-        minBaths: minBaths > 0 ? minBaths : undefined,
-        minLivingArea: minLivingArea > 0 ? minLivingArea : undefined,
-        maxLivingArea: maxLivingArea < maxLivingAreaLimit ? maxLivingArea : undefined,
-        features: selectedFeatures.length > 0 ? selectedFeatures : undefined,
-        listingType: listingType.length > 0 ? listingType.join(',') as any : undefined
+      const results = await searchProperties(searchTerm, {
+        city: selectedCity,
+        propertyType: propertyType.join(','),
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        minBeds: minBeds,
+        minLivingArea: minLivingArea,
+        maxLivingArea: maxLivingArea,
+        listingType: listingType.join(',') as any,
       });
-      
-      // Sort properties based on selected sort option
-      let sortedProperties = [...filteredProperties];
-      
-      switch (sortOption) {
-        case 'price_asc':
-          sortedProperties.sort((a, b) => {
-            const aPrice = parseInt(a.price.replace(/[^0-9]/g, ''));
-            const bPrice = parseInt(b.price.replace(/[^0-9]/g, ''));
-            return aPrice - bPrice;
-          });
-          break;
-        case 'price_desc':
-          sortedProperties.sort((a, b) => {
-            const aPrice = parseInt(a.price.replace(/[^0-9]/g, ''));
-            const bPrice = parseInt(b.price.replace(/[^0-9]/g, ''));
-            return bPrice - aPrice;
-          });
-          break;
-        case 'popular':
-          // In a real app, this would use a popularity metric
-          sortedProperties.sort((a, b) => (b.isPremium ? 1 : 0) - (a.isPremium ? 1 : 0));
-          break;
-        // Newest is default (no sorting needed if data is already ordered by date)
-      }
-      
-      setProperties(sortedProperties);
-      
-      if (showFilters && isMobile) {
-        setShowFilters(false);
-      }
-      
-      toast.success(
-        sortedProperties.length > 0 
-          ? t('search.searchResultsFound', { count: sortedProperties.length }) 
-          : t('search.noPropertiesFound')
-      );
-    } catch (error) {
-      console.error('Error searching properties:', error);
-      toast.error(t('search.errorSearchingProperties'));
+      setProperties(results);
+    } catch (error: any) {
+      toast.error(t('search.searchFailed'));
+      console.error("Search failed:", error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleReset = async () => {
-    filtersApplied.current = false;
-    setSearchTerm("");
+  const handleReset = () => {
+    setSearchTerm('');
+    setSelectedCity('any');
     setPropertyType([]);
-    setSelectedCity("any");
     setListingType([]);
     setMinPrice(0);
     setMaxPrice(maxPriceLimit);
@@ -258,149 +141,41 @@ export default function Search() {
     setMinBaths(0);
     setMinLivingArea(0);
     setMaxLivingArea(maxLivingAreaLimit);
-    setSortOption("newest");
-    setFeatures({
-      parking: false,
-      furnished: false,
-      pool: false,
-      garden: false,
-      security: false,
-      petFriendly: false,
-      airConditioning: false,
-      balcony: false,
-      elevator: false,
-      fireplace: false,
-    });
-    
-    setLoading(true);
-    try {
-      const allProperties = await searchProperties();
-      setProperties(allProperties);
-      toast.success(t('search.filtersReset'));
-    } catch (error) {
-      console.error('Error fetching properties:', error);
-      toast.error(t('search.errorFetchingProperties'));
-    } finally {
-      setLoading(false);
-    }
-
-    if (showFilters && isMobile) {
-      setShowFilters(false);
-    }
-  };
-
-  const applyPricePreset = (min: number, max: number) => {
-    setMinPrice(min);
-    setMaxPrice(max);
-  };
-
-  const handleFeatureChange = (feature: keyof typeof features) => {
-    setFeatures(prev => ({
-      ...prev,
-      [feature]: !prev[feature]
-    }));
-  };
-
-  const handlePriceInputChange = (type: 'min' | 'max', value: string) => {
-    const numericValue = parseInt(value.replace(/\D/g, ''));
-    
-    if (!isNaN(numericValue)) {
-      if (type === 'min') {
-        setMinPrice(numericValue);
-      } else {
-        // Ensure max price doesn't exceed the limit from database
-        setMaxPrice(Math.min(numericValue, maxPriceLimit));
-      }
-    }
-  };
-
-  const handleLivingAreaInputChange = (type: 'min' | 'max', value: string) => {
-    const numericValue = parseInt(value.replace(/\D/g, ''));
-    
-    if (!isNaN(numericValue)) {
-      if (type === 'min') {
-        setMinLivingArea(numericValue);
-      } else {
-        // Ensure max living area doesn't exceed the limit from database
-        setMaxLivingArea(Math.min(numericValue, maxLivingAreaLimit));
-      }
-    }
-  };
-
-  const toggleFilterSection = (section: string) => {
-    if (activeFilterSection === section) {
-      setActiveFilterSection(null);
-    } else {
-      setActiveFilterSection(section);
-    }
+    setSortOption('relevance');
+    filtersApplied.current = false;
+    handleSearch();
   };
 
   const getActiveFiltersCount = () => {
     let count = 0;
-    
+    if (selectedCity !== 'any') count++;
     if (propertyType.length > 0) count++;
     if (listingType.length > 0) count++;
-    if (selectedCity !== 'any') count++;
-    if (minPrice > 0) count++;
-    if (maxPrice < maxPriceLimit) count++;
     if (minBeds > 0) count++;
     if (minBaths > 0) count++;
     if (minLivingArea > 0) count++;
     if (maxLivingArea < maxLivingAreaLimit) count++;
-    
-    const featuresSelected = Object.values(features).filter(v => v).length;
-    if (featuresSelected > 0) count++;
-    
     return count;
   };
 
-  const togglePropertyType = (type: string) => {
-    if (propertyType.includes(type)) {
-      setPropertyType(propertyType.filter(t => t !== type));
-    } else {
-      setPropertyType([...propertyType, type]);
-    }
-  };
-
-  const toggleListingType = (type: string) => {
-    if (listingType.includes(type)) {
-      setListingType(listingType.filter(t => t !== type));
-    } else {
-      setListingType([...listingType, type]);
-    }
+  const toggleFilterSection = (section: string) => {
+    setActiveFilterSection(activeFilterSection === section ? null : section);
   };
 
   const getFilterSectionLabel = (section: string) => {
     switch (section) {
-      case 'price':
-        return minPrice > 0 || maxPrice < maxPriceLimit 
-          ? `${t('search.priceRange')}: ${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}`
-          : t('search.priceRange');
-      case 'livingArea':
-        return minLivingArea > 0 || maxLivingArea < maxLivingAreaLimit
-          ? `${t('search.livingSpaceRange')}: ${minLivingArea} - ${maxLivingArea} m²`
-          : t('search.livingSpaceRange');
-      case 'propertyType':
-        return propertyType.length > 0
-          ? `${t('search.propertyType')}: ${propertyType.length}`
-          : t('search.propertyType');
-      case 'listingType':
-        return listingType.length > 0
-          ? `${t('search.listingType')}: ${listingType.length}`
-          : t('search.listingType');
-      case 'bedsBaths':
-        return (minBeds > 0 || minBaths > 0)
-          ? `${t('search.bedsBaths')}: ${minBeds}+ ${t('search.beds')}, ${minBaths}+ ${t('search.baths')}`
-          : t('search.bedsBaths');
-      case 'features':
-        const count = Object.values(features).filter(v => v).length;
-        return count > 0
-          ? `${t('search.features')}: ${count}`
-          : t('search.features');
       case 'location':
-        return selectedCity !== 'any'
-          ? `${t('search.location')}: ${selectedCity}`
-          : t('search.location');
+        return t('search.location');
+      case 'propertyType':
+        return t('search.propertyType');
+      case 'listingType':
+        return t('search.listingType');
+      case 'priceRange':
+        return t('search.priceRange');
+      case 'bedsBaths':
+        return t('search.bedsBaths');
+      case 'livingArea':
+        return t('search.livingArea');
       default:
         return '';
     }
@@ -513,19 +288,30 @@ export default function Search() {
                     </button>
                     
                     {activeFilterSection === 'propertyType' && (
-                      <div className="p-4 bg-gray-50 grid grid-cols-2 gap-2 animate-accordion-down">
-                        {propertyTypes.map((type) => (
-                          <Button
-                            key={type.value}
-                            variant={propertyType.includes(type.value) ? "active" : "filter"}
-                            size="sm"
-                            className="justify-start"
-                            onClick={() => togglePropertyType(type.value)}
-                          >
-                            {type.icon}
-                            <span className="ml-2 truncate">{type.label}</span>
-                          </Button>
-                        ))}
+                      <div className="p-4 bg-gray-50 animate-accordion-down">
+                        <div className="space-y-2">
+                          {propertyTypes.map(type => (
+                            <div key={type.value} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={type.value}
+                                checked={propertyType.includes(type.value)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setPropertyType([...propertyType, type.value]);
+                                  } else {
+                                    setPropertyType(propertyType.filter(item => item !== type.value));
+                                  }
+                                }}
+                              />
+                              <label
+                                htmlFor={type.value}
+                                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {type.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -541,19 +327,30 @@ export default function Search() {
                     </button>
                     
                     {activeFilterSection === 'listingType' && (
-                      <div className="p-4 bg-gray-50 grid grid-cols-2 gap-2 animate-accordion-down">
-                        {listingTypes.map((type) => (
-                          <Button
-                            key={type.value}
-                            variant={listingType.includes(type.value) ? "active" : "filter"}
-                            size="sm"
-                            className="justify-start"
-                            onClick={() => toggleListingType(type.value)}
-                          >
-                            {type.icon}
-                            <span className="ml-2">{type.label}</span>
-                          </Button>
-                        ))}
+                      <div className="p-4 bg-gray-50 animate-accordion-down">
+                        <div className="space-y-2">
+                          {listingTypes.map(type => (
+                            <div key={type.value} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={type.value}
+                                checked={listingType.includes(type.value)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    setListingType([...listingType, type.value]);
+                                  } else {
+                                    setListingType(listingType.filter(item => item !== type.value));
+                                  }
+                                }}
+                              />
+                              <label
+                                htmlFor={type.value}
+                                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {type.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -561,90 +358,46 @@ export default function Search() {
                   {/* Price Range filter section */}
                   <div className="border-b border-gray-200 last:border-b-0">
                     <button 
-                      onClick={() => toggleFilterSection('price')}
+                      onClick={() => toggleFilterSection('priceRange')}
                       className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
                     >
-                      <span className="font-medium">{getFilterSectionLabel('price')}</span>
-                      {activeFilterSection === 'price' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      <span className="font-medium">{getFilterSectionLabel('priceRange')}</span>
+                      {activeFilterSection === 'priceRange' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </button>
                     
-                    {activeFilterSection === 'price' && (
-                      <div className="p-4 bg-gray-50 space-y-4 animate-accordion-down">
-                        <div className="flex items-center justify-between mb-2 gap-2">
-                          <div className="relative flex-1">
+                    {activeFilterSection === 'priceRange' && (
+                      <div className="p-4 bg-gray-50 animate-accordion-down">
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
                             <Input
-                              className={dir === 'rtl' ? 'arabic-text text-right pr-10' : 'pl-10'}
-                              value={minPrice.toLocaleString()}
-                              onChange={(e) => handlePriceInputChange('min', e.target.value)}
-                              onBlur={() => {
-                                if (minPrice > maxPrice) {
-                                  setMinPrice(maxPrice);
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.currentTarget.blur();
-                                }
-                              }}
+                              type="number"
+                              placeholder={t('search.minPrice')}
+                              value={minPrice.toString()}
+                              onChange={(e) => setMinPrice(Number(e.target.value))}
+                              className="w-24 text-sm border-2"
                             />
-                            <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
-                              DZD
-                            </span>
-                          </div>
-                          <span>-</span>
-                          <div className="relative flex-1">
                             <Input
-                              className={dir === 'rtl' ? 'arabic-text text-right pr-10' : 'pl-10'}
-                              value={maxPrice.toLocaleString()}
-                              onChange={(e) => handlePriceInputChange('max', e.target.value)}
-                              onBlur={() => {
-                                if (maxPrice < minPrice) {
-                                  setMaxPrice(minPrice);
-                                } else if (maxPrice > maxPriceLimit) {
-                                  setMaxPrice(maxPriceLimit);
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.currentTarget.blur();
-                                }
-                              }}
+                              type="number"
+                              placeholder={t('search.maxPrice')}
+                              value={maxPrice.toString()}
+                              onChange={(e) => setMaxPrice(Number(e.target.value))}
+                              className="w-24 text-sm border-2"
                             />
-                            <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
-                              DZD
-                            </span>
                           </div>
-                        </div>
-                        <Slider 
-                          min={0} 
-                          max={maxPriceLimit} 
-                          step={500000} 
-                          value={[minPrice, maxPrice]}
-                          onValueChange={([min, max]) => {
-                            setMinPrice(min);
-                            setMaxPrice(max);
-                          }}
-                          className="my-4"
-                        />
-                        
-                        {/* Price presets */}
-                        <div className="grid grid-cols-2 gap-2 mt-2">
-                          {pricePresets.map((preset, index) => (
-                            <Button 
-                              key={index}
-                              variant="filter"
-                              size="sm"
-                              onClick={() => applyPricePreset(preset.min, preset.max)}
-                              className="text-xs"
-                            >
-                              {preset.label}
-                            </Button>
-                          ))}
+                          <Slider
+                            defaultValue={[minPrice, maxPrice]}
+                            max={maxPriceLimit}
+                            step={10000}
+                            onValueChange={(value) => {
+                              setMinPrice(value[0]);
+                              setMaxPrice(value[1]);
+                            }}
+                          />
                         </div>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Beds & Baths filter section */}
                   <div className="border-b border-gray-200 last:border-b-0">
                     <button 
@@ -656,49 +409,30 @@ export default function Search() {
                     </button>
                     
                     {activeFilterSection === 'bedsBaths' && (
-                      <div className="p-4 bg-gray-50 space-y-4 animate-accordion-down">
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            {t('search.minimumBedrooms')}
-                          </label>
-                          <div className="flex space-x-2">
-                            {[0, 1, 2, 3, 4, 5].map((num) => (
-                              <Button
-                                key={num}
-                                variant={minBeds === num ? "active" : "filter"}
-                                size="sm"
-                                className="flex-1"
-                                onClick={() => setMinBeds(num)}
-                              >
-                                {num === 0 ? t('search.any') : `${num}+`}
-                              </Button>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            {t('search.minimumBathrooms')}
-                          </label>
-                          <div className="flex space-x-2">
-                            {[0, 1, 2, 3, 4].map((num) => (
-                              <Button
-                                key={num}
-                                variant={minBaths === num ? "active" : "filter"}
-                                size="sm"
-                                className="flex-1"
-                                onClick={() => setMinBaths(num)}
-                              >
-                                {num === 0 ? t('search.any') : `${num}+`}
-                              </Button>
-                            ))}
+                      <div className="p-4 bg-gray-50 animate-accordion-down">
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Input
+                              type="number"
+                              placeholder={t('search.minBeds')}
+                              value={minBeds.toString()}
+                              onChange={(e) => setMinBeds(Number(e.target.value))}
+                              className="w-24 text-sm border-2"
+                            />
+                            <Input
+                              type="number"
+                              placeholder={t('search.minBaths')}
+                              value={minBaths.toString()}
+                              onChange={(e) => setMinBaths(Number(e.target.value))}
+                              className="w-24 text-sm border-2"
+                            />
                           </div>
                         </div>
                       </div>
                     )}
                   </div>
-                  
-                  {/* Living Space Range filter section */}
+
+                  {/* Living Area filter section */}
                   <div className="border-b border-gray-200 last:border-b-0">
                     <button 
                       onClick={() => toggleFilterSection('livingArea')}
@@ -709,85 +443,352 @@ export default function Search() {
                     </button>
                     
                     {activeFilterSection === 'livingArea' && (
-                      <div className="p-4 bg-gray-50 space-y-4 animate-accordion-down">
-                        <div className="flex items-center justify-between mb-2 gap-2">
-                          <div className="relative flex-1">
+                      <div className="p-4 bg-gray-50 animate-accordion-down">
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
                             <Input
-                              className={dir === 'rtl' ? 'arabic-text text-right pr-10' : 'pl-10'}
-                              value={minLivingArea}
-                              onChange={(e) => handleLivingAreaInputChange('min', e.target.value)}
-                              onBlur={() => {
-                                if (minLivingArea > maxLivingArea) {
-                                  setMinLivingArea(maxLivingArea);
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.currentTarget.blur();
-                                }
-                              }}
+                              type="number"
+                              placeholder={t('search.minLivingArea')}
+                              value={minLivingArea.toString()}
+                              onChange={(e) => setMinLivingArea(Number(e.target.value))}
+                              className="w-24 text-sm border-2"
                             />
-                            <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
-                              m²
-                            </span>
-                          </div>
-                          <span>-</span>
-                          <div className="relative flex-1">
                             <Input
-                              className={dir === 'rtl' ? 'arabic-text text-right pr-10' : 'pl-10'}
-                              value={maxLivingArea}
-                              onChange={(e) => handleLivingAreaInputChange('max', e.target.value)}
-                              onBlur={() => {
-                                if (maxLivingArea < minLivingArea) {
-                                  setMaxLivingArea(minLivingArea);
-                                } else if (maxLivingArea > maxLivingAreaLimit) {
-                                  setMaxLivingArea(maxLivingAreaLimit);
-                                }
-                              }}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.currentTarget.blur();
-                                }
-                              }}
+                              type="number"
+                              placeholder={t('search.maxLivingArea')}
+                              value={maxLivingArea.toString()}
+                              onChange={(e) => setMaxLivingArea(Number(e.target.value))}
+                              className="w-24 text-sm border-2"
                             />
-                            <span className="absolute top-1/2 transform -translate-y-1/2 left-3 text-muted-foreground text-sm">
-                              m²
-                            </span>
                           </div>
+                          <Slider
+                            defaultValue={[minLivingArea, maxLivingArea]}
+                            max={maxLivingAreaLimit}
+                            step={10}
+                            onValueChange={(value) => {
+                              setMinLivingArea(value[0]);
+                              setMaxLivingArea(value[1]);
+                            }}
+                          />
                         </div>
-                        <Slider 
-                          min={0} 
-                          max={maxLivingAreaLimit} 
-                          step={10} 
-                          value={[minLivingArea, maxLivingArea]}
-                          onValueChange={([min, max]) => {
-                            setMinLivingArea(min);
-                            setMaxLivingArea(max);
-                          }}
-                          className="my-4"
-                        />
                       </div>
                     )}
                   </div>
+                </div>
+
+                <div className="flex justify-between pt-2">
+                  <Button variant="outline" onClick={handleReset} size="sm" className="text-sm">
+                    <X className="mr-1 h-4 w-4" />
+                    {t('search.resetFilters')}
+                  </Button>
                   
-                  {/* Features filter section */}
-                  <div className="border-b border-gray-200 last:border-b-0">
-                    <button 
-                      onClick={() => toggleFilterSection('features')}
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
-                    >
-                      <span className="font-medium">{getFilterSectionLabel('features')}</span>
-                      {activeFilterSection === 'features' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
+                  <div className="flex space-x-2">
+                    <Select value={sortOption} onValueChange={setSortOption}>
+                      <SelectTrigger className="h-9 text-sm">
+                        <span className="flex items-center">
+                          <Star className="mr-1 h-4 w-4" />
+                          {t('search.sortBy')}
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sortOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     
-                    {activeFilterSection === 'features' && (
-                      <div className="p-4 bg-gray-50 grid grid-cols-2 gap-y-3 gap-x-4 animate-accordion-down">
-                        {featuresList.map((feature) => (
-                          <div key={feature.id} className="flex items-center space-x-2 transition-all duration-200 hover:text-cta">
-                            <Checkbox 
-                              id={`mobile-${feature.id}`} 
-                              checked={features[feature.id as keyof typeof features]} 
-                              onCheckedChange={() => handleFeatureChange(feature.id as keyof typeof features)}
-                              className="data-[state=checked]:bg-cta data-[state=checked]:border-cta"
-                            />
-                            <label htmlFor={`mobile-${feature.id}`} className={dir === '
+                    <Button 
+                      variant="cta" 
+                      size="sm" 
+                      onClick={handleSearch}
+                      className="text-sm"
+                    >
+                      {t('search.applyFilters')}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Desktop filters */
+              <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {/* Location filter */}
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">{t('search.location')}</h4>
+                    <Select value={selectedCity} onValueChange={setSelectedCity}>
+                      <SelectTrigger className={`${dir === 'rtl' ? 'arabic-text' : ''} border-2`}>
+                        <SelectValue placeholder={t('search.anyCity')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {cities.map(city => (
+                            <SelectItem key={city} value={city} className={dir === 'rtl' ? 'arabic-text' : ''}>
+                              {city === "any" ? t('search.anyCity') : city}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Property Type filter */}
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">{t('search.propertyType')}</h4>
+                    <div className="space-y-2">
+                      {propertyTypes.map(type => (
+                        <div key={type.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={type.value}
+                            checked={propertyType.includes(type.value)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setPropertyType([...propertyType, type.value]);
+                              } else {
+                                setPropertyType(propertyType.filter(item => item !== type.value));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={type.value}
+                            className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {type.label}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Listing Type filter */}
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">{t('search.listingType')}</h4>
+                    <div className="space-y-2">
+                      {listingTypes.map(type => (
+                        <div key={type.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={type.value}
+                            checked={listingType.includes(type.value)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setListingType([...listingType, type.value]);
+                              } else {
+                                setListingType(listingType.filter(item => item !== type.value));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={type.value}
+                            className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            {type.label}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Price Range filter */}
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">{t('search.priceRange')}</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          type="number"
+                          placeholder={t('search.minPrice')}
+                          value={minPrice.toString()}
+                          onChange={(e) => setMinPrice(Number(e.target.value))}
+                          className="w-24 text-sm border-2"
+                        />
+                        <Input
+                          type="number"
+                          placeholder={t('search.maxPrice')}
+                          value={maxPrice.toString()}
+                          onChange={(e) => setMaxPrice(Number(e.target.value))}
+                          className="w-24 text-sm border-2"
+                        />
+                      </div>
+                      <Slider
+                        defaultValue={[minPrice, maxPrice]}
+                        max={maxPriceLimit}
+                        step={10000}
+                        onValueChange={(value) => {
+                          setMinPrice(value[0]);
+                          setMaxPrice(value[1]);
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Beds & Baths filter */}
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">{t('search.bedsBaths')}</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          type="number"
+                          placeholder={t('search.minBeds')}
+                          value={minBeds.toString()}
+                          onChange={(e) => setMinBeds(Number(e.target.value))}
+                          className="w-24 text-sm border-2"
+                        />
+                        {/* Min Baths Input */}
+                        <Input
+                          type="number"
+                          placeholder={t('search.minBaths')}
+                          value={minBaths.toString()}
+                          onChange={(e) => setMinBaths(Number(e.target.value))}
+                          className="w-24 text-sm border-2"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Living Area filter */}
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">{t('search.livingArea')}</h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          type="number"
+                          placeholder={t('search.minLivingArea')}
+                          value={minLivingArea.toString()}
+                          onChange={(e) => setMinLivingArea(Number(e.target.value))}
+                          className="w-24 text-sm border-2"
+                        />
+                        <Input
+                          type="number"
+                          placeholder={t('search.maxLivingArea')}
+                          value={maxLivingArea.toString()}
+                          onChange={(e) => setMaxLivingArea(Number(e.target.value))}
+                          className="w-24 text-sm border-2"
+                        />
+                      </div>
+                      <Slider
+                        defaultValue={[minLivingArea, maxLivingArea]}
+                        max={maxLivingAreaLimit}
+                        step={10}
+                        onValueChange={(value) => {
+                          setMinLivingArea(value[0]);
+                          setMaxLivingArea(value[1]);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <Separator className="my-4" />
+                
+                <div className="flex justify-between">
+                  <Button variant="outline" onClick={handleReset} size="sm">
+                    <X className="mr-2 h-4 w-4" />
+                    {t('search.resetFilters')}
+                  </Button>
+                  
+                  <div className="flex space-x-2">
+                    <Select value={sortOption} onValueChange={setSortOption}>
+                      <SelectTrigger className="h-9">
+                        <span className="flex items-center">
+                          <Star className="mr-2 h-4 w-4" />
+                          {t('search.sortBy')}
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sortOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Button 
+                      variant="cta" 
+                      size="sm" 
+                      onClick={handleSearch}
+                    >
+                      <Check className="mr-2 h-4 w-4" />
+                      {t('search.applyFilters')}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      <div className="container mx-auto px-4 py-8">
+        {/* Results count and applied filters */}
+        <div className="mb-6">
+          <h1 className="text-xl font-medium mb-2">{t('search.results', { count: properties.length })}</h1>
+          {filtersApplied.current && (
+            <div className="flex flex-wrap gap-2">
+              {selectedCity !== 'any' && (
+                <div className="bg-gray-100 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+                  <MapPin size={12} /> {selectedCity}
+                </div>
+              )}
+              {propertyType.length > 0 && (
+                <div className="bg-gray-100 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+                  <Home size={12} /> {propertyType.join(', ')}
+                </div>
+              )}
+              {listingType.length > 0 && (
+                <div className="bg-gray-100 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+                  {listingType.includes('sale') ? <DollarSign size={12} /> : <Clock size={12} />} {listingType.join(', ')}
+                </div>
+              )}
+              {minBeds > 0 && (
+                <div className="bg-gray-100 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+                  <Bed size={12} /> {minBeds}+ {t('search.beds')}
+                </div>
+              )}
+              {minBaths > 0 && (
+                <div className="bg-gray-100 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+                  <Bath size={12} /> {minBaths}+ {t('search.baths')}
+                </div>
+              )}
+              {(minLivingArea > 0 || maxLivingArea < maxLivingAreaLimit) && (
+                <div className="bg-gray-100 rounded-full px-3 py-1 text-sm flex items-center gap-1">
+                  <Ruler size={12} /> {minLivingArea} - {maxLivingArea} m²
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        
+        {/* Property Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+            // Loading state placeholders
+            Array.from({ length: 6 }).map((_, index) => (
+              <div 
+                key={index} 
+                className="bg-gray-100 animate-pulse rounded-lg h-[300px] flex items-center justify-center text-gray-400"
+              >
+                <span className="text-lg">{t('search.loading')}</span>
+              </div>
+            ))
+          ) : properties.length > 0 ? (
+            // Render properties
+            properties.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))
+          ) : (
+            // No properties found
+            <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-12 text-center">
+              <SearchIcon className="h-16 w-16 text-gray-300 mb-4" />
+              <h3 className="text-xl font-medium mb-2">{t('search.noPropertiesFound')}</h3>
+              <p className="text-muted-foreground mb-4">{t('search.tryAdjustingFilters')}</p>
+              <Button onClick={handleReset} variant="outline">
+                {t('search.resetFilters')}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
