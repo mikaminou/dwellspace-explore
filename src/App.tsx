@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/language/LanguageContext";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
+import Map from "./pages/Map";
 import PropertyDetails from "./pages/PropertyDetails";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -26,6 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/map" element={<Map />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
