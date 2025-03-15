@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -12,6 +13,7 @@ import { useLanguage } from "@/contexts/language/LanguageContext";
 import { searchProperties } from "@/api";
 import { Property } from "@/api/properties";
 import PropertyCard from "@/components/PropertyCard";
+import { getMaxPropertyPrice, getMaxLivingArea } from "@/integrations/supabase/client";
 
 export default function Search() {
   const { t, dir } = useLanguage();
@@ -21,9 +23,11 @@ export default function Search() {
   const [listingType, setListingType] = useState<string>("any");
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(50000000);
+  const [maxPriceLimit, setMaxPriceLimit] = useState(50000000);
   const [minBeds, setMinBeds] = useState(0);
   const [minLivingArea, setMinLivingArea] = useState(0);
   const [maxLivingArea, setMaxLivingArea] = useState(500);
+  const [maxLivingAreaLimit, setMaxLivingAreaLimit] = useState(500);
   const [showFilters, setShowFilters] = useState(false);
   const [features, setFeatures] = useState({
     parking: false,
@@ -56,6 +60,26 @@ export default function Search() {
     { value: "rent", label: t('search.forRent') },
     { value: "construction", label: t('search.underConstruction') }
   ];
+
+  // Fetch max values from the database
+  useEffect(() => {
+    const fetchMaxValues = async () => {
+      try {
+        const fetchedMaxPrice = await getMaxPropertyPrice();
+        const fetchedMaxLivingArea = await getMaxLivingArea();
+        
+        // Update state with fetched max values
+        setMaxPriceLimit(fetchedMaxPrice);
+        setMaxPrice(fetchedMaxPrice);
+        setMaxLivingAreaLimit(fetchedMaxLivingArea);
+        setMaxLivingArea(fetchedMaxLivingArea);
+      } catch (error) {
+        console.error('Error fetching max values:', error);
+      }
+    };
+
+    fetchMaxValues();
+  }, []);
 
   useEffect(() => {
     const fetchAllProperties = async () => {
@@ -100,7 +124,7 @@ export default function Search() {
         maxPrice,
         minBeds: minBeds > 0 ? minBeds : undefined,
         minLivingArea: minLivingArea > 0 ? minLivingArea : undefined,
-        maxLivingArea: maxLivingArea < 500 ? maxLivingArea : undefined,
+        maxLivingArea: maxLivingArea < maxLivingAreaLimit ? maxLivingArea : undefined,
         features: selectedFeatures.length > 0 ? selectedFeatures : undefined,
         listingType: listingType !== 'any' ? listingType as 'sale' | 'rent' | 'construction' : undefined
       });
@@ -126,10 +150,10 @@ export default function Search() {
     setSelectedCity("any");
     setListingType("any");
     setMinPrice(0);
-    setMaxPrice(50000000);
+    setMaxPrice(maxPriceLimit);
     setMinBeds(0);
     setMinLivingArea(0);
-    setMaxLivingArea(500);
+    setMaxLivingArea(maxLivingAreaLimit);
     setFeatures({
       parking: false,
       furnished: false,
@@ -157,7 +181,8 @@ export default function Search() {
       if (type === 'min') {
         setMinPrice(numericValue);
       } else {
-        setMaxPrice(numericValue);
+        // Ensure max price doesn't exceed the limit from database
+        setMaxPrice(Math.min(numericValue, maxPriceLimit));
       }
     }
   };
@@ -169,7 +194,8 @@ export default function Search() {
       if (type === 'min') {
         setMinLivingArea(numericValue);
       } else {
-        setMaxLivingArea(numericValue);
+        // Ensure max living area doesn't exceed the limit from database
+        setMaxLivingArea(Math.min(numericValue, maxLivingAreaLimit));
       }
     }
   };
@@ -323,6 +349,8 @@ export default function Search() {
                     onBlur={() => {
                       if (maxPrice < minPrice) {
                         setMaxPrice(minPrice);
+                      } else if (maxPrice > maxPriceLimit) {
+                        setMaxPrice(maxPriceLimit);
                       }
                     }}
                     onKeyDown={(e) => {
@@ -338,7 +366,7 @@ export default function Search() {
               </div>
               <Slider 
                 min={0} 
-                max={50000000} 
+                max={maxPriceLimit} 
                 step={500000} 
                 value={[minPrice, maxPrice]}
                 onValueChange={([min, max]) => {
@@ -405,6 +433,8 @@ export default function Search() {
                     onBlur={() => {
                       if (maxLivingArea < minLivingArea) {
                         setMaxLivingArea(minLivingArea);
+                      } else if (maxLivingArea > maxLivingAreaLimit) {
+                        setMaxLivingArea(maxLivingAreaLimit);
                       }
                     }}
                     onKeyDown={(e) => {
@@ -420,7 +450,7 @@ export default function Search() {
               </div>
               <Slider 
                 min={0} 
-                max={500} 
+                max={maxLivingAreaLimit} 
                 step={10} 
                 value={[minLivingArea, maxLivingArea]}
                 onValueChange={([min, max]) => {
@@ -551,4 +581,3 @@ export default function Search() {
     </div>
   );
 }
-

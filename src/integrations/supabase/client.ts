@@ -90,3 +90,51 @@ export const fetchTranslations = async (locale: string) => {
     return null;
   }
 };
+
+// Get maximum price from all properties in the database
+export const getMaxPropertyPrice = async (): Promise<number> => {
+  try {
+    // First, fetch all properties to get their prices
+    const { data, error } = await supabase
+      .from('properties')
+      .select('price');
+
+    if (error) {
+      console.error('Error fetching property prices:', error);
+      return 50000000; // Default fallback
+    }
+
+    // Extract numeric values from price strings and find the maximum
+    const maxPrice = data.reduce((max, property) => {
+      const numericPrice = parseInt(property.price.replace(/[^0-9]/g, ''));
+      return !isNaN(numericPrice) && numericPrice > max ? numericPrice : max;
+    }, 0);
+
+    // Return max price or default if no valid prices found
+    return maxPrice > 0 ? maxPrice : 50000000;
+  } catch (error) {
+    console.error('Unexpected error getting max property price:', error);
+    return 50000000; // Default fallback
+  }
+};
+
+// Get maximum living area from all properties in the database
+export const getMaxLivingArea = async (): Promise<number> => {
+  try {
+    const { data, error } = await supabase
+      .from('properties')
+      .select('living_area')
+      .order('living_area', { ascending: false })
+      .limit(1);
+
+    if (error || !data.length) {
+      console.error('Error fetching max living area:', error);
+      return 500; // Default fallback
+    }
+
+    return data[0].living_area || 500;
+  } catch (error) {
+    console.error('Unexpected error getting max living area:', error);
+    return 500; // Default fallback
+  }
+};
