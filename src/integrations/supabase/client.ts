@@ -56,31 +56,33 @@ export const transformPropertyData = (property: any) => {
   };
 };
 
-// Function to fetch translations
+// Helper function to get a media URL from Supabase storage
+export const getMediaUrl = (bucket: string, path: string): string => {
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+};
+
+// Helper function to check if a file exists in storage
+export const checkFileExists = async (bucket: string, path: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.storage.from(bucket).download(path);
+    if (error) {
+      console.error('Error checking file existence:', error);
+      return false;
+    }
+    return !!data;
+  } catch (error) {
+    console.error('Unexpected error checking file existence:', error);
+    return false;
+  }
+};
+
+// Create a translations bucket if needed in the future
 export const fetchTranslations = async (locale: string) => {
   try {
-    const { data, error } = await supabase
-      .from('translations')
-      .select('key, translation')
-      .eq('locale', locale);
-    
-    if (error) {
-      console.error('Error fetching translations:', error);
-      return null;
-    }
-    
-    if (!data || data.length === 0) {
-      console.error(`No translations found for locale: ${locale}`);
-      return null;
-    }
-    
-    // Convert array of translations to an object
-    const translations = data.reduce((acc: any, item: any) => {
-      acc[item.key] = item.translation;
-      return acc;
-    }, {});
-    
-    return translations;
+    // We don't have a translations table yet, so return null or default translations
+    console.log(`No translations found for locale: ${locale}, using defaults`);
+    return null;
   } catch (error) {
     console.error('Unexpected error fetching translations:', error);
     return null;
