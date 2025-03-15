@@ -53,13 +53,21 @@ export function usePropertyMarkers({
 
       const bounds = new mapboxgl.LngLatBounds();
       let propertiesWithCoords = 0;
+      let missingCoords = 0;
 
       properties.forEach(property => {
-        if (!property.location) return;
+        if (!property.location) {
+          console.warn(`Property ${property.id} has no location information`);
+          return;
+        }
 
         try {
           const coords = generateCoordsFromLocation(property.location, property.id);
-          if (!coords) return;
+          if (!coords) {
+            console.warn(`Could not generate coordinates for property ${property.id} at location "${property.location}"`);
+            missingCoords++;
+            return;
+          }
 
           bounds.extend([coords.lng, coords.lat]);
           propertiesWithCoords++;
@@ -81,6 +89,12 @@ export function usePropertyMarkers({
           priceElement.innerText = property.price;
           markerEl.appendChild(priceElement);
 
+          // Add city name as data attribute for debugging
+          const cityMatch = property.location.match(/,\s*([^,]+)$/);
+          if (cityMatch && cityMatch[1]) {
+            priceElement.setAttribute('data-city', cityMatch[1].trim());
+          }
+
           priceElement.addEventListener('click', (e) => {
             e.stopPropagation();
             onMarkerClick(property, [coords.lng, coords.lat]);
@@ -97,6 +111,12 @@ export function usePropertyMarkers({
           padding: 50,
           maxZoom: 15
         });
+      } else {
+        console.warn('No properties with valid coordinates found');
+      }
+
+      if (missingCoords > 0) {
+        console.warn(`${missingCoords} properties are missing valid coordinates`);
       }
     } catch (error) {
       console.error('Error updating property markers:', error);
