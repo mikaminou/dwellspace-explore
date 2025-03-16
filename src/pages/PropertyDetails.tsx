@@ -180,7 +180,7 @@ export default function PropertyDetails() {
               alt={property.title}
               className="w-full h-full object-cover"
             />
-            <div className={`absolute top-4 left-4 listing-badge ${getListingTypeBadgeClass(property.listing_type)} flex items-center px-3 py-1.5`}>
+            <div className={`absolute top-4 left-4 ${getListingTypeBadgeClass(property.listing_type)} flex items-center px-3 py-1.5 rounded-full`}>
               {getListingTypeIcon()}
               <span>{getListingTypeLabel(property.listing_type)}</span>
             </div>
