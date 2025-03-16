@@ -29,7 +29,7 @@ function getCityCoordinatesFromLocation(location: string): { lat: number, lng: n
   
   // Check if the location string contains any of our known cities
   for (const city of cities) {
-    if (location.includes(city)) {
+    if (location.toLowerCase().includes(city.toLowerCase())) {
       return getCityCoordinates(city);
     }
   }

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
@@ -49,13 +50,16 @@ export function usePropertyMarkers(
     propertiesWithOwners.forEach(property => {
       let coords;
       
+      // First priority: Use actual coordinates from the database
       if (typeof property.latitude === 'number' && typeof property.longitude === 'number') {
         coords = {
           lat: property.latitude,
           lng: property.longitude
         };
         console.log(`Using actual coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
-      } else if (property.location) {
+      } 
+      // Second priority: Generate from location if coordinates not available
+      else if (property.location) {
         coords = generateCoordsFromLocation(property.location + ', ' + property.city, property.id);
         console.log(`Using generated coordinates for property ${property.id} in ${property.city}: [${coords.lng}, ${coords.lat}]`);
       } else {
