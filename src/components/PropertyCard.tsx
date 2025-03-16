@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPinIcon, BedDoubleIcon, HomeIcon, TicketIcon, BookmarkIcon, SquareIcon, TreesIcon } from "lucide-react";
+import { MapPinIcon, BedDoubleIcon, HomeIcon, BookmarkIcon, SquareIcon, TreesIcon, Building, Construction, Castle } from "lucide-react";
 import { Property } from "@/api/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 
@@ -26,15 +26,43 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     return "/img/placeholder-property.jpg";
   };
 
+  const getListingTypeIcon = (property: Property) => {
+    switch (property.listing_type?.toLowerCase()) {
+      case 'rent':
+        return <Building className="h-3 w-3 mr-1" />;
+      case 'construction':
+        return <Construction className="h-3 w-3 mr-1" />;
+      case 'commercial':
+        return <Building className="h-3 w-3 mr-1" />;
+      case 'vacation':
+        return <Castle className="h-3 w-3 mr-1" />;
+      case 'sale':
+      default:
+        return <HomeIcon className="h-3 w-3 mr-1" />;
+    }
+  };
+
   const getListingTypeColor = (property: Property): string => {
-    if (property.listing_type === 'rent') return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
-    if (property.listing_type === 'construction') return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
-    return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'; // default for sale
+    if (property.listing_type === 'rent') return 'bg-blue-500 text-white';
+    if (property.listing_type === 'construction') return 'bg-amber-500 text-white';
+    if (property.listing_type === 'commercial') return 'bg-purple-500 text-white';
+    if (property.listing_type === 'vacation') return 'bg-teal-500 text-white';
+    return 'bg-green-500 text-white'; // default for sale
+  };
+
+  const getListingTypeBorderColor = (property: Property): string => {
+    if (property.listing_type === 'rent') return 'border-blue-500';
+    if (property.listing_type === 'construction') return 'border-amber-500';
+    if (property.listing_type === 'commercial') return 'border-purple-500';
+    if (property.listing_type === 'vacation') return 'border-teal-500';
+    return 'border-green-500'; // default for sale
   };
 
   const getListingTypeText = (property: Property): string => {
     if (property.listing_type === 'rent') return t('property.forRent');
     if (property.listing_type === 'construction') return t('property.underConstruction');
+    if (property.listing_type === 'commercial') return t('property.commercial');
+    if (property.listing_type === 'vacation') return t('property.vacation');
     return t('property.forSale'); // default for sale
   };
 
@@ -43,7 +71,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   return (
     <Link 
       to={`/property/${property.id}`} 
-      className={`property-card group hover:scale-[1.02] transition-all bg-white dark:bg-card ${isPremiumProperty ? 'premium-property' : ''}`}
+      className={`property-card group hover:scale-[1.02] transition-all bg-white dark:bg-card ${isPremiumProperty ? 'premium-property' : ''} ${getListingTypeBorderColor(property)} border-2`}
     >
       <div className="relative">
         {isPremiumProperty && (
@@ -52,7 +80,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           </div>
         )}
         <Badge className={`absolute top-2 left-2 flex items-center gap-1 z-10 ${getListingTypeColor(property)}`}>
-          <TicketIcon className="h-3 w-3 mr-1" />
+          {getListingTypeIcon(property)}
           {getListingTypeText(property)}
         </Badge>
         <img
@@ -71,7 +99,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           </Button>
         </div>
       </div>
-      <div className={`p-4 border border-t-0 rounded-b-lg ${dir === 'rtl' ? 'text-right' : ''}`}>
+      <div className={`p-4 border-t-0 rounded-b-lg ${dir === 'rtl' ? 'text-right' : ''}`}>
         <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
           <h3 className={`text-lg font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{property.title}</h3>
           <span className={`${isPremiumProperty ? 'text-luxury' : 'text-primary'} font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>

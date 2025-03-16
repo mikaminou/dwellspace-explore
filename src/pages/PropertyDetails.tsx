@@ -151,7 +151,7 @@ export default function PropertyDetails() {
             />
             <div className={`absolute top-4 left-4 listing-badge ${getListingTypeBadgeClass(property.listing_type)} flex items-center px-3 py-1.5`}>
               {getListingTypeIcon()}
-              {getListingTypeLabel(property.listing_type)}
+              <span>{getListingTypeLabel(property.listing_type)}</span>
             </div>
             {property.isPremium && (
               <div className="absolute top-4 right-4 listing-badge listing-badge-premium">

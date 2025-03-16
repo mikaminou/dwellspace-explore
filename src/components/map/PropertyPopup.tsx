@@ -1,6 +1,6 @@
 
 import { Property } from "@/api/properties";
-import { formatPrice, getListingTypeBadgeClass } from './mapUtils';
+import { formatPrice } from './mapUtils';
 import { Home, Building, Construction, Castle } from 'lucide-react';
 
 interface PropertyPopupProps {
@@ -35,22 +35,41 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
     
     switch (listingType) {
       case 'rent':
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 4v4"/><path d="M16 4v4"/></svg>`;
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M1 22V9.8c0-.4.2-.8.6-1l.9-.7c.6-.5.6-1.4 0-1.8L1.6 5C1.2 4.7 1 4.3 1 3.8V2h5v20H1Z"></path><path d="M12.5 2h6.5v20h-10V9.5a1 1 0 0 1 .34-.7l3-2.5a1 1 0 0 1 1.32 0l3 2.5a1 1 0 0 1 .34.7V22"></path><path d="M12 22V14"></path><path d="M18 9h.01"></path><path d="M18 6h.01"></path><path d="M15 12h.01"></path><path d="M15 15h.01"></path><path d="M15 18h.01"></path></svg>`;
       case 'construction':
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect x="2" y="6" width="20" height="8" rx="1"/><path d="M17 14v7"/><path d="M7 14v7"/><path d="M17 3v3"/><path d="M7 3v3"/><path d="M10 14 2.3 6.3"/><path d="m14 6 7.7 7.7"/><path d="m8 6 8 8"/></svg>`;
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect x="2" y="6" width="20" height="8" rx="1"></rect><path d="M17 14v7"></path><path d="M7 14v7"></path><path d="M17 3v3"></path><path d="M7 3v3"></path><path d="M10 14 2.3 6.3"></path><path d="m14 6 7.7 7.7"></path><path d="m8 6 8 8"></path></svg>`;
       case 'commercial':
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><path d="M4 10h16"/><path d="M10 4v16"/></svg>`;
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg>`;
       case 'vacation':
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M22 20V8h-4l-6-6-6 6H2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2Z"/><path d="M6 18h.01"/><path d="M6 14h.01"/><path d="M6 10h.01"/><path d="M10 18h.01"/><path d="M10 14h.01"/><path d="M10 10h.01"/><path d="M14 18h.01"/><path d="M14 14h.01"/><path d="M14 10h.01"/><path d="M18 18h.01"/><path d="M18 14h.01"/><path d="M18 10h.01"/></svg>`;
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M22 20V8h-4l-6-6-6 6H2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2Z"></path><path d="M6 18h.01"></path><path d="M6 14h.01"></path><path d="M6 10h.01"></path><path d="M10 18h.01"></path><path d="M10 14h.01"></path><path d="M10 10h.01"></path><path d="M14 18h.01"></path><path d="M14 14h.01"></path><path d="M14 10h.01"></path><path d="M18 18h.01"></path><path d="M18 14h.01"></path><path d="M18 10h.01"></path></svg>`;
       case 'sale':
       default:
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`;
+    }
+  };
+
+  // Get listing type color for border
+  const getListingTypeBorderColor = (type: string = 'sale') => {
+    const listingType = type.toLowerCase();
+    
+    switch (listingType) {
+      case 'rent':
+        return 'border-blue-500';
+      case 'construction':
+        return 'border-amber-500';
+      case 'commercial':
+        return 'border-purple-500';
+      case 'vacation':
+        return 'border-teal-500';
+      case 'sale':
+      default:
+        return 'border-green-500';
     }
   };
 
   // Create HTML string for the popup
   return `
-    <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg" data-property-id="${property.id}">
+    <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg ${getListingTypeBorderColor(property.listing_type)} border-2" data-property-id="${property.id}">
       <div class="relative w-full h-48 bg-gray-200 overflow-hidden">
         <img 
           src="${property.featured_image_url || property.image || '/placeholder.svg'}" 
