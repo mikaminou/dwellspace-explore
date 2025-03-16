@@ -2,6 +2,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import "mapbox-gl/dist/mapbox-gl.css"; // Import Mapbox CSS FIRST to ensure styling is available
 import "./index.css";
 import "./styles/hero.css"; // Import the hero styles
 import "./styles/animations.css"; // Import animation styles

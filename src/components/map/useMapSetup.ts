@@ -5,11 +5,11 @@ import { toast } from 'sonner';
 import { Property } from '@/api/properties';
 
 // Default Mapbox token - users should replace this with their own
-mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
+const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
 
-// Check if Mapbox has been properly initialized
-if (!mapboxgl) {
-  console.error('Mapbox GL JS is not available. Check your imports and dependencies.');
+// Set token explicitly before any map is created
+if (mapboxgl) {
+  mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 }
 
 export function useMapSetup() {
@@ -25,63 +25,68 @@ export function useMapSetup() {
     if (!mapContainer.current || map.current) return;
 
     try {
-      // Verify that mapboxgl is available before attempting to use it
-      if (!mapboxgl || !mapboxgl.Map) {
-        throw new Error('Mapbox GL JS is not properly loaded');
+      // Verify that mapboxgl is available
+      if (!mapboxgl) {
+        console.error('Mapbox GL JS is not available');
+        setMapError(new Error('Mapbox GL JS is not properly loaded'));
+        return;
       }
 
       // Ensure access token is set
       if (!mapboxgl.accessToken) {
-        console.warn('Mapbox access token is not set. Map functionality will be limited.');
-        mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
+        console.warn('Setting default Mapbox access token');
+        mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
       }
       
       console.log('Initializing map with token:', mapboxgl.accessToken);
       
       // Create the map instance with safe default values
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [3.042048, 36.752887], // Default center (Algiers)
-        zoom: 12,
-        attributionControl: false,
-        failIfMajorPerformanceCaveat: false // Helps with some devices
-      });
+      // Defer map creation to the next tick to ensure DOM is ready
+      setTimeout(() => {
+        try {
+          map.current = new mapboxgl.Map({
+            container: mapContainer.current,
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [3.042048, 36.752887], // Default center (Algiers)
+            zoom: 12,
+            attributionControl: false,
+            failIfMajorPerformanceCaveat: false // Helps with some devices
+          });
 
-      // Safely add controls after ensuring map is created
-      if (map.current) {
-        // Add navigation controls
-        const nav = new mapboxgl.NavigationControl();
-        map.current.addControl(nav, 'top-right');
-        
-        const fullscreen = new mapboxgl.FullscreenControl();
-        map.current.addControl(fullscreen);
-        
-        const geolocate = new mapboxgl.GeolocateControl({
-          positionOptions: {
-            enableHighAccuracy: true
-          },
-          trackUserLocation: true
-        });
-        map.current.addControl(geolocate);
+          // Safely add controls after ensuring map is created
+          if (map.current) {
+            // Add navigation controls
+            map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+            map.current.addControl(new mapboxgl.FullscreenControl());
+            map.current.addControl(new mapboxgl.GeolocateControl({
+              positionOptions: {
+                enableHighAccuracy: true
+              },
+              trackUserLocation: true
+            }));
 
-        // Add attribution control in the bottom-right
-        const attribution = new mapboxgl.AttributionControl();
-        map.current.addControl(attribution, 'bottom-right');
+            // Add attribution control in the bottom-right
+            map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
 
-        // Set map loaded state when the map is ready
-        map.current.on('load', () => {
-          console.log('Map loaded successfully');
-          setMapLoaded(true);
-        });
+            // Set map loaded state when the map is ready
+            map.current.on('load', () => {
+              console.log('Map loaded successfully');
+              setMapLoaded(true);
+            });
 
-        // Handle map error
-        map.current.on('error', (e) => {
-          console.error('Map error:', e);
-          setMapError(e.error || new Error('Unknown map error'));
-          toast.error('There was a problem loading the map');
-        });
-      }
+            // Handle map error
+            map.current.on('error', (e) => {
+              console.error('Map error:', e);
+              setMapError(e.error || new Error('Unknown map error'));
+              toast.error('There was a problem loading the map');
+            });
+          }
+        } catch (initError) {
+          console.error('Error in map initialization:', initError);
+          setMapError(initError instanceof Error ? initError : new Error(String(initError)));
+          toast.error('Failed to initialize map');
+        }
+      }, 0);
 
       // Clean up on unmount
       return () => {

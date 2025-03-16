@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -10,12 +10,28 @@ import { usePropertyMarkers } from './usePropertyMarkers';
 import { usePropertyPopup } from './usePropertyPopup';
 import { useCitySelection } from './useCitySelection';
 import { usePropertiesWithOwners } from './usePropertiesWithOwners';
+import { AlertTriangle } from 'lucide-react';
 
 function MapView() {
   const navigate = useNavigate();
-  const { mapContainer, map, mapLoaded } = useMapSetup();
+  const { mapContainer, map, mapLoaded, mapError } = useMapSetup();
   const { properties, loading, selectedCity } = useSearch();
+  const [mapUnavailable, setMapUnavailable] = useState(false);
   
+  // Check if Mapbox is available
+  useEffect(() => {
+    try {
+      const mapboxCheck = require('mapbox-gl');
+      if (!mapboxCheck) {
+        setMapUnavailable(true);
+        console.error("Mapbox GL not available");
+      }
+    } catch (e) {
+      setMapUnavailable(true);
+      console.error("Error importing Mapbox GL:", e);
+    }
+  }, []);
+
   // Handle property save
   const handleSaveProperty = (propertyId: number) => {
     console.log('Saving property:', propertyId);
@@ -52,6 +68,24 @@ function MapView() {
 
   // Handle city selection
   useCitySelection({ map, mapLoaded, selectedCity });
+
+  // If map is unavailable, show a fallback UI
+  if (mapUnavailable || mapError) {
+    return (
+      <div className="flex-1 w-full flex flex-col items-center justify-center p-8 bg-muted/20">
+        <div className="bg-white dark:bg-card p-6 rounded-lg shadow-lg max-w-md text-center">
+          <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 mb-4" />
+          <h3 className="text-xl font-semibold mb-2">Map unavailable</h3>
+          <p className="text-muted-foreground mb-4">
+            {mapError ? mapError.message : "The map couldn't be loaded. This might be due to network issues or an unsupported browser."}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Try using a different browser or check your internet connection.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex-1 w-full">
