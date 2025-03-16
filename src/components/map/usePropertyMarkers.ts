@@ -16,6 +16,7 @@ export function usePropertyMarkers(
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
   const markerCoordinates = useRef<{ [key: number]: [number, number] }>({});
+  const isRepositioning = useRef(false);
 
   const updateMarkerZIndex = (propertyId: number | null) => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
@@ -29,16 +30,23 @@ export function usePropertyMarkers(
     }
   };
 
-  // Function to reposition markers to their original coordinates
+  // Function to reset markers to their original coordinates
   const repositionMarkers = () => {
-    if (!map.current) return;
+    if (!map.current || isRepositioning.current) return;
     
-    Object.entries(markerCoordinates.current).forEach(([id, coords]) => {
-      const marker = markersRef.current[Number(id)];
-      if (marker) {
-        marker.setLngLat(coords);
-      }
-    });
+    isRepositioning.current = true;
+    
+    try {
+      Object.entries(markerCoordinates.current).forEach(([id, coords]) => {
+        const marker = markersRef.current[Number(id)];
+        if (marker) {
+          marker.setLngLat(coords);
+        }
+      });
+    } finally {
+      // Ensure we always reset the flag
+      isRepositioning.current = false;
+    }
   };
 
   useEffect(() => {
@@ -84,7 +92,7 @@ export function usePropertyMarkers(
 
       if (!coords) return;
 
-      // Store original coordinates for repositioning
+      // Store original coordinates for repositioning - crucial for stability
       const lngLat: [number, number] = [coords.lng, coords.lat];
       markerCoordinates.current[property.id] = lngLat;
 
@@ -109,13 +117,12 @@ export function usePropertyMarkers(
         })
       );
       
-      // Create the marker with proper alignment settings
+      // Create the marker with enhanced stability settings
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
-        offset: [0, 0],
+        offset: [0, 0],  // No offset to reduce positioning issues
         clickTolerance: 10,
-        // Using viewport alignment for better stability across zoom levels
         pitchAlignment: 'viewport',
         rotationAlignment: 'viewport'
       })
@@ -133,17 +140,31 @@ export function usePropertyMarkers(
       });
     }
 
+    // Add a SINGLE event handler for all map movements
+    // This is more efficient than multiple handlers
+    const handleMapMove = () => {
+      window.requestAnimationFrame(repositionMarkers);
+    };
+
     // Add event listeners for repositioning markers
-    map.current.on('zoom', repositionMarkers);
-    map.current.on('move', repositionMarkers);
+    map.current.on('zoom', handleMapMove);
+    map.current.on('pitch', handleMapMove);
+    map.current.on('rotate', handleMapMove);
+    map.current.on('move', handleMapMove);
+
+    // Additional reposition after movement ends
     map.current.on('moveend', repositionMarkers);
+    map.current.on('zoomend', repositionMarkers);
 
     return () => {
       // Clean up event listeners when component unmounts
       if (map.current) {
-        map.current.off('zoom', repositionMarkers);
-        map.current.off('move', repositionMarkers);
+        map.current.off('zoom', handleMapMove);
+        map.current.off('pitch', handleMapMove);
+        map.current.off('rotate', handleMapMove);
+        map.current.off('move', handleMapMove);
         map.current.off('moveend', repositionMarkers);
+        map.current.off('zoomend', repositionMarkers);
       }
     };
   }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup]);
