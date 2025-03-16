@@ -9,11 +9,11 @@ export interface Property {
   price: string;
   location: string;
   city: string;
-  street_name?: string;
+  street_name: string;
   streetName?: string; // Added to match data model
   beds: number;
   baths?: number;
-  living_area?: number;
+  living_area: number;
   livingArea?: number; // Added to match data model
   plot_area?: number;
   plotArea?: number; // Added to match data model
@@ -37,9 +37,9 @@ export interface Property {
   postal_code?: number;
   postalCode?: number; // Added to match data model
   created_at: string;
-  createdAt?: number; // Added to match data model
+  createdAt?: string; // Changed to string to match the API
   updated_at: string;
-  updatedAt?: number; // Added to match data model
+  updatedAt?: string; // Changed to string to match the API
   agent?: Agent;
   owner?: Agent; // Added to support components using owner
   image?: string;

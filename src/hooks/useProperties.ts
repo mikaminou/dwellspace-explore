@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { getAllProperties, searchProperties, getPropertyById } from '@/api';
 import { Property } from '@/api/properties';
@@ -18,6 +19,7 @@ export function useProperties() {
         let owner = undefined;
         
         if (property.owner_id) {
+          // Convert number to string for getAgentById
           owner = await getAgentById(String(property.owner_id));
         }
         
@@ -49,6 +51,7 @@ export function useProperties() {
       const propertyData = await getPropertyById(id);
       
       if (propertyData && propertyData.owner_id) {
+        // Convert number to string for getAgentById
         const ownerData = await getAgentById(String(propertyData.owner_id));
         if (ownerData) {
           return { 
@@ -103,6 +106,7 @@ export function useProperties() {
         let owner = undefined;
         
         if (property.owner_id) {
+          // Convert number to string for getAgentById
           owner = await getAgentById(String(property.owner_id));
         }
         

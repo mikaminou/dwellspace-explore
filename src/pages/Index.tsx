@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useProperties } from "@/hooks/useProperties";
-import { Property } from "@/data/properties";
+import { Property } from "@/api/properties";
 import PropertyCard from "@/components/PropertyCard";
 
 const VIDEO_BUCKET = "herosection";
@@ -44,7 +44,8 @@ export default function Index() {
 
   const { properties, loading, error } = useProperties();
   
-  const allProperties = properties.length > 0 ? properties : mockProperties;
+  // Use properties as is, no need for mockProperties
+  const allProperties = properties;
   
   const premiumProperties = allProperties.filter((p: Property) => 
     (p.isPremium === true) || 
@@ -290,7 +291,7 @@ export default function Index() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {premiumProperties.map((property) => (
-                <PropertyCard key={property.id} property={property as Property} />
+                <PropertyCard key={property.id} property={property} />
               ))}
             </div>
           )}
@@ -325,7 +326,7 @@ export default function Index() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProperties.map((property) => (
-              <PropertyCard key={property.id} property={property as Property} />
+              <PropertyCard key={property.id} property={property} />
             ))}
           </div>
         )}

@@ -1,9 +1,11 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export type Agent = {
   id: string;
   first_name: string;
   last_name: string;
+  name?: string; // Added name field for compatibility with components
   avatar_url: string | null;
   phone_number: string | null;
   email: string | null;
@@ -26,7 +28,11 @@ export const getAllAgents = async (): Promise<Agent[]> => {
       return [];
     }
 
-    return data || [];
+    // Add the name field derived from first_name and last_name
+    return data?.map(agent => ({
+      ...agent,
+      name: `${agent.first_name || ''} ${agent.last_name || ''}`.trim()
+    })) || [];
   } catch (error) {
     console.error('Unexpected error fetching agents:', error);
     return [];
@@ -48,7 +54,15 @@ export const getAgentById = async (id: string): Promise<Agent | null> => {
       return null;
     }
 
-    return data;
+    if (data) {
+      // Add the name field derived from first_name and last_name
+      return {
+        ...data,
+        name: `${data.first_name || ''} ${data.last_name || ''}`.trim()
+      };
+    }
+
+    return null;
   } catch (error) {
     console.error(`Unexpected error fetching agent with ID ${id}:`, error);
     return null;
@@ -93,10 +107,13 @@ export const getOwnersForProperties = async (propertyIds: number[]): Promise<{[k
       return {};
     }
 
-    // Create a map of owner_id to profile
+    // Create a map of owner_id to profile, adding the name field
     const ownerMap: {[key: string]: Agent} = {};
     owners.forEach((owner) => {
-      ownerMap[owner.id] = owner;
+      ownerMap[owner.id] = {
+        ...owner,
+        name: `${owner.first_name || ''} ${owner.last_name || ''}`.trim()
+      };
     });
 
     // Finally, create a map of property_id to owner
