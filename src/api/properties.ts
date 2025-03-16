@@ -61,7 +61,14 @@ export const getAllProperties = async (): Promise<Property[]> => {
     }
 
     // Transform and normalize the data
-    return data.map(transformPropertyData);
+    return data.map(item => {
+      const property = transformPropertyData(item);
+      // Ensure street_name is always present
+      if (!property.street_name) {
+        property.street_name = property.streetName || '';
+      }
+      return property as Property;
+    });
   } catch (error) {
     console.error('Unexpected error fetching properties:', error);
     return [];
@@ -83,7 +90,12 @@ export const getPropertyById = async (id: string | number): Promise<Property | n
     }
 
     // Transform the data to ensure consistent property structure
-    return transformPropertyData(data);
+    const property = transformPropertyData(data);
+    // Ensure street_name is always present
+    if (!property.street_name) {
+      property.street_name = property.streetName || '';
+    }
+    return property as Property;
   } catch (error) {
     console.error(`Unexpected error fetching property with ID ${id}:`, error);
     return null;
@@ -155,7 +167,14 @@ export const searchProperties = async (
 
     // Transform and filter the results
     return data
-      .map(transformPropertyData)
+      .map(item => {
+        const property = transformPropertyData(item);
+        // Ensure street_name is always present
+        if (!property.street_name) {
+          property.street_name = property.streetName || '';
+        }
+        return property as Property;
+      })
       .filter(property => {
         // Extract numeric value from price string
         const numericPrice = parseInt(property.price.replace(/[^0-9]/g, ''));
