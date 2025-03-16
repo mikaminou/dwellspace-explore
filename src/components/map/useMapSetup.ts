@@ -6,7 +6,7 @@ import { Property } from '@/api/properties';
 
 // Default Mapbox token - this should be replaced with a valid token
 // Users should create their own token at https://account.mapbox.com/
-const MAPBOX_TOKEN = 'pk.eyJ1IjoibG92YWJsZS1kZXYiLCJhIjoiY2xzcXNzaGR4MGlkYjJrbXBqdHl3enlhYSJ9.a0n6AsLDOr-5z8BMOOJm8w';
+const MAPBOX_TOKEN = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
 
 // Use the token
 mapboxgl.accessToken = MAPBOX_TOKEN;
