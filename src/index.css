@@ -299,6 +299,11 @@ html[dir="rtl"] .text-right {
   display: inline-block;
   white-space: nowrap;
   user-select: none;
+  transition: transform 0.2s ease;
+}
+
+.price-bubble:hover {
+  transform: scale(1.05);
 }
 
 /* Property popup styling */
@@ -314,11 +319,23 @@ html[dir="rtl"] .text-right {
 .mapboxgl-popup-content {
   padding: 0 !important;
   overflow: hidden;
-  border-radius: 10px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  width: 320px;
+  max-width: 90vw;
 }
 
 .property-popup-content {
-  border-radius: 8px;
-  padding: 12px !important; /* Add more padding as requested */
+  width: 100%;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.property-popup-content img {
+  transition: transform 0.3s ease;
+}
+
+.property-popup-content:hover img {
+  transform: scale(1.05);
 }
