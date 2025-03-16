@@ -9,7 +9,7 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   if (cityCoords) {
     // Generate slightly different coordinates based on the id to spread markers within the city
     // Using a deterministic but small offset to avoid extreme displacements
-    const offset = 0.01; // Small offset in degrees
+    const offset = 0.005; // Smaller offset in degrees to keep markers closer together
     const idHash = Math.abs(Math.sin(id * 0.1)) * offset; // Normalize the offset
     
     return {
@@ -20,7 +20,7 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   
   // Fallback to Algiers if no city is detected
   const baseCoords = { lat: 36.752887, lng: 3.042048 };
-  const offset = 0.01; // Small offset in degrees
+  const offset = 0.005; // Smaller offset in degrees
   const idHash = Math.abs(Math.sin(id * 0.1)) * offset; // Normalize the offset
   
   return {
@@ -31,28 +31,30 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
 
 // Ensure longitude stays within -180 to 180 degrees
 function restrictLongitude(lng: number): number {
-  // Use modulo to wrap the longitude value
-  let wrapped = ((lng + 180) % 360) - 180;
-  
-  // Handle negative modulo edge case
-  if (wrapped < -180) wrapped += 360;
-  
-  return wrapped;
+  // Simple clamping approach for more stable results
+  return Math.max(-179.9, Math.min(179.9, lng));
 }
 
 // Ensure latitude stays within -85 to 85 degrees (mapbox limits)
 function restrictLatitude(lat: number): number {
-  return Math.max(-85, Math.min(85, lat));
+  return Math.max(-84.9, Math.min(84.9, lat));
 }
 
 // Helper function to extract city from location string
 function getCityCoordinatesFromLocation(location: string): { lat: number, lng: number } | null {
-  const cities = Object.keys(getCitiesCoordinates());
+  const cities = getCitiesCoordinates();
+  const locationLower = location.toLowerCase();
   
   // Check if the location string contains any of our known cities
-  for (const city of cities) {
-    if (location.toLowerCase().includes(city.toLowerCase())) {
-      return getCityCoordinates(city);
+  for (const [cityName, coords] of Object.entries(cities)) {
+    // More aggressive match with various forms of the city name
+    if (
+      locationLower.includes(cityName.toLowerCase()) || 
+      locationLower.includes(cityName.toLowerCase().replace(' ', '')) ||
+      locationLower.includes(cityName.toLowerCase().replace('-', ' ')) ||
+      locationLower.includes(cityName.toLowerCase().replace(' ', '-'))
+    ) {
+      return coords;
     }
   }
   
@@ -63,7 +65,21 @@ function getCityCoordinatesFromLocation(location: string): { lat: number, lng: n
 // In a real app, you would have this data in your database
 export function getCityCoordinates(city: string): { lat: number, lng: number } | null {
   const cities = getCitiesCoordinates();
-  return cities[city] || null;
+  
+  // Try exact match first
+  if (cities[city]) {
+    return cities[city];
+  }
+  
+  // If not found, try case-insensitive match
+  const cityLower = city.toLowerCase();
+  for (const [name, coords] of Object.entries(cities)) {
+    if (name.toLowerCase() === cityLower) {
+      return coords;
+    }
+  }
+  
+  return null;
 }
 
 // Centralized function to get all cities coordinates

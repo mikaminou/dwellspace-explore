@@ -27,8 +27,11 @@ export function useMapSetup() {
       renderWorldCopies: false,      // Critical: Prevents markers from duplicating across antimeridian
       boxZoom: true,                 // Enables box zoom for better control
       fadeDuration: 0,               // Reduces marker position changes during zoom
+      maxZoom: 16,                   // Prevent extreme zooming
+      minZoom: 3,                    // Prevent extreme zooming out to limit distortion
       maxBounds: [[-180, -85], [180, 85]], // Restrict panning to prevent extreme distortion
-      antialias: true                // Smoother rendering
+      antialias: true,               // Smoother rendering
+      preserveDrawingBuffer: true    // Helps with canvas stability
     });
 
     // Add navigation controls
