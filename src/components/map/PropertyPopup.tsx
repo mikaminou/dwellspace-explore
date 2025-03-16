@@ -1,4 +1,3 @@
-
 import { Property } from "@/api/properties";
 import { formatPrice } from './mapUtils';
 import { Home, Building, Construction, Castle } from 'lucide-react';
@@ -86,6 +85,25 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
     }
   };
 
+  // Get price tag color based on listing type
+  const getListingTypePriceTagClass = (type: string = 'sale') => {
+    const listingType = type.toLowerCase();
+    
+    switch (listingType) {
+      case 'rent':
+        return 'bg-blue-500 text-white';
+      case 'construction':
+        return 'bg-amber-500 text-white';
+      case 'commercial':
+        return 'bg-purple-500 text-white';
+      case 'vacation':
+        return 'bg-teal-500 text-white';
+      case 'sale':
+      default:
+        return 'bg-green-500 text-white';
+    }
+  };
+
   // Create HTML string for the popup
   return `
     <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg ${getListingTypeBorderColor(property.listing_type)} border-2" data-property-id="${property.id}">
@@ -103,8 +121,8 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
             ${getListingTypeIcon()}
             ${property.listing_type}
           </div>` : ''}
-        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
-          <span class="text-primary font-bold text-sm">${property.price}</span>
+        <div class="absolute top-3 left-3 ${getListingTypePriceTagClass(property.listing_type)} px-3 py-1.5 rounded-full shadow-md">
+          <span class="font-bold text-sm">${property.price}</span>
         </div>
       </div>
       <div class="p-4 bg-white">
