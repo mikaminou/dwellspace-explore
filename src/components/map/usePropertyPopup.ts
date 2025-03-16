@@ -43,7 +43,10 @@ export function usePropertyPopup(
       closeOnClick: false,
       closeButton: false,
       maxWidth: '320px',
-      className: 'property-popup-container'
+      className: 'property-popup-container',
+      focusAfterOpen: false, // Don't focus the popup after opening to prevent unintended keyboard interactions
+      anchor: 'bottom', // Position the popup below the point
+      offset: [0, -10] // Slight offset to position it better
     })
       .setLngLat(coordinates)
       .setHTML(`<div id="property-popup-${property.id}" class="property-popup"></div>`)

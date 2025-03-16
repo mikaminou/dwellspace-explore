@@ -20,10 +20,12 @@ export function useMapSetup() {
     // Create the map instance
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
+      style: 'mapbox://styles/mapbox/streets-v12', // Updated to latest style
       center: [3.042048, 36.752887], // Default center (Algiers)
       zoom: 12,
-      attributionControl: false
+      attributionControl: false,
+      pitchWithRotate: true, // Enable pitch with rotate
+      antialias: true // Enable antialiasing for smoother rendering
     });
 
     // Add navigation controls
@@ -33,15 +35,18 @@ export function useMapSetup() {
       positionOptions: {
         enableHighAccuracy: true
       },
-      trackUserLocation: true
+      trackUserLocation: true,
+      showAccuracyCircle: true // Show accuracy circle
     }));
 
     // Add attribution control in the bottom-right
-    map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
+    map.current.addControl(new mapboxgl.AttributionControl({
+      customAttribution: 'Property Listings'
+    }), 'bottom-right');
 
     // Set map loaded state when the map is ready
     map.current.on('load', () => {
-      console.log('Map loaded successfully');
+      console.log('Map loaded successfully with Mapbox GL version:', mapboxgl.version);
       setMapLoaded(true);
     });
 

@@ -25,7 +25,10 @@ export function useCityUpdate(
       map.current.flyTo({
         center: [cityCoords.lng, cityCoords.lat],
         zoom: 12,
-        essential: true
+        essential: true,
+        duration: 1500, // Smoother transition
+        bearing: 0,
+        pitch: 0
       });
       
       // Update the previous city reference
