@@ -443,4 +443,49 @@ export const properties: Property[] = [
     listingType: "construction",
     listing_type: "construction",
     description: "A unique eco-friendly house under construction in the beautiful Timimoun Oasis. This property is designed to blend seamlessly with the desert landscape and features sustainable building materials, solar power, and a rainwater harvesting system. The house includes a spacious living area, a modern kitchen, and a private garden with desert views.",
-    yearBuilt:
+    yearBuilt: 2023,
+    year_built: 2023,
+    features: [
+      "Solar power system",
+      "Rainwater harvesting",
+      "Desert garden",
+      "Sustainable materials",
+      "Natural cooling",
+      "Energy efficient",
+      "Desert views",
+      "Eco-friendly design"
+    ],
+    additionalDetails: "Property taxes: 35,000 DZD/year. Off-grid with complete energy independence.",
+    additional_details: "Property taxes: 35,000 DZD/year. Off-grid with complete energy independence.",
+    image: "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1604014438646-638d3b8c6bf0?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1601084881623-cdf9a8ea8c2d?auto=format&fit=crop&q=80"
+    ],
+    featured_image_url: "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
+    gallery_image_urls: [
+      "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1604014438646-638d3b8c6bf0?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1601084881623-cdf9a8ea8c2d?auto=format&fit=crop&q=80"
+    ],
+    featuredImageUrl: "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
+    galleryImageUrls: [
+      "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1604014438646-638d3b8c6bf0?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1601084881623-cdf9a8ea8c2d?auto=format&fit=crop&q=80"
+    ],
+    agent: agents[4],
+    owner: agents[4],
+    longitude: 0.23333,
+    latitude: 29.2667,
+    ownerId: 5,
+    owner_id: 5
+  }
+];
