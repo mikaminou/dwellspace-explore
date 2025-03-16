@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Building, Home, Landmark, MapPin } from 'lucide-react';
 import { 
   HoverCard,
@@ -67,108 +67,18 @@ export function PropertyMarker({
   baths,
   area
 }: PropertyMarkerProps) {
-  console.log(`[PropertyMarker] Rendering marker with price: ${price}, type: ${propertyType}`);
-  
   // Format price for display
   const displayPrice = formatPrice(price);
   const typeIcon = getPropertyTypeIcon(propertyType);
-  const markerRef = useRef<HTMLDivElement>(null);
   
-  // Add effect to fix visibility issues
-  useEffect(() => {
-    console.log('[PropertyMarker] Component mounted', { 
-      price, 
-      propertyType, 
-      element: markerRef.current 
-    });
-    
-    // Force visibility with a slight delay to ensure DOM is ready
-    const forceVisibility = () => {
-      if (markerRef.current) {
-        // Apply direct styles to override any potential CSS conflicts
-        markerRef.current.style.display = 'block';
-        markerRef.current.style.visibility = 'visible';
-        markerRef.current.style.opacity = '1';
-        markerRef.current.style.pointerEvents = 'auto';
-        markerRef.current.style.zIndex = '99999'; // Extremely high z-index
-        
-        // Find and force visibility of price bubble inside the marker
-        const priceBubble = markerRef.current.querySelector('.price-bubble');
-        if (priceBubble instanceof HTMLElement) {
-          priceBubble.style.display = 'inline-flex';
-          priceBubble.style.visibility = 'visible';
-          priceBubble.style.opacity = '1';
-          priceBubble.style.zIndex = '99999';
-          priceBubble.style.transform = 'scale(2.0)'; // Make it much larger
-          priceBubble.style.background = 'red'; // Change to a very noticeable color
-          priceBubble.style.padding = '10px 20px';
-          priceBubble.style.border = '4px solid white';
-          priceBubble.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
-        }
-        
-        const rect = markerRef.current.getBoundingClientRect();
-        console.log('[PropertyMarker] Element position after force visibility:', rect);
-      }
-    };
-    
-    // Force visibility immediately and then again after a delay
-    forceVisibility();
-    setTimeout(forceVisibility, 500);
-    setTimeout(forceVisibility, 2000);
-  }, [price, propertyType]);
-  
-  const handleClick = (e: React.MouseEvent) => {
-    console.log('[PropertyMarker] Marker clicked', e);
-    e.stopPropagation();
-    onClick();
-  };
-
   return (
     <div 
-      ref={markerRef}
       className="marker-wrapper" 
-      onClick={handleClick}
-      style={{ 
-        zIndex: 99999, 
-        pointerEvents: 'auto',
-        position: 'relative',
-        cursor: 'pointer',
-        backgroundColor: 'transparent',
-        padding: '5px',
-        display: 'block',
-        visibility: 'visible',
-        opacity: 1,
-        transform: 'scale(2.0)', // Make it twice as large
-        transformOrigin: 'center bottom'
-      }}
+      onClick={onClick}
     >
       <HoverCard>
         <HoverCardTrigger asChild>
-          <div 
-            className="price-bubble"
-            style={{ 
-              pointerEvents: 'auto',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              whiteSpace: 'nowrap',
-              zIndex: 99999,
-              position: 'relative',
-              border: '4px solid white', // Much more visible border
-              backgroundColor: 'red', // Change to red for better visibility
-              color: 'white',
-              padding: '10px 20px', // Larger padding
-              borderRadius: '999px',
-              boxShadow: '0 0 20px rgba(0,0,0,0.5)', // More prominent shadow
-              fontWeight: 700,
-              fontSize: '16px', // Larger font
-              transform: 'scale(2.0)', // Make much larger
-              visibility: 'visible',
-              opacity: 1
-            }}
-            onClick={handleClick}
-          >
+          <div className="price-bubble" onClick={onClick}>
             <div className="flex items-center gap-1">
               {typeIcon}
               <span>{displayPrice}</span>

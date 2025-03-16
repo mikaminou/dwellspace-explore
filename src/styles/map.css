@@ -2,110 +2,87 @@
 /* Custom marker styles */
 .mapboxgl-marker {
   cursor: pointer !important;
-  z-index: 99999 !important; /* ULTRA high z-index */
+  z-index: 2 !important;
   transition: transform 0.2s ease;
   position: relative !important;
   pointer-events: auto !important;
-  opacity: 1 !important; /* Ensure markers are visible */
-  visibility: visible !important; /* Ensure markers are visible */
-  display: block !important; /* Ensure markers are visible */
-  transform: scale(2) !important; /* Make all markers larger */
 }
 
 .mapboxgl-marker:hover {
-  z-index: 999999 !important; /* Even higher z-index on hover */
-  transform: scale(2.2) !important;
+  z-index: 3 !important;
+  transform: scale(1.1) !important;
 }
 
 /* Ensure the markers container itself is visible */
 .mapboxgl-markers {
-  z-index: 99999 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  display: block !important;
+  z-index: 1 !important;
   pointer-events: auto !important;
 }
 
 .custom-marker-container {
   transform: translateY(-50%);
   cursor: pointer !important;
-  display: block !important; /* Force display */
+  display: block !important;
   width: auto;
-  z-index: 99999 !important; /* ULTRA high z-index */
   pointer-events: auto !important;
   position: relative !important;
-  opacity: 1 !important; /* Ensure markers are visible */
-  visibility: visible !important; /* Ensure markers are visible */
-  min-width: 150px; /* Much wider for visibility */
-  min-height: 80px; /* Much taller for visibility */
-  background-color: transparent;
 }
 
 .marker-react-container {
   position: relative !important;
-  z-index: 999999 !important; /* ULTRA high z-index */
+  z-index: 2 !important;
   pointer-events: auto !important;
   cursor: pointer !important;
-  display: block !important; /* Force display */
-  opacity: 1 !important; /* Ensure markers are visible */
-  visibility: visible !important; /* Ensure markers are visible */
+  display: block !important;
   background-color: transparent;
 }
 
 .price-bubble {
-  display: inline-flex !important; /* Force display */
+  display: inline-flex !important;
   white-space: nowrap;
   user-select: none;
   transition: all 0.2s ease;
   pointer-events: auto !important;
-  background-color: red !important; /* Force red for visibility */
+  background-color: #ef4444 !important;
   color: white !important;
-  padding: 10px 20px !important; /* Larger padding */
+  padding: 6px 12px !important;
   border-radius: 999px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important; /* Stronger shadow */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
   font-weight: 700 !important;
-  font-size: 16px !important; /* Larger font */
-  z-index: 999999 !important; /* ULTRA high z-index */
-  opacity: 1 !important; /* Ensure markers are visible */
-  visibility: visible !important; /* Ensure markers are visible */
-  border: 4px solid white !important; /* More visible border */
+  font-size: 14px !important;
+  border: 2px solid white !important;
   position: relative !important;
-  transform: scale(2.0) !important; /* Make bubbles much larger */
 }
 
 .price-bubble:hover {
-  transform: scale(2.2) !important;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6) !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Fallback price bubble with even higher visibility */
+/* Fallback price bubble */
 .fallback-price-bubble {
   display: inline-flex !important;
   white-space: nowrap;
   user-select: none;
-  background-color: red !important;
+  background-color: #ef4444 !important;
   color: white !important;
-  padding: 15px 25px !important;
+  padding: 6px 12px !important;
   border-radius: 999px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
   font-weight: 700 !important;
-  font-size: 20px !important;
-  z-index: 999999 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  border: 4px solid white !important;
+  font-size: 14px !important;
+  border: 2px solid white !important;
   position: relative !important;
-  transform: scale(2.0) !important;
 }
 
 /* Property popup styling */
 .property-popup-container {
   margin-top: -10px;
-  z-index: 999999 !important; /* Higher z-index */
+  z-index: 10 !important;
 }
 
 .mapboxgl-popup {
-  z-index: 999999 !important; /* Higher z-index */
+  z-index: 10 !important;
 }
 
 .mapboxgl-popup-content {
@@ -117,7 +94,7 @@
 
 .property-popup-content {
   border-radius: 8px;
-  padding: 16px !important; /* Add more padding */
+  padding: 16px !important;
 }
 
 /* Hover card tooltip for markers */
@@ -129,44 +106,30 @@
   font-size: 13px;
   pointer-events: none;
   max-width: 250px;
-  z-index: 999999 !important; /* Very high z-index */
+  z-index: 10 !important;
 }
 
 /* Fix for HoverCard positioning in markers */
 .custom-marker .hover-card-content {
   position: absolute;
-  z-index: 999999 !important; /* Very high z-index */
+  z-index: 10 !important;
 }
 
 /* Ensure hover card content appears on top */
 [data-radix-popper-content-wrapper] {
-  z-index: 999999 !important; /* Very high z-index */
+  z-index: 10 !important;
 }
 
 /* Make sure marker elements are clickable */
 .marker-wrapper {
   position: relative;
-  z-index: 99999 !important; /* ULTRA high z-index */
+  z-index: 2 !important;
   pointer-events: auto !important;
   cursor: pointer !important;
-  display: block !important; /* Force display */
-  opacity: 1 !important; /* Ensure markers are visible */
-  visibility: visible !important; /* Ensure markers are visible */
-  transform: scale(2.0) !important; /* Make all markers larger */
+  display: block !important;
 }
 
 /* Fix for React created markers */
 .mapboxgl-canvas-container {
   z-index: 1;
-}
-
-/* Debug styles - highly visible */
-.debug-marker {
-  border: 3px dashed red !important;
-  background-color: rgba(255, 0, 0, 0.2) !important;
-}
-
-/* Override marker transforms for debugging */
-.mapboxgl-marker .debug-marker {
-  transform: none !important;
 }
