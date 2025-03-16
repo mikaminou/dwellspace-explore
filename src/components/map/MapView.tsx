@@ -27,13 +27,23 @@ function MapView() {
       console.log('[MapView] No mapboxgl token is set');
     }
     
-    // Debug DOM elements
+    // Debug DOM elements - checking for marker visibility
     setTimeout(() => {
       const mapContainer = document.querySelector('.mapboxgl-map');
       console.log('[MapView] Mapbox container element exists:', !!mapContainer);
       
       const markers = document.querySelectorAll('.mapboxgl-marker');
       console.log('[MapView] Number of marker elements in DOM:', markers.length);
+      
+      if (markers.length > 0) {
+        console.log('[MapView] First marker styles:', window.getComputedStyle(markers[0]));
+      }
+      
+      const customMarkers = document.querySelectorAll('.custom-marker-container');
+      console.log('[MapView] Number of custom marker containers:', customMarkers.length);
+      
+      const priceBubbles = document.querySelectorAll('.price-bubble');
+      console.log('[MapView] Number of price bubbles:', priceBubbles.length);
       
       // Log viewport dimensions
       console.log('[MapView] Window dimensions:', {

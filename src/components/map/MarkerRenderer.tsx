@@ -19,16 +19,19 @@ export const renderPropertyMarker = (
   
   console.log(`[MarkerRenderer] Starting to render marker for property ${property.id} at ${coordinates.lat}, ${coordinates.lng}`);
   
-  // Create a DOM element for the marker
+  // Create a DOM element for the marker with EXTREME visibility settings
   const markerEl = document.createElement('div');
   markerEl.className = 'custom-marker-container';
-  markerEl.style.zIndex = '1000'; // Very high z-index
-  markerEl.style.position = 'relative';
+  markerEl.style.zIndex = '9999'; // Extremely high z-index
+  markerEl.style.position = 'absolute';
   markerEl.style.cursor = 'pointer';
   markerEl.style.pointerEvents = 'auto';
-  markerEl.style.backgroundColor = 'transparent'; // Debug styling
-  markerEl.style.width = '150px'; // Debug styling
-  markerEl.style.height = '40px'; // Debug styling
+  markerEl.style.visibility = 'visible';
+  markerEl.style.opacity = '1';
+  markerEl.style.display = 'block';
+  markerEl.style.width = '150px'; // Wider for visibility
+  markerEl.style.height = '50px'; // Taller for visibility
+  markerEl.style.backgroundColor = 'transparent';
   
   console.log(`[MarkerRenderer] Created marker DOM element for property ${property.id}`, markerEl);
   
@@ -43,14 +46,17 @@ export const renderPropertyMarker = (
 
   console.log(`[MarkerRenderer] Added Mapbox marker to map for property ${property.id}`, marker);
 
-  // Create a separate container for the React component
+  // Create a separate container for the React component with EXTREME visibility settings
   const reactContainer = document.createElement('div');
   reactContainer.className = 'marker-react-container';
   reactContainer.style.pointerEvents = 'auto';
-  reactContainer.style.zIndex = '1001'; // Very high z-index
+  reactContainer.style.zIndex = '10000'; // Very high z-index
   reactContainer.style.position = 'relative';
   reactContainer.style.cursor = 'pointer';
-  reactContainer.style.backgroundColor = 'transparent'; // Debug styling
+  reactContainer.style.visibility = 'visible';
+  reactContainer.style.opacity = '1';
+  reactContainer.style.display = 'block';
+  reactContainer.style.backgroundColor = 'transparent';
   markerEl.appendChild(reactContainer);
   
   console.log(`[MarkerRenderer] Created React container for property ${property.id}`, reactContainer);
@@ -97,17 +103,42 @@ export const renderPropertyMarker = (
           opacity: computedStyle.opacity
         });
       }
+      
+      // Force check visibility again after 5 seconds (to catch any delayed issues)
+      setTimeout(() => {
+        const markersAfterDelay = document.querySelectorAll('.mapboxgl-marker');
+        console.log(`[MarkerRenderer] Markers after 5s delay: ${markersAfterDelay.length}`);
+        
+        if (markersAfterDelay.length > 0) {
+          console.log('[MarkerRenderer] Marker positions after 5s:');
+          markersAfterDelay.forEach((marker, index) => {
+            const rect = marker.getBoundingClientRect();
+            console.log(`Marker ${index}: left=${rect.left}, top=${rect.top}, width=${rect.width}, height=${rect.height}`);
+          });
+        }
+      }, 5000);
     }, 1000);
   } catch (renderError) {
     console.error(`[MarkerRenderer] Error rendering React marker for property ${property.id}:`, renderError);
     
-    // Fallback to simple HTML marker if React rendering fails
+    // Fallback to simple HTML marker with EXTREME visibility settings
     const fallbackMarker = document.createElement('div');
-    fallbackMarker.className = 'bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
+    fallbackMarker.className = 'fallback-price-bubble';
     fallbackMarker.innerText = property.price ? `$${Number(property.price).toLocaleString()}` : 'N/A';
-    fallbackMarker.style.pointerEvents = 'auto';
-    fallbackMarker.style.zIndex = '2000'; // Very high z-index for fallback
+    fallbackMarker.style.backgroundColor = 'red';
+    fallbackMarker.style.color = 'white';
+    fallbackMarker.style.padding = '10px 15px';
+    fallbackMarker.style.borderRadius = '30px';
+    fallbackMarker.style.fontWeight = 'bold';
+    fallbackMarker.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
+    fallbackMarker.style.border = '2px solid white';
+    fallbackMarker.style.zIndex = '10000';
     fallbackMarker.style.position = 'relative';
+    fallbackMarker.style.pointerEvents = 'auto';
+    fallbackMarker.style.cursor = 'pointer';
+    fallbackMarker.style.visibility = 'visible';
+    fallbackMarker.style.opacity = '1';
+    fallbackMarker.style.display = 'block';
     markerEl.appendChild(fallbackMarker);
     
     console.log(`[MarkerRenderer] Created fallback HTML marker for property ${property.id}`);

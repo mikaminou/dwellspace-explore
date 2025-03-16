@@ -102,6 +102,13 @@ export function PropertyMarker({
         position: computedStyle.position,
         opacity: computedStyle.opacity
       });
+      
+      // Forcefully make the element visible
+      markerRef.current.style.display = 'block';
+      markerRef.current.style.visibility = 'visible';
+      markerRef.current.style.opacity = '1';
+      markerRef.current.style.pointerEvents = 'auto';
+      markerRef.current.style.zIndex = '9999';
     }
     
     // Add a delayed check to see if the element is still in DOM
@@ -110,6 +117,12 @@ export function PropertyMarker({
         console.log('[PropertyMarker] Element still in DOM after 2s');
         const rect = markerRef.current.getBoundingClientRect();
         console.log('[PropertyMarker] Element position after 2s:', rect);
+        
+        // Double-check that styles are still applied
+        markerRef.current.style.display = 'block';
+        markerRef.current.style.visibility = 'visible';
+        markerRef.current.style.opacity = '1';
+        markerRef.current.style.zIndex = '9999';
       } else {
         console.log('[PropertyMarker] Element no longer in DOM after 2s');
       }
@@ -128,18 +141,21 @@ export function PropertyMarker({
       className="marker-wrapper" 
       onClick={handleClick}
       style={{ 
-        zIndex: 1000, 
+        zIndex: 9999, 
         pointerEvents: 'auto',
         position: 'relative',
         cursor: 'pointer',
-        backgroundColor: 'transparent', // Debug style
-        padding: '5px', // Debug style
+        backgroundColor: 'transparent',
+        padding: '5px',
+        display: 'block',
+        visibility: 'visible',
+        opacity: 1
       }}
     >
       <HoverCard>
         <HoverCardTrigger asChild>
           <div 
-            className="price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none"
+            className="price-bubble"
             style={{ 
               pointerEvents: 'auto',
               cursor: 'pointer',
@@ -147,9 +163,19 @@ export function PropertyMarker({
               alignItems: 'center',
               justifyContent: 'center',
               whiteSpace: 'nowrap',
-              zIndex: 1000,
+              zIndex: 9999,
               position: 'relative',
-              border: '2px solid white', // Debug style to make more visible
+              border: '3px solid white', // More visible border
+              backgroundColor: 'rgb(var(--primary))',
+              color: 'white',
+              padding: '8px 16px',
+              borderRadius: '999px',
+              boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+              fontWeight: 600,
+              fontSize: '14px',
+              transform: 'scale(1.2)', // Make larger
+              visibility: 'visible',
+              opacity: 1
             }}
             onClick={handleClick}
           >
