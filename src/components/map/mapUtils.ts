@@ -10,16 +10,16 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   if (cityCoords) {
     // Generate slightly different coordinates based on the id to spread markers within the city
     return {
-      lat: cityCoords.lat + (Math.sin(id) * 0.015),
-      lng: cityCoords.lng + (Math.cos(id) * 0.015)
+      lat: cityCoords.lat + (Math.sin(id) * 0.005),
+      lng: cityCoords.lng + (Math.cos(id) * 0.005)
     };
   }
   
   // Fallback to Algiers if no city is detected
   const baseCoords = { lat: 36.752887, lng: 3.042048 };
   return {
-    lat: baseCoords.lat + (Math.sin(id) * 0.03),
-    lng: baseCoords.lng + (Math.cos(id) * 0.03)
+    lat: baseCoords.lat + (Math.sin(id) * 0.005),
+    lng: baseCoords.lng + (Math.cos(id) * 0.005)
   };
 }
 
@@ -62,5 +62,17 @@ export function formatPrice(price: string): string {
     return `${Math.round(numericPrice / 1000)}K DZD`;
   } else {
     return `${(numericPrice / 1000000).toFixed(1)}M DZD`;
+  }
+}
+
+// Get badge class for a listing type
+export function getListingTypeBadgeClass(type: string = 'sale'): string {
+  switch (type.toLowerCase()) {
+    case 'rent': return 'bg-blue-500 text-white';
+    case 'construction': return 'bg-amber-500 text-white';
+    case 'commercial': return 'bg-purple-500 text-white';
+    case 'vacation': return 'bg-teal-500 text-white';
+    case 'sale':
+    default: return 'bg-green-500 text-white';
   }
 }

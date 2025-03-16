@@ -105,16 +105,20 @@ export default function PropertyDetails() {
       case 'sale': return t('property.forSale');
       case 'rent': return t('property.forRent');
       case 'construction': return t('property.underConstruction');
+      case 'commercial': return t('property.commercial');
+      case 'vacation': return t('property.vacation');
       default: return t('property.forSale');
     }
   };
 
   const getListingTypeBadgeClass = (type: string) => {
-    switch (type) {
-      case 'sale': return 'bg-green-500 text-white';
-      case 'rent': return 'bg-blue-500 text-white';
-      case 'construction': return 'bg-amber-500 text-white';
-      default: return 'bg-green-500 text-white';
+    switch (type.toLowerCase()) {
+      case 'rent': return 'listing-badge-rent';
+      case 'construction': return 'listing-badge-construction';
+      case 'commercial': return 'listing-badge-commercial';
+      case 'vacation': return 'listing-badge-vacation';
+      case 'sale':
+      default: return 'listing-badge-sale';
     }
   };
 
@@ -130,9 +134,14 @@ export default function PropertyDetails() {
               alt={property.title}
               className="w-full h-full object-cover"
             />
-            <div className={`absolute top-4 left-4 px-3 py-1.5 text-sm font-semibold rounded-md ${getListingTypeBadgeClass(property.listing_type)}`}>
+            <div className={`absolute top-4 left-4 listing-badge ${getListingTypeBadgeClass(property.listing_type)}`}>
               {getListingTypeLabel(property.listing_type)}
             </div>
+            {property.isPremium && (
+              <div className="absolute top-4 right-4 listing-badge listing-badge-premium">
+                Premium
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             {(property.gallery_image_urls || []).slice(1, 5).map((image: string, index: number) => (

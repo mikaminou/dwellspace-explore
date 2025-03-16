@@ -9,6 +9,25 @@ interface PropertyPopupProps {
 }
 
 export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopupProps): string {
+  // Get the appropriate badge class based on listing type
+  const getListingTypeBadgeClass = (type: string = 'sale') => {
+    const listingType = type.toLowerCase();
+    
+    switch (listingType) {
+      case 'rent':
+        return 'bg-blue-500';
+      case 'construction':
+        return 'bg-amber-500';
+      case 'commercial':
+        return 'bg-purple-500';
+      case 'vacation':
+        return 'bg-teal-500';
+      case 'sale':
+      default:
+        return 'bg-green-500';
+    }
+  };
+
   // Create HTML string for the popup
   return `
     <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg" data-property-id="${property.id}">
@@ -22,7 +41,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
         ${property.isPremium ? 
           `<div class="absolute top-3 right-3 bg-luxury text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">Premium</div>` : ''}
         ${property.listing_type ? 
-          `<div class="absolute bottom-3 left-3 bg-primary bg-opacity-90 text-white text-xs px-3 py-1.5 rounded-full shadow-md capitalize">${property.listing_type}</div>` : ''}
+          `<div class="absolute bottom-3 left-3 ${getListingTypeBadgeClass(property.listing_type)} bg-opacity-90 text-white text-xs px-3 py-1.5 rounded-full shadow-md capitalize">${property.listing_type}</div>` : ''}
         <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
           <span class="text-primary font-bold text-sm">${property.price}</span>
         </div>
