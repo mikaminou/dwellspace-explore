@@ -197,6 +197,16 @@ export function PropertyForm() {
         const newProperty = {
           ...propertyData,
           created_at: new Date().toISOString(),
+          // Ensure required fields have non-null values
+          beds: propertyData.beds,
+          city: propertyData.city,
+          description: propertyData.description,
+          location: propertyData.location,
+          living_area: propertyData.living_area,
+          price: propertyData.price,
+          street_name: propertyData.street_name,
+          title: propertyData.title,
+          type: propertyData.type
         };
         
         const { error } = await supabase

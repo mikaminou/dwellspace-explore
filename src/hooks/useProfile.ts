@@ -22,6 +22,22 @@ const profileSchema = z.object({
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
 
+// Define an extended profile type that includes license_number
+interface ExtendedProfile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone_number: string | null;
+  bio: string | null;
+  role: "buyer" | "seller" | "agent" | "admin";
+  agency: string | null;
+  license_number?: string | null;
+  avatar_url: string | null;
+  email: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export function useProfile() {
   const { session, isLoaded } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -66,7 +82,7 @@ export function useProfile() {
           // Add license_number to data if not already present
           const profileWithLicense = {
             ...data,
-            license_number: data.license_number || "",
+            license_number: (data as ExtendedProfile).license_number || "",
           };
 
           form.reset({
@@ -136,8 +152,8 @@ export function useProfile() {
   const userLicenseNumber = profileData?.license_number || session?.user?.user_metadata?.license_number || "";
   const userInitials = userName 
     ? userName.slice(0, 2).toUpperCase() 
-    : userEmail 
-      ? userEmail.slice(0, 2).toUpperCase() 
+    : user_email 
+      ? user_email.slice(0, 2).toUpperCase() 
       : "U";
 
   return {
