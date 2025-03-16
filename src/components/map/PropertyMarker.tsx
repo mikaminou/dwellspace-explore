@@ -72,19 +72,32 @@ export function PropertyMarker({
   const typeIcon = getPropertyTypeIcon(propertyType);
 
   return (
-    <div className="marker-wrapper" style={{ zIndex: 100, pointerEvents: 'auto' }}>
+    <div 
+      className="marker-wrapper" 
+      onClick={onClick}
+      style={{ 
+        zIndex: 100, 
+        pointerEvents: 'auto',
+        position: 'relative',
+        cursor: 'pointer'
+      }}
+    >
       <HoverCard>
         <HoverCardTrigger asChild>
           <div 
-            className="flex items-center justify-center cursor-pointer"
-            onClick={onClick}
-            style={{ pointerEvents: 'auto' }}
+            className="price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none"
+            style={{ 
+              pointerEvents: 'auto',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              whiteSpace: 'nowrap'
+            }}
           >
-            <div className="price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none">
-              <div className="flex items-center gap-1">
-                {typeIcon}
-                <span>{displayPrice}</span>
-              </div>
+            <div className="flex items-center gap-1">
+              {typeIcon}
+              <span>{displayPrice}</span>
             </div>
           </div>
         </HoverCardTrigger>

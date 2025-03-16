@@ -2,13 +2,14 @@
 /* Custom marker styles */
 .mapboxgl-marker {
   cursor: pointer !important;
-  z-index: 10 !important;
+  z-index: 100 !important;
   transition: transform 0.2s ease;
   position: relative;
+  pointer-events: auto !important;
 }
 
 .mapboxgl-marker:hover {
-  z-index: 20 !important;
+  z-index: 200 !important;
   transform: scale(1.05);
 }
 
@@ -17,15 +18,16 @@
   cursor: pointer !important;
   display: inline-block;
   width: auto;
-  z-index: 10 !important;
+  z-index: 100 !important;
   pointer-events: auto !important;
   position: relative;
 }
 
 .marker-react-container {
   position: relative;
-  z-index: 10 !important;
+  z-index: 100 !important;
   pointer-events: auto !important;
+  cursor: pointer !important;
 }
 
 .price-bubble {
@@ -34,6 +36,14 @@
   user-select: none;
   transition: all 0.2s ease;
   pointer-events: auto !important;
+  background-color: var(--primary);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 999px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  font-size: 12px;
+  z-index: 100;
 }
 
 .price-bubble:hover {
@@ -89,8 +99,9 @@
 /* Make sure marker elements are clickable */
 .marker-wrapper {
   position: relative;
-  z-index: 10;
+  z-index: 100;
   pointer-events: auto !important;
+  cursor: pointer !important;
 }
 
 /* Fix for React created markers */
