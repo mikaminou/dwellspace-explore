@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 import { generateCoordsFromLocation } from './mapUtils';
+import ReactDOM from 'react-dom';
+import { PropertyMarker } from './PropertyMarker';
 
 export function usePropertyMarkers(
   map: React.MutableRefObject<mapboxgl.Map | null>,
@@ -80,6 +82,21 @@ export function usePropertyMarkers(
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker-container';
       
+      // Render React component to the marker element
+      const handleMarkerClick = () => {
+        setActiveMarkerId(property.id);
+        showPropertyPopup(property, [coords.lng, coords.lat]);
+      };
+
+      ReactDOM.render(
+        <PropertyMarker 
+          price={property.price} 
+          isPremium={property.isPremium} 
+          onClick={handleMarkerClick} 
+        />, 
+        markerEl
+      );
+      
       // Create and add marker to map
       const marker = new mapboxgl.Marker({
         element: markerEl,
@@ -89,19 +106,6 @@ export function usePropertyMarkers(
       })
         .setLngLat([coords.lng, coords.lat])
         .addTo(map.current!);
-
-      // Create price element
-      const priceElement = document.createElement('div');
-      priceElement.className = 'price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
-      priceElement.innerText = property.price;
-      markerEl.appendChild(priceElement);
-
-      // Add click event to price element
-      priceElement.addEventListener('click', (e) => {
-        e.stopPropagation();
-        setActiveMarkerId(property.id);
-        showPropertyPopup(property, [coords.lng, coords.lat]);
-      });
 
       // Store marker reference
       markersRef.current[property.id] = marker;

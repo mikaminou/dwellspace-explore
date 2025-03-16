@@ -1,13 +1,15 @@
 
 import React from 'react';
 import { formatPrice } from './mapUtils';
+import { Home } from 'lucide-react';
 
 interface PropertyMarkerProps {
   price: string;
+  isPremium?: boolean;
   onClick: () => void;
 }
 
-export function PropertyMarker({ price, onClick }: PropertyMarkerProps) {
+export function PropertyMarker({ price, isPremium = false, onClick }: PropertyMarkerProps) {
   // Handle click event properly with stopPropagation to prevent map interactions
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the click from being passed to the map
@@ -16,11 +18,16 @@ export function PropertyMarker({ price, onClick }: PropertyMarkerProps) {
 
   return (
     <div 
-      className="custom-marker flex items-center justify-center cursor-pointer z-10"
+      className="custom-marker flex items-center justify-center cursor-pointer z-10 transition-transform hover:scale-110"
       onClick={handleClick}
     >
-      <div className="bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none">
-        {formatPrice(price)}
+      <div className={`marker-container ${isPremium ? 'premium-marker' : 'standard-marker'}`}>
+        <div className="marker-icon">
+          <Home size={16} className="text-white" />
+        </div>
+        <div className="marker-price">
+          {formatPrice(price)}
+        </div>
       </div>
     </div>
   );
