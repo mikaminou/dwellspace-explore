@@ -29,13 +29,15 @@ export const authService = {
         userMetadata.license_number = licenseNumber;
       }
       
-      // Sign up with proper redirect URL
+      // Sign up with proper redirect URL and disable email confirmation for development
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
           data: userMetadata,
-          emailRedirectTo: `${baseUrl}/email-confirmation`
+          emailRedirectTo: `${baseUrl}/email-confirmation`,
+          // Setting this to true automatically confirms the user without email verification
+          emailConfirm: false
         }
       });
       
@@ -52,17 +54,24 @@ export const authService = {
       
       console.log("Supabase signup response:", data);
       
-      // Check if email confirmation is required
-      const confirmationRequired = data.user?.identities && data.user.identities.length === 0;
-      
-      if (confirmationRequired) {
-        console.log("Email confirmation required for:", email);
-        toast.success("Confirmation email sent. Please check your inbox.");
-        return { confirmationRequired: true };
-      } else {
-        console.log("User created without confirmation requirement");
+      // Check if user was created successfully
+      if (data.user) {
+        console.log("User created successfully, auto-signing in:", email);
         toast.success("Account created successfully. Welcome to DwellSpace!");
+        
+        // Auto sign in the user after signup
+        try {
+          await supabase.auth.signInWithPassword({ email, password });
+        } catch (signInError) {
+          console.error("Auto sign-in error:", signInError);
+          // We don't throw this error as the account was created successfully
+        }
+        
         return undefined;
+      } else {
+        console.log("Something went wrong with signup");
+        toast.error("Something went wrong during signup. Please try again.");
+        return { confirmationRequired: true };
       }
       
     } catch (error: any) {

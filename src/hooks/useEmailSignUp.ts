@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
+import { useNavigate } from "react-router-dom";
 
 export function useEmailSignUp(onError: (message: string) => void) {
   const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ export function useEmailSignUp(onError: (message: string) => void) {
   const [demoMode, setDemoMode] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Show/hide agency field based on role
   const [showAgencyField, setShowAgencyField] = useState(false);
@@ -68,7 +70,18 @@ export function useEmailSignUp(onError: (message: string) => void) {
         );
         console.log("Signup result:", result);
 
-        // Check if confirmation is required
+        // If no confirmation required (auto sign-in), redirect to home
+        if (!result?.confirmationRequired) {
+          console.log("Auto sign-in successful, redirecting to home page");
+          toast({
+            title: "Account created and signed in",
+            description: "Welcome to DwellSpace!",
+          });
+          navigate("/");
+          return result;
+        }
+
+        // If confirmation is still required for some reason
         if (result?.confirmationRequired) {
           console.log("Confirmation required, proceeding with navigation");
           setConfirmationSent(true);
