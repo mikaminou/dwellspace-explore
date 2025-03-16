@@ -1,39 +1,12 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 import { toast } from 'sonner';
-import { PropertyMarker } from './PropertyMarker';
-import ReactDOM from 'react-dom';
-import React from 'react';
-
-// Helper function to generate coordinates from location with better error handling
-const generateCoordsFromLocation = (location: string, id: string | number): { lat: number; lng: number } | null => {
-  try {
-    if (!location) {
-      console.warn(`No location for property ${id}`);
-      return null;
-    }
-    
-    // Default coordinates based on property ID for testing
-    // In production, you'd use real geocoding
-    const seed = String(id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-    const latVariance = (seed % 100) * 0.01;
-    const lngVariance = ((seed * 2) % 100) * 0.01;
-    
-    // Base coordinates (Algiers)
-    const baseLat = 36.752887;
-    const baseLng = 3.042048;
-    
-    return {
-      lat: baseLat + latVariance - 0.5,
-      lng: baseLng + lngVariance - 0.5
-    };
-  } catch (error) {
-    console.error(`Error generating coordinates for property ${id}:`, error);
-    return null;
-  }
-};
+import { generateCoordsFromLocation } from './utils/coordinateUtils';
+import { renderPropertyMarker } from './MarkerRenderer';
+import { useMarkerZIndex } from './hooks/useMarkerZIndex';
+import { useMapBounds } from './hooks/useMapBounds';
 
 export function usePropertyMarkers({
   map,
@@ -50,10 +23,20 @@ export function usePropertyMarkers({
 }) {
   console.log('usePropertyMarkers hook called');
   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
-  const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  
+  // Get marker z-index management
+  const { activeMarkerId, setActiveMarkerId, updateMarkerZIndex: updateZIndex } = useMarkerZIndex();
+  
+  // Get map bounds utilities
+  const { initBounds, updateBounds, fitMapToBounds, setDefaultMapView } = useMapBounds();
   
   // Add cleanup flag to prevent memory leaks
   const isMountedRef = useRef(true);
+  
+  // Wrapper for updateZIndex that uses our markersRef
+  const updateMarkerZIndex = (propertyId: number | null) => {
+    updateZIndex(propertyId, markersRef);
+  };
   
   // Cleanup on unmount
   useEffect(() => {
@@ -72,34 +55,6 @@ export function usePropertyMarkers({
       }
     };
   }, []);
-
-  // Update marker z-index based on active state
-  const updateMarkerZIndex = (propertyId: number | null) => {
-    try {
-      // Reset all markers to default z-index
-      Object.entries(markersRef.current).forEach(([id, marker]) => {
-        if (marker) {
-          const markerEl = marker.getElement();
-          if (markerEl) {
-            markerEl.style.zIndex = '1';
-          }
-        }
-      });
-
-      // Set the active marker to higher z-index
-      if (propertyId !== null && markersRef.current[propertyId]) {
-        const activeMarker = markersRef.current[propertyId];
-        if (activeMarker) {
-          const activeMarkerEl = activeMarker.getElement();
-          if (activeMarkerEl) {
-            activeMarkerEl.style.zIndex = '3';
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error updating marker z-index:', error);
-    }
-  };
 
   // Update markers when properties change
   useEffect(() => {
@@ -135,11 +90,12 @@ export function usePropertyMarkers({
 
       console.log('Creating markers for', properties.length, 'properties');
       
-      // Create bounds manually since we're getting errors
-      let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+      // Initialize bounds and counters
+      let bounds = initBounds();
       let propertiesWithCoords = 0;
       let missingCoords = 0;
 
+      // Create markers for each property
       properties.forEach(property => {
         if (!property || !property.location) {
           console.warn(`Property ${property?.id} has no location information`);
@@ -155,52 +111,18 @@ export function usePropertyMarkers({
           }
 
           // Update bounds
-          minLat = Math.min(minLat, coords.lat);
-          maxLat = Math.max(maxLat, coords.lat);
-          minLng = Math.min(minLng, coords.lng);
-          maxLng = Math.max(maxLng, coords.lng);
-          
+          bounds = updateBounds(bounds, coords.lat, coords.lng);
           propertiesWithCoords++;
 
-          const markerEl = document.createElement('div');
-          markerEl.className = 'custom-marker-container';
-          
-          const marker = new mapboxgl.Marker({
-            element: markerEl,
-            anchor: 'bottom',
-            offset: [0, 0],
-            clickTolerance: 10
-          })
-            .setLngLat([coords.lng, coords.lat])
-            .addTo(map.current!);
-
-          // Render React component for the marker
-          try {
-            const markerContainer = document.createElement('div');
-            markerEl.appendChild(markerContainer);
-            
-            ReactDOM.render(
-              React.createElement(PropertyMarker, { 
-                price: property.price || 'N/A',
-                onClick: () => {
-                  onMarkerClick(property, [coords.lng, coords.lat]);
-                }
-              }),
-              markerContainer
-            );
-          } catch (renderError) {
-            console.error(`Error rendering React marker for property ${property.id}:`, renderError);
-            
-            // Fallback to simple HTML marker
-            const priceElement = document.createElement('div');
-            priceElement.className = 'bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
-            priceElement.innerText = property.price || 'N/A';
-            markerEl.appendChild(priceElement);
-            
-            priceElement.addEventListener('click', () => {
-              onMarkerClick(property, [coords.lng, coords.lat]);
-            });
-          }
+          // Create and add marker
+          const marker = renderPropertyMarker(
+            { 
+              property, 
+              coordinates: coords, 
+              onMarkerClick 
+            },
+            map.current!
+          );
 
           markersRef.current[property.id] = marker;
         } catch (markerError) {
@@ -208,44 +130,15 @@ export function usePropertyMarkers({
         }
       });
 
+      // Handle map positioning
       if (propertiesWithCoords > 0) {
-        try {
-          console.log('Fitting map to bounds with', propertiesWithCoords, 'properties');
-          
-          // Only fit bounds if we have valid min/max values
-          if (minLat <= maxLat && minLng <= maxLng) {
-            map.current.fitBounds([
-              [minLng, minLat], // Southwest corner
-              [maxLng, maxLat]  // Northeast corner
-            ], {
-              padding: 50,
-              maxZoom: 15
-            });
-          } else {
-            console.warn('Invalid bounds calculated, using default view');
-            map.current.setCenter([3.042048, 36.752887]);
-            map.current.setZoom(12);
-          }
-        } catch (fitError) {
-          console.error('Error fitting map to bounds:', fitError);
-          // Try to center map on default location as fallback
-          try {
-            map.current.setCenter([3.042048, 36.752887]);
-            map.current.setZoom(12);
-          } catch (e) {
-            console.error('Error setting default map center:', e);
-          }
-        }
+        fitMapToBounds(map.current, bounds, propertiesWithCoords);
       } else {
         console.warn('No properties with valid coordinates found');
-        try {
-          map.current.setCenter([3.042048, 36.752887]);
-          map.current.setZoom(12);
-        } catch (e) {
-          console.error('Error setting default map center:', e);
-        }
+        setDefaultMapView(map.current);
       }
 
+      // Show warnings for missing coordinates
       if (missingCoords > 0) {
         console.warn(`${missingCoords} properties are missing valid coordinates`);
         toast.warning(`${missingCoords} properties couldn't be displayed on the map`);
@@ -254,7 +147,7 @@ export function usePropertyMarkers({
       console.error('Error updating property markers:', error);
       toast.error('Error displaying properties on map');
     }
-  }, [properties, mapLoaded, loading, onMarkerClick, map]);
+  }, [properties, mapLoaded, loading, onMarkerClick, map, fitMapToBounds, setDefaultMapView, initBounds, updateBounds]);
 
   return {
     markersRef,
