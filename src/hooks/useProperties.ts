@@ -35,7 +35,7 @@ export function useProperties() {
           isPremium: property.isPremium || false,
           created_at: String(property.created_at || property.createdAt || ''),
           updated_at: String(property.updated_at || property.updatedAt || '')
-        } as Property;
+        } as unknown as Property;
       }));
       
       setProperties(normalizedData);
@@ -69,7 +69,7 @@ export function useProperties() {
             isPremium: propertyData.isPremium || false,
             created_at: String(propertyData.created_at || propertyData.createdAt || ''),
             updated_at: String(propertyData.updated_at || propertyData.updatedAt || '')
-          } as Property;
+          } as unknown as Property;
         }
       }
       
@@ -83,7 +83,7 @@ export function useProperties() {
         isPremium: propertyData.isPremium || false,
         created_at: String(propertyData.created_at || propertyData.createdAt || ''),
         updated_at: String(propertyData.updated_at || propertyData.updatedAt || '')
-      } as Property : null;
+      } as unknown as Property : null;
     } catch (err: any) {
       console.error(`Error fetching property with ID ${id}:`, err);
       setError(err.message || `Failed to fetch property with ID ${id}`);
@@ -131,7 +131,7 @@ export function useProperties() {
           isPremium: property.isPremium || false,
           created_at: String(property.created_at || property.createdAt || ''),
           updated_at: String(property.updated_at || property.updatedAt || '')
-        } as Property;
+        } as unknown as Property;
       }));
       
       setProperties(normalizedData);

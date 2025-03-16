@@ -1,3 +1,4 @@
+
 import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 import { Agent } from "./agents";
@@ -36,11 +37,11 @@ export interface Property {
   postal_code?: number;
   postalCode?: number; // Added to match data model
   created_at: string;
-  createdAt?: string | number; // Changed to support both string and number
+  createdAt?: string | number; // Support both string and number
   updated_at: string;
-  updatedAt?: string | number; // Changed to support both string and number
-  agent?: Agent;
-  owner?: Agent; // Added to support components using owner
+  updatedAt?: string | number; // Support both string and number
+  agent?: Partial<Agent>; // Make agent an optional partial type
+  owner?: Partial<Agent>; // Make owner an optional partial type
   image?: string;
   images?: string[];
   isPremium?: boolean;
@@ -65,12 +66,12 @@ export const getAllProperties = async (): Promise<Property[]> => {
       if (!property.street_name) {
         property.street_name = property.streetName || '';
       }
-      // Ensure types are correct
+      // Ensure types are correct and cast as Property
       return {
         ...property,
         created_at: String(property.created_at || property.createdAt || ''),
         updated_at: String(property.updated_at || property.updatedAt || '')
-      } as Property;
+      } as unknown as Property;
     });
   } catch (error) {
     console.error('Unexpected error fetching properties:', error);
@@ -98,12 +99,12 @@ export const getPropertyById = async (id: string | number): Promise<Property | n
     if (!property.street_name) {
       property.street_name = property.streetName || '';
     }
-    // Ensure types are correct
+    // Ensure types are correct and cast as Property
     return {
       ...property,
       created_at: String(property.created_at || property.createdAt || ''),
       updated_at: String(property.updated_at || property.updatedAt || '')
-    } as Property;
+    } as unknown as Property;
   } catch (error) {
     console.error(`Unexpected error fetching property with ID ${id}:`, error);
     return null;
@@ -181,12 +182,12 @@ export const searchProperties = async (
         if (!property.street_name) {
           property.street_name = property.streetName || '';
         }
-        // Ensure types are correct
+        // Ensure types are correct and cast as Property
         return {
           ...property,
           created_at: String(property.created_at || property.createdAt || ''),
           updated_at: String(property.updated_at || property.updatedAt || '')
-        } as Property;
+        } as unknown as Property;
       })
       .filter(property => {
         // Extract numeric value from price string
