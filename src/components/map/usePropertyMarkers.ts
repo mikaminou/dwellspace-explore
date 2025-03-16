@@ -180,12 +180,12 @@ export function usePropertyMarkers({
             markerEl.appendChild(markerContainer);
             
             ReactDOM.render(
-              <PropertyMarker 
-                price={property.price || 'N/A'} 
-                onClick={() => {
+              React.createElement(PropertyMarker, { 
+                price: property.price || 'N/A',
+                onClick: () => {
                   onMarkerClick(property, [coords.lng, coords.lat]);
-                }}
-              />,
+                }
+              }),
               markerContainer
             );
           } catch (renderError) {
