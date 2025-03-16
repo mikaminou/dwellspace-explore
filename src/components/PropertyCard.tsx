@@ -52,16 +52,6 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     return 'bg-green-500 text-white'; // default for sale
   };
 
-  const getListingTypeBorderColor = (property: Property): string => {
-    const listingType = property.listing_type?.toLowerCase() || 'sale';
-    
-    if (listingType === 'rent') return 'border-blue-500';
-    if (listingType === 'construction') return 'border-amber-500';
-    if (listingType === 'commercial') return 'border-purple-500';
-    if (listingType === 'vacation') return 'border-teal-500';
-    return 'border-green-500'; // default for sale
-  };
-
   const getListingTypeText = (property: Property): string => {
     const listingType = property.listing_type?.toLowerCase() || 'sale';
     
@@ -77,7 +67,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   return (
     <Link 
       to={`/property/${property.id}`} 
-      className={`property-card group hover:scale-[1.02] transition-all bg-white dark:bg-card ${isPremiumProperty ? 'premium-property' : ''} ${getListingTypeBorderColor(property)} border-2`}
+      className={`property-card group hover:scale-[1.02] transition-all bg-white dark:bg-card ${isPremiumProperty ? 'premium-property' : ''}`}
     >
       <div className="relative">
         {isPremiumProperty && (
