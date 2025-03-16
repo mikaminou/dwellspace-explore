@@ -21,7 +21,6 @@ export function usePropertyMarkers({
   loading: boolean;
   onMarkerClick: (property: Property, coordinates: [number, number]) => void;
 }) {
-  console.log('usePropertyMarkers hook called');
   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
   
   // Get marker z-index management
@@ -58,20 +57,12 @@ export function usePropertyMarkers({
 
   // Update markers when properties change
   useEffect(() => {
-    console.log('usePropertyMarkers effect running');
-    console.log('Map exists:', !!map.current);
-    console.log('Map loaded:', mapLoaded);
-    console.log('Loading state:', loading);
-    console.log('Properties count:', properties?.length || 0);
-    
     if (!map.current || !mapLoaded || loading) {
-      console.log('Skipping marker update - conditions not met');
       return;
     }
     
     try {
       // Remove existing markers
-      console.log('Removing existing markers:', Object.keys(markersRef.current).length);
       Object.values(markersRef.current).forEach(marker => {
         if (marker && typeof marker.remove === 'function') {
           try {
@@ -84,12 +75,9 @@ export function usePropertyMarkers({
       markersRef.current = {};
 
       if (!properties || properties.length === 0) {
-        console.log('No properties to display markers for');
         return;
       }
 
-      console.log('Creating markers for', properties.length, 'properties');
-      
       // Initialize bounds and counters
       let bounds = initBounds();
       let propertiesWithCoords = 0;
@@ -98,14 +86,12 @@ export function usePropertyMarkers({
       // Create markers for each property
       properties.forEach(property => {
         if (!property || !property.location) {
-          console.warn(`Property ${property?.id} has no location information`);
           return;
         }
 
         try {
           const coords = generateCoordsFromLocation(property.location, property.id);
           if (!coords) {
-            console.warn(`Could not generate coordinates for property ${property.id} at location "${property.location}"`);
             missingCoords++;
             return;
           }
@@ -134,18 +120,18 @@ export function usePropertyMarkers({
       if (propertiesWithCoords > 0) {
         fitMapToBounds(map.current, bounds, propertiesWithCoords);
       } else {
-        console.warn('No properties with valid coordinates found');
         setDefaultMapView(map.current);
       }
 
       // Show warnings for missing coordinates
-      if (missingCoords > 0) {
-        console.warn(`${missingCoords} properties are missing valid coordinates`);
+      if (missingCoords > 0 && isMountedRef.current) {
         toast.warning(`${missingCoords} properties couldn't be displayed on the map`);
       }
     } catch (error) {
       console.error('Error updating property markers:', error);
-      toast.error('Error displaying properties on map');
+      if (isMountedRef.current) {
+        toast.error('Error displaying properties on map');
+      }
     }
   }, [properties, mapLoaded, loading, onMarkerClick, map, fitMapToBounds, setDefaultMapView, initBounds, updateBounds]);
 

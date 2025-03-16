@@ -16,7 +16,7 @@ interface PropertyMarkerProps {
   area?: number | string;
 }
 
-// Helper function for formatting price with error handling
+// Helper function to format price with error handling
 const formatPrice = (price: string | number): string => {
   try {
     if (!price) return 'N/A';
@@ -67,24 +67,17 @@ export function PropertyMarker({
   baths,
   area
 }: PropertyMarkerProps) {
-  // Handle click event with stopPropagation
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onClick();
-  };
-
   // Format price for display
   const displayPrice = formatPrice(price);
   const typeIcon = getPropertyTypeIcon(propertyType);
 
   return (
-    <div className="marker-wrapper" style={{ zIndex: 100 }}>
+    <div className="marker-wrapper" style={{ zIndex: 100, pointerEvents: 'auto' }}>
       <HoverCard>
         <HoverCardTrigger asChild>
           <div 
             className="flex items-center justify-center cursor-pointer"
-            onClick={handleClick}
+            onClick={onClick}
             style={{ pointerEvents: 'auto' }}
           >
             <div className="price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none">

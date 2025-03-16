@@ -23,6 +23,10 @@ export const generateCoordsFromLocation = (location: string, id: string | number
     };
   } catch (error) {
     console.error(`Error generating coordinates for property ${id}:`, error);
-    return null;
+    // Fallback coordinates with guaranteed valid values
+    return {
+      lat: 36.752887,
+      lng: 3.042048
+    };
   }
 };

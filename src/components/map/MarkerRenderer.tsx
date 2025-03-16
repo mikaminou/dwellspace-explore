@@ -21,23 +21,23 @@ export const renderPropertyMarker = (
   const markerEl = document.createElement('div');
   markerEl.className = 'custom-marker-container';
   
-  // Create the mapbox marker
+  // Create the mapbox marker with specific z-index
   const marker = new mapboxgl.Marker({
     element: markerEl,
     anchor: 'bottom',
-    offset: [0, 0],
-    clickTolerance: 10
   })
     .setLngLat([coordinates.lng, coordinates.lat])
     .addTo(map);
 
-  // Render React component for the marker
+  // Set a high z-index to ensure visibility
+  markerEl.style.zIndex = '10';
+  
+  // Create a separate container for the React component
+  const reactContainer = document.createElement('div');
+  reactContainer.className = 'marker-react-container';
+  markerEl.appendChild(reactContainer);
+  
   try {
-    // Create a separate container for the React component
-    const reactContainer = document.createElement('div');
-    reactContainer.className = 'marker-react-container';
-    markerEl.appendChild(reactContainer);
-    
     // Create React root and render the component
     const root = ReactDOM.createRoot(reactContainer);
     
