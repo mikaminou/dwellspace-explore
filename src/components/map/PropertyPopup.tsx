@@ -1,6 +1,7 @@
 
 import { Property } from "@/api/properties";
-import { MessageCircle, Bookmark } from "lucide-react";
+import { formatPrice, getListingTypeBadgeClass } from './mapUtils';
+import { Home, Building, Construction, Castle } from 'lucide-react';
 
 interface PropertyPopupProps {
   property: Property;
@@ -28,6 +29,25 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
     }
   };
 
+  // Get the appropriate icon based on listing type
+  const getListingTypeIcon = () => {
+    const listingType = property.listing_type?.toLowerCase() || 'sale';
+    
+    switch (listingType) {
+      case 'rent':
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 4v4"/><path d="M16 4v4"/></svg>`;
+      case 'construction':
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect x="2" y="6" width="20" height="8" rx="1"/><path d="M17 14v7"/><path d="M7 14v7"/><path d="M17 3v3"/><path d="M7 3v3"/><path d="M10 14 2.3 6.3"/><path d="m14 6 7.7 7.7"/><path d="m8 6 8 8"/></svg>`;
+      case 'commercial':
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><path d="M4 10h16"/><path d="M10 4v16"/></svg>`;
+      case 'vacation':
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M22 20V8h-4l-6-6-6 6H2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2Z"/><path d="M6 18h.01"/><path d="M6 14h.01"/><path d="M6 10h.01"/><path d="M10 18h.01"/><path d="M10 14h.01"/><path d="M10 10h.01"/><path d="M14 18h.01"/><path d="M14 14h.01"/><path d="M14 10h.01"/><path d="M18 18h.01"/><path d="M18 14h.01"/><path d="M18 10h.01"/></svg>`;
+      case 'sale':
+      default:
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+    }
+  };
+
   // Create HTML string for the popup
   return `
     <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg" data-property-id="${property.id}">
@@ -41,7 +61,10 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
         ${property.isPremium ? 
           `<div class="absolute top-3 right-3 bg-luxury text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">Premium</div>` : ''}
         ${property.listing_type ? 
-          `<div class="absolute bottom-3 left-3 ${getListingTypeBadgeClass(property.listing_type)} bg-opacity-90 text-white text-xs px-3 py-1.5 rounded-full shadow-md capitalize">${property.listing_type}</div>` : ''}
+          `<div class="absolute bottom-3 left-3 ${getListingTypeBadgeClass(property.listing_type)} bg-opacity-90 text-white text-xs px-3 py-1.5 rounded-full shadow-md capitalize flex items-center">
+            ${getListingTypeIcon()}
+            ${property.listing_type}
+          </div>` : ''}
         <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
           <span class="text-primary font-bold text-sm">${property.price}</span>
         </div>

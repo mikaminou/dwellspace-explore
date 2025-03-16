@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
 import { Button } from "@/components/ui/button";
-import { MapPinIcon, BedDoubleIcon, HomeIcon, HeartIcon, ShareIcon, CalendarIcon, SquareIcon, TreesIcon, MailIcon } from "lucide-react";
+import { MapPinIcon, BedDoubleIcon, HomeIcon, HeartIcon, ShareIcon, CalendarIcon, SquareIcon, TreesIcon, MailIcon, Building, Construction, Castle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -111,6 +110,22 @@ export default function PropertyDetails() {
     }
   };
 
+  const getListingTypeIcon = () => {
+    switch (property.listing_type.toLowerCase()) {
+      case 'rent':
+        return <Building size={16} className="text-white mr-2" />;
+      case 'construction':
+        return <Construction size={16} className="text-white mr-2" />;
+      case 'commercial':
+        return <Building size={16} className="text-white mr-2" />;
+      case 'vacation':
+        return <Castle size={16} className="text-white mr-2" />;
+      case 'sale':
+      default:
+        return <HomeIcon size={16} className="text-white mr-2" />;
+    }
+  };
+
   const getListingTypeBadgeClass = (type: string) => {
     switch (type.toLowerCase()) {
       case 'rent': return 'listing-badge-rent';
@@ -134,7 +149,8 @@ export default function PropertyDetails() {
               alt={property.title}
               className="w-full h-full object-cover"
             />
-            <div className={`absolute top-4 left-4 listing-badge ${getListingTypeBadgeClass(property.listing_type)}`}>
+            <div className={`absolute top-4 left-4 listing-badge ${getListingTypeBadgeClass(property.listing_type)} flex items-center px-3 py-1.5`}>
+              {getListingTypeIcon()}
               {getListingTypeLabel(property.listing_type)}
             </div>
             {property.isPremium && (
