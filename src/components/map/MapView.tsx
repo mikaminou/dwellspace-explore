@@ -11,6 +11,7 @@ import { usePropertyPopup } from './usePropertyPopup';
 import { useCitySelection } from './useCitySelection';
 import { usePropertiesWithOwners } from './usePropertiesWithOwners';
 import { AlertTriangle } from 'lucide-react';
+import { Property } from '@/api/properties';
 
 function MapView() {
   console.log('Rendering MapView component'); // Debug log
@@ -61,37 +62,51 @@ function MapView() {
   // Get properties with owner data
   const { propertiesWithOwners } = usePropertiesWithOwners(properties || []);
 
-  // Setup components with error handling
-  let popupSetup = { popupRef: { current: null }, showPropertyPopup: () => {} };
-  let markerSetup = { markersRef: { current: {} }, activeMarkerId: null, setActiveMarkerId: () => {}, updateMarkerZIndex: () => {} };
+  // Initialize marker and popup state containers with default values
+  const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
 
-  try {
-    // Set up popup functionality
-    popupSetup = usePropertyPopup({
-      map,
-      onSaveProperty: handleSaveProperty,
-      onMessageOwner: handleMessageOwner,
-      navigate
-    });
+  // Initialize marker and popup handlers
+  const handleMarkerClick = (property: Property, coordinates: [number, number]) => {
+    if (popupRef.current) {
+      popupRef.current.remove();
+    }
+    showPropertyPopup(property, coordinates, setActiveMarkerId, updateMarkerZIndex);
+  };
 
-    // Set up property markers
-    markerSetup = usePropertyMarkers({
-      map,
-      properties: propertiesWithOwners || [],
-      mapLoaded,
-      loading,
-      onMarkerClick: (property, coordinates) => {
-        popupSetup.showPropertyPopup(property, coordinates, markerSetup.setActiveMarkerId, markerSetup.updateMarkerZIndex);
+  const updateMarkerZIndex = (propertyId: number | null) => {
+    try {
+      // Reset all markers to default z-index
+      Object.entries(markersRef.current).forEach(([id, marker]) => {
+        const markerEl = marker.getElement();
+        markerEl.style.zIndex = '1';
+      });
+
+      // Set the active marker to higher z-index
+      if (propertyId !== null && markersRef.current[propertyId]) {
+        const activeMarkerEl = markersRef.current[propertyId].getElement();
+        activeMarkerEl.style.zIndex = '3';
       }
-    });
-  } catch (error) {
-    console.error('Error setting up map components:', error);
-    setMapUnavailable(true);
-  }
+    } catch (error) {
+      console.error('Error updating marker z-index:', error);
+    }
+  };
 
-  // Destructure safely after setup
-  const { popupRef, showPropertyPopup } = popupSetup;
-  const { markersRef, activeMarkerId, setActiveMarkerId, updateMarkerZIndex } = markerSetup;
+  // Set up popup functionality
+  const { popupRef, showPropertyPopup } = usePropertyPopup({
+    map,
+    onSaveProperty: handleSaveProperty,
+    onMessageOwner: handleMessageOwner,
+    navigate
+  });
+
+  // Set up property markers
+  const { markersRef } = usePropertyMarkers({
+    map,
+    properties: propertiesWithOwners || [],
+    mapLoaded,
+    loading,
+    onMarkerClick: handleMarkerClick
+  });
 
   // Handle city selection
   try {

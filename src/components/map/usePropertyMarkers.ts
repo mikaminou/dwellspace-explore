@@ -18,26 +18,6 @@ export function usePropertyMarkers({
   onMarkerClick: (property: Property, coordinates: [number, number]) => void;
 }) {
   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
-  const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
-
-  // Update marker z-index based on active state
-  const updateMarkerZIndex = (propertyId: number | null) => {
-    try {
-      // Reset all markers to default z-index
-      Object.entries(markersRef.current).forEach(([id, marker]) => {
-        const markerEl = marker.getElement();
-        markerEl.style.zIndex = '1';
-      });
-
-      // Set the active marker to higher z-index
-      if (propertyId !== null && markersRef.current[propertyId]) {
-        const activeMarkerEl = markersRef.current[propertyId].getElement();
-        activeMarkerEl.style.zIndex = '3';
-      }
-    } catch (error) {
-      console.error('Error updating marker z-index:', error);
-    }
-  };
 
   // Update markers when properties change
   useEffect(() => {
@@ -175,9 +155,6 @@ export function usePropertyMarkers({
   }, [properties, mapLoaded, loading, onMarkerClick, map]);
 
   return {
-    markersRef,
-    activeMarkerId,
-    setActiveMarkerId,
-    updateMarkerZIndex
+    markersRef
   };
 }
