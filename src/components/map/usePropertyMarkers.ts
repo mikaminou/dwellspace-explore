@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 import { generateCoordsFromLocation } from './mapUtils';
@@ -15,6 +15,7 @@ export function usePropertyMarkers(
   showPropertyPopup: (property: Property, coordinates: [number, number]) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  const markerCoordinates = useRef<{ [key: number]: [number, number] }>({});
 
   const updateMarkerZIndex = (propertyId: number | null) => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
@@ -28,12 +29,25 @@ export function usePropertyMarkers(
     }
   };
 
+  // Function to reposition markers to their original coordinates
+  const repositionMarkers = () => {
+    if (!map.current) return;
+    
+    Object.entries(markerCoordinates.current).forEach(([id, coords]) => {
+      const marker = markersRef.current[Number(id)];
+      if (marker) {
+        marker.setLngLat(coords);
+      }
+    });
+  };
+
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
     // Remove existing markers
     Object.values(markersRef.current).forEach(marker => marker.remove());
     markersRef.current = {};
+    markerCoordinates.current = {};
 
     if (propertiesWithOwners.length === 0) return;
 
@@ -70,7 +84,11 @@ export function usePropertyMarkers(
 
       if (!coords) return;
 
-      bounds.extend([coords.lng, coords.lat]);
+      // Store original coordinates for repositioning
+      const lngLat: [number, number] = [coords.lng, coords.lat];
+      markerCoordinates.current[property.id] = lngLat;
+
+      bounds.extend(lngLat);
       propertiesWithCoords++;
 
       const markerEl = document.createElement('div');
@@ -78,7 +96,7 @@ export function usePropertyMarkers(
       
       const handleMarkerClick = () => {
         setActiveMarkerId(property.id);
-        showPropertyPopup(property, [coords.lng, coords.lat]);
+        showPropertyPopup(property, lngLat);
       };
 
       const root = createRoot(markerEl);
@@ -91,17 +109,17 @@ export function usePropertyMarkers(
         })
       );
       
-      // Create the marker with pitchAlignment and rotationAlignment set to 'map'
-      // This ensures markers maintain their position during zoom operations
+      // Create the marker with proper alignment settings
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
         offset: [0, 0],
         clickTolerance: 10,
-        pitchAlignment: 'map',    // Keep marker flat against the map
-        rotationAlignment: 'map'  // Maintain rotation relative to the map
+        // Using viewport alignment for better stability across zoom levels
+        pitchAlignment: 'viewport',
+        rotationAlignment: 'viewport'
       })
-        .setLngLat([coords.lng, coords.lat])
+        .setLngLat(lngLat)
         .addTo(map.current!);
 
       markersRef.current[property.id] = marker;
@@ -114,6 +132,20 @@ export function usePropertyMarkers(
         maxZoom: 15
       });
     }
+
+    // Add event listeners for repositioning markers
+    map.current.on('zoom', repositionMarkers);
+    map.current.on('move', repositionMarkers);
+    map.current.on('moveend', repositionMarkers);
+
+    return () => {
+      // Clean up event listeners when component unmounts
+      if (map.current) {
+        map.current.off('zoom', repositionMarkers);
+        map.current.off('move', repositionMarkers);
+        map.current.off('moveend', repositionMarkers);
+      }
+    };
   }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup]);
 
   return { activeMarkerId, setActiveMarkerId, updateMarkerZIndex };

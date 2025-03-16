@@ -9,17 +9,24 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   
   if (cityCoords) {
     // Generate slightly different coordinates based on the id to spread markers within the city
+    // Using a consistent but small offset to maintain marker stability
+    const offsetLat = (id % 100) * 0.0002;
+    const offsetLng = (id % 100) * 0.0002;
+    
     return {
-      lat: cityCoords.lat + (Math.sin(id) * 0.015),
-      lng: cityCoords.lng + (Math.cos(id) * 0.015)
+      lat: cityCoords.lat + offsetLat,
+      lng: cityCoords.lng + offsetLng
     };
   }
   
   // Fallback to Algiers if no city is detected
   const baseCoords = { lat: 36.752887, lng: 3.042048 };
+  const offsetLat = (id % 100) * 0.0002;
+  const offsetLng = (id % 100) * 0.0002;
+  
   return {
-    lat: baseCoords.lat + (Math.sin(id) * 0.03),
-    lng: baseCoords.lng + (Math.cos(id) * 0.03)
+    lat: baseCoords.lat + offsetLat,
+    lng: baseCoords.lng + offsetLng
   };
 }
 

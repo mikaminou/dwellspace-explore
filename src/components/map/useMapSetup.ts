@@ -25,8 +25,14 @@ export function useMapSetup() {
       zoom: 12,
       attributionControl: false,
       renderWorldCopies: false,  // Prevents duplicate markers when zooming out
+      projection: 'mercator',    // Force standard mercator projection for stability
       boxZoom: true,             // Enables box zoom for better control
-      fadeDuration: 0            // Reduces marker position changes during zoom
+      maxZoom: 18,               // Limit max zoom level
+      minZoom: 5,                // Limit min zoom level to prevent global view issues
+      maxBounds: [
+        [-10, 20],  // Southwest coordinates (Western Sahara, Mali)
+        [15, 40]    // Northeast coordinates (Libya, Mediterranean)
+      ]
     });
 
     // Add navigation controls
