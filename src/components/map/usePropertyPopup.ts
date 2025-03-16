@@ -85,8 +85,7 @@ export function usePropertyPopup(
       });
     }
 
-    // Only close popup on very specific events, not on map clicks
-    // This prevents unwanted zoom resets when clicking on the map
+    // Close popup on map interactions
     ['dragstart'].forEach(event => {
       map.current?.once(event, () => {
         if (popupRef.current) {
@@ -98,28 +97,7 @@ export function usePropertyPopup(
       });
     });
     
-    // Add a specific close button listener
-    const closeButton = document.createElement('button');
-    closeButton.className = 'popup-close-button';
-    closeButton.innerHTML = '×';
-    closeButton.style.cssText = 'position:absolute;top:5px;right:5px;background:white;border-radius:50%;width:22px;height:22px;border:none;cursor:pointer;font-size:16px;z-index:10;';
-    
-    closeButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (popupRef.current) {
-        popupRef.current.remove();
-        popupRef.current = null;
-        setActiveMarkerId(null);
-        updateMarkerZIndex(null);
-      }
-    });
-    
-    // Add the close button to the popup
-    const popupContainer = document.querySelector('.property-popup-container');
-    if (popupContainer) {
-      popupContainer.appendChild(closeButton);
-    }
-    
+    // Removed the custom close button code that was here
   }, [map, navigate, updateMarkerZIndex, setActiveMarkerId, handleSaveProperty, handleMessageOwner]);
 
   return { popupRef, showPropertyPopup };
