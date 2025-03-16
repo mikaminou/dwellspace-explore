@@ -4,7 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useSearch } from '@/contexts/search/SearchContext';
-import { MapLoadingState, MapEmptyState } from './MapStates';
+import { MapLoadingState, MapEmptyState, MapErrorState } from './MapStates';
 import { useMapSetup } from './useMapSetup';
 import { usePropertyMarkers } from './usePropertyMarkers';
 import { usePropertyPopup } from './usePropertyPopup';
@@ -13,18 +13,19 @@ import { usePropertiesWithOwners } from './usePropertiesWithOwners';
 import { Property } from '@/api/properties';
 import { MapTokenInput } from './MapTokenInput';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, AlertTriangle } from 'lucide-react';
 
 function MapView() {
   console.log("MapView component rendering");
   const [mapInitError, setMapInitError] = useState<Error | null>(null);
   const [showTokenInput, setShowTokenInput] = useState(false);
+  const [retryAttempts, setRetryAttempts] = useState(0);
   
   const navigate = useNavigate();
   
   // Catch any errors from hooks
   try {
-    const { mapContainer, map, mapLoaded, mapError } = useMapSetup();
+    const { mapContainer, map, mapLoaded, mapError, mapboxAvailable } = useMapSetup();
     const { properties, loading, selectedCity } = useSearch();
     
     useEffect(() => {
@@ -32,27 +33,34 @@ function MapView() {
       console.log("Properties count:", properties?.length || 0);
       console.log("Selected city:", selectedCity);
       console.log("Map loaded:", mapLoaded);
+      console.log("Mapbox available:", mapboxAvailable);
       
       return () => {
         console.log("MapView unmounted");
       };
-    }, [properties, selectedCity, mapLoaded]);
+    }, [properties, selectedCity, mapLoaded, mapboxAvailable]);
     
-    // Show error if map failed to load
+    // Show error if map failed to load or Mapbox is not available
     useEffect(() => {
+      if (!mapboxAvailable) {
+        console.error("Mapbox GL JS is not available");
+        setMapInitError(new Error("Mapbox GL JS is not available. Please check your internet connection or try a different browser."));
+        return;
+      }
+      
       if (mapError) {
         console.error("Map error:", mapError);
         setMapInitError(mapError);
         
         // Check if it's a token-related error
         if (mapError.message.includes('token') || mapError.message.includes('access') || 
-            mapError.message.includes('GL JS') || mapError.message.includes('not available')) {
+            mapError.message.includes('401') || mapError.message.includes('unauthorized')) {
           setShowTokenInput(true);
         } else {
           toast.error("Failed to load map: " + mapError.message);
         }
       }
-    }, [mapError]);
+    }, [mapError, mapboxAvailable]);
     
     // Handle property save
     const handleSaveProperty = (propertyId: number) => {
@@ -137,9 +145,52 @@ function MapView() {
       window.location.reload(); // Reload to reinitialize map with new token
     };
 
-    const handleReload = () => {
-      window.location.reload();
+    const handleRetry = () => {
+      setRetryAttempts(prev => prev + 1);
+      setMapInitError(null);
+      setShowTokenInput(false);
+      
+      // Force reload of mapbox scripts
+      const script = document.createElement('script');
+      script.src = 'https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js';
+      script.async = true;
+      script.onload = () => {
+        console.log('Mapbox script reloaded');
+        window.location.reload();
+      };
+      document.head.appendChild(script);
     };
+
+    // Fallback for Mapbox not available
+    if (!mapboxAvailable) {
+      return (
+        <div className="relative flex-1 w-full flex items-center justify-center">
+          <div className="bg-destructive/10 p-6 rounded-md text-destructive max-w-md w-full">
+            <div className="flex items-center gap-2 mb-4">
+              <AlertTriangle className="h-5 w-5" />
+              <h3 className="font-semibold text-lg">Mapbox Not Available</h3>
+            </div>
+            <p className="mb-4">We're having trouble loading the map component. This may be due to:</p>
+            <ul className="list-disc pl-5 mb-4 space-y-1">
+              <li>Network connectivity issues</li>
+              <li>Ad blockers or content filtering</li>
+              <li>Browser compatibility problems</li>
+            </ul>
+            <p className="text-sm text-muted-foreground mb-4">
+              Try disabling any ad blockers, checking your internet connection, or using a different browser.
+            </p>
+            <Button 
+              onClick={handleRetry}
+              variant="default"
+              className="w-full"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry Loading Map ({retryAttempts})
+            </Button>
+          </div>
+        </div>
+      );
+    }
 
     // Fallback for token errors
     if (showTokenInput) {
@@ -157,21 +208,11 @@ function MapView() {
     if (mapError || mapInitError) {
       return (
         <div className="relative flex-1 w-full flex items-center justify-center">
-          <div className="bg-destructive/10 p-6 rounded-md text-destructive max-w-md w-full">
-            <h3 className="font-semibold text-lg mb-2">Failed to load map</h3>
-            <p className="mb-4">{(mapError || mapInitError)?.message || "Unknown error"}</p>
-            <p className="text-sm text-muted-foreground mb-4">
-              This might be due to network issues or Mapbox API unavailability.
-            </p>
-            <Button 
-              onClick={handleReload}
-              variant="default"
-              className="w-full"
-            >
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Reload Map
-            </Button>
-          </div>
+          <MapErrorState 
+            show={true} 
+            message={(mapError || mapInitError)?.message || "Unknown error loading map"}
+            onRetry={handleRetry}
+          />
         </div>
       );
     }
