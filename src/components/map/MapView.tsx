@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useSearch } from '@/contexts/search/SearchContext';
 import { useLanguage } from '@/contexts/language/LanguageContext';
@@ -36,6 +36,28 @@ export function MapView() {
   
   // Handle city updates
   useCityUpdate(map, mapLoaded, selectedCity);
+
+  // CSS to improve marker rendering
+  useEffect(() => {
+    // Add a style tag for custom marker styles
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+      .custom-marker-container {
+        transform: none !important;
+        will-change: transform;
+        z-index: 1;
+      }
+      .mapboxgl-marker {
+        transform-origin: bottom center;
+        will-change: transform;
+      }
+    `;
+    document.head.appendChild(styleTag);
+    
+    return () => {
+      document.head.removeChild(styleTag);
+    };
+  }, []);
 
   return (
     <div className="relative flex-1 w-full">

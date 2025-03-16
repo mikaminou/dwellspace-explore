@@ -1,4 +1,3 @@
-
 import { Property } from "@/api/properties";
 
 // Helper function to generate coordinates from location string
@@ -7,10 +6,10 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   const cityCoords = getCityCoordinatesFromLocation(location);
   
   if (cityCoords) {
-    // Generate slightly different coordinates based on the id to spread markers within the city
-    // Using a deterministic but small offset to avoid extreme displacements
-    const offset = 0.005; // Smaller offset in degrees to keep markers closer together
-    const idHash = Math.abs(Math.sin(id * 0.1)) * offset; // Normalize the offset
+    // Generate slightly different coordinates based on the id
+    // Using a very small offset to keep markers close to their origin
+    const offset = 0.002; // Reduced offset to minimize marker spread
+    const idHash = (id % 10) * offset;
     
     return {
       lat: restrictLatitude(cityCoords.lat + (Math.sin(id) * idHash)),
@@ -20,8 +19,8 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   
   // Fallback to Algiers if no city is detected
   const baseCoords = { lat: 36.752887, lng: 3.042048 };
-  const offset = 0.005; // Smaller offset in degrees
-  const idHash = Math.abs(Math.sin(id * 0.1)) * offset; // Normalize the offset
+  const offset = 0.002;
+  const idHash = (id % 10) * offset;
   
   return {
     lat: restrictLatitude(baseCoords.lat + (Math.sin(id) * idHash)),
@@ -29,15 +28,14 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   };
 }
 
-// Ensure longitude stays within -180 to 180 degrees
+// Ensure longitude stays within North Africa region
 function restrictLongitude(lng: number): number {
-  // Simple clamping approach for more stable results
-  return Math.max(-179.9, Math.min(179.9, lng));
+  return Math.max(-15, Math.min(35, lng));
 }
 
-// Ensure latitude stays within -85 to 85 degrees (mapbox limits)
+// Ensure latitude stays within North Africa region
 function restrictLatitude(lat: number): number {
-  return Math.max(-84.9, Math.min(84.9, lat));
+  return Math.max(20, Math.min(38, lat));
 }
 
 // Helper function to extract city from location string
@@ -47,13 +45,7 @@ function getCityCoordinatesFromLocation(location: string): { lat: number, lng: n
   
   // Check if the location string contains any of our known cities
   for (const [cityName, coords] of Object.entries(cities)) {
-    // More aggressive match with various forms of the city name
-    if (
-      locationLower.includes(cityName.toLowerCase()) || 
-      locationLower.includes(cityName.toLowerCase().replace(' ', '')) ||
-      locationLower.includes(cityName.toLowerCase().replace('-', ' ')) ||
-      locationLower.includes(cityName.toLowerCase().replace(' ', '-'))
-    ) {
+    if (locationLower.includes(cityName.toLowerCase())) {
       return coords;
     }
   }
@@ -62,7 +54,6 @@ function getCityCoordinatesFromLocation(location: string): { lat: number, lng: n
 }
 
 // Helper function to get city coordinates
-// In a real app, you would have this data in your database
 export function getCityCoordinates(city: string): { lat: number, lng: number } | null {
   const cities = getCitiesCoordinates();
   
