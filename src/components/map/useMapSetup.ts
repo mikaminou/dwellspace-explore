@@ -6,11 +6,24 @@ import { toast } from 'sonner';
 // Default Mapbox token - users should replace this with their own
 // Check if token exists and is valid
 if (!mapboxgl.accessToken || mapboxgl.accessToken.includes('undefined')) {
-  mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtODZlMWQ3ZDAzeGcyaXNlemlmd2hyeDUifQ.ExxxOcYTr6vkVwBw6J_CYA';
-  console.log('Using default Mapbox token:', mapboxgl.accessToken);
+  try {
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZGVtby11c2VyIiwiYSI6ImNsbTlqaTdxejExbmozcnBpdnU5bDNqd3gifQ.8fRJBmQTgZBCBeZrHtYNcw';
+    console.log('Using fallback Mapbox token:', mapboxgl.accessToken);
+  } catch (e) {
+    console.error('Error setting Mapbox token:', e);
+  }
+}
+
+// Check for Mapbox GL JS availability
+try {
+  console.log('Checking Mapbox GL JS availability');
+  console.log('mapboxgl version:', mapboxgl.version);
+} catch (e) {
+  console.error('Error accessing mapboxgl:', e);
 }
 
 export function useMapSetup() {
+  console.log('useMapSetup hook called');
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
@@ -48,6 +61,13 @@ export function useMapSetup() {
       return;
     }
 
+    // Check if mapboxgl is available
+    if (!window.mapboxgl) {
+      console.error('mapboxgl not available on window object');
+      setMapError(new Error('Mapbox GL JS is not available. Please check your internet connection.'));
+      return;
+    }
+
     try {
       console.log('Initializing map with token:', mapboxgl.accessToken);
       
@@ -62,6 +82,8 @@ export function useMapSetup() {
           attributionControl: false,
           failIfMajorPerformanceCaveat: false // Helps with some devices
         });
+        
+        console.log('Map instance created successfully');
       } catch (mapInitError) {
         console.error('Error initializing Mapbox map:', mapInitError);
         setMapError(mapInitError instanceof Error ? mapInitError : new Error(String(mapInitError)));
@@ -83,6 +105,8 @@ export function useMapSetup() {
 
         // Add attribution control in the bottom-right
         map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
+        
+        console.log('Map controls added successfully');
       } catch (controlError) {
         console.error('Error adding map controls:', controlError);
         // Continue even if controls fail - not critical

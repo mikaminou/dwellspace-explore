@@ -9,6 +9,9 @@ import { Suspense, lazy, useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth";
 import { toast } from "@/components/ui/use-toast";
 
+// Add explicit console log to track initialization
+console.log("App.tsx - Starting initialization");
+
 // Create a new query client instance with better error logging
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,13 +34,32 @@ import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
-// Lazy loaded routes to improve performance
-const Index = lazy(() => import("./pages/Index"));
-const Search = lazy(() => import("./pages/Search"));
-const Map = lazy(() => import("./pages/Map"));
-const PropertyDetails = lazy(() => import("./pages/PropertyDetails"));
-const EmailConfirmation = lazy(() => import("./pages/EmailConfirmation"));
-const Profile = lazy(() => import("./pages/Profile"));
+// Lazy loaded routes to improve performance - add error catching
+console.log("App.tsx - Setting up lazy imports");
+const Index = lazy(() => import("./pages/Index").catch(err => {
+  console.error("Failed to load Index page:", err);
+  return Promise.resolve({ default: () => <NotFound /> });
+}));
+const Search = lazy(() => import("./pages/Search").catch(err => {
+  console.error("Failed to load Search page:", err);
+  return Promise.resolve({ default: () => <NotFound /> });
+}));
+const Map = lazy(() => import("./pages/Map").catch(err => {
+  console.error("Failed to load Map page:", err);
+  return Promise.resolve({ default: () => <NotFound /> });
+}));
+const PropertyDetails = lazy(() => import("./pages/PropertyDetails").catch(err => {
+  console.error("Failed to load PropertyDetails page:", err);
+  return Promise.resolve({ default: () => <NotFound /> });
+}));
+const EmailConfirmation = lazy(() => import("./pages/EmailConfirmation").catch(err => {
+  console.error("Failed to load EmailConfirmation page:", err);
+  return Promise.resolve({ default: () => <NotFound /> });
+}));
+const Profile = lazy(() => import("./pages/Profile").catch(err => {
+  console.error("Failed to load Profile page:", err);
+  return Promise.resolve({ default: () => <NotFound /> });
+}));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -95,6 +117,20 @@ const App = () => {
   // Add effect to log mount
   useEffect(() => {
     console.log("App component mounted");
+    
+    // Add specific debugging for mapbox-gl
+    try {
+      // Check if mapboxgl exists
+      const mapboxCheck = window.mapboxgl;
+      console.log("mapboxgl check:", mapboxCheck ? "available" : "not available");
+      
+      if (mapboxCheck) {
+        console.log("mapboxgl version:", mapboxCheck.version);
+      }
+    } catch (e) {
+      console.error("Error checking mapbox:", e);
+    }
+    
     return () => console.log("App component unmounted");
   }, []);
   

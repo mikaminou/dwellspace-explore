@@ -2,8 +2,38 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
-import { generateCoordsFromLocation } from './mapUtils';
 import { toast } from 'sonner';
+import { PropertyMarker } from './PropertyMarker';
+import ReactDOM from 'react-dom';
+import React from 'react';
+
+// Helper function to generate coordinates from location with better error handling
+const generateCoordsFromLocation = (location: string, id: string | number): { lat: number; lng: number } | null => {
+  try {
+    if (!location) {
+      console.warn(`No location for property ${id}`);
+      return null;
+    }
+    
+    // Default coordinates based on property ID for testing
+    // In production, you'd use real geocoding
+    const seed = String(id).split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    const latVariance = (seed % 100) * 0.01;
+    const lngVariance = ((seed * 2) % 100) * 0.01;
+    
+    // Base coordinates (Algiers)
+    const baseLat = 36.752887;
+    const baseLng = 3.042048;
+    
+    return {
+      lat: baseLat + latVariance - 0.5,
+      lng: baseLng + lngVariance - 0.5
+    };
+  } catch (error) {
+    console.error(`Error generating coordinates for property ${id}:`, error);
+    return null;
+  }
+};
 
 export function usePropertyMarkers({
   map,
@@ -18,6 +48,7 @@ export function usePropertyMarkers({
   loading: boolean;
   onMarkerClick: (property: Property, coordinates: [number, number]) => void;
 }) {
+  console.log('usePropertyMarkers hook called');
   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
   
@@ -103,7 +134,9 @@ export function usePropertyMarkers({
       }
 
       console.log('Creating markers for', properties.length, 'properties');
-      const bounds = new mapboxgl.LngLatBounds();
+      
+      // Create bounds manually since we're getting errors
+      let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
       let propertiesWithCoords = 0;
       let missingCoords = 0;
 
@@ -121,7 +154,12 @@ export function usePropertyMarkers({
             return;
           }
 
-          bounds.extend([coords.lng, coords.lat]);
+          // Update bounds
+          minLat = Math.min(minLat, coords.lat);
+          maxLat = Math.max(maxLat, coords.lat);
+          minLng = Math.min(minLng, coords.lng);
+          maxLng = Math.max(maxLng, coords.lng);
+          
           propertiesWithCoords++;
 
           const markerEl = document.createElement('div');
@@ -136,30 +174,33 @@ export function usePropertyMarkers({
             .setLngLat([coords.lng, coords.lat])
             .addTo(map.current!);
 
-          const priceElement = document.createElement('div');
-          priceElement.className = 'price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
-          priceElement.innerText = property.price || 'No price';
-          markerEl.appendChild(priceElement);
-
-          // Add city name as data attribute for debugging
-          const cityMatch = property.location.match(/,\s*([^,]+)$/);
-          if (cityMatch && cityMatch[1]) {
-            priceElement.setAttribute('data-city', cityMatch[1].trim());
-          }
-
-          priceElement.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
+          // Render React component for the marker
+          try {
+            const markerContainer = document.createElement('div');
+            markerEl.appendChild(markerContainer);
             
-            // Delay the click handler slightly for stability
-            setTimeout(() => {
-              try {
-                onMarkerClick(property, [coords.lng, coords.lat]);
-              } catch (clickError) {
-                console.error('Error in marker click handler:', clickError);
-              }
-            }, 10);
-          });
+            ReactDOM.render(
+              <PropertyMarker 
+                price={property.price || 'N/A'} 
+                onClick={() => {
+                  onMarkerClick(property, [coords.lng, coords.lat]);
+                }}
+              />,
+              markerContainer
+            );
+          } catch (renderError) {
+            console.error(`Error rendering React marker for property ${property.id}:`, renderError);
+            
+            // Fallback to simple HTML marker
+            const priceElement = document.createElement('div');
+            priceElement.className = 'bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
+            priceElement.innerText = property.price || 'N/A';
+            markerEl.appendChild(priceElement);
+            
+            priceElement.addEventListener('click', () => {
+              onMarkerClick(property, [coords.lng, coords.lat]);
+            });
+          }
 
           markersRef.current[property.id] = marker;
         } catch (markerError) {
@@ -170,19 +211,44 @@ export function usePropertyMarkers({
       if (propertiesWithCoords > 0) {
         try {
           console.log('Fitting map to bounds with', propertiesWithCoords, 'properties');
-          map.current.fitBounds(bounds, {
-            padding: 50,
-            maxZoom: 15
-          });
+          
+          // Only fit bounds if we have valid min/max values
+          if (minLat <= maxLat && minLng <= maxLng) {
+            map.current.fitBounds([
+              [minLng, minLat], // Southwest corner
+              [maxLng, maxLat]  // Northeast corner
+            ], {
+              padding: 50,
+              maxZoom: 15
+            });
+          } else {
+            console.warn('Invalid bounds calculated, using default view');
+            map.current.setCenter([3.042048, 36.752887]);
+            map.current.setZoom(12);
+          }
         } catch (fitError) {
           console.error('Error fitting map to bounds:', fitError);
+          // Try to center map on default location as fallback
+          try {
+            map.current.setCenter([3.042048, 36.752887]);
+            map.current.setZoom(12);
+          } catch (e) {
+            console.error('Error setting default map center:', e);
+          }
         }
       } else {
         console.warn('No properties with valid coordinates found');
+        try {
+          map.current.setCenter([3.042048, 36.752887]);
+          map.current.setZoom(12);
+        } catch (e) {
+          console.error('Error setting default map center:', e);
+        }
       }
 
       if (missingCoords > 0) {
         console.warn(`${missingCoords} properties are missing valid coordinates`);
+        toast.warning(`${missingCoords} properties couldn't be displayed on the map`);
       }
     } catch (error) {
       console.error('Error updating property markers:', error);

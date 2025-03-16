@@ -11,11 +11,24 @@ import "./styles/map.css"; // Import map styles
 import "./styles/property.css"; // Import property styles
 import { AuthProvider } from "./contexts/auth";
 
-// Add a global error handler with more details
+// Add more detailed global error handler
+console.log("main.tsx - Setting up global error handler");
 window.addEventListener('error', (event) => {
   console.error('Global error caught:', event.error);
   console.error('Error message:', event.message);
   console.error('Error location:', event.filename, 'line:', event.lineno, 'column:', event.colno);
+  
+  // Check for specific Mapbox errors
+  const errorString = String(event.error);
+  if (errorString.includes('mapbox') || errorString.includes('map')) {
+    console.error('Possible Mapbox related error:', errorString);
+  }
+  
+  // Check for 'S' property error
+  if (errorString.includes('S') && errorString.includes('undefined')) {
+    console.error('Found error related to property S on undefined object');
+    console.trace();
+  }
 });
 
 // Add debugging information
@@ -34,6 +47,15 @@ try {
     fallbackRoot.id = "root";
     document.body.appendChild(fallbackRoot);
     console.log("Created fallback root element");
+  }
+  
+  // Try to detect if mapbox-gl is available
+  try {
+    console.log("Checking for mapbox-gl...");
+    const mapboxTest = window.mapboxgl;
+    console.log("mapboxgl test:", mapboxTest ? "available" : "not available");
+  } catch (e) {
+    console.error("Error checking mapbox-gl:", e);
   }
   
   const root = ReactDOM.createRoot(document.getElementById("root")!);

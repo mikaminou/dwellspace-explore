@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -13,73 +13,140 @@ import { usePropertiesWithOwners } from './usePropertiesWithOwners';
 
 function MapView() {
   console.log("MapView component rendering");
+  const [mapInitError, setMapInitError] = useState<Error | null>(null);
   
   const navigate = useNavigate();
-  const { mapContainer, map, mapLoaded, mapError } = useMapSetup();
-  const { properties, loading, selectedCity } = useSearch();
   
-  useEffect(() => {
-    console.log("MapView mounted");
-    console.log("Properties count:", properties?.length || 0);
-    console.log("Selected city:", selectedCity);
-    console.log("Map loaded:", mapLoaded);
+  // Catch any errors from hooks
+  try {
+    const { mapContainer, map, mapLoaded, mapError } = useMapSetup();
+    const { properties, loading, selectedCity } = useSearch();
     
-    return () => {
-      console.log("MapView unmounted");
+    useEffect(() => {
+      console.log("MapView mounted");
+      console.log("Properties count:", properties?.length || 0);
+      console.log("Selected city:", selectedCity);
+      console.log("Map loaded:", mapLoaded);
+      
+      return () => {
+        console.log("MapView unmounted");
+      };
+    }, [properties, selectedCity, mapLoaded]);
+    
+    // Show error if map failed to load
+    useEffect(() => {
+      if (mapError) {
+        console.error("Map error:", mapError);
+        setMapInitError(mapError);
+        toast.error("Failed to load map: " + mapError.message);
+      }
+    }, [mapError]);
+    
+    // Handle property save
+    const handleSaveProperty = (propertyId: number) => {
+      console.log('Saving property:', propertyId);
+      toast.success('Property saved to favorites');
     };
-  }, [properties, selectedCity, mapLoaded]);
-  
-  // Show error if map failed to load
-  useEffect(() => {
-    if (mapError) {
-      console.error("Map error:", mapError);
-      toast.error("Failed to load map: " + mapError.message);
+
+    // Handle message to owner
+    const handleMessageOwner = (ownerId: number) => {
+      console.log('Messaging owner:', ownerId);
+      toast.success('Message panel opened');
+    };
+
+    // Get properties with owner data - with error handling
+    let propertiesWithOwners = [];
+    try {
+      const { propertiesWithOwners: fetchedProps } = usePropertiesWithOwners(properties);
+      propertiesWithOwners = fetchedProps;
+    } catch (error) {
+      console.error("Error in usePropertiesWithOwners:", error);
+      propertiesWithOwners = properties || [];
     }
-  }, [mapError]);
-  
-  // Handle property save
-  const handleSaveProperty = (propertyId: number) => {
-    console.log('Saving property:', propertyId);
-    toast.success('Property saved to favorites');
-  };
 
-  // Handle message to owner
-  const handleMessageOwner = (ownerId: number) => {
-    console.log('Messaging owner:', ownerId);
-    toast.success('Message panel opened');
-  };
-
-  // Get properties with owner data
-  const { propertiesWithOwners } = usePropertiesWithOwners(properties);
-
-  // Set up popup functionality
-  const { popupRef, showPropertyPopup } = usePropertyPopup({
-    map,
-    onSaveProperty: handleSaveProperty,
-    onMessageOwner: handleMessageOwner,
-    navigate
-  });
-
-  // Set up property markers
-  const { markersRef, activeMarkerId, setActiveMarkerId, updateMarkerZIndex } = usePropertyMarkers({
-    map,
-    properties: propertiesWithOwners,
-    mapLoaded,
-    loading,
-    onMarkerClick: (property, coordinates) => {
-      showPropertyPopup(property, coordinates, setActiveMarkerId, updateMarkerZIndex);
+    // Set up popup functionality - with error handling
+    let popupRef = { current: null };
+    let showPropertyPopup = () => {};
+    try {
+      const popupResult = usePropertyPopup({
+        map,
+        onSaveProperty: handleSaveProperty,
+        onMessageOwner: handleMessageOwner,
+        navigate
+      });
+      popupRef = popupResult.popupRef;
+      showPropertyPopup = popupResult.showPropertyPopup;
+    } catch (error) {
+      console.error("Error in usePropertyPopup:", error);
     }
-  });
 
-  // Handle city selection
-  useCitySelection({ map, mapLoaded, selectedCity });
+    // Set up property markers - with error handling
+    let markersRef = { current: {} };
+    let activeMarkerId = null;
+    let setActiveMarkerId = () => {};
+    let updateMarkerZIndex = () => {};
+    
+    try {
+      const markersResult = usePropertyMarkers({
+        map,
+        properties: propertiesWithOwners,
+        mapLoaded,
+        loading,
+        onMarkerClick: (property, coordinates) => {
+          try {
+            showPropertyPopup(property, coordinates, setActiveMarkerId, updateMarkerZIndex);
+          } catch (error) {
+            console.error("Error showing property popup:", error);
+          }
+        }
+      });
+      
+      markersRef = markersResult.markersRef;
+      activeMarkerId = markersResult.activeMarkerId;
+      setActiveMarkerId = markersResult.setActiveMarkerId;
+      updateMarkerZIndex = markersResult.updateMarkerZIndex;
+    } catch (error) {
+      console.error("Error in usePropertyMarkers:", error);
+    }
 
-  // Fallback for errors
-  if (mapError) {
+    // Handle city selection - with error handling
+    try {
+      useCitySelection({ map, mapLoaded, selectedCity });
+    } catch (error) {
+      console.error("Error in useCitySelection:", error);
+    }
+
+    // Fallback for errors
+    if (mapError || mapInitError) {
+      return (
+        <div className="relative flex-1 w-full flex items-center justify-center">
+          <div className="bg-destructive/10 p-4 rounded-md text-destructive">
+            <p>Failed to load map: {(mapError || mapInitError)?.message || "Unknown error"}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-2 px-3 py-1 bg-primary text-white rounded hover:bg-primary/90 text-sm"
+            >
+              Reload
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative flex-1 w-full">
+        <MapLoadingState show={loading} />
+        <MapEmptyState show={propertiesWithOwners.length === 0 && !loading} />
+        <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
+      </div>
+    );
+  } catch (error) {
+    console.error("Critical error in MapView:", error);
+    // Show a fallback UI
     return (
       <div className="relative flex-1 w-full flex items-center justify-center">
         <div className="bg-destructive/10 p-4 rounded-md text-destructive">
-          <p>Failed to load map: {mapError.message}</p>
+          <p>An error occurred rendering the map: {error instanceof Error ? error.message : String(error)}</p>
           <button 
             onClick={() => window.location.reload()} 
             className="mt-2 px-3 py-1 bg-primary text-white rounded hover:bg-primary/90 text-sm"
@@ -90,14 +157,6 @@ function MapView() {
       </div>
     );
   }
-
-  return (
-    <div className="relative flex-1 w-full">
-      <MapLoadingState show={loading} />
-      <MapEmptyState show={propertiesWithOwners.length === 0 && !loading} />
-      <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
-    </div>
-  );
 }
 
 export default MapView;
