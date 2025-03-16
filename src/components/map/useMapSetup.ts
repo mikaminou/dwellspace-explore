@@ -25,7 +25,9 @@ export function useMapSetup() {
       zoom: 12,
       attributionControl: false,
       renderWorldCopies: false,  // Prevents duplicate markers when zooming out
-      projection: 'mercator',    // Force standard mercator projection for stability
+      projection: {
+        name: 'mercator'  // Use the projection object format expected by MapboxGL
+      },
       boxZoom: true,             // Enables box zoom for better control
       maxZoom: 18,               // Limit max zoom level
       minZoom: 5,                // Limit min zoom level to prevent global view issues
