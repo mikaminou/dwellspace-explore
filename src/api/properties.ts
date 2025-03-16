@@ -26,7 +26,7 @@ export type Property = {
   owner_id: string;
   created_at: string;
   updated_at: string;
-  listing_type: 'sale' | 'rent' | 'construction';
+  listing_type?: string; // Changed to accept any string value
   // Make owner explicitly optional with proper typing
   owner?: Agent;
   // Add these properties for compatibility with mock data

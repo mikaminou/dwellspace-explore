@@ -43,26 +43,32 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   };
 
   const getListingTypeColor = (property: Property): string => {
-    if (property.listing_type === 'rent') return 'bg-blue-500 text-white';
-    if (property.listing_type === 'construction') return 'bg-amber-500 text-white';
-    if (property.listing_type === 'commercial') return 'bg-purple-500 text-white';
-    if (property.listing_type === 'vacation') return 'bg-teal-500 text-white';
+    const listingType = property.listing_type?.toLowerCase() || 'sale';
+    
+    if (listingType === 'rent') return 'bg-blue-500 text-white';
+    if (listingType === 'construction') return 'bg-amber-500 text-white';
+    if (listingType === 'commercial') return 'bg-purple-500 text-white';
+    if (listingType === 'vacation') return 'bg-teal-500 text-white';
     return 'bg-green-500 text-white'; // default for sale
   };
 
   const getListingTypeBorderColor = (property: Property): string => {
-    if (property.listing_type === 'rent') return 'border-blue-500';
-    if (property.listing_type === 'construction') return 'border-amber-500';
-    if (property.listing_type === 'commercial') return 'border-purple-500';
-    if (property.listing_type === 'vacation') return 'border-teal-500';
+    const listingType = property.listing_type?.toLowerCase() || 'sale';
+    
+    if (listingType === 'rent') return 'border-blue-500';
+    if (listingType === 'construction') return 'border-amber-500';
+    if (listingType === 'commercial') return 'border-purple-500';
+    if (listingType === 'vacation') return 'border-teal-500';
     return 'border-green-500'; // default for sale
   };
 
   const getListingTypeText = (property: Property): string => {
-    if (property.listing_type === 'rent') return t('property.forRent');
-    if (property.listing_type === 'construction') return t('property.underConstruction');
-    if (property.listing_type === 'commercial') return t('property.commercial');
-    if (property.listing_type === 'vacation') return t('property.vacation');
+    const listingType = property.listing_type?.toLowerCase() || 'sale';
+    
+    if (listingType === 'rent') return t('property.forRent');
+    if (listingType === 'construction') return t('property.underConstruction');
+    if (listingType === 'commercial') return t('property.commercial');
+    if (listingType === 'vacation') return t('property.vacation');
     return t('property.forSale'); // default for sale
   };
 
