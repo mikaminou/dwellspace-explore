@@ -25,7 +25,9 @@ export interface Property {
   image?: string;
   images: string[];
   agent: Agent;
-  isPremium?: boolean; // Added premium flag for luxury properties
+  isPremium?: boolean;// Added premium flag for luxury properties
+  longitude: number;
+  latitude: number;
 }
 
 // Sample agents
