@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
-import { generateCoordsFromLocation } from './mapUtils';
 import { createRoot } from 'react-dom/client';
 import { PropertyMarker } from './PropertyMarker';
 
@@ -32,8 +31,14 @@ export function usePropertyMarkers(
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
-    Object.values(markersRef.current).forEach(marker => marker.remove());
-    markersRef.current = {};
+    propertiesWithOwners.forEach(property => {
+      if (!markersRef.current[property.id]) { 
+        const marker = new mapboxgl.Marker()
+        .setLngLat([property.longitude, property.latitude]);
+        markersRef.current[property.id] = marker;
+        marker.addTo(map.current);
+      }
+    });
 
     if (propertiesWithOwners.length === 0) return;
 
