@@ -66,6 +66,25 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
         return 'border-green-500';
     }
   };
+  
+  // Get button background color based on listing type
+  const getListingTypeButtonBgClass = (type: string = 'sale') => {
+    const listingType = type.toLowerCase();
+    
+    switch (listingType) {
+      case 'rent':
+        return 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-500';
+      case 'construction':
+        return 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-500';
+      case 'commercial':
+        return 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-500';
+      case 'vacation':
+        return 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-500';
+      case 'sale':
+      default:
+        return 'bg-green-500/10 hover:bg-green-500/20 text-green-500';
+    }
+  };
 
   // Create HTML string for the popup
   return `
@@ -124,7 +143,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
             </div>
             <div class="flex items-center gap-2">
               <button 
-                class="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-full transition-colors" 
+                class="p-2 ${getListingTypeButtonBgClass(property.listing_type)} rounded-full transition-colors" 
                 aria-label="Message owner"
                 data-action="message"
                 data-owner-id="${property.owner.id || 0}"
@@ -132,7 +151,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
               </button>
               <button 
-                class="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-full transition-colors" 
+                class="p-2 ${getListingTypeButtonBgClass(property.listing_type)} rounded-full transition-colors" 
                 aria-label="Save property"
                 data-action="save"
                 data-property-id="${property.id}"
