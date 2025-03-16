@@ -1,3 +1,4 @@
+
 import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Property } from "@/api/properties";
 import { toast } from "sonner";
@@ -19,10 +20,13 @@ export const getPropertiesWithCoordinates = async (): Promise<Property[]> => {
     // Transform each property to match the Property type
     return data.map(property => ({
       ...transformPropertyData(property),
-      // Ensure these properties exist to match the Property type
+      // Ensure proper type conversion for gallery images
       featured_image_url: property.image || '',
       gallery_image_urls: property.images ? 
-        (Array.isArray(property.images) ? property.images : []) : [],
+        (Array.isArray(property.images) ? 
+          property.images.map(img => typeof img === 'string' ? img : String(img)) : 
+          []
+        ) : [],
     }));
   } catch (error) {
     console.error('Unexpected error fetching properties with coordinates:', error);
@@ -73,10 +77,13 @@ export const getPropertiesWithGeodata = async (): Promise<Property[]> => {
       if (property.longitude && property.latitude) {
         return {
           ...transformPropertyData(property),
-          // Ensure these properties exist to match the Property type
+          // Ensure proper type conversion for gallery images
           featured_image_url: property.image || '',
           gallery_image_urls: property.images ? 
-            (Array.isArray(property.images) ? property.images : []) : [],
+            (Array.isArray(property.images) ? 
+              property.images.map(img => typeof img === 'string' ? img : String(img)) : 
+              []
+            ) : [],
         };
       }
       
@@ -84,10 +91,15 @@ export const getPropertiesWithGeodata = async (): Promise<Property[]> => {
       const coordinates = generateCoordinatesFromLocation(property.location);
       return {
         ...transformPropertyData(property),
-        // Add additional needed properties
+        // Add coordinates if generated
+        ...(coordinates ? { longitude: coordinates[0], latitude: coordinates[1] } : {}),
+        // Ensure proper type conversion for gallery images
         featured_image_url: property.image || '',
         gallery_image_urls: property.images ? 
-          (Array.isArray(property.images) ? property.images : []) : [],
+          (Array.isArray(property.images) ? 
+            property.images.map(img => typeof img === 'string' ? img : String(img)) : 
+            []
+          ) : [],
       };
     });
   } catch (error) {
