@@ -95,6 +95,11 @@ export function usePropertyMarkers({
       let propertiesWithCoords = 0;
       let missingCoords = 0;
 
+      // Debug all properties' longitude and latitude
+      properties.forEach(property => {
+        console.log(`Property ${property.id} coords:`, property.longitude, property.latitude);
+      });
+
       // Create markers for each property
       properties.forEach(property => {
         if (!property) {
@@ -104,11 +109,14 @@ export function usePropertyMarkers({
 
         try {
           // First try to use the database coordinates if they exist
-          if (property.longitude && property.latitude) {
+          if (property.longitude !== null && property.latitude !== null && 
+              property.longitude !== undefined && property.latitude !== undefined) {
             const coords = {
               lng: Number(property.longitude),
               lat: Number(property.latitude)
             };
+            
+            console.log(`Using DB coordinates for property ${property.id}:`, coords);
             
             // Update bounds
             bounds = updateBounds(bounds, coords.lat, coords.lng);
@@ -128,6 +136,7 @@ export function usePropertyMarkers({
           } 
           // Fall back to generating coordinates from location
           else if (property.location) {
+            console.log(`Generating coordinates for property ${property.id} from location: ${property.location}`);
             const coords = generateCoordsFromLocation(property.location, property.id);
             if (!coords) {
               console.warn(`Could not generate coordinates for property ${property.id} at location "${property.location}"`);
@@ -135,6 +144,8 @@ export function usePropertyMarkers({
               return;
             }
 
+            console.log(`Generated coordinates for property ${property.id}:`, coords);
+            
             // Update bounds
             bounds = updateBounds(bounds, coords.lat, coords.lng);
             propertiesWithCoords++;
@@ -159,8 +170,11 @@ export function usePropertyMarkers({
         }
       });
 
+      console.log(`Created ${propertiesWithCoords} markers, ${missingCoords} properties had no coordinates`);
+
       // Handle map positioning
       if (propertiesWithCoords > 0) {
+        console.log('Fitting map to bounds with properties:', propertiesWithCoords);
         fitMapToBounds(map.current, bounds, propertiesWithCoords);
       } else {
         console.warn('No properties with valid coordinates found');

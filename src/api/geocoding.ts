@@ -1,4 +1,3 @@
-
 import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Property } from "@/api/properties";
 import { toast } from "sonner";
@@ -17,17 +16,23 @@ export const getPropertiesWithCoordinates = async (): Promise<Property[]> => {
       return [];
     }
 
+    console.log(`Found ${data.length} properties with coordinates in database`);
+
     // Transform each property to match the Property type
-    return data.map(property => ({
-      ...transformPropertyData(property),
-      // Ensure proper type conversion for gallery images
-      featured_image_url: property.image || '',
-      gallery_image_urls: property.images ? 
-        (Array.isArray(property.images) ? 
-          property.images.map(img => typeof img === 'string' ? img : String(img)) : 
-          []
-        ) : [],
-    }));
+    return data.map(property => {
+      const transformed = transformPropertyData(property);
+      
+      // Ensure numeric type for coordinates
+      return {
+        ...transformed,
+        longitude: property.longitude !== null ? Number(property.longitude) : null,
+        latitude: property.latitude !== null ? Number(property.latitude) : null,
+        // Handle gallery images - ensure they're strings
+        gallery_image_urls: Array.isArray(property.images) 
+          ? property.images.map(img => String(img)) 
+          : []
+      };
+    });
   } catch (error) {
     console.error('Unexpected error fetching properties with coordinates:', error);
     return [];
@@ -62,6 +67,7 @@ export const generateCoordinatesFromLocation = (location: string): [number, numb
 // Get all properties and add coordinates if missing
 export const getPropertiesWithGeodata = async (): Promise<Property[]> => {
   try {
+    console.log('Fetching properties with geodata');
     const { data, error } = await supabase
       .from('properties')
       .select('*');
@@ -71,35 +77,37 @@ export const getPropertiesWithGeodata = async (): Promise<Property[]> => {
       return [];
     }
 
+    console.log(`Found ${data.length} total properties, processing coordinates`);
+
     // Transform each property to match the Property type
     return data.map(property => {
-      // If coordinates exist, use them
-      if (property.longitude && property.latitude) {
+      const transformed = transformPropertyData(property);
+      
+      // If coordinates exist, use them (ensure they're numbers)
+      if (property.longitude !== null && property.latitude !== null) {
         return {
-          ...transformPropertyData(property),
-          // Ensure proper type conversion for gallery images
-          featured_image_url: property.image || '',
-          gallery_image_urls: property.images ? 
-            (Array.isArray(property.images) ? 
-              property.images.map(img => typeof img === 'string' ? img : String(img)) : 
-              []
-            ) : [],
+          ...transformed,
+          longitude: Number(property.longitude),
+          latitude: Number(property.latitude),
+          // Handle gallery images - ensure they're strings
+          gallery_image_urls: Array.isArray(property.images) 
+            ? property.images.map(img => String(img)) 
+            : []
         };
       }
       
       // Otherwise generate mock coordinates from the location
       const coordinates = generateCoordinatesFromLocation(property.location);
+      
       return {
-        ...transformPropertyData(property),
+        ...transformed,
         // Add coordinates if generated
-        ...(coordinates ? { longitude: coordinates[0], latitude: coordinates[1] } : {}),
-        // Ensure proper type conversion for gallery images
-        featured_image_url: property.image || '',
-        gallery_image_urls: property.images ? 
-          (Array.isArray(property.images) ? 
-            property.images.map(img => typeof img === 'string' ? img : String(img)) : 
-            []
-          ) : [],
+        longitude: coordinates ? coordinates[0] : null,
+        latitude: coordinates ? coordinates[1] : null,
+        // Handle gallery images - ensure they're strings
+        gallery_image_urls: Array.isArray(property.images) 
+          ? property.images.map(img => String(img)) 
+          : []
       };
     });
   } catch (error) {
