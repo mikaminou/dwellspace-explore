@@ -15,8 +15,16 @@ export function MapView() {
   const { properties, loading, selectedCity } = useSearch();
   const { t } = useLanguage();
   
-  // Use our new hooks
+  // Use our hooks in the correct order to avoid circular references
   const { propertiesWithOwners } = usePropertyOwners(properties);
+  
+  // First initialize the popup functionality
+  const { popupRef, showPropertyPopup } = usePropertyPopup(map, 
+    (propertyId) => updateMarkerZIndex(propertyId),
+    (id) => setActiveMarkerId(id)
+  );
+  
+  // Then use the showPropertyPopup in the markers hook
   const { activeMarkerId, setActiveMarkerId, updateMarkerZIndex } = usePropertyMarkers(
     map, 
     markersRef, 
@@ -25,7 +33,6 @@ export function MapView() {
     loading,
     showPropertyPopup
   );
-  const { popupRef, showPropertyPopup } = usePropertyPopup(map, updateMarkerZIndex, setActiveMarkerId);
   
   // Handle city updates
   useCityUpdate(map, mapLoaded, selectedCity);
