@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -12,9 +12,30 @@ import { useCitySelection } from './useCitySelection';
 import { usePropertiesWithOwners } from './usePropertiesWithOwners';
 
 function MapView() {
+  console.log("MapView component rendering");
+  
   const navigate = useNavigate();
-  const { mapContainer, map, mapLoaded } = useMapSetup();
+  const { mapContainer, map, mapLoaded, mapError } = useMapSetup();
   const { properties, loading, selectedCity } = useSearch();
+  
+  useEffect(() => {
+    console.log("MapView mounted");
+    console.log("Properties count:", properties?.length || 0);
+    console.log("Selected city:", selectedCity);
+    console.log("Map loaded:", mapLoaded);
+    
+    return () => {
+      console.log("MapView unmounted");
+    };
+  }, [properties, selectedCity, mapLoaded]);
+  
+  // Show error if map failed to load
+  useEffect(() => {
+    if (mapError) {
+      console.error("Map error:", mapError);
+      toast.error("Failed to load map: " + mapError.message);
+    }
+  }, [mapError]);
   
   // Handle property save
   const handleSaveProperty = (propertyId: number) => {
@@ -52,6 +73,23 @@ function MapView() {
 
   // Handle city selection
   useCitySelection({ map, mapLoaded, selectedCity });
+
+  // Fallback for errors
+  if (mapError) {
+    return (
+      <div className="relative flex-1 w-full flex items-center justify-center">
+        <div className="bg-destructive/10 p-4 rounded-md text-destructive">
+          <p>Failed to load map: {mapError.message}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-2 px-3 py-1 bg-primary text-white rounded hover:bg-primary/90 text-sm"
+          >
+            Reload
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex-1 w-full">

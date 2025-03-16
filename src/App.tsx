@@ -9,13 +9,16 @@ import { Suspense, lazy, useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth";
 import { toast } from "@/components/ui/use-toast";
 
-// Create a new query client instance
+// Create a new query client instance with better error logging
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
       staleTime: 5 * 60 * 1000, // 5 minutes
+      onError: (error) => {
+        console.error('Query error:', error);
+      }
     },
   },
 });
@@ -44,11 +47,13 @@ const LoadingFallback = () => (
 // Error boundary for catching rendering errors
 const ErrorBoundary = ({ children }) => {
   const [hasError, setHasError] = useState(false);
+  const [errorInfo, setErrorInfo] = useState(null);
 
   useEffect(() => {
     const handleError = (error) => {
       console.error("Global error caught:", error);
       setHasError(true);
+      setErrorInfo(error.message || "Unknown error");
       toast({
         variant: "destructive",
         title: "Something went wrong",
@@ -64,6 +69,7 @@ const ErrorBoundary = ({ children }) => {
     return (
       <div className="flex flex-col items-center justify-center h-screen p-4">
         <h2 className="text-2xl font-bold text-destructive mb-4">Something went wrong</h2>
+        <p className="mb-4">Error: {errorInfo}</p>
         <p className="mb-4">The application encountered an error.</p>
         <button 
           onClick={() => window.location.reload()} 
@@ -78,47 +84,60 @@ const ErrorBoundary = ({ children }) => {
   return children;
 };
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <LanguageProvider>
-          <BrowserRouter>
-            <Suspense fallback={<LoadingFallback />}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/map" element={<Map />} />
-                <Route path="/property/:id" element={<PropertyDetails />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/email-confirmation" element={<EmailConfirmation />} />
-                <Route 
-                  path="/profile" 
-                  element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/favorites" 
-                  element={
-                    <ProtectedRoute>
-                      <NotFound />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <Toaster />
-              <Sonner />
-            </Suspense>
-          </BrowserRouter>
-        </LanguageProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+// Add console log to track rendering
+console.log("App.tsx - Starting render");
+
+const App = () => {
+  console.log("App component rendering");
+  
+  // Add effect to log mount
+  useEffect(() => {
+    console.log("App component mounted");
+    return () => console.log("App component unmounted");
+  }, []);
+  
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <LanguageProvider>
+            <BrowserRouter>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/search" element={<Search />} />
+                  <Route path="/map" element={<Map />} />
+                  <Route path="/property/:id" element={<PropertyDetails />} />
+                  <Route path="/signin" element={<SignIn />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route path="/email-confirmation" element={<EmailConfirmation />} />
+                  <Route 
+                    path="/profile" 
+                    element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/favorites" 
+                    element={
+                      <ProtectedRoute>
+                        <NotFound />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Toaster />
+                <Sonner />
+              </Suspense>
+            </BrowserRouter>
+          </LanguageProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;

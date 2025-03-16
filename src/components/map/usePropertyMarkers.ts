@@ -20,20 +20,50 @@ export function usePropertyMarkers({
 }) {
   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  
+  // Add cleanup flag to prevent memory leaks
+  const isMountedRef = useRef(true);
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      // Remove all markers on unmount
+      try {
+        Object.values(markersRef.current).forEach(marker => {
+          if (marker && typeof marker.remove === 'function') {
+            marker.remove();
+          }
+        });
+        markersRef.current = {};
+      } catch (e) {
+        console.error('Error cleaning up markers:', e);
+      }
+    };
+  }, []);
 
   // Update marker z-index based on active state
   const updateMarkerZIndex = (propertyId: number | null) => {
     try {
       // Reset all markers to default z-index
       Object.entries(markersRef.current).forEach(([id, marker]) => {
-        const markerEl = marker.getElement();
-        markerEl.style.zIndex = '1';
+        if (marker) {
+          const markerEl = marker.getElement();
+          if (markerEl) {
+            markerEl.style.zIndex = '1';
+          }
+        }
       });
 
       // Set the active marker to higher z-index
       if (propertyId !== null && markersRef.current[propertyId]) {
-        const activeMarkerEl = markersRef.current[propertyId].getElement();
-        activeMarkerEl.style.zIndex = '3';
+        const activeMarker = markersRef.current[propertyId];
+        if (activeMarker) {
+          const activeMarkerEl = activeMarker.getElement();
+          if (activeMarkerEl) {
+            activeMarkerEl.style.zIndex = '3';
+          }
+        }
       }
     } catch (error) {
       console.error('Error updating marker z-index:', error);
@@ -42,22 +72,44 @@ export function usePropertyMarkers({
 
   // Update markers when properties change
   useEffect(() => {
-    if (!map.current || !mapLoaded || loading) return;
+    console.log('usePropertyMarkers effect running');
+    console.log('Map exists:', !!map.current);
+    console.log('Map loaded:', mapLoaded);
+    console.log('Loading state:', loading);
+    console.log('Properties count:', properties?.length || 0);
+    
+    if (!map.current || !mapLoaded || loading) {
+      console.log('Skipping marker update - conditions not met');
+      return;
+    }
     
     try {
       // Remove existing markers
-      Object.values(markersRef.current).forEach(marker => marker.remove());
+      console.log('Removing existing markers:', Object.keys(markersRef.current).length);
+      Object.values(markersRef.current).forEach(marker => {
+        if (marker && typeof marker.remove === 'function') {
+          try {
+            marker.remove();
+          } catch (e) {
+            console.error('Error removing marker:', e);
+          }
+        }
+      });
       markersRef.current = {};
 
-      if (properties.length === 0) return;
+      if (!properties || properties.length === 0) {
+        console.log('No properties to display markers for');
+        return;
+      }
 
+      console.log('Creating markers for', properties.length, 'properties');
       const bounds = new mapboxgl.LngLatBounds();
       let propertiesWithCoords = 0;
       let missingCoords = 0;
 
       properties.forEach(property => {
-        if (!property.location) {
-          console.warn(`Property ${property.id} has no location information`);
+        if (!property || !property.location) {
+          console.warn(`Property ${property?.id} has no location information`);
           return;
         }
 
@@ -86,7 +138,7 @@ export function usePropertyMarkers({
 
           const priceElement = document.createElement('div');
           priceElement.className = 'price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
-          priceElement.innerText = property.price;
+          priceElement.innerText = property.price || 'No price';
           markerEl.appendChild(priceElement);
 
           // Add city name as data attribute for debugging
@@ -97,7 +149,16 @@ export function usePropertyMarkers({
 
           priceElement.addEventListener('click', (e) => {
             e.stopPropagation();
-            onMarkerClick(property, [coords.lng, coords.lat]);
+            e.preventDefault();
+            
+            // Delay the click handler slightly for stability
+            setTimeout(() => {
+              try {
+                onMarkerClick(property, [coords.lng, coords.lat]);
+              } catch (clickError) {
+                console.error('Error in marker click handler:', clickError);
+              }
+            }, 10);
           });
 
           markersRef.current[property.id] = marker;
@@ -107,10 +168,15 @@ export function usePropertyMarkers({
       });
 
       if (propertiesWithCoords > 0) {
-        map.current.fitBounds(bounds, {
-          padding: 50,
-          maxZoom: 15
-        });
+        try {
+          console.log('Fitting map to bounds with', propertiesWithCoords, 'properties');
+          map.current.fitBounds(bounds, {
+            padding: 50,
+            maxZoom: 15
+          });
+        } catch (fitError) {
+          console.error('Error fitting map to bounds:', fitError);
+        }
       } else {
         console.warn('No properties with valid coordinates found');
       }
@@ -122,7 +188,7 @@ export function usePropertyMarkers({
       console.error('Error updating property markers:', error);
       toast.error('Error displaying properties on map');
     }
-  }, [properties, mapLoaded, loading, onMarkerClick]);
+  }, [properties, mapLoaded, loading, onMarkerClick, map]);
 
   return {
     markersRef,

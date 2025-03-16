@@ -2,10 +2,13 @@
 import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { toast } from 'sonner';
-import { Property } from '@/api/properties';
 
 // Default Mapbox token - users should replace this with their own
-mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtODZlMWQ3ZDAzeGcyaXNlemlmd2hyeDUifQ.ExxxOcYTr6vkVwBw6J_CYA';
+// Check if token exists and is valid
+if (!mapboxgl.accessToken || mapboxgl.accessToken.includes('undefined')) {
+  mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtODZlMWQ3ZDAzeGcyaXNlemlmd2hyeDUifQ.ExxxOcYTr6vkVwBw6J_CYA';
+  console.log('Using default Mapbox token:', mapboxgl.accessToken);
+}
 
 export function useMapSetup() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -14,60 +17,96 @@ export function useMapSetup() {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<Error | null>(null);
+  
+  // Add cleanup flag to prevent memory leaks
+  const isMountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (map.current) {
+        console.log('Cleaning up map instance on unmount');
+        try {
+          map.current.remove();
+        } catch (e) {
+          console.error('Error removing map:', e);
+        }
+        map.current = null;
+      }
+    };
+  }, []);
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    console.log('useMapSetup effect running');
+    console.log('Map container exists:', !!mapContainer.current);
+    console.log('Map instance exists:', !!map.current);
+    
+    if (!mapContainer.current || map.current) {
+      console.log('Skipping map initialization - container not ready or map already initialized');
+      return;
+    }
 
     try {
       console.log('Initializing map with token:', mapboxgl.accessToken);
       
-      // Create the map instance
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [3.042048, 36.752887], // Default center (Algiers)
-        zoom: 12,
-        attributionControl: false,
-        failIfMajorPerformanceCaveat: false // Helps with some devices
-      });
+      // Create the map instance with error handling
+      try {
+        // Create the map instance
+        map.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: 'mapbox://styles/mapbox/streets-v11',
+          center: [3.042048, 36.752887], // Default center (Algiers)
+          zoom: 12,
+          attributionControl: false,
+          failIfMajorPerformanceCaveat: false // Helps with some devices
+        });
+      } catch (mapInitError) {
+        console.error('Error initializing Mapbox map:', mapInitError);
+        setMapError(mapInitError instanceof Error ? mapInitError : new Error(String(mapInitError)));
+        toast.error('Failed to initialize map. Please check your internet connection.');
+        return;
+      }
 
-      // Add navigation controls
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-      map.current.addControl(new mapboxgl.FullscreenControl());
-      map.current.addControl(new mapboxgl.GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true
-        },
-        trackUserLocation: true
-      }));
+      // Add controls with error handling
+      try {
+        // Add navigation controls
+        map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+        map.current.addControl(new mapboxgl.FullscreenControl());
+        map.current.addControl(new mapboxgl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true
+          },
+          trackUserLocation: true
+        }));
 
-      // Add attribution control in the bottom-right
-      map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
+        // Add attribution control in the bottom-right
+        map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
+      } catch (controlError) {
+        console.error('Error adding map controls:', controlError);
+        // Continue even if controls fail - not critical
+      }
 
       // Set map loaded state when the map is ready
       map.current.on('load', () => {
         console.log('Map loaded successfully');
-        setMapLoaded(true);
+        if (isMountedRef.current) {
+          setMapLoaded(true);
+        }
       });
 
       // Handle map error
       map.current.on('error', (e) => {
         console.error('Map error:', e);
-        setMapError(e.error || new Error('Unknown map error'));
-        toast.error('There was a problem loading the map');
+        if (isMountedRef.current) {
+          setMapError(e.error || new Error('Unknown map error'));
+        }
+        toast.error('There was a problem with the map');
       });
 
-      // Clean up on unmount
-      return () => {
-        if (map.current) {
-          console.log('Cleaning up map instance');
-          map.current.remove();
-          map.current = null;
-        }
-      };
     } catch (error) {
-      console.error('Error initializing map:', error);
+      console.error('Error in map setup effect:', error);
       setMapError(error instanceof Error ? error : new Error(String(error)));
       toast.error('Failed to initialize map');
     }
