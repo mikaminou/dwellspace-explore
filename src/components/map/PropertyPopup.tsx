@@ -1,4 +1,3 @@
-
 import { Property } from "@/api/properties";
 import { formatPrice } from './mapUtils';
 import { Home, Building, Construction, Castle } from 'lucide-react';
@@ -48,25 +47,6 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
     }
   };
 
-  // Get listing type color for border
-  const getListingTypeBorderColor = (type: string = 'sale') => {
-    const listingType = type.toLowerCase();
-    
-    switch (listingType) {
-      case 'rent':
-        return 'border-blue-500';
-      case 'construction':
-        return 'border-amber-500';
-      case 'commercial':
-        return 'border-purple-500';
-      case 'vacation':
-        return 'border-teal-500';
-      case 'sale':
-      default:
-        return 'border-green-500';
-    }
-  };
-  
   // Get button background color based on listing type
   const getListingTypeButtonBgClass = (type: string = 'sale') => {
     const listingType = type.toLowerCase();
