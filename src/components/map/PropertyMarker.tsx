@@ -74,7 +74,7 @@ export function PropertyMarker({
   const typeIcon = getPropertyTypeIcon(propertyType);
   const markerRef = useRef<HTMLDivElement>(null);
   
-  // Add effect to log when component mounts and check visibility
+  // Add effect to fix visibility issues
   useEffect(() => {
     console.log('[PropertyMarker] Component mounted', { 
       price, 
@@ -82,51 +82,39 @@ export function PropertyMarker({
       element: markerRef.current 
     });
     
-    // Check element's visibility after it's mounted
-    if (markerRef.current) {
-      const rect = markerRef.current.getBoundingClientRect();
-      console.log('[PropertyMarker] Element position and size:', {
-        top: rect.top,
-        left: rect.left,
-        width: rect.width,
-        height: rect.height,
-        visible: rect.width > 0 && rect.height > 0
-      });
-      
-      // Check computed styles
-      const computedStyle = window.getComputedStyle(markerRef.current);
-      console.log('[PropertyMarker] Element computed style:', {
-        display: computedStyle.display,
-        visibility: computedStyle.visibility,
-        zIndex: computedStyle.zIndex,
-        position: computedStyle.position,
-        opacity: computedStyle.opacity
-      });
-      
-      // Forcefully make the element visible
-      markerRef.current.style.display = 'block';
-      markerRef.current.style.visibility = 'visible';
-      markerRef.current.style.opacity = '1';
-      markerRef.current.style.pointerEvents = 'auto';
-      markerRef.current.style.zIndex = '9999';
-    }
-    
-    // Add a delayed check to see if the element is still in DOM
-    setTimeout(() => {
+    // Force visibility with a slight delay to ensure DOM is ready
+    const forceVisibility = () => {
       if (markerRef.current) {
-        console.log('[PropertyMarker] Element still in DOM after 2s');
-        const rect = markerRef.current.getBoundingClientRect();
-        console.log('[PropertyMarker] Element position after 2s:', rect);
-        
-        // Double-check that styles are still applied
+        // Apply direct styles to override any potential CSS conflicts
         markerRef.current.style.display = 'block';
         markerRef.current.style.visibility = 'visible';
         markerRef.current.style.opacity = '1';
-        markerRef.current.style.zIndex = '9999';
-      } else {
-        console.log('[PropertyMarker] Element no longer in DOM after 2s');
+        markerRef.current.style.pointerEvents = 'auto';
+        markerRef.current.style.zIndex = '99999'; // Extremely high z-index
+        
+        // Find and force visibility of price bubble inside the marker
+        const priceBubble = markerRef.current.querySelector('.price-bubble');
+        if (priceBubble instanceof HTMLElement) {
+          priceBubble.style.display = 'inline-flex';
+          priceBubble.style.visibility = 'visible';
+          priceBubble.style.opacity = '1';
+          priceBubble.style.zIndex = '99999';
+          priceBubble.style.transform = 'scale(2.0)'; // Make it much larger
+          priceBubble.style.background = 'red'; // Change to a very noticeable color
+          priceBubble.style.padding = '10px 20px';
+          priceBubble.style.border = '4px solid white';
+          priceBubble.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
+        }
+        
+        const rect = markerRef.current.getBoundingClientRect();
+        console.log('[PropertyMarker] Element position after force visibility:', rect);
       }
-    }, 2000);
+    };
+    
+    // Force visibility immediately and then again after a delay
+    forceVisibility();
+    setTimeout(forceVisibility, 500);
+    setTimeout(forceVisibility, 2000);
   }, [price, propertyType]);
   
   const handleClick = (e: React.MouseEvent) => {
@@ -141,7 +129,7 @@ export function PropertyMarker({
       className="marker-wrapper" 
       onClick={handleClick}
       style={{ 
-        zIndex: 9999, 
+        zIndex: 99999, 
         pointerEvents: 'auto',
         position: 'relative',
         cursor: 'pointer',
@@ -149,7 +137,9 @@ export function PropertyMarker({
         padding: '5px',
         display: 'block',
         visibility: 'visible',
-        opacity: 1
+        opacity: 1,
+        transform: 'scale(2.0)', // Make it twice as large
+        transformOrigin: 'center bottom'
       }}
     >
       <HoverCard>
@@ -163,17 +153,17 @@ export function PropertyMarker({
               alignItems: 'center',
               justifyContent: 'center',
               whiteSpace: 'nowrap',
-              zIndex: 9999,
+              zIndex: 99999,
               position: 'relative',
-              border: '3px solid white', // More visible border
-              backgroundColor: 'rgb(var(--primary))',
+              border: '4px solid white', // Much more visible border
+              backgroundColor: 'red', // Change to red for better visibility
               color: 'white',
-              padding: '8px 16px',
+              padding: '10px 20px', // Larger padding
               borderRadius: '999px',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-              fontWeight: 600,
-              fontSize: '14px',
-              transform: 'scale(1.2)', // Make larger
+              boxShadow: '0 0 20px rgba(0,0,0,0.5)', // More prominent shadow
+              fontWeight: 700,
+              fontSize: '16px', // Larger font
+              transform: 'scale(2.0)', // Make much larger
               visibility: 'visible',
               opacity: 1
             }}
@@ -185,7 +175,7 @@ export function PropertyMarker({
             </div>
           </div>
         </HoverCardTrigger>
-        <HoverCardContent className="w-52 p-2 text-xs z-[9999]">
+        <HoverCardContent className="w-52 p-2 text-xs z-[99999]">
           <div className="space-y-1.5">
             {propertyType && (
               <div className="font-medium capitalize">{propertyType}</div>
