@@ -67,7 +67,8 @@ function MapView() {
 
     // Set up popup functionality - with error handling
     let popupRef = { current: null };
-    let showPropertyPopup = (property: Property, coordinates: [number, number], setId: (id: number | null) => void, updateZIndex: (id: number | null) => void) => {};
+    let showPropertyPopup: (property: Property, coordinates: [number, number], setId: (id: number | null) => void, updateZIndex: (id: number | null) => void) => void = 
+      () => { console.log("Default showPropertyPopup function called"); };
     
     try {
       const popupResult = usePropertyPopup({
@@ -85,8 +86,10 @@ function MapView() {
     // Set up property markers - with error handling
     let markersRef = { current: {} };
     let activeMarkerId = null;
-    let setActiveMarkerId = (id: number | null) => {};
-    let updateMarkerZIndex = (id: number | null) => {};
+    let setActiveMarkerId: (id: number | null) => void = 
+      (id) => { console.log("Default setActiveMarkerId function called with", id); };
+    let updateMarkerZIndex: (id: number | null) => void = 
+      (id) => { console.log("Default updateMarkerZIndex function called with", id); };
     
     try {
       const markersResult = usePropertyMarkers({
