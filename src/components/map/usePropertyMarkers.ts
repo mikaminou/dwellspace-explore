@@ -15,6 +15,7 @@ export function usePropertyMarkers(
   showPropertyPopup: (property: Property, coordinates: [number, number]) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  const [initialBoundsSet, setInitialBoundsSet] = useState(false);
 
   const updateMarkerZIndex = (propertyId: number | null) => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
@@ -95,14 +96,23 @@ export function usePropertyMarkers(
       markersRef.current[property.id] = marker;
     });
 
-    if (propertiesWithCoords > 0) {
+    // Only fit bounds if we haven't done it yet or if we're showing a completely new set of properties
+    if (propertiesWithCoords > 0 && !initialBoundsSet) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
       map.current.fitBounds(bounds, {
         padding: 50,
         maxZoom: 15
       });
+      setInitialBoundsSet(true);
     }
-  }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup]);
+  }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup, initialBoundsSet]);
+
+  // Reset initialBoundsSet when properties are completely changed (like during a city change)
+  useEffect(() => {
+    if (propertiesWithOwners.length === 0) {
+      setInitialBoundsSet(false);
+    }
+  }, [propertiesWithOwners]);
 
   return { activeMarkerId, setActiveMarkerId, updateMarkerZIndex };
 }

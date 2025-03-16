@@ -25,6 +25,7 @@ export function useFilterManagement(
   handleSearch: () => void
 ) {
   const handleReset = useCallback(() => {
+    // Reset all filter values to their defaults
     setSelectedCity('any');
     setPropertyType([]);
     setListingType([]);
@@ -36,9 +37,10 @@ export function useFilterManagement(
     setMaxLivingArea(maxLivingAreaLimit);
     setSortOption('relevance');
     
+    // Force a new search with the reset values after a short delay to ensure state updates
     setTimeout(() => {
       handleSearch();
-    }, 0);
+    }, 50);
   }, [
     maxPriceLimit, maxLivingAreaLimit, handleSearch, setSelectedCity, setPropertyType, 
     setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 
@@ -89,9 +91,10 @@ export function useFilterManagement(
         break;
     }
     
+    // Force a new search with the updated filter values
     setTimeout(() => {
       handleSearch();
-    }, 0);
+    }, 50);
   }, [
     propertyType, listingType, maxLivingAreaLimit, handleSearch,
     setSelectedCity, setPropertyType, setListingType, setMinBeds,
