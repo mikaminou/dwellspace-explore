@@ -14,6 +14,7 @@ export interface Property {
   price: string;
   location: string;
   city: string;
+  street_name?: string; // Added street_name property
   beds: number;
   baths?: number;
   area?: number;
@@ -25,7 +26,7 @@ export interface Property {
   image?: string;
   images: string[];
   agent: Agent;
-  isPremium?: boolean;// Added premium flag for luxury properties
+  isPremium?: boolean;
   longitude: number;
   latitude: number;
 }
@@ -82,6 +83,7 @@ export const properties: Property[] = [
     price: "18,500,000 DZD",
     location: "Hydra, Algiers",
     city: "Algiers",
+    street_name: "12 Rue Hydra",
     beds: 3,
     baths: 2,
     area: 120,
@@ -107,7 +109,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1560448204-603b3fc33dcc?auto=format&fit=crop&q=80"
     ],
-    agent: agents[0]
+    agent: agents[0],
+    longitude: 3.05097,
+    latitude: 36.7539
   },
   {
     id: 2,
@@ -115,6 +119,7 @@ export const properties: Property[] = [
     price: "42,000,000 DZD",
     location: "Dely Ibrahim, Algiers",
     city: "Algiers",
+    street_name: "45 Rue des Oliviers, Dely Ibrahim",
     beds: 5,
     baths: 3,
     area: 280,
@@ -140,7 +145,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1560185009-5bf9f2849488?auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&q=80"
     ],
-    agent: agents[1]
+    agent: agents[1],
+    longitude: 3.0173,
+    latitude: 36.7508
   },
   {
     id: 3,
@@ -148,6 +155,7 @@ export const properties: Property[] = [
     price: "26,500,000 DZD",
     location: "Bab El Oued, Algiers",
     city: "Algiers",
+    street_name: "8 Rue de la Mer, Bab El Oued",
     beds: 4,
     baths: 3,
     area: 220,
@@ -173,7 +181,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1560185007-5f0bb1866cab?auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&q=80"
     ],
-    agent: agents[2]
+    agent: agents[2],
+    longitude: 3.0446,
+    latitude: 36.7953
   },
   {
     id: 4,
@@ -181,6 +191,7 @@ export const properties: Property[] = [
     price: "6,800,000 DZD",
     location: "Bouzareah, Algiers",
     city: "Algiers",
+    street_name: "Rue de l'Université, Bouzareah",
     beds: 1,
     baths: 1,
     area: 55,
@@ -206,7 +217,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1617103996702-96ff29b1c467?auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1569152811536-fb47aced8409?auto=format&fit=crop&q=80"
     ],
-    agent: agents[0]
+    agent: agents[0],
+    longitude: 3.0184,
+    latitude: 36.8079
   },
   {
     id: 5,
@@ -214,6 +227,7 @@ export const properties: Property[] = [
     price: "21,500,000 DZD",
     location: "Front de Mer, Oran",
     city: "Oran",
+    street_name: "Boulevard de la Soummam, Oran",
     beds: 3,
     baths: 2,
     area: 135,
@@ -239,7 +253,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1560185009-dddeb820c7b7?auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1600566753355-12c8ab8e17a5?auto=format&fit=crop&q=80"
     ],
-    agent: agents[1]
+    agent: agents[1],
+    longitude: -0.6327,
+    latitude: 35.6945
   },
   {
     id: 6,
@@ -247,6 +263,7 @@ export const properties: Property[] = [
     price: "15,800,000 DZD",
     location: "Casbah, Algiers",
     city: "Algiers",
+    street_name: "Rue Sidi Abdellah, Casbah",
     beds: 4,
     baths: 2,
     area: 190,
@@ -272,7 +289,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&q=80"
     ],
-    agent: agents[2]
+    agent: agents[2],
+    longitude: 3.0607,
+    latitude: 36.7833
   },
   {
     id: 7,
@@ -280,6 +299,7 @@ export const properties: Property[] = [
     price: "17,500,000 DZD",
     location: "Tikjda, Bouira",
     city: "Bouira",
+    street_name: "Route de Tikjda, Bouira",
     beds: 3,
     baths: 2,
     area: 150,
@@ -305,7 +325,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1569152811536-fb47aced8409?auto=format&fit=crop&q=80"
     ],
-    agent: agents[0]
+    agent: agents[0],
+    longitude: 4.2231,
+    latitude: 36.4056
   },
   {
     id: 8,
@@ -313,6 +335,7 @@ export const properties: Property[] = [
     price: "14,200,000 DZD",
     location: "City Center, Constantine",
     city: "Constantine",
+    street_name: "Rue Larbi Ben M'hidi, Constantine",
     beds: 2,
     baths: 2,
     area: 145,
@@ -338,7 +361,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1565183997392-2f6f122e5912?auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1582037928769-181cf1ea7d92?auto=format&fit=crop&q=80"
     ],
-    agent: agents[1]
+    agent: agents[1],
+    longitude: 6.6147,
+    latitude: 36.3632
   },
   {
     id: 9,
@@ -346,6 +371,7 @@ export const properties: Property[] = [
     price: "35,000,000 DZD",
     location: "El Eulma, Setif",
     city: "Setif",
+    street_name: "Cité du 1er Novembre, El Eulma",
     beds: 6,
     baths: 4,
     area: 320,
@@ -371,7 +397,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&q=80",
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80"
     ],
-    agent: agents[2]
+    agent: agents[2],
+    longitude: 5.7058,
+    latitude: 36.1683
   },
   {
     id: 10,
@@ -379,6 +407,7 @@ export const properties: Property[] = [
     price: "45,000,000 DZD",
     location: "Tichy, Bejaia",
     city: "Bejaia",
+    street_name: "Route Nationale 9, Tichy",
     beds: 4,
     baths: 3,
     area: 240,
@@ -405,7 +434,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80"
     ],
     agent: agents[3], // Seller (Mohammed Ali)
-    isPremium: true
+    isPremium: true,
+    longitude: 5.1478,
+    latitude: 36.7472
   },
   {
     id: 11,
@@ -413,6 +444,7 @@ export const properties: Property[] = [
     price: "22,000,000 DZD",
     location: "Old City, Ghardaia",
     city: "Ghardaia",
+    street_name: "Rue du Vieux Ksar, Ghardaia",
     beds: 5,
     baths: 3,
     area: 210,
@@ -439,7 +471,9 @@ export const properties: Property[] = [
       "https://images.unsplash.com/photo-1614622263968-63c34f6b9a76?auto=format&fit=crop&q=80"
     ],
     agent: agents[3], // Seller (Mohammed Ali)
-    isPremium: true
+    isPremium: true,
+    longitude: 3.6667,
+    latitude: 32.4833
   },
   {
     id: 12,
@@ -447,6 +481,7 @@ export const properties: Property[] = [
     price: "19,500,000 DZD",
     location: "Timimoun Oasis, Adrar",
     city: "Adrar",
+    street_name: "Timimoun Oasis, Adrar",
     beds: 3,
     baths: 2,
     area: 160,
@@ -466,248 +501,4 @@ export const properties: Property[] = [
     additionalDetails: "Property taxes: 35,000 DZD/year. Off-grid with complete energy independence.",
     image: "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
     images: [
-      "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1555636222-cae831e670b3?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1532323544230-7191fd51bc1b?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1533227268428-f9ed0900fb3b?auto=format&fit=crop&q=80"
-    ],
-    agent: agents[4], // Seller (Farida Khelil)
-    isPremium: true
-  },
-  {
-    id: 13,
-    title: "Waterfront Apartment in Algiers",
-    price: "28,200,000 DZD",
-    location: "Port of Algiers, Algiers",
-    city: "Algiers",
-    beds: 3,
-    baths: 2,
-    area: 140,
-    type: "Apartment",
-    description: "Exclusive waterfront apartment overlooking the Port of Algiers. This sophisticated 3-bedroom residence offers panoramic views of the Mediterranean and city skyline through floor-to-ceiling windows. The property features designer finishes, a gourmet kitchen, and access to premium building amenities.",
-    yearBuilt: 2019,
-    features: [
-      "Harbor views",
-      "Designer kitchen",
-      "Marble bathrooms",
-      "Building concierge",
-      "Fitness center",
-      "Private parking",
-      "Smart home system",
-      "Walking distance to cultural attractions"
-    ],
-    additionalDetails: "Condominium fees: 18,000 DZD/month. Includes security, building maintenance, and amenities access.",
-    image: "https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1565183997392-2f6f122e5912?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600566753343-f58d377f534c?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1573552342678-6e8deef13c56?auto=format&fit=crop&q=80"
-    ],
-    agent: agents[4], // Seller (Farida Khelil)
-    isPremium: true
-  },
-  {
-    id: 14,
-    title: "Modern Townhouse in Oran",
-    price: "16,800,000 DZD",
-    location: "New City, Oran",
-    city: "Oran",
-    beds: 3,
-    baths: 2,
-    area: 150,
-    type: "Townhouse",
-    description: "Contemporary townhouse in Oran's developing New City district. This 3-bedroom, 2-bathroom residence offers an urban lifestyle with modern design elements including an open floor plan, high ceilings, and abundant natural light. The property includes a private garden and rooftop terrace.",
-    yearBuilt: 2021,
-    features: [
-      "Private garden",
-      "Rooftop terrace",
-      "Energy-efficient design",
-      "Built-in storage solutions",
-      "Home office space",
-      "Modern kitchen",
-      "Parking space",
-      "Community amenities"
-    ],
-    additionalDetails: "Homeowners association fee: 8,000 DZD/month. 10-minute drive to beaches.",
-    image: "https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?auto=format&fit=crop&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1571939228382-b2f2b585ce15?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&q=80"
-    ],
-    agent: agents[0], // Agent (Amina Benali)
-  },
-  {
-    id: 15,
-    title: "Penthouse in Downtown Constantine",
-    price: "31,500,000 DZD",
-    location: "City Center, Constantine",
-    city: "Constantine",
-    beds: 4,
-    baths: 3,
-    area: 190,
-    type: "Penthouse",
-    description: "Luxurious penthouse in the heart of Constantine with breathtaking views of the famous bridges and gorges. This 4-bedroom residence occupies the entire top floor and features premium finishes, a wraparound terrace, and floor-to-ceiling windows that showcase the dramatic landscape. The open concept design includes a chef's kitchen, formal dining room, and spacious living areas.",
-    yearBuilt: 2018,
-    features: [
-      "Panoramic city views",
-      "Wraparound terrace",
-      "Home theater",
-      "Wine cellar",
-      "Premium appliances",
-      "Private elevator access",
-      "Smart home technology",
-      "Custom lighting"
-    ],
-    additionalDetails: "Condominium fees: 20,000 DZD/month. Includes dedicated building manager and security.",
-    image: "https://images.unsplash.com/photo-1565182999561-18d7dc61c393?auto=format&fit=crop&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1565182999561-18d7dc61c393?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1617103996702-96ff29b1c467?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&q=80"
-    ],
-    agent: agents[1], // Agent (Karim Daoudi)
-    isPremium: true
-  },
-  {
-    id: 16,
-    title: "Mountain Retreat in Kabylie",
-    price: "18,700,000 DZD",
-    location: "Tizi Ouzou, Kabylie",
-    city: "Tizi Ouzou",
-    beds: 4,
-    baths: 2,
-    area: 180,
-    type: "Mountain House",
-    description: "Serene mountain home nestled in the beautiful Kabylie region with stunning views of the Djurdjura mountains. This 4-bedroom retreat combines traditional Kabyle architecture with modern comforts. Features include stone walls, wooden beams, a large fireplace, and spacious outdoor areas designed to take advantage of the natural surroundings.",
-    yearBuilt: 2014,
-    features: [
-      "Mountain views",
-      "Fruit orchard",
-      "Spring water source",
-      "Traditional fireplace",
-      "Outdoor dining area",
-      "Guest cottage",
-      "Hiking trails access",
-      "Stone patio"
-    ],
-    additionalDetails: "Property taxes: 42,000 DZD/year. 1 hectare of land with fruit trees and natural spring.",
-    image: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1567016376408-0226e4d0c1ea?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1464146072230-91cabc968266?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1562182384-08115de5ee97?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80"
-    ],
-    agent: agents[2], // Agent (Leila Hadj)
-  },
-  {
-    id: 17,
-    title: "Historical Courtyard Home in Tlemcen",
-    price: "23,900,000 DZD",
-    location: "Old Medina, Tlemcen",
-    city: "Tlemcen",
-    beds: 5,
-    baths: 3,
-    area: 220,
-    type: "Traditional House",
-    description: "Magnificent historical home in the ancient Medina of Tlemcen. This carefully restored 5-bedroom property exemplifies the rich architectural heritage of the region with its central courtyard, intricate tilework, and carved wooden details. Modern updates include updated plumbing, electrical systems, and a renovated kitchen while preserving the home's authentic character.",
-    yearBuilt: 1850,
-    features: [
-      "Central courtyard with fountain",
-      "Authentic zellige tilework",
-      "Carved cedar ceilings",
-      "Traditional hammam",
-      "Interior garden",
-      "Modernized utilities",
-      "Original architectural details",
-      "Rooftop terrace"
-    ],
-    additionalDetails: "Property taxes: 50,000 DZD/year. Protected historical status with special tax benefits.",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600607689593-69e1d1b89a17?auto=format&fit=crop&q=80"
-    ],
-    agent: agents[1], // Agent (Karim Daoudi)
-    isPremium: true
-  },
-  {
-    id: 18,
-    title: "Seaside Villa in Annaba",
-    price: "38,200,000 DZD",
-    location: "Plage Rizi Amor, Annaba",
-    city: "Annaba",
-    beds: 5,
-    baths: 4,
-    area: 280,
-    type: "Villa",
-    description: "Elegant seaside villa on the beautiful coastline of Annaba. This 5-bedroom, 4-bathroom luxury home is set on a 2,000 sq.m. landscaped plot with direct beach access. The property features Mediterranean-inspired architecture with spacious indoor-outdoor living areas, a swimming pool overlooking the sea, and a guest apartment perfect for visitors or staff.",
-    yearBuilt: 2016,
-    features: [
-      "Direct beach access",
-      "Infinity pool",
-      "Guest apartment",
-      "Landscaped gardens",
-      "Outdoor entertainment area",
-      "Floor-to-ceiling sea views",
-      "Home automation system",
-      "Summer kitchen"
-    ],
-    additionalDetails: "Property taxes: 105,000 DZD/year. Includes separate staff quarters and 4-car garage.",
-    image: "https://images.unsplash.com/photo-1600566753375-df3b2cb2cec6?auto=format&fit=crop&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1600566753375-df3b2cb2cec6?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1605146769289-440113cc3d00?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1613977257365-aaae5a9817ff?auto=format&fit=crop&q=80"
-    ],
-    agent: agents[2], // Agent (Leila Hadj)
-    isPremium: true
-  },
-  {
-    id: 19,
-    title: "Modern Farm Estate in Blida",
-    price: "29,800,000 DZD",
-    location: "Chrea Valley, Blida",
-    city: "Blida",
-    beds: 4,
-    baths: 3,
-    area: 240,
-    type: "Farm Estate",
-    description: "Contemporary farm estate nestled in the fertile Chrea Valley of Blida. This 4-bedroom, 3-bathroom property combines modern architecture with rural living on 5 hectares of productive land. The main residence features open living spaces, high ceilings, and large windows that showcase the surrounding mountains and orchards. The property includes established fruit orchards, olive groves, and purpose-built agricultural facilities.",
-    yearBuilt: 2015,
-    features: [
-      "5 hectares of land",
-      "Fruit orchards and olive groves",
-      "Modern barn and storage",
-      "Irrigation system",
-      "Solar energy",
-      "Mountain views",
-      "Guest cottage",
-      "Greenhouse"
-    ],
-    additionalDetails: "Property taxes: 65,000 DZD/year. Income-generating agricultural operation included in sale.",
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&q=80",
-      "https://images.unsplash.com/photo-1572120360610-d971b9d7767c?auto=format&fit=crop&q=80"
-    ],
-    agent: agents[0], // Agent (Amina Benali)
-  }
-];
+      "https://images.unsplash.com/photo-16023

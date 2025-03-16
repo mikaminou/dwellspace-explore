@@ -1,4 +1,3 @@
-
 import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 import { Agent } from "./agents";
@@ -9,8 +8,9 @@ export type Property = {
   price: string;
   location: string;
   city: string;
-  latitude?: number | null;   // Added latitude property
-  longitude?: number | null;  // Added longitude property
+  street_name?: string;   // Added street_name property
+  latitude?: number | null;   // Already had latitude property
+  longitude?: number | null;  // Already had longitude property
   beds: number;
   baths: number | null;
   postal_code: number | null;
