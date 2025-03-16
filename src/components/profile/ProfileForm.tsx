@@ -28,6 +28,8 @@ const profileSchema = z.object({
   phone_number: z.string().optional(),
   bio: z.string().optional(),
   role: z.enum(["buyer", "seller", "agent", "admin"]),
+  agency: z.string().optional(),
+  license_number: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -39,6 +41,9 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ form, onSubmit, loading }: ProfileFormProps) {
+  const watchRole = form.watch("role");
+  const isOwner = watchRole === "agent" || watchRole === "seller";
+
   return (
     <Card>
       <CardHeader>
@@ -127,6 +132,45 @@ export function ProfileForm({ form, onSubmit, loading }: ProfileFormProps) {
                 </FormItem>
               )}
             />
+            
+            {isOwner && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="agency"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {watchRole === "agent" ? "Agency Name" : "Business Name"}
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {watchRole === "agent" && (
+                  <FormField
+                    control={form.control}
+                    name="license_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          License Number
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </>
+            )}
+            
             <FormField
               control={form.control}
               name="bio"

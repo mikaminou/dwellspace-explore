@@ -1,10 +1,10 @@
 
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export const authService = {
-  signUp: async (email: string, password: string, displayName: string, role: string = "buyer", agency: string = "") => {
+  signUp: async (email: string, password: string, displayName: string, role: string = "buyer", agency: string = "", licenseNumber: string = "") => {
     try {
       // Get base URL - ensure it's the absolute URL including protocol
       const baseUrl = window.location.origin;
@@ -19,9 +19,14 @@ export const authService = {
         role: role,
       };
       
-      // Only add agency field if role is agent and agency is provided
-      if (role === 'agent' && agency) {
+      // Only add agency field if role is agent or seller and agency is provided
+      if ((role === 'agent' || role === 'seller') && agency) {
         userMetadata.agency = agency;
+      }
+      
+      // Add license number for agents
+      if (role === 'agent' && licenseNumber) {
+        userMetadata.license_number = licenseNumber;
       }
       
       // Sign up with proper redirect URL

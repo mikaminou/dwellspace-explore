@@ -13,6 +13,9 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import EmailConfirmation from "./pages/EmailConfirmation";
 import Profile from "./pages/Profile";
+import Dashboard from "./pages/Dashboard";
+import PropertyCreate from "./pages/PropertyCreate";
+import PropertyEdit from "./pages/PropertyEdit";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -37,6 +40,30 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/property/create" 
+              element={
+                <ProtectedRoute>
+                  <PropertyCreate />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/property/edit/:id" 
+              element={
+                <ProtectedRoute>
+                  <PropertyEdit />
                 </ProtectedRoute>
               } 
             />

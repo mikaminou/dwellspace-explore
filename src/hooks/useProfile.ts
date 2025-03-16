@@ -17,6 +17,7 @@ const profileSchema = z.object({
   bio: z.string().optional(),
   role: z.enum(["buyer", "seller", "agent", "admin"]),
   agency: z.string().optional(),
+  license_number: z.string().optional(),
 });
 
 export type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -38,6 +39,7 @@ export function useProfile() {
       bio: "",
       role: "buyer",
       agency: "",
+      license_number: "",
     },
   });
 
@@ -68,6 +70,7 @@ export function useProfile() {
             bio: data.bio || "",
             role: data.role,
             agency: data.agency || "",
+            license_number: data.license_number || "",
           });
           setProfileData(data as ProfileFormValues);
         }
@@ -97,6 +100,7 @@ export function useProfile() {
           bio: values.bio,
           role: values.role,
           agency: values.agency,
+          license_number: values.license_number,
           updated_at: new Date().toISOString(),
         })
         .eq("id", session?.user.id);
@@ -123,6 +127,7 @@ export function useProfile() {
   const userAvatar = session?.user?.user_metadata?.avatar_url;
   const userName = profileData?.first_name || session?.user?.user_metadata?.first_name || "";
   const userAgency = profileData?.agency || session?.user?.user_metadata?.agency || "";
+  const userLicenseNumber = profileData?.license_number || "";
   const userInitials = userName 
     ? userName.slice(0, 2).toUpperCase() 
     : userEmail 
@@ -141,6 +146,7 @@ export function useProfile() {
       userInitials,
       userRole: profileData?.role,
       userAgency,
+      userLicenseNumber,
     },
     isLoaded
   };

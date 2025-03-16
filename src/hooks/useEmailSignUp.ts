@@ -9,6 +9,7 @@ export function useEmailSignUp(onError: (message: string) => void) {
   const [displayName, setDisplayName] = useState("");
   const [userRole, setUserRole] = useState("buyer");
   const [agency, setAgency] = useState("");
+  const [licenseNumber, setLicenseNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -18,9 +19,11 @@ export function useEmailSignUp(onError: (message: string) => void) {
 
   // Show/hide agency field based on role
   const [showAgencyField, setShowAgencyField] = useState(false);
+  const [showLicenseField, setShowLicenseField] = useState(false);
   
   useEffect(() => {
-    setShowAgencyField(userRole === 'agent');
+    setShowAgencyField(userRole === 'agent' || userRole === 'seller');
+    setShowLicenseField(userRole === 'agent');
   }, [userRole]);
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -36,9 +39,16 @@ export function useEmailSignUp(onError: (message: string) => void) {
       return;
     }
 
-    // Validate agency name for agents
-    if (userRole === 'agent' && !agency.trim()) {
-      const errorMsg = "Agency name is required for agents";
+    // Validate agency name for agents and sellers
+    if ((userRole === 'agent' || userRole === 'seller') && !agency.trim()) {
+      const errorMsg = userRole === 'agent' ? "Agency name is required for agents" : "Business name is required for sellers";
+      onError(errorMsg);
+      return;
+    }
+
+    // Validate license number for agents
+    if (userRole === 'agent' && !licenseNumber.trim()) {
+      const errorMsg = "License number is required for agents";
       onError(errorMsg);
       return;
     }
@@ -48,7 +58,14 @@ export function useEmailSignUp(onError: (message: string) => void) {
       console.log("Starting signup process for:", email);
       
       try {
-        const result = await signUp(email, password, displayName, userRole, agency);
+        const result = await signUp(
+          email, 
+          password, 
+          displayName, 
+          userRole, 
+          agency, 
+          licenseNumber
+        );
         console.log("Signup result:", result);
 
         // Check if confirmation is required
@@ -127,7 +144,10 @@ export function useEmailSignUp(onError: (message: string) => void) {
     setUserRole,
     agency,
     setAgency,
+    licenseNumber,
+    setLicenseNumber,
     showAgencyField,
+    showLicenseField,
     loading,
     confirmationSent,
     showPassword,
