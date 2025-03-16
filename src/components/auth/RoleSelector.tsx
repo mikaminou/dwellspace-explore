@@ -50,10 +50,12 @@ export function RoleSelector({
 
       {showAgencyField && (
         <div className="space-y-2">
-          <Label htmlFor="agency">{userRole === 'agent' ? 'Agency Name' : 'Business Name'}</Label>
+          <Label htmlFor="agency">
+            {userRole === 'agent' ? 'Agency Name*' : 'Business Name (Optional)'}
+          </Label>
           <Input
             id="agency"
-            placeholder={userRole === 'agent' ? "Enter your agency name" : "Enter your business name"}
+            placeholder={userRole === 'agent' ? "Enter your agency name" : "Enter your business name (optional)"}
             value={agency}
             onChange={(e) => setAgency(e.target.value)}
             disabled={disabled}
@@ -63,7 +65,7 @@ export function RoleSelector({
 
       {showLicenseField && setLicenseNumber && (
         <div className="space-y-2">
-          <Label htmlFor="license">License Number</Label>
+          <Label htmlFor="license">License Number*</Label>
           <Input
             id="license"
             placeholder="Enter your license number"

@@ -19,8 +19,8 @@ export const authService = {
         role: role,
       };
       
-      // Only add agency field if role is agent or seller and agency is provided
-      if ((role === 'agent' || role === 'seller') && agency) {
+      // Only add agency field if role is agent (required) or seller (optional) and agency is provided
+      if ((role === 'agent' || (role === 'seller' && agency.trim())) && agency) {
         userMetadata.agency = agency;
       }
       

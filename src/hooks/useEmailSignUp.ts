@@ -41,9 +41,9 @@ export function useEmailSignUp(onError: (message: string) => void) {
       return;
     }
 
-    // Validate agency name for agents and sellers
-    if ((userRole === 'agent' || userRole === 'seller') && !agency.trim()) {
-      const errorMsg = userRole === 'agent' ? "Agency name is required for agents" : "Business name is required for sellers";
+    // Validate agency name for agents only (required)
+    if (userRole === 'agent' && !agency.trim()) {
+      const errorMsg = "Agency name is required for agents";
       onError(errorMsg);
       return;
     }
@@ -54,6 +54,8 @@ export function useEmailSignUp(onError: (message: string) => void) {
       onError(errorMsg);
       return;
     }
+
+    // Note: We removed the validation for sellers since business name is now optional
 
     try {
       setLoading(true);
