@@ -1,3 +1,42 @@
+
+import { Property } from "@/api/properties";
+
+// Helper function to generate coordinates from location string
+// This now uses street_name, city, and country for better accuracy
+export function generateCoordsFromLocation(location: string, id: number): { lat: number, lng: number } | null {
+  // Check if the location contains a city name and use that city's coordinates as base
+  const cityCoords = getCityCoordinatesFromLocation(location);
+  
+  if (cityCoords) {
+    // Generate slightly different coordinates based on the id to spread markers within the city
+    return {
+      lat: cityCoords.lat + (Math.sin(id) * 0.005),
+      lng: cityCoords.lng + (Math.cos(id) * 0.005)
+    };
+  }
+  
+  // Fallback to Algiers if no city is detected
+  const baseCoords = { lat: 36.752887, lng: 3.042048 };
+  return {
+    lat: baseCoords.lat + (Math.sin(id) * 0.005),
+    lng: baseCoords.lng + (Math.cos(id) * 0.005)
+  };
+}
+
+// Helper function to extract city from location string
+function getCityCoordinatesFromLocation(location: string): { lat: number, lng: number } | null {
+  const cities = Object.keys(getCitiesCoordinates());
+  
+  // Check if the location string contains any of our known cities
+  for (const city of cities) {
+    if (location.toLowerCase().includes(city.toLowerCase())) {
+      return getCityCoordinates(city);
+    }
+  }
+  
+  return null;
+}
+
 // Helper function to get city coordinates
 // In a real app, you would have this data in your database
 export function getCityCoordinates(city: string): { lat: number, lng: number } | null {
