@@ -29,6 +29,7 @@ export function useProperties() {
           gallery_image_urls: property.gallery_image_urls || property.images || [],
           image: property.image || property.featured_image_url || '',
           images: property.images || property.gallery_image_urls || [],
+          street_name: property.street_name || property.streetName || '',
           owner: owner || undefined,
           agent: owner || undefined,
           isPremium: property.isPremium || false,
@@ -62,6 +63,7 @@ export function useProperties() {
             gallery_image_urls: propertyData.gallery_image_urls || propertyData.images || [],
             image: propertyData.image || propertyData.featured_image_url || '',
             images: propertyData.images || propertyData.gallery_image_urls || [],
+            street_name: propertyData.street_name || propertyData.streetName || '',
             isPremium: propertyData.isPremium || false,
           } as Property;
         }
@@ -73,6 +75,7 @@ export function useProperties() {
         gallery_image_urls: propertyData.gallery_image_urls || propertyData.images || [],
         image: propertyData.image || propertyData.featured_image_url || '',
         images: propertyData.images || propertyData.gallery_image_urls || [],
+        street_name: propertyData.street_name || propertyData.streetName || '',
         isPremium: propertyData.isPremium || false,
       } as Property : null;
     } catch (err: any) {
@@ -116,6 +119,7 @@ export function useProperties() {
           gallery_image_urls: property.gallery_image_urls || property.images || [],
           image: property.image || property.featured_image_url || '',
           images: property.images || property.gallery_image_urls || [],
+          street_name: property.street_name || property.streetName || '',
           owner: owner || undefined,
           agent: owner || undefined,
           isPremium: property.isPremium || false,

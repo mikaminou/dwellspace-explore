@@ -19,7 +19,7 @@ export const transformPropertyData = (property: any): Property => {
     location: property.location,
     city: property.city || '',
     streetName: property.street_name || '',
-    street_name: property.street_name || '',
+    street_name: property.street_name || property.streetName || '',
     beds: property.beds || 0,
     baths: property.baths || null,
     livingArea: property.living_area || null,
