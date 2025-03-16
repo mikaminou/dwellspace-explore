@@ -24,11 +24,9 @@ export function useMapSetup() {
       center: [3.042048, 36.752887], // Default center (Algiers)
       zoom: 12,
       attributionControl: false,
-      renderWorldCopies: false,      // Critical: Prevents markers from duplicating across antimeridian
-      boxZoom: true,                 // Enables box zoom for better control
-      fadeDuration: 0,               // Reduces marker position changes during zoom
-      maxBounds: [[-180, -85], [180, 85]], // Restrict panning to prevent extreme distortion
-      antialias: true                // Smoother rendering
+      renderWorldCopies: false,  // Prevents duplicate markers when zooming out
+      boxZoom: true,             // Enables box zoom for better control
+      fadeDuration: 0            // Reduces marker position changes during zoom
     });
 
     // Add navigation controls

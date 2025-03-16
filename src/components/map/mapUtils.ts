@@ -2,47 +2,25 @@
 import { Property } from "@/api/properties";
 
 // Helper function to generate coordinates from location string
+// This now considers the city name in the location string
 export function generateCoordsFromLocation(location: string, id: number): { lat: number, lng: number } | null {
   // Check if the location contains a city name and use that city's coordinates as base
   const cityCoords = getCityCoordinatesFromLocation(location);
   
   if (cityCoords) {
     // Generate slightly different coordinates based on the id to spread markers within the city
-    // Using a deterministic but small offset to avoid extreme displacements
-    const offset = 0.01; // Small offset in degrees
-    const idHash = Math.abs(Math.sin(id * 0.1)) * offset; // Normalize the offset
-    
     return {
-      lat: restrictLatitude(cityCoords.lat + (Math.sin(id) * idHash)),
-      lng: restrictLongitude(cityCoords.lng + (Math.cos(id) * idHash))
+      lat: cityCoords.lat + (Math.sin(id) * 0.015),
+      lng: cityCoords.lng + (Math.cos(id) * 0.015)
     };
   }
   
   // Fallback to Algiers if no city is detected
   const baseCoords = { lat: 36.752887, lng: 3.042048 };
-  const offset = 0.01; // Small offset in degrees
-  const idHash = Math.abs(Math.sin(id * 0.1)) * offset; // Normalize the offset
-  
   return {
-    lat: restrictLatitude(baseCoords.lat + (Math.sin(id) * idHash)),
-    lng: restrictLongitude(baseCoords.lng + (Math.cos(id) * idHash))
+    lat: baseCoords.lat + (Math.sin(id) * 0.03),
+    lng: baseCoords.lng + (Math.cos(id) * 0.03)
   };
-}
-
-// Ensure longitude stays within -180 to 180 degrees
-function restrictLongitude(lng: number): number {
-  // Use modulo to wrap the longitude value
-  let wrapped = ((lng + 180) % 360) - 180;
-  
-  // Handle negative modulo edge case
-  if (wrapped < -180) wrapped += 360;
-  
-  return wrapped;
-}
-
-// Ensure latitude stays within -85 to 85 degrees (mapbox limits)
-function restrictLatitude(lat: number): number {
-  return Math.max(-85, Math.min(85, lat));
 }
 
 // Helper function to extract city from location string
