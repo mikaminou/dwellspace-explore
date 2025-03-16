@@ -51,34 +51,20 @@ export function usePropertyMarkers(
     propertiesWithOwners.forEach(property => {
       let coords;
       
-      // First priority: Use actual coordinates from the database
       if (typeof property.latitude === 'number' && typeof property.longitude === 'number') {
         coords = {
           lat: property.latitude,
           lng: property.longitude
         };
         console.log(`Using actual coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
-      } 
-      // Second priority: Generate from street_name, city and country if coordinates not available
-      else if (property.street_name && property.city) {
-        const locationString = `${property.street_name}, ${property.city}, Algeria`;
-        coords = generateCoordsFromLocation(locationString, property.id);
-        console.log(`Using generated coordinates for property ${property.id} from ${locationString}: [${coords.lng}, ${coords.lat}]`);
-      } 
-      // Fallback: Generate from location if street_name is not available
-      else if (property.location) {
-        coords = generateCoordsFromLocation(property.location + ', ' + property.city + ', Algeria', property.id);
-        console.log(`Using generated coordinates from location for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
       } else {
         console.log(`No coordinates available for property ${property.id}`);
         return;
       }
-
+      
       if (!coords) return;
-
       bounds.extend([coords.lng, coords.lat]);
       propertiesWithCoords++;
-
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker-container';
       
