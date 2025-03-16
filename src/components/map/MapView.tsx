@@ -23,29 +23,45 @@ function MapView() {
   
   // Check if Mapbox is available
   useEffect(() => {
-    try {
-      console.log('Checking Mapbox availability'); // Debug log
-      if (typeof window === 'undefined') {
-        console.error("Window is undefined");
-        setMapUnavailable(true);
-      } else if (!window.mapboxgl) {
-        console.error("Mapbox GL not available on window object");
-        setMapUnavailable(true);
-        // Try to load mapboxgl dynamically
-        import('mapbox-gl').then(mapboxgl => {
-          console.log('Mapbox GL loaded dynamically');
-          window.mapboxgl = mapboxgl.default;
-          setMapUnavailable(false);
-        }).catch(err => {
-          console.error('Failed to load Mapbox GL dynamically:', err);
-        });
-      } else {
+    const checkMapboxAvailability = () => {
+      try {
+        console.log('Checking Mapbox availability'); // Debug log
+        
+        if (typeof window === 'undefined') {
+          console.error("Window is undefined");
+          setMapUnavailable(true);
+          return false;
+        } 
+        
+        if (!window.mapboxgl) {
+          console.error("Mapbox GL not available on window object");
+          setMapUnavailable(true);
+          
+          // Only try to load mapboxgl if we're in a browser environment
+          if (typeof window !== 'undefined') {
+            // Try to load mapboxgl dynamically
+            import('mapbox-gl').then(mapboxgl => {
+              console.log('Mapbox GL loaded dynamically');
+              window.mapboxgl = mapboxgl.default;
+              setMapUnavailable(false);
+            }).catch(err => {
+              console.error('Failed to load Mapbox GL dynamically:', err);
+            });
+          }
+          
+          return false;
+        }
+        
         console.log('Mapbox GL is available on window'); // Debug log
+        return true;
+      } catch (e) {
+        console.error("Error accessing Mapbox GL:", e);
+        setMapUnavailable(true);
+        return false;
       }
-    } catch (e) {
-      console.error("Error accessing Mapbox GL:", e);
-      setMapUnavailable(true);
-    }
+    };
+    
+    checkMapboxAvailability();
   }, []);
 
   // Handle property save
@@ -63,19 +79,25 @@ function MapView() {
   // Get properties with owner data
   const { propertiesWithOwners } = usePropertiesWithOwners(properties || []);
 
-  // Helper to update marker z-index
+  // Safely update marker z-index
   const updateMarkerZIndex = (propertyId: number | null) => {
+    if (!map.current) return;
+    
     try {
       // Reset all markers to default z-index
-      Object.entries(markersRef.current).forEach(([id, marker]) => {
-        const markerEl = marker.getElement();
-        markerEl.style.zIndex = '1';
-      });
+      if (markersRef.current) {
+        Object.entries(markersRef.current).forEach(([id, marker]) => {
+          if (marker && typeof marker.getElement === 'function') {
+            const markerEl = marker.getElement();
+            if (markerEl) markerEl.style.zIndex = '1';
+          }
+        });
+      }
 
       // Set the active marker to higher z-index
-      if (propertyId !== null && markersRef.current[propertyId]) {
+      if (propertyId !== null && markersRef.current && markersRef.current[propertyId]) {
         const activeMarkerEl = markersRef.current[propertyId].getElement();
-        activeMarkerEl.style.zIndex = '3';
+        if (activeMarkerEl) activeMarkerEl.style.zIndex = '3';
       }
     } catch (error) {
       console.error('Error updating marker z-index:', error);
@@ -84,6 +106,7 @@ function MapView() {
 
   // Handle marker click with property popup
   const handleMarkerClick = (property: Property, coordinates: [number, number]) => {
+    if (!map.current || !mapLoaded) return;
     showPropertyPopup(property, coordinates, setActiveMarkerId, updateMarkerZIndex);
   };
 
@@ -95,7 +118,7 @@ function MapView() {
     navigate
   });
 
-  // Set up property markers
+  // Set up property markers - only if map is loaded and available
   const { markersRef } = usePropertyMarkers({
     map,
     properties: propertiesWithOwners || [],
