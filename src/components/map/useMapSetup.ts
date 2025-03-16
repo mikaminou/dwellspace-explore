@@ -26,42 +26,56 @@ export function useMapSetup() {
     // Delay map initialization to ensure DOM and libraries are ready
     const initMap = async () => {
       try {
-        // Wait a bit for the DOM to be fully ready
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait for DOM to be fully ready
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         if (!isMounted) return;
         
-        // Safely import mapboxgl
-        try {
-          console.log('Importing mapbox-gl...');
-          const mapboxModule = await import('mapbox-gl');
-          mapboxgl = mapboxModule.default;
-          
-          if (!mapboxgl) {
-            throw new Error('Failed to import mapbox-gl');
+        // Try to find mapboxgl on window first
+        if (typeof window !== 'undefined' && window.mapboxgl) {
+          console.log('Using mapboxgl from window');
+          mapboxgl = window.mapboxgl;
+        } else {
+          // Dynamically import mapbox-gl if not available on window
+          try {
+            console.log('Importing mapbox-gl dynamically...');
+            const mapboxModule = await import('mapbox-gl');
+            mapboxgl = mapboxModule.default;
+            
+            // Make mapboxgl available on window
+            if (typeof window !== 'undefined') {
+              window.mapboxgl = mapboxgl;
+            }
+          } catch (importError) {
+            console.error('Error importing mapbox-gl:', importError);
+            if (isMounted) {
+              setMapError(importError instanceof Error ? importError : new Error(String(importError)));
+              toast.error('Failed to load map library');
+            }
+            return;
           }
-          
-          // Make mapboxgl available on window for debugging
-          if (typeof window !== 'undefined') {
-            window.mapboxgl = mapboxgl;
-          }
-        } catch (importError) {
-          console.error('Error importing mapbox-gl:', importError);
+        }
+
+        // Verify mapboxgl was loaded successfully
+        if (!mapboxgl) {
+          const error = new Error('mapbox-gl not available after import');
+          console.error(error);
           if (isMounted) {
-            setMapError(importError instanceof Error ? importError : new Error(String(importError)));
-            toast.error('Failed to load map library');
+            setMapError(error);
+            toast.error('Map library could not be loaded');
           }
           return;
         }
 
         try {
-          // Ensure access token is set
+          // Set the access token
           mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
-          
-          console.log('Initializing map with token:', mapboxgl.accessToken);
+          console.log('Initializing map with token:', MAPBOX_ACCESS_TOKEN.substring(0, 10) + '...');
           
           if (!mapContainer.current || !isMounted) return;
           
+          // Create the map instance
+          console.log('Creating map instance...');
           map.current = new mapboxgl.Map({
             container: mapContainer.current,
             style: 'mapbox://styles/mapbox/streets-v11',
@@ -72,8 +86,28 @@ export function useMapSetup() {
             preserveDrawingBuffer: true // Helps with screenshots and exports
           });
 
-          // Safely add controls after ensuring map is created
+          console.log('Map instance created');
+
+          // Add map controls after map is created
           if (map.current) {
+            // Set up load handler first to catch early events
+            map.current.on('load', () => {
+              console.log('Map loaded successfully');
+              if (isMounted) {
+                setMapLoaded(true);
+              }
+            });
+
+            // Add error handler early
+            map.current.on('error', (e: any) => {
+              console.error('Map error:', e);
+              if (isMounted) {
+                setMapError(e.error || new Error('Unknown map error'));
+                toast.error('There was a problem loading the map');
+              }
+            });
+
+            console.log('Adding map controls...');
             // Add navigation controls
             map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
             map.current.addControl(new mapboxgl.FullscreenControl());
@@ -84,25 +118,10 @@ export function useMapSetup() {
               trackUserLocation: true
             }));
 
-            // Add attribution control in the bottom-right
+            // Add attribution control
             map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
-
-            // Set map loaded state when the map is ready
-            map.current.on('load', () => {
-              console.log('Map loaded successfully');
-              if (isMounted) {
-                setMapLoaded(true);
-              }
-            });
-
-            // Handle map error
-            map.current.on('error', (e: any) => {
-              console.error('Map error:', e);
-              if (isMounted) {
-                setMapError(e.error || new Error('Unknown map error'));
-                toast.error('There was a problem loading the map');
-              }
-            });
+            
+            console.log('Map controls added');
           }
         } catch (initError) {
           console.error('Error in map initialization:', initError);

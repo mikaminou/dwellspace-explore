@@ -66,14 +66,8 @@ export function usePropertyPopup({
           );
           
           // Use createPortal to mount the React component into the popup container
-          const PopupPortal = () => createPortal(popupContent, popupRootRef.current!);
-          
-          // Create a temporary root and render the portal
-          const tempRoot = document.createElement('div');
-          popupRootRef.current.appendChild(tempRoot);
-          
-          const root = require('react-dom/client').createRoot(tempRoot);
-          root.render(<PopupPortal />);
+          const root = require('react-dom/client').createRoot(popupRootRef.current);
+          root.render(popupContent);
         } catch (error) {
           console.error('Error rendering property popup:', error);
         }
