@@ -41,14 +41,12 @@ export function PropertyMarker({ price, onClick }: PropertyMarkerProps) {
     e.preventDefault(); // Prevent default action
     e.stopPropagation(); // Prevent the click from being passed to the map
     
-    // Add a small delay to give time for the DOM to stabilize
-    setTimeout(() => {
-      try {
-        onClick();
-      } catch (error) {
-        console.error("Error in marker click handler:", error);
-      }
-    }, 10);
+    // Call the onClick handler directly without timeout
+    try {
+      onClick();
+    } catch (error) {
+      console.error("Error in marker click handler:", error);
+    }
   };
 
   // Make sure price is a valid string
