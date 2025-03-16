@@ -49,6 +49,8 @@ export const transformPropertyData = (property: any) => {
     owner_id: property.owner_id,
     created_at: property.created_at,
     updated_at: property.updated_at,
+    latitude: property.latitude,
+    longitude: property.longitude,
     listing_type: listingType,
     // Add these properties for compatibility with mock data
     image: property.image || '',

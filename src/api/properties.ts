@@ -9,8 +9,8 @@ export type Property = {
   location: string;
   city: string;
   street_name?: string;   // Added street_name property
-  latitude?: number | null;   // Already had latitude property
-  longitude?: number | null;  // Already had longitude property
+  latitude: number;   // Already had latitude property
+  longitude: number;  // Already had longitude property
   beds: number;
   baths: number | null;
   postal_code: number | null;
