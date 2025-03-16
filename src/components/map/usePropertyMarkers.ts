@@ -94,6 +94,7 @@ export function usePropertyMarkers(
         PropertyMarker({
           price: property.price,
           isPremium: property.isPremium,
+          listingType: property.listingType || 'sale', // Pass the listing type
           onClick: handleMarkerClick
         })
       );
