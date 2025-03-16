@@ -33,6 +33,8 @@ export function useProperties() {
           owner: owner || undefined,
           agent: owner || undefined,
           isPremium: property.isPremium || false,
+          created_at: String(property.created_at || property.createdAt || ''),
+          updated_at: String(property.updated_at || property.updatedAt || '')
         } as Property;
       }));
       
@@ -65,6 +67,8 @@ export function useProperties() {
             images: propertyData.images || propertyData.gallery_image_urls || [],
             street_name: propertyData.street_name || propertyData.streetName || '',
             isPremium: propertyData.isPremium || false,
+            created_at: String(propertyData.created_at || propertyData.createdAt || ''),
+            updated_at: String(propertyData.updated_at || propertyData.updatedAt || '')
           } as Property;
         }
       }
@@ -77,6 +81,8 @@ export function useProperties() {
         images: propertyData.images || propertyData.gallery_image_urls || [],
         street_name: propertyData.street_name || propertyData.streetName || '',
         isPremium: propertyData.isPremium || false,
+        created_at: String(propertyData.created_at || propertyData.createdAt || ''),
+        updated_at: String(propertyData.updated_at || propertyData.updatedAt || '')
       } as Property : null;
     } catch (err: any) {
       console.error(`Error fetching property with ID ${id}:`, err);
@@ -123,6 +129,8 @@ export function useProperties() {
           owner: owner || undefined,
           agent: owner || undefined,
           isPremium: property.isPremium || false,
+          created_at: String(property.created_at || property.createdAt || ''),
+          updated_at: String(property.updated_at || property.updatedAt || '')
         } as Property;
       }));
       

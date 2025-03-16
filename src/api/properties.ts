@@ -1,4 +1,3 @@
-
 import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 import { Agent } from "./agents";
@@ -37,16 +36,15 @@ export interface Property {
   postal_code?: number;
   postalCode?: number; // Added to match data model
   created_at: string;
-  createdAt?: string; // Changed to string to match the API
+  createdAt?: string | number; // Changed to support both string and number
   updated_at: string;
-  updatedAt?: string; // Changed to string to match the API
+  updatedAt?: string | number; // Changed to support both string and number
   agent?: Agent;
   owner?: Agent; // Added to support components using owner
   image?: string;
   images?: string[];
   isPremium?: boolean;
 }
-
 
 // Function to get all properties
 export const getAllProperties = async (): Promise<Property[]> => {
@@ -67,7 +65,12 @@ export const getAllProperties = async (): Promise<Property[]> => {
       if (!property.street_name) {
         property.street_name = property.streetName || '';
       }
-      return property as Property;
+      // Ensure types are correct
+      return {
+        ...property,
+        created_at: String(property.created_at || property.createdAt || ''),
+        updated_at: String(property.updated_at || property.updatedAt || '')
+      } as Property;
     });
   } catch (error) {
     console.error('Unexpected error fetching properties:', error);
@@ -95,7 +98,12 @@ export const getPropertyById = async (id: string | number): Promise<Property | n
     if (!property.street_name) {
       property.street_name = property.streetName || '';
     }
-    return property as Property;
+    // Ensure types are correct
+    return {
+      ...property,
+      created_at: String(property.created_at || property.createdAt || ''),
+      updated_at: String(property.updated_at || property.updatedAt || '')
+    } as Property;
   } catch (error) {
     console.error(`Unexpected error fetching property with ID ${id}:`, error);
     return null;
@@ -173,7 +181,12 @@ export const searchProperties = async (
         if (!property.street_name) {
           property.street_name = property.streetName || '';
         }
-        return property as Property;
+        // Ensure types are correct
+        return {
+          ...property,
+          created_at: String(property.created_at || property.createdAt || ''),
+          updated_at: String(property.updated_at || property.updatedAt || '')
+        } as Property;
       })
       .filter(property => {
         // Extract numeric value from price string

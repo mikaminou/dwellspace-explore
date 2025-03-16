@@ -45,7 +45,7 @@ export const transformPropertyData = (property: any): Property => {
     postal_code: property.postal_code || null,
     ownerId: property.owner_id,
     owner_id: property.owner_id,
-    createdAt: property.created_at, 
+    createdAt: property.created_at,
     created_at: property.created_at,
     updatedAt: property.updated_at,
     updated_at: property.updated_at,
