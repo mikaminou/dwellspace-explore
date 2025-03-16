@@ -501,4 +501,14 @@ export const properties: Property[] = [
     additionalDetails: "Property taxes: 35,000 DZD/year. Off-grid with complete energy independence.",
     image: "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
     images: [
-      "https://images.unsplash.com/photo-16023
+      "https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1591474200742-8e512e6f98f8?auto=format&fit=crop&q=80"
+    ],
+    agent: agents[4], // Seller (Farida Khelil)
+    longitude: 0.2314,
+    latitude: 29.2639
+  }
+];
