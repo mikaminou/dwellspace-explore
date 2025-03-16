@@ -15,6 +15,7 @@ export function usePropertyMarkers(
   showPropertyPopup: (property: Property, coordinates: [number, number]) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  const [markerElements, setMarkerElements] = useState<{[key: number]: HTMLElement}>({});
 
   const updateMarkerZIndex = (propertyId: number | null) => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
@@ -28,6 +29,7 @@ export function usePropertyMarkers(
     }
   };
 
+  // Create markers when properties or map changes
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
@@ -47,6 +49,9 @@ export function usePropertyMarkers(
       lat: p.latitude, 
       lng: p.longitude
     })));
+
+    // Create marker DOM elements first
+    const newMarkerElements: {[key: number]: HTMLElement} = {};
 
     propertiesWithOwners.forEach(property => {
       let coords;
@@ -69,6 +74,12 @@ export function usePropertyMarkers(
       }
 
       if (!coords) return;
+      
+      // Ensure coordinates are within valid range
+      if (coords.lng < -180 || coords.lng > 180 || coords.lat < -85 || coords.lat > 85) {
+        console.warn(`Invalid coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
+        return;
+      }
 
       bounds.extend([coords.lng, coords.lat]);
       propertiesWithCoords++;
@@ -91,21 +102,24 @@ export function usePropertyMarkers(
         })
       );
       
-      // Create the marker with pitchAlignment and rotationAlignment set to 'map'
-      // This ensures markers maintain their position during zoom operations
+      newMarkerElements[property.id] = markerEl;
+
+      // Create the marker with optimized positioning settings
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
         offset: [0, 0],
         clickTolerance: 10,
-        pitchAlignment: 'map',    // Keep marker flat against the map
-        rotationAlignment: 'map'  // Maintain rotation relative to the map
+        pitchAlignment: 'viewport',  // Keep marker aligned with the viewport
+        rotationAlignment: 'viewport',  // Align with viewport
       })
         .setLngLat([coords.lng, coords.lat])
         .addTo(map.current!);
 
       markersRef.current[property.id] = marker;
     });
+
+    setMarkerElements(newMarkerElements);
 
     if (propertiesWithCoords > 0) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
@@ -114,6 +128,38 @@ export function usePropertyMarkers(
         maxZoom: 15
       });
     }
+    
+    // Add zoom handler to prevent marker movement on zoom
+    const handleZoom = () => {
+      if (!map.current) return;
+      
+      // Reposition markers at their original coordinates after zoom
+      propertiesWithOwners.forEach(property => {
+        if (!markersRef.current[property.id]) return;
+        
+        let coords;
+        if (typeof property.latitude === 'number' && typeof property.longitude === 'number') {
+          coords = { lat: property.latitude, lng: property.longitude };
+        } else if (property.location) {
+          coords = generateCoordsFromLocation(property.location + ', ' + property.city, property.id);
+        } else {
+          return;
+        }
+        
+        if (coords) {
+          markersRef.current[property.id].setLngLat([coords.lng, coords.lat]);
+        }
+      });
+    };
+    
+    // Listen for zoom events to ensure markers stay in place
+    map.current.on('zoom', handleZoom);
+    
+    return () => {
+      if (map.current) {
+        map.current.off('zoom', handleZoom);
+      }
+    };
   }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup]);
 
   return { activeMarkerId, setActiveMarkerId, updateMarkerZIndex };
