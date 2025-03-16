@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
@@ -51,9 +50,6 @@ export const transformPropertyData = (property: any) => {
     created_at: property.created_at,
     updated_at: property.updated_at,
     listing_type: listingType,
-    // Add the longitude and latitude properties from the database
-    longitude: property.longitude ? Number(property.longitude) : undefined,
-    latitude: property.latitude ? Number(property.latitude) : undefined,
     // Add these properties for compatibility with mock data
     image: property.image || '',
     images: galleryImages,

@@ -25,9 +25,6 @@ export type Property = {
   created_at: string;
   updated_at: string;
   listing_type: 'sale' | 'rent' | 'construction';
-  // Add new coordinate properties
-  longitude?: number;
-  latitude?: number;
   // Make owner explicitly optional with proper typing
   owner?: Agent;
   // Add these properties for compatibility with mock data
