@@ -1,3 +1,4 @@
+
 import { Property } from "@/api/properties";
 import { formatPrice } from './mapUtils';
 import { Home, Building, Construction, Castle } from 'lucide-react';
@@ -106,7 +107,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
 
   // Create HTML string for the popup
   return `
-    <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg ${getListingTypeBorderColor(property.listing_type)} border-2" data-property-id="${property.id}">
+    <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg" data-property-id="${property.id}">
       <div class="relative w-full h-48 bg-gray-200 overflow-hidden">
         <img 
           src="${property.featured_image_url || property.image || '/placeholder.svg'}" 
