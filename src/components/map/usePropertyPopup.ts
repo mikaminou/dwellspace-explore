@@ -83,6 +83,7 @@ export function usePropertyPopup(
     }
 
     // Only close popup on very specific events, not on map clicks
+    // This prevents unwanted zoom resets when clicking on the map
     ['dragstart'].forEach(event => {
       map.current?.once(event, () => {
         if (popupRef.current) {

@@ -31,15 +31,15 @@ export function usePropertyMarkers(
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
-    propertiesWithOwners.forEach(property => {
-      if (!markersRef.current[property.id]) { 
-        const marker = new mapboxgl.Marker()
-        .setLngLat([property.longitude, property.latitude]);
-        markersRef.current[property.id] = marker;
-        marker.addTo(map.current);
+    // Clear any markers that are no longer in the properties list
+    Object.keys(markersRef.current).forEach(id => {
+      const numericId = parseInt(id);
+      if (!propertiesWithOwners.some(p => p.id === numericId)) {
+        markersRef.current[numericId].remove();
+        delete markersRef.current[numericId];
       }
     });
-
+    
     if (propertiesWithOwners.length === 0) return;
 
     const bounds = new mapboxgl.LngLatBounds();
@@ -69,8 +69,17 @@ export function usePropertyMarkers(
       }
       
       if (!coords) return;
+      
+      // Only extend bounds for actual valid coordinates
       bounds.extend([coords.lng, coords.lat]);
       propertiesWithCoords++;
+      
+      // If marker already exists, update its position and skip recreation
+      if (markersRef.current[property.id]) {
+        markersRef.current[property.id].setLngLat([coords.lng, coords.lat]);
+        return;
+      }
+      
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker-container';
       
@@ -101,7 +110,8 @@ export function usePropertyMarkers(
       markersRef.current[property.id] = marker;
     });
 
-    // Only fit bounds if we haven't done it yet or if we're showing a completely new set of properties
+    // Only fit bounds if we haven't done it yet and we have properties with coordinates
+    // This prevents unnecessary bounds adjustments during zooming or when clicking on properties
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
       map.current.fitBounds(bounds, {
