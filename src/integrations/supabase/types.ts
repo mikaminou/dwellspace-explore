@@ -63,9 +63,11 @@ export type Database = {
           id: number
           image: string | null
           images: Json | null
+          latitude: number | null
           listing_type: string
           living_area: number
           location: string
+          longitude: number | null
           owner_id: string
           plot_area: number | null
           postal_code: number | null
@@ -87,9 +89,11 @@ export type Database = {
           id?: number
           image?: string | null
           images?: Json | null
+          latitude?: number | null
           listing_type?: string
           living_area?: number
           location: string
+          longitude?: number | null
           owner_id: string
           plot_area?: number | null
           postal_code?: number | null
@@ -111,9 +115,11 @@ export type Database = {
           id?: number
           image?: string | null
           images?: Json | null
+          latitude?: number | null
           listing_type?: string
           living_area?: number
           location?: string
+          longitude?: number | null
           owner_id?: string
           plot_area?: number | null
           postal_code?: number | null
@@ -133,6 +139,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      properties_backup: {
+        Row: {
+          additional_details: string | null
+          baths: number | null
+          beds: number | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: number | null
+          image: string | null
+          images: Json | null
+          listing_type: string | null
+          living_area: number | null
+          location: string | null
+          owner_id: string | null
+          plot_area: number | null
+          postal_code: number | null
+          price: string | null
+          street_name: string | null
+          title: string | null
+          type: string | null
+          updated_at: string | null
+          year_built: number | null
+        }
+        Insert: {
+          additional_details?: string | null
+          baths?: number | null
+          beds?: number | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: number | null
+          image?: string | null
+          images?: Json | null
+          listing_type?: string | null
+          living_area?: number | null
+          location?: string | null
+          owner_id?: string | null
+          plot_area?: number | null
+          postal_code?: number | null
+          price?: string | null
+          street_name?: string | null
+          title?: string | null
+          type?: string | null
+          updated_at?: string | null
+          year_built?: number | null
+        }
+        Update: {
+          additional_details?: string | null
+          baths?: number | null
+          beds?: number | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: number | null
+          image?: string | null
+          images?: Json | null
+          listing_type?: string | null
+          living_area?: number | null
+          location?: string | null
+          owner_id?: string | null
+          plot_area?: number | null
+          postal_code?: number | null
+          price?: string | null
+          street_name?: string | null
+          title?: string | null
+          type?: string | null
+          updated_at?: string | null
+          year_built?: number | null
+        }
+        Relationships: []
       }
     }
     Views: {

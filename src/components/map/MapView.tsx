@@ -8,14 +8,14 @@ import { Property } from '@/api/properties';
 import { PropertyPopup } from './PropertyPopup';
 import { useLanguage } from '@/contexts/language/LanguageContext';
 import { getOwnersForProperties } from '@/api/agents';
-import { generateCoordsFromLocation, getCityCoordinates, formatPrice } from './mapUtils';
-import { MapLoadingState, MapEmptyState } from './MapStates';
+import { formatPrice } from './mapUtils';
+import { MapLoadingState, MapEmptyState, MapErrorState } from './MapStates';
 import { useMapSetup } from './useMapSetup';
 import mapboxgl from 'mapbox-gl';
 
 export function MapView() {
   const navigate = useNavigate();
-  const { mapContainer, map, markersRef, popupRef, mapLoaded } = useMapSetup();
+  const { mapContainer, map, markersRef, popupRef, mapLoaded, mapError } = useMapSetup();
   
   const [propertiesWithOwners, setPropertiesWithOwners] = useState<Property[]>([]);
   const { properties, loading, selectedCity } = useSearch();
@@ -143,6 +143,7 @@ export function MapView() {
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
+    // Clear existing markers
     Object.values(markersRef.current).forEach(marker => marker.remove());
     markersRef.current = {};
 
@@ -152,65 +153,88 @@ export function MapView() {
     let propertiesWithCoords = 0;
 
     propertiesWithOwners.forEach(property => {
-      if (!property.location) return;
+      // Check if property has longitude and latitude
+      if (property.longitude && property.latitude) {
+        const lng = parseFloat(property.longitude);
+        const lat = parseFloat(property.latitude);
+        
+        // Validate coordinates
+        if (isNaN(lng) || isNaN(lat)) {
+          console.warn(`Invalid coordinates for property ${property.id}:`, { lng, lat });
+          return;
+        }
 
-      const coords = generateCoordsFromLocation(property.location, property.id);
-      if (!coords) return;
+        console.log(`Adding marker for property ${property.id} at:`, { lng, lat });
+        
+        bounds.extend([lng, lat]);
+        propertiesWithCoords++;
 
-      bounds.extend([coords.lng, coords.lat]);
-      propertiesWithCoords++;
+        const markerEl = document.createElement('div');
+        markerEl.className = 'custom-marker-container';
+        
+        const marker = new mapboxgl.Marker({
+          element: markerEl,
+          anchor: 'bottom',
+          offset: [0, 0],
+          clickTolerance: 10
+        })
+          .setLngLat([lng, lat])
+          .addTo(map.current!);
 
-      const markerEl = document.createElement('div');
-      markerEl.className = 'custom-marker-container';
-      
-      const marker = new mapboxgl.Marker({
-        element: markerEl,
-        anchor: 'bottom',
-        offset: [0, 0],
-        clickTolerance: 10
-      })
-        .setLngLat([coords.lng, coords.lat])
-        .addTo(map.current!);
+        const priceElement = document.createElement('div');
+        priceElement.className = 'price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
+        priceElement.innerText = formatPrice(property.price);
+        markerEl.appendChild(priceElement);
 
-      const priceElement = document.createElement('div');
-      priceElement.className = 'price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
-      priceElement.innerText = property.price;
-      markerEl.appendChild(priceElement);
+        priceElement.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showPropertyPopup(property, [lng, lat]);
+        });
 
-      priceElement.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showPropertyPopup(property, [coords.lng, coords.lat]);
-      });
-
-      markersRef.current[property.id] = marker;
+        markersRef.current[property.id] = marker;
+      } else {
+        console.warn(`Property ${property.id} missing coordinates`);
+      }
     });
+
+    console.log(`Added ${propertiesWithCoords} markers out of ${propertiesWithOwners.length} properties`);
 
     if (propertiesWithCoords > 0) {
       map.current.fitBounds(bounds, {
         padding: 50,
         maxZoom: 15
       });
+    } else if (selectedCity && selectedCity !== 'any') {
+      // If no properties have coordinates but a city is selected, center on that city
+      const cityCoords = getCityCoordinates(selectedCity);
+      if (cityCoords) {
+        map.current.flyTo({
+          center: [cityCoords.lng, cityCoords.lat],
+          zoom: 12,
+          essential: true
+        });
+      }
     }
-  }, [propertiesWithOwners, mapLoaded, loading, navigate]);
+  }, [propertiesWithOwners, mapLoaded, loading, navigate, selectedCity]);
 
-  // Update map center when selected city changes
-  useEffect(() => {
-    if (!map.current || !mapLoaded || !selectedCity || selectedCity === 'any') return;
+  // Helper function to get city coordinates
+  const getCityCoordinates = (city: string): { lat: number, lng: number } | null => {
+    const cities: {[key: string]: { lat: number, lng: number }} = {
+      'Algiers': { lat: 36.752887, lng: 3.042048 },
+      'Oran': { lat: 35.691544, lng: -0.642049 },
+      'Constantine': { lat: 36.365, lng: 6.614722 },
+      'Annaba': { lat: 36.897503, lng: 7.765092 },
+      'Setif': { lat: 36.190073, lng: 5.408341 }
+    };
     
-    const cityCoords = getCityCoordinates(selectedCity);
-    if (cityCoords) {
-      map.current.flyTo({
-        center: [cityCoords.lng, cityCoords.lat],
-        zoom: 12,
-        essential: true
-      });
-    }
-  }, [selectedCity, mapLoaded]);
+    return cities[city] || null;
+  };
 
   return (
     <div className="relative flex-1 w-full">
       <MapLoadingState show={loading} />
       <MapEmptyState show={propertiesWithOwners.length === 0 && !loading} />
+      {mapError && <MapErrorState error={mapError} />}
       <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
     </div>
   );
