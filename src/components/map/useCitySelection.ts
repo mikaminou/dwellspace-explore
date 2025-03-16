@@ -16,13 +16,18 @@ export function useCitySelection({
   useEffect(() => {
     if (!map.current || !mapLoaded || !selectedCity || selectedCity === 'any') return;
     
-    const cityCoords = getCityCoordinates(selectedCity);
-    if (cityCoords) {
-      map.current.flyTo({
-        center: [cityCoords.lng, cityCoords.lat],
-        zoom: 12,
-        essential: true
-      });
+    try {
+      const cityCoords = getCityCoordinates(selectedCity);
+      if (cityCoords) {
+        // Access coordinates by array index since it's a [lng, lat] tuple
+        map.current.flyTo({
+          center: [cityCoords[0], cityCoords[1]],
+          zoom: 12,
+          essential: true
+        });
+      }
+    } catch (error) {
+      console.error(`Error flying to city ${selectedCity}:`, error);
     }
   }, [selectedCity, mapLoaded, map]);
 }
