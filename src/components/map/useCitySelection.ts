@@ -18,8 +18,9 @@ export function useCitySelection({
     
     const cityCoords = getCityCoordinates(selectedCity);
     if (cityCoords) {
+      // cityCoords is [lat, lng] but mapbox expects [lng, lat]
       map.current.flyTo({
-        center: [cityCoords.lng, cityCoords.lat],
+        center: [cityCoords[1], cityCoords[0]],
         zoom: 12,
         essential: true
       });
