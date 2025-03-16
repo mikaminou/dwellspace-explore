@@ -15,8 +15,6 @@ export function usePropertyMarkers(
   showPropertyPopup: (property: Property, coordinates: [number, number]) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
-  const markerCoordinates = useRef<{ [key: number]: [number, number] }>({});
-  const isRepositioning = useRef(false);
 
   const updateMarkerZIndex = (propertyId: number | null) => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
@@ -30,32 +28,12 @@ export function usePropertyMarkers(
     }
   };
 
-  // Function to reset markers to their original coordinates
-  const repositionMarkers = () => {
-    if (!map.current || isRepositioning.current) return;
-    
-    isRepositioning.current = true;
-    
-    try {
-      Object.entries(markerCoordinates.current).forEach(([id, coords]) => {
-        const marker = markersRef.current[Number(id)];
-        if (marker) {
-          marker.setLngLat(coords);
-        }
-      });
-    } finally {
-      // Ensure we always reset the flag
-      isRepositioning.current = false;
-    }
-  };
-
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
     // Remove existing markers
     Object.values(markersRef.current).forEach(marker => marker.remove());
     markersRef.current = {};
-    markerCoordinates.current = {};
 
     if (propertiesWithOwners.length === 0) return;
 
@@ -92,10 +70,8 @@ export function usePropertyMarkers(
 
       if (!coords) return;
 
-      // Store original coordinates for repositioning - crucial for stability
+      // Use fixed LngLat for markers - never recalculate positions
       const lngLat: [number, number] = [coords.lng, coords.lat];
-      markerCoordinates.current[property.id] = lngLat;
-
       bounds.extend(lngLat);
       propertiesWithCoords++;
 
@@ -117,14 +93,12 @@ export function usePropertyMarkers(
         })
       );
       
-      // Create the marker with enhanced stability settings
+      // Create the marker with fixed position settings
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
-        offset: [0, 0],  // No offset to reduce positioning issues
-        clickTolerance: 10,
-        pitchAlignment: 'viewport',
-        rotationAlignment: 'viewport'
+        offset: [0, 0],
+        clickTolerance: 10
       })
         .setLngLat(lngLat)
         .addTo(map.current!);
@@ -140,32 +114,10 @@ export function usePropertyMarkers(
       });
     }
 
-    // Add a SINGLE event handler for all map movements
-    // This is more efficient than multiple handlers
-    const handleMapMove = () => {
-      window.requestAnimationFrame(repositionMarkers);
-    };
-
-    // Add event listeners for repositioning markers
-    map.current.on('zoom', handleMapMove);
-    map.current.on('pitch', handleMapMove);
-    map.current.on('rotate', handleMapMove);
-    map.current.on('move', handleMapMove);
-
-    // Additional reposition after movement ends
-    map.current.on('moveend', repositionMarkers);
-    map.current.on('zoomend', repositionMarkers);
+    // No map movement handlers needed since we're using fixed coordinates
 
     return () => {
-      // Clean up event listeners when component unmounts
-      if (map.current) {
-        map.current.off('zoom', handleMapMove);
-        map.current.off('pitch', handleMapMove);
-        map.current.off('rotate', handleMapMove);
-        map.current.off('move', handleMapMove);
-        map.current.off('moveend', repositionMarkers);
-        map.current.off('zoomend', repositionMarkers);
-      }
+      // No event listeners to remove
     };
   }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup]);
 

@@ -2,14 +2,13 @@
 import { Property } from "@/api/properties";
 
 // Helper function to generate coordinates from location string
-// This now ensures markers are stable and don't drift by using smaller offsets
+// This is now only used as a fallback when actual coordinates are not available
 export function generateCoordsFromLocation(location: string, id: number): { lat: number, lng: number } | null {
   // Check if the location contains a city name and use that city's coordinates as base
   const cityCoords = getCityCoordinatesFromLocation(location);
   
   if (cityCoords) {
     // Generate deterministic but very small offsets based on ID
-    // Use a prime number division to ensure good distribution
     const offsetLat = (id % 101) * 0.0001;
     const offsetLng = (id % 97) * 0.0001;
     
