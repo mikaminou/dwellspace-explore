@@ -85,14 +85,18 @@ function MapView() {
   };
 
   // Set up property markers
-  usePropertyMarkers({
+  const { markersRef: markersFromHook } = usePropertyMarkers({
     map,
     properties: propertiesWithOwners || [],
     mapLoaded,
     loading,
-    onMarkerClick: handleMarkerClick,
-    markersRef
+    onMarkerClick: handleMarkerClick
   });
+  
+  // Sync the markers reference
+  useEffect(() => {
+    markersRef.current = markersFromHook.current;
+  }, [markersFromHook]);
 
   // Handle city selection
   useCitySelection({ map, mapLoaded, selectedCity });
