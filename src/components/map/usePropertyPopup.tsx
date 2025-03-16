@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 import { PropertyPopup } from './PropertyPopup';
-import * as ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 
 export function usePropertyPopup({
   map,
@@ -18,7 +18,7 @@ export function usePropertyPopup({
 }) {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
   const popupRootRef = useRef<HTMLElement | null>(null);
-  const reactRootRef = useRef<ReactDOM.Root | null>(null);
+  const reactRootRef = useRef<ReturnType<typeof createRoot> | null>(null);
   
   // Show property popup
   const showPropertyPopup = (
@@ -34,10 +34,10 @@ export function usePropertyPopup({
       if (reactRootRef.current) {
         try {
           reactRootRef.current.unmount();
-          reactRootRef.current = null;
         } catch (e) {
           console.error('Error unmounting React root:', e);
         }
+        reactRootRef.current = null;
       }
       popupRef.current.remove();
       popupRef.current = null;
@@ -58,13 +58,18 @@ export function usePropertyPopup({
       .setHTML(`<div id="property-popup-${property.id}" class="property-popup"></div>`)
       .addTo(map.current);
 
-    // Get or create popup root element
+    // Get or create popup root element with a delay to ensure DOM is ready
     setTimeout(() => {
       try {
-        popupRootRef.current = document.getElementById(`property-popup-${property.id}`);
+        const popupElement = document.getElementById(`property-popup-${property.id}`);
         
-        if (popupRootRef.current) {
-          // Create a React portal to render content inside the popup
+        if (popupElement && popupRef.current) {
+          popupRootRef.current = popupElement;
+          
+          // Create a React root using the modern API
+          reactRootRef.current = createRoot(popupElement);
+          
+          // Render the React component into the root
           const popupContent = (
             <PropertyPopup 
               property={property} 
@@ -74,14 +79,12 @@ export function usePropertyPopup({
             />
           );
           
-          // Use createRoot to mount the React component into the popup container
-          reactRootRef.current = ReactDOM.createRoot(popupRootRef.current);
           reactRootRef.current.render(popupContent);
         }
       } catch (error) {
         console.error('Error rendering property popup:', error);
       }
-    }, 0);
+    }, 50); // Slightly longer delay to ensure DOM is ready
 
     // Reset active marker when popup is closed
     ['dragstart', 'zoomstart', 'click'].forEach(event => {
@@ -90,10 +93,10 @@ export function usePropertyPopup({
           if (reactRootRef.current) {
             try {
               reactRootRef.current.unmount();
-              reactRootRef.current = null;
             } catch (e) {
               console.error('Error unmounting React root on map event:', e);
             }
+            reactRootRef.current = null;
           }
           popupRef.current.remove();
           popupRef.current = null;
