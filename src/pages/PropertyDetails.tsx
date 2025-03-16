@@ -100,7 +100,7 @@ export default function PropertyDetails() {
   const ownerInitials = ownerName !== 'Unknown' ? ownerName.charAt(0) : '?';
 
   const getListingTypeLabel = (type: string) => {
-    switch (type.toLowerCase()) {
+    switch (type) {
       case 'sale': return t('property.forSale');
       case 'rent': return t('property.forRent');
       case 'construction': return t('property.underConstruction');
@@ -111,18 +111,18 @@ export default function PropertyDetails() {
   };
 
   const getListingTypeIcon = () => {
-    switch (property.listing_type?.toLowerCase()) {
+    switch (property.listing_type.toLowerCase()) {
       case 'rent':
-        return <Building size={16} className="text-white" />;
+        return <Building size={16} className="text-white mr-2" />;
       case 'construction':
-        return <Construction size={16} className="text-white" />;
+        return <Construction size={16} className="text-white mr-2" />;
       case 'commercial':
-        return <Building size={16} className="text-white" />;
+        return <Building size={16} className="text-white mr-2" />;
       case 'vacation':
-        return <Castle size={16} className="text-white" />;
+        return <Castle size={16} className="text-white mr-2" />;
       case 'sale':
       default:
-        return <HomeIcon size={16} className="text-white" />;
+        return <HomeIcon size={16} className="text-white mr-2" />;
     }
   };
 
@@ -136,43 +136,6 @@ export default function PropertyDetails() {
       default: return 'listing-badge-sale';
     }
   };
-  
-  const getListingTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'rent': return 'text-blue-500';
-      case 'construction': return 'text-amber-500';
-      case 'commercial': return 'text-purple-500';
-      case 'vacation': return 'text-teal-500';
-      case 'sale':
-      default: return 'text-green-500';
-    }
-  };
-  
-  const getListingTypeButtonClass = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'rent': return 'bg-blue-500 hover:bg-blue-600';
-      case 'construction': return 'bg-amber-500 hover:bg-amber-600';
-      case 'commercial': return 'bg-purple-500 hover:bg-purple-600';
-      case 'vacation': return 'bg-teal-500 hover:bg-teal-600';
-      case 'sale':
-      default: return 'bg-green-500 hover:bg-green-600';
-    }
-  };
-  
-  const getListingTypeDotClass = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'rent': return 'bg-blue-500';
-      case 'construction': return 'bg-amber-500';
-      case 'commercial': return 'bg-purple-500';
-      case 'vacation': return 'bg-teal-500';
-      case 'sale':
-      default: return 'bg-green-500';
-    }
-  };
-
-  const priceColor = getListingTypeColor(property.listing_type || 'sale');
-  const buttonClass = getListingTypeButtonClass(property.listing_type || 'sale');
-  const dotClass = getListingTypeDotClass(property.listing_type || 'sale');
 
   return (
     <div className="min-h-screen bg-background">
@@ -186,12 +149,12 @@ export default function PropertyDetails() {
               alt={property.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute top-4 left-4 listing-badge flex items-center gap-2 px-3 py-1.5 rounded-md shadow-sm ${getListingTypeBadgeClass(property.listing_type)}">
+            <div className={`absolute top-4 left-4 listing-badge ${getListingTypeBadgeClass(property.listing_type)} flex items-center px-3 py-1.5`}>
               {getListingTypeIcon()}
               <span>{getListingTypeLabel(property.listing_type)}</span>
             </div>
             {property.isPremium && (
-              <div className="absolute top-4 right-4 listing-badge listing-badge-premium rounded-md">
+              <div className="absolute top-4 right-4 listing-badge listing-badge-premium">
                 Premium
               </div>
             )}
@@ -251,7 +214,7 @@ export default function PropertyDetails() {
             </div>
           </div>
           <div className={`flex flex-col ${dir === 'rtl' ? 'items-start' : 'items-end'}`}>
-            <span className={`text-3xl font-bold ${priceColor} mb-2`}>{property.price}</span>
+            <span className="text-3xl font-bold text-primary mb-2">{property.price}</span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={handleSave}>
                 <HeartIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
@@ -278,7 +241,7 @@ export default function PropertyDetails() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4 mb-6">
               {(property.features || []).map((feature: string, index: number) => (
                 <div key={index} className={`flex items-center ${dir === 'rtl' ? 'flex-row-reverse justify-end arabic-text' : ''}`}>
-                  <div className={`h-2 w-2 rounded-full ${dotClass} ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                  <div className={`h-2 w-2 rounded-full bg-primary ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                   {feature}
                 </div>
               ))}
@@ -312,13 +275,13 @@ export default function PropertyDetails() {
               </div>
               <div className="space-y-4 mb-4">
                 <Textarea 
-                  className={`w-full min-h-[100px] p-3 border rounded-md focus:border-${property.listing_type?.toLowerCase() || 'green'}-500 ${dir === 'rtl' ? 'text-right' : ''}`}
+                  className={`w-full min-h-[100px] p-3 border rounded-md ${dir === 'rtl' ? 'text-right' : ''}`}
                   placeholder={t('property.contactPlaceholder')}
                   dir={dir}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
-                <Button className={`w-full text-white ${buttonClass}`} onClick={handleContact}>
+                <Button className="w-full" onClick={handleContact}>
                   <Trans id="property.contactAgent" />
                 </Button>
               </div>
