@@ -11,10 +11,14 @@ import { usePropertyPopup } from './usePropertyPopup';
 import { useCitySelection } from './useCitySelection';
 import { usePropertiesWithOwners } from './usePropertiesWithOwners';
 import { Property } from '@/api/properties';
+import { MapTokenInput } from './MapTokenInput';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 function MapView() {
   console.log("MapView component rendering");
   const [mapInitError, setMapInitError] = useState<Error | null>(null);
+  const [showTokenInput, setShowTokenInput] = useState(false);
   
   const navigate = useNavigate();
   
@@ -39,7 +43,14 @@ function MapView() {
       if (mapError) {
         console.error("Map error:", mapError);
         setMapInitError(mapError);
-        toast.error("Failed to load map: " + mapError.message);
+        
+        // Check if it's a token-related error
+        if (mapError.message.includes('token') || mapError.message.includes('access') || 
+            mapError.message.includes('GL JS') || mapError.message.includes('not available')) {
+          setShowTokenInput(true);
+        } else {
+          toast.error("Failed to load map: " + mapError.message);
+        }
       }
     }, [mapError]);
     
@@ -121,18 +132,45 @@ function MapView() {
       console.error("Error in useCitySelection:", error);
     }
 
-    // Fallback for errors
+    const handleTokenSet = () => {
+      setShowTokenInput(false);
+      window.location.reload(); // Reload to reinitialize map with new token
+    };
+
+    const handleReload = () => {
+      window.location.reload();
+    };
+
+    // Fallback for token errors
+    if (showTokenInput) {
+      return (
+        <div className="relative flex-1 w-full flex items-center justify-center">
+          <MapTokenInput 
+            onTokenSet={handleTokenSet}
+            isVisible={true}
+          />
+        </div>
+      );
+    }
+
+    // Fallback for other errors
     if (mapError || mapInitError) {
       return (
         <div className="relative flex-1 w-full flex items-center justify-center">
-          <div className="bg-destructive/10 p-4 rounded-md text-destructive">
-            <p>Failed to load map: {(mapError || mapInitError)?.message || "Unknown error"}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="mt-2 px-3 py-1 bg-primary text-white rounded hover:bg-primary/90 text-sm"
+          <div className="bg-destructive/10 p-6 rounded-md text-destructive max-w-md w-full">
+            <h3 className="font-semibold text-lg mb-2">Failed to load map</h3>
+            <p className="mb-4">{(mapError || mapInitError)?.message || "Unknown error"}</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              This might be due to network issues or Mapbox API unavailability.
+            </p>
+            <Button 
+              onClick={handleReload}
+              variant="default"
+              className="w-full"
             >
-              Reload
-            </button>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Reload Map
+            </Button>
           </div>
         </div>
       );
@@ -150,14 +188,17 @@ function MapView() {
     // Show a fallback UI
     return (
       <div className="relative flex-1 w-full flex items-center justify-center">
-        <div className="bg-destructive/10 p-4 rounded-md text-destructive">
-          <p>An error occurred rendering the map: {error instanceof Error ? error.message : String(error)}</p>
-          <button 
+        <div className="bg-destructive/10 p-6 rounded-md text-destructive max-w-md w-full">
+          <h3 className="font-semibold text-lg mb-2">An error occurred</h3>
+          <p className="mb-4">{error instanceof Error ? error.message : String(error)}</p>
+          <Button 
             onClick={() => window.location.reload()} 
-            className="mt-2 px-3 py-1 bg-primary text-white rounded hover:bg-primary/90 text-sm"
+            variant="default"
+            className="w-full"
           >
-            Reload
-          </button>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Reload Page
+          </Button>
         </div>
       </div>
     );

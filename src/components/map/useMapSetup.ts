@@ -3,25 +3,6 @@ import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { toast } from 'sonner';
 
-// Default Mapbox token - users should replace this with their own
-// Check if token exists and is valid
-if (!mapboxgl.accessToken || mapboxgl.accessToken.includes('undefined')) {
-  try {
-    mapboxgl.accessToken = 'pk.eyJ1IjoiZGVtby11c2VyIiwiYSI6ImNsbTlqaTdxejExbmozcnBpdnU5bDNqd3gifQ.8fRJBmQTgZBCBeZrHtYNcw';
-    console.log('Using fallback Mapbox token:', mapboxgl.accessToken);
-  } catch (e) {
-    console.error('Error setting Mapbox token:', e);
-  }
-}
-
-// Check for Mapbox GL JS availability
-try {
-  console.log('Checking Mapbox GL JS availability');
-  console.log('mapboxgl version:', mapboxgl.version);
-} catch (e) {
-  console.error('Error accessing mapboxgl:', e);
-}
-
 export function useMapSetup() {
   console.log('useMapSetup hook called');
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -33,6 +14,28 @@ export function useMapSetup() {
   
   // Add cleanup flag to prevent memory leaks
   const isMountedRef = useRef(true);
+
+  // Check for token in localStorage
+  useEffect(() => {
+    const savedToken = localStorage.getItem('mapbox_token');
+    if (savedToken) {
+      try {
+        mapboxgl.accessToken = savedToken;
+        console.log('Using saved Mapbox token from localStorage');
+      } catch (e) {
+        console.error('Error setting Mapbox token from localStorage:', e);
+      }
+    } else if (!mapboxgl.accessToken || mapboxgl.accessToken.includes('undefined')) {
+      try {
+        // Fallback token - should be replaced with user's token
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZGVtby11c2VyIiwiYSI6ImNsbTlqaTdxejExbmozcnBpdnU5bDNqd3gifQ.8fRJBmQTgZBCBeZrHtYNcw';
+        console.log('Using fallback Mapbox token:', mapboxgl.accessToken);
+      } catch (e) {
+        console.error('Error setting Mapbox token:', e);
+        setMapError(new Error('Invalid Mapbox token. Please provide a valid token.'));
+      }
+    }
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -68,6 +71,14 @@ export function useMapSetup() {
       return;
     }
 
+    // Check if a valid token exists
+    if (!mapboxgl.accessToken || 
+        mapboxgl.accessToken === 'undefined' || 
+        mapboxgl.accessToken.includes('undefined')) {
+      setMapError(new Error('Mapbox token is missing or invalid. Please provide a valid token.'));
+      return;
+    }
+
     try {
       console.log('Initializing map with token:', mapboxgl.accessToken);
       
@@ -80,14 +91,17 @@ export function useMapSetup() {
           center: [3.042048, 36.752887], // Default center (Algiers)
           zoom: 12,
           attributionControl: false,
-          failIfMajorPerformanceCaveat: false // Helps with some devices
+          failIfMajorPerformanceCaveat: false, // Helps with some devices
+          transformRequest: (url, resourceType) => {
+            console.log(`Loading resource: ${resourceType} - ${url}`);
+            return { url };
+          }
         });
         
         console.log('Map instance created successfully');
       } catch (mapInitError) {
         console.error('Error initializing Mapbox map:', mapInitError);
         setMapError(mapInitError instanceof Error ? mapInitError : new Error(String(mapInitError)));
-        toast.error('Failed to initialize map. Please check your internet connection.');
         return;
       }
 
@@ -126,13 +140,11 @@ export function useMapSetup() {
         if (isMountedRef.current) {
           setMapError(e.error || new Error('Unknown map error'));
         }
-        toast.error('There was a problem with the map');
       });
 
     } catch (error) {
       console.error('Error in map setup effect:', error);
       setMapError(error instanceof Error ? error : new Error(String(error)));
-      toast.error('Failed to initialize map');
     }
   }, []);
 
