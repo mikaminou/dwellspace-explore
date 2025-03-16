@@ -152,8 +152,8 @@ export function useProfile() {
   const userLicenseNumber = profileData?.license_number || session?.user?.user_metadata?.license_number || "";
   const userInitials = userName 
     ? userName.slice(0, 2).toUpperCase() 
-    : user_email 
-      ? user_email.slice(0, 2).toUpperCase() 
+    : userEmail 
+      ? userEmail.slice(0, 2).toUpperCase() 
       : "U";
 
   return {
