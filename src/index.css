@@ -13,6 +13,3 @@
 
 /* Import hero and CTA components */
 @import './styles/hero.css';
-
-/* Import map styles */
-@import './styles/map.css';
