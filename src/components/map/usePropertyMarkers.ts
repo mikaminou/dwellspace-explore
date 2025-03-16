@@ -42,17 +42,21 @@ export function usePropertyMarkers(
     let propertiesWithCoords = 0;
 
     propertiesWithOwners.forEach(property => {
-      if (!property.location) return;
-
-      // Use actual coordinates if available, otherwise generate from location
+      // Determine coordinates - first try to use actual lat/lng from database
       let coords;
+      
       if (typeof property.longitude === 'number' && typeof property.latitude === 'number') {
+        // Use the actual coordinates from the database
         coords = {
           lng: property.longitude,
           lat: property.latitude
         };
-      } else {
+      } else if (property.location) {
+        // Fallback to generated coordinates only if necessary
         coords = generateCoordsFromLocation(property.location, property.id);
+      } else {
+        // No location data available
+        return;
       }
 
       if (!coords) return;
