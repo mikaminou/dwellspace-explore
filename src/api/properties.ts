@@ -9,6 +9,8 @@ export type Property = {
   price: string;
   location: string;
   city: string;
+  latitude?: number | null;   // Added latitude property
+  longitude?: number | null;  // Added longitude property
   beds: number;
   baths: number | null;
   postal_code: number | null;
