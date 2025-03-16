@@ -1,37 +1,324 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
 
-/* Import base styles and variables */
-@import './styles/base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Import animations */
-@import './styles/animations.css';
+@layer base {
+  :root {
+    --background: 210 33% 98%;  /* #F8F9FA */
+    --foreground: 210 29% 24%;  /* #2C3E50 */
 
-/* Import property styles */
-@import './styles/property.css';
+    --card: 0 0% 100%;
+    --card-foreground: 210 29% 24%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 29% 24%;
+ 
+    --primary: 145 63% 42%;  /* #27AE60 */
+    --primary-foreground: 0 0% 100%;
+ 
+    --secondary: 210 29% 24%;  /* #2C3E50 */
+    --secondary-foreground: 0 0% 100%;
+ 
+    --muted: 210 17% 95%;
+    --muted-foreground: 210 20% 50%;
+ 
+    --accent: 25 75% 52%;  /* #E67E22 */
+    --accent-foreground: 0 0% 100%;
+ 
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-/* Import language and RTL support */
-@import './styles/language.css';
+    --border: 214 31% 91%;
+    --input: 214 31% 91%;
+    --ring: 145 63% 42%;
+ 
+    --radius: 0.5rem;
 
-/* Import hero and CTA components */
-@import './styles/hero.css';
+    --sidebar-background: 210 29% 24%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 145 63% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 75% 52%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 210 29% 29%;
+    --sidebar-ring: 145 63% 47%;
+  }
 
-/* Import map styles */
-@import './styles/map.css';
+  .dark {
+    --background: 0 0% 12%;  /* #1E1E1E */
+    --foreground: 0 0% 95%;
+    
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 95%;
+    
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 95%;
+    
+    --primary: 145 63% 42%;  /* #27AE60 */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 210 29% 24%;  /* #2C3E50 */
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 70%;
+    
+    --accent: 25 75% 52%;  /* #E67E22 */
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 145 63% 35%;
 
-/* Compact property card styles */
-.property-card-compact {
-  transition: all 0.2s ease;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 145 63% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 75% 45%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 145 63% 30%;
+  }
 }
 
-.property-card-compact:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased font-cairo;
+  }
 }
 
-.dark .property-card-compact {
-  border-color: rgba(255, 255, 255, 0.1);
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
 }
 
-.dark .property-card-compact:hover {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.property-card {
+  @apply relative overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+}
+
+.property-image {
+  @apply aspect-[16/9] w-full object-cover;
+}
+
+.property-details {
+  @apply p-4;
+}
+
+/* Glass effect */
+.glass {
+  @apply backdrop-blur-sm bg-white/90 dark:bg-black/60 border border-white/20 shadow-sm;
+}
+
+/* Language toggle styles */
+.lang-toggle {
+  @apply relative flex h-6 w-11 cursor-pointer items-center rounded-full bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+}
+
+.lang-toggle[data-state="checked"] {
+  @apply bg-primary;
+}
+
+/* Direction utilities */
+.dir-rtl {
+  direction: rtl;
+}
+
+.dir-ltr {
+  direction: ltr;
+}
+
+/* Arabic text specific styling */
+.arabic-text {
+  font-family: 'Cairo', sans-serif;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+[dir="rtl"] .arabic-text {
+  font-family: 'Noto Sans Arabic', 'Tajawal', sans-serif;
+  line-height: 1.5;
+}
+
+/* Flip icons in RTL mode */
+html[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .dropdown-menu-trigger[aria-expanded="true"] > svg {
+  transform: rotate(-180deg);
+}
+
+/* Handle directional margins for RTL */
+html[dir="rtl"] .ml-auto {
+  margin-left: initial;
+  margin-right: auto;
+}
+
+html[dir="rtl"] .mr-auto {
+  margin-right: initial;
+  margin-left: auto;
+}
+
+/* Adjust icon spacing in RTL mode */
+html[dir="rtl"] .icon-left {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+html[dir="rtl"] .icon-right {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* Adjust form fields for RTL */
+html[dir="rtl"] input[type="text"],
+html[dir="rtl"] input[type="email"],
+html[dir="rtl"] input[type="password"],
+html[dir="rtl"] textarea {
+  text-align: right;
+}
+
+/* Adjust alignment for RTL mode */
+html[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+html[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* Custom hero gradient */
+.hero-gradient {
+  background: linear-gradient(rgba(44, 62, 80, 0.7), rgba(44, 62, 80, 0.7)), url('/img/algeria-real-estate.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* Hero video background */
+.hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0; /* Ensure the video stays behind other content */
+}
+
+/* Modern search bar */
+.modern-search-bar {
+  @apply bg-white dark:bg-card rounded-lg shadow-lg overflow-hidden;
+}
+
+.modern-search-bar input, 
+.modern-search-bar button,
+.modern-search-bar select {
+  @apply border-0 focus:ring-0 h-12;
+}
+
+.modern-search-bar .divider {
+  @apply w-px h-8 bg-gray-200 dark:bg-gray-700 mx-2;
+}
+
+/* Luxury badge */
+.luxury-badge {
+  @apply bg-luxury text-white text-xs font-bold px-2 py-1 rounded absolute top-2 left-2;
+}
+
+/* Premium property styling */
+.premium-property {
+  @apply border-luxury shadow-md;
+}
+
+/* CTA button styling */
+.cta-button {
+  @apply bg-cta hover:bg-cta-dark text-white font-bold transition-colors;
+}
+
+/* Secondary button */
+.secondary-button {
+  @apply bg-white text-secondary hover:bg-gray-100 border border-gray-200 font-medium transition-colors;
+}
+
+/* Animation classes */
+.hover-scale {
+  @apply transition-transform duration-300 hover:scale-105;
+}
+
+/* RTL specific adjustments */
+[dir="rtl"] .search-input {
+  text-align: right;
+  padding-right: 2.5rem;
+  padding-left: 0.75rem;
+}
+
+[dir="rtl"] .search-icon {
+  right: 0.75rem;
+  left: auto;
+}
+
+/* Custom marker styles */
+.mapboxgl-marker {
+  cursor: pointer !important;
+  z-index: 1;
+}
+
+.mapboxgl-marker:hover {
+  z-index: 2;
+}
+
+.custom-marker-container {
+  transform: translateY(-50%);
+  cursor: pointer !important;
+  display: inline-block;
+  width: auto;
+}
+
+.price-bubble {
+  display: inline-block;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Property popup styling */
+.property-popup-container {
+  margin-top: -10px;
+  z-index: 10 !important; /* Ensure popup is always on top */
+}
+
+.mapboxgl-popup {
+  z-index: 10 !important; /* Higher z-index than markers */
+}
+
+.mapboxgl-popup-content {
+  padding: 0 !important;
+  overflow: hidden;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.property-popup-content {
+  border-radius: 8px;
+  padding: 12px !important; /* Add more padding as requested */
 }

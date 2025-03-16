@@ -1,3 +1,4 @@
+
 import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 import { Agent } from "./agents";
@@ -30,9 +31,6 @@ export type Property = {
   image?: string;
   images?: string[];
   isPremium?: boolean;
-  // Add longitude and latitude fields
-  longitude?: number | null;
-  latitude?: number | null;
 };
 
 // Function to get all properties

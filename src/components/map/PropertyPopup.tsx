@@ -1,99 +1,73 @@
 
-import React from "react";
 import { Property } from "@/api/properties";
 import { MessageCircle, Bookmark } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface PropertyPopupProps {
   property: Property;
   onSave: (propertyId: number) => void;
   onMessageOwner: (ownerId: number) => void;
-  onClick?: () => void;
 }
 
-export function PropertyPopup({ 
-  property, 
-  onSave, 
-  onMessageOwner,
-  onClick
-}: PropertyPopupProps) {
-  return (
-    <div 
-      className="property-popup-content cursor-pointer p-4" 
-      data-property-id={property.id}
-      onClick={onClick}
-    >
-      <div className="relative w-full h-48 bg-gray-200 mb-3 rounded-md overflow-hidden">
+export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopupProps): string {
+  // Create HTML string for the popup
+  // In a real React app, you'd use ReactDOM.render or portals
+  return `
+    <div class="property-popup-content cursor-pointer p-4" data-property-id="${property.id}">
+      <div class="relative w-full h-48 bg-gray-200 mb-3 rounded-md overflow-hidden">
         <img 
-          src={property.featured_image_url || property.image || '/placeholder.svg'} 
-          alt={property.title} 
-          className="w-full h-full object-cover"
+          src="${property.featured_image_url || property.image || '/placeholder.svg'}" 
+          alt="${property.title}" 
+          class="w-full h-full object-cover"
         />
-        {property.isPremium && (
-          <div className="absolute top-2 right-2 bg-amber-500 text-white text-xs px-2 py-1 rounded">
-            Premium
-          </div>
-        )}
-        {property.listing_type && (
-          <div className="absolute bottom-2 left-2 bg-primary bg-opacity-90 text-white text-xs px-2 py-1 rounded capitalize">
-            {property.listing_type}
-          </div>
-        )}
+        ${property.isPremium ? 
+          `<div class="absolute top-2 right-2 bg-amber-500 text-white text-xs px-2 py-1 rounded">Premium</div>` : ''}
+        ${property.listing_type ? 
+          `<div class="absolute bottom-2 left-2 bg-primary bg-opacity-90 text-white text-xs px-2 py-1 rounded capitalize">${property.listing_type}</div>` : ''}
       </div>
-      <h3 className="font-semibold text-sm mb-1 truncate">{property.title}</h3>
-      <p className="text-primary font-medium text-sm mb-1">{property.price}</p>
-      <p className="text-xs text-gray-500 mb-2">{property.location}</p>
-      <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
-        <span>{property.beds} beds</span>
+      <h3 class="font-semibold text-sm mb-1 truncate">${property.title}</h3>
+      <p class="text-primary font-medium text-sm mb-1">${property.price}</p>
+      <p class="text-xs text-gray-500 mb-2">${property.location}</p>
+      <div class="flex items-center gap-2 text-xs text-gray-600 mb-2">
+        <span>${property.beds} beds</span>
         <span>•</span>
-        <span>{property.baths || 0} baths</span>
+        <span>${property.baths || 0} baths</span>
         <span>•</span>
-        <span>{property.living_area || 0} m²</span>
+        <span>${property.living_area || 0} m²</span>
       </div>
-      {property.owner && (
-        <div className="flex items-center justify-between mb-2 border-t border-gray-100 pt-2">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-              {property.owner.avatar_url ? (
-                <img src={property.owner.avatar_url} alt="Agent" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-xs font-medium">
-                  {property.owner.first_name?.charAt(0) || ''}
-                  {property.owner.last_name?.charAt(0) || ''}
-                </span>
-              )}
+      ${property.owner ? `
+        <div class="flex items-center justify-between mb-2 border-t border-gray-100 pt-2">
+          <div class="flex items-center gap-2">
+            <div class="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+              ${property.owner.avatar_url ? 
+                `<img src="${property.owner.avatar_url}" alt="Agent" class="w-full h-full object-cover" />` : 
+                `<span class="text-xs font-medium">${property.owner.first_name?.charAt(0) || ''}${property.owner.last_name?.charAt(0) || ''}</span>`
+              }
             </div>
-            <div className="text-xs">
-              <p className="font-medium">
-                {property.owner.first_name || ''} {property.owner.last_name || ''}
-              </p>
-              <p className="text-gray-500">{property.owner.role || ''}</p>
+            <div class="text-xs">
+              <p class="font-medium">${property.owner.first_name || ''} ${property.owner.last_name || ''}</p>
+              <p class="text-gray-500">${property.owner.role || ''}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1">
+          <div class="flex items-center gap-1">
             <button 
-              className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors" 
+              class="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors" 
               aria-label="Message owner"
-              onClick={(e) => {
-                e.stopPropagation();
-                onMessageOwner(property.owner?.id ? parseInt(property.owner.id, 10) : 0);
-              }}
+              data-action="message"
+              data-owner-id="${property.owner.id || 0}"
             >
-              <MessageCircle className="h-4 w-4" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
             </button>
             <button 
-              className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors" 
+              class="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors" 
               aria-label="Save property"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSave(property.id);
-              }}
+              data-action="save"
+              data-property-id="${property.id}"
             >
-              <Bookmark className="h-4 w-4" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bookmark"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
             </button>
           </div>
         </div>
-      )}
+      ` : ''}
     </div>
-  );
+  `;
 }
