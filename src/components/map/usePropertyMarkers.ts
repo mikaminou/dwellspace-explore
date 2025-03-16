@@ -111,12 +111,16 @@ export function usePropertyMarkers(
     });
 
     // Only fit bounds if we haven't done it yet and we have properties with coordinates
-    // This prevents unnecessary bounds adjustments during zooming or when clicking on properties
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
       map.current.fitBounds(bounds, {
         padding: 50,
-        maxZoom: 15
+        maxZoom: 15,
+        pitch: 45, // Maintain consistent pitch for visual style
+        bearing: 0,
+        duration: 1500, // Smooth animation
+        essential: true,
+        linear: false // Use easing for smoother transitions
       });
       setInitialBoundsSet(true);
     }

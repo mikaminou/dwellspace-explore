@@ -28,7 +28,11 @@ export function useCityUpdate(
         essential: true,
         duration: 1500, // Smoother transition
         bearing: 0,
-        pitch: 0
+        pitch: 45, // Add some pitch for better 3D perspective
+        curve: 1.5, // Use a more natural easing curve
+        speed: 0.8, // Slightly slower for more control
+        minZoom: 5, // Maintain a minimum zoom level during transitions
+        screenSpeed: 0.8 // Consistent screen speed during transitions
       });
       
       // Update the previous city reference

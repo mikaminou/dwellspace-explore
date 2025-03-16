@@ -1,3 +1,4 @@
+
 // Helper function to get city coordinates
 // In a real app, you would have this data in your database
 export function getCityCoordinates(city: string): { lat: number, lng: number } | null {
