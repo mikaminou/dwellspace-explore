@@ -1,0 +1,10 @@
+
+project_id = "kaebtzbmtozoqvsdojkl"
+
+[functions.restore-properties]
+verify_jwt = false
+import_map = "./import_map.json"
+
+[functions.geocode-property]
+verify_jwt = false
+import_map = "./import_map.json"

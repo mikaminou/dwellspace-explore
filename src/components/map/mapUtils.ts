@@ -47,3 +47,50 @@ export function getCityCoordinates(city: string): [number, number] | null {
   
   return null;
 }
+
+// New geocoding function to get coordinates from address
+export async function geocodeAddress(address: string): Promise<{longitude: number, latitude: number} | null> {
+  try {
+    const encodedAddress = encodeURIComponent(address);
+    // Using OpenStreetMap Nominatim API as it's free and doesn't require API key
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1`);
+    
+    if (!response.ok) {
+      console.error('Geocoding API error:', response.statusText);
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    if (data && data.length > 0) {
+      return {
+        longitude: parseFloat(data[0].lon),
+        latitude: parseFloat(data[0].lat)
+      };
+    }
+    
+    console.warn(`No coordinates found for address: ${address}`);
+    return null;
+  } catch (error) {
+    console.error('Error geocoding address:', error);
+    return null;
+  }
+}
+
+// Combine address components into a single string for geocoding
+export function formatAddressForGeocoding(
+  street: string,
+  city: string,
+  postal_code?: number | string | null
+): string {
+  let addressParts = [];
+  
+  if (street) addressParts.push(street);
+  if (city) addressParts.push(city);
+  if (postal_code) addressParts.push(postal_code.toString());
+  
+  // Add country name for better results
+  addressParts.push('Algeria');
+  
+  return addressParts.join(', ');
+}
