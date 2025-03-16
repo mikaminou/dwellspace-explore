@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { Property } from '@/data/properties';
@@ -18,25 +19,39 @@ export const transformPropertyData = (property: any): Property => {
     location: property.location,
     city: property.city || '',
     streetName: property.street_name || '',
+    street_name: property.street_name || '',
     beds: property.beds || 0,
     baths: property.baths || null,
     livingArea: property.living_area || null,
     plotArea: property.plot_area || null,
+    living_area: property.living_area || null,
+    plot_area: property.plot_area || null,
     type: property.type,
     listingType: property.listing_type || 'sale',
+    listing_type: property.listing_type || 'sale',
     description: property.description,
     yearBuilt: property.year_built || null,
+    year_built: property.year_built || null,
     features: Array.isArray(property.features) ? property.features : [],
     additionalDetails: property.additional_details || null,
+    additional_details: property.additional_details || null,
     featuredImageUrl: property.featured_image_url || '',
+    featured_image_url: property.featured_image_url || '',
     galleryImageUrls: Array.isArray(property.gallery_image_urls) ? property.gallery_image_urls : [],
+    gallery_image_urls: Array.isArray(property.gallery_image_urls) ? property.gallery_image_urls : [],
     longitude: property.longitude,
     latitude: property.latitude,
     postalCode: property.postal_code || null,
+    postal_code: property.postal_code || null,
     ownerId: property.owner_id,
-    createdAt: property.created_at, // Keep string format
+    owner_id: property.owner_id,
+    createdAt: property.created_at, 
+    created_at: property.created_at,
     updatedAt: property.updated_at,
+    updated_at: property.updated_at,
     isPremium: property.isPremium ?? false,
+    image: property.image || property.featured_image_url || '',
+    images: Array.isArray(property.images) ? property.images : Array.isArray(property.gallery_image_urls) ? property.gallery_image_urls : [],
   };
 };
 

@@ -1,3 +1,4 @@
+
 import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 import { Agent } from "./agents";
@@ -9,24 +10,36 @@ export interface Property {
   location: string;
   city: string;
   street_name?: string;
+  streetName?: string; // Added to match data model
   beds: number;
   baths?: number;
   living_area?: number;
+  livingArea?: number; // Added to match data model
   plot_area?: number;
+  plotArea?: number; // Added to match data model
   type: string;
   listing_type: string;
+  listingType?: string; // Added to match data model
   description: string;
   year_built?: number;
+  yearBuilt?: number; // Added to match data model
   features: string[];
   additional_details?: string;
+  additionalDetails?: string; // Added to match data model
   featured_image_url: string;
+  featuredImageUrl?: string; // Added to match data model
   gallery_image_urls: string[];
+  galleryImageUrls?: string[]; // Added to match data model
   owner_id: number;
+  ownerId?: number; // Added to match data model
   latitude: number;
   longitude: number;
   postal_code?: number;
+  postalCode?: number; // Added to match data model
   created_at: string;
+  createdAt?: number; // Added to match data model
   updated_at: string;
+  updatedAt?: number; // Added to match data model
   agent?: Agent;
   image?: string;
   images?: string[];
