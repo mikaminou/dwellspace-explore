@@ -52,14 +52,34 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     return 'bg-green-500 text-white'; // default for sale
   };
 
-  const getListingTypeBorderColor = (property: Property): string => {
+  const getListingTypeBgColor = (property: Property): string => {
     const listingType = property.listing_type?.toLowerCase() || 'sale';
     
-    if (listingType === 'rent') return 'border-blue-500';
-    if (listingType === 'construction') return 'border-amber-500';
-    if (listingType === 'commercial') return 'border-purple-500';
-    if (listingType === 'vacation') return 'border-teal-500';
-    return 'border-green-500'; // default for sale
+    if (listingType === 'rent') return 'hover:bg-blue-50 group-hover:shadow-blue-100';
+    if (listingType === 'construction') return 'hover:bg-amber-50 group-hover:shadow-amber-100';
+    if (listingType === 'commercial') return 'hover:bg-purple-50 group-hover:shadow-purple-100';
+    if (listingType === 'vacation') return 'hover:bg-teal-50 group-hover:shadow-teal-100';
+    return 'hover:bg-green-50 group-hover:shadow-green-100'; // default for sale
+  };
+
+  const getListingTypeButtonColor = (property: Property): string => {
+    const listingType = property.listing_type?.toLowerCase() || 'sale';
+    
+    if (listingType === 'rent') return 'hover:bg-blue-100 hover:text-blue-600';
+    if (listingType === 'construction') return 'hover:bg-amber-100 hover:text-amber-600';
+    if (listingType === 'commercial') return 'hover:bg-purple-100 hover:text-purple-600';
+    if (listingType === 'vacation') return 'hover:bg-teal-100 hover:text-teal-600';
+    return 'hover:bg-green-100 hover:text-green-600'; // default for sale
+  };
+
+  const getListingTypePriceColor = (property: Property): string => {
+    const listingType = property.listing_type?.toLowerCase() || 'sale';
+    
+    if (listingType === 'rent') return 'text-blue-600';
+    if (listingType === 'construction') return 'text-amber-600';
+    if (listingType === 'commercial') return 'text-purple-600';
+    if (listingType === 'vacation') return 'text-teal-600';
+    return 'text-green-600'; // default for sale
   };
 
   const getListingTypeText = (property: Property): string => {
@@ -77,7 +97,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   return (
     <Link 
       to={`/property/${property.id}`} 
-      className={`property-card group hover:scale-[1.02] transition-all bg-white dark:bg-card ${isPremiumProperty ? 'premium-property' : ''} ${getListingTypeBorderColor(property)} border-2`}
+      className={`property-card group hover:scale-[1.02] transition-all bg-white dark:bg-card ${isPremiumProperty ? 'premium-property' : ''} ${getListingTypeBgColor(property)} shadow-sm hover:shadow-md`}
     >
       <div className="relative">
         {isPremiumProperty && (
@@ -98,7 +118,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           <Button
             variant="white"
             size="sm"
-            className="opacity-0 group-hover:opacity-100 transition-opacity hover:brightness-110 hover:shadow-md"
+            className={`opacity-0 group-hover:opacity-100 transition-opacity ${getListingTypeButtonColor(property)}`}
           >
             <BookmarkIcon className="h-4 w-4 mr-1" />
             {t('property.save')}
@@ -108,7 +128,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       <div className={`p-4 border-t-0 rounded-b-lg ${dir === 'rtl' ? 'text-right' : ''}`}>
         <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
           <h3 className={`text-lg font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{property.title}</h3>
-          <span className={`${isPremiumProperty ? 'text-luxury' : 'text-primary'} font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+          <span className={`${isPremiumProperty ? 'text-luxury' : getListingTypePriceColor(property)} font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>
             {property.price}
           </span>
         </div>

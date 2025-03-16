@@ -29,6 +29,25 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
     }
   };
 
+  // Get color for buttons and interactive elements
+  const getListingTypeAccentClass = (type: string = 'sale') => {
+    const listingType = type.toLowerCase();
+    
+    switch (listingType) {
+      case 'rent':
+        return 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-500';
+      case 'construction':
+        return 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-500';
+      case 'commercial':
+        return 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-500';
+      case 'vacation':
+        return 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-500';
+      case 'sale':
+      default:
+        return 'bg-green-500/10 hover:bg-green-500/20 text-green-500';
+    }
+  };
+
   // Get the appropriate icon based on listing type
   const getListingTypeIcon = () => {
     const listingType = property.listing_type?.toLowerCase() || 'sale';
@@ -67,9 +86,34 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
     }
   };
 
+  // Get listing type color for price
+  const getListingTypePriceColor = (type: string = 'sale') => {
+    const listingType = type.toLowerCase();
+    
+    switch (listingType) {
+      case 'rent':
+        return 'text-blue-500';
+      case 'construction':
+        return 'text-amber-500';
+      case 'commercial':
+        return 'text-purple-500';
+      case 'vacation':
+        return 'text-teal-500';
+      case 'sale':
+      default:
+        return 'text-green-500';
+    }
+  };
+
+  const listingType = property.listing_type?.toLowerCase() || 'sale';
+  const badgeClass = getListingTypeBadgeClass(listingType);
+  const borderColor = getListingTypeBorderColor(listingType);
+  const accentClass = getListingTypeAccentClass(listingType);
+  const priceColor = getListingTypePriceColor(listingType);
+
   // Create HTML string for the popup
   return `
-    <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg ${getListingTypeBorderColor(property.listing_type)} border-2" data-property-id="${property.id}">
+    <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg ${borderColor} border-2" data-property-id="${property.id}">
       <div class="relative w-full h-48 bg-gray-200 overflow-hidden">
         <img 
           src="${property.featured_image_url || property.image || '/placeholder.svg'}" 
@@ -80,12 +124,12 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
         ${property.isPremium ? 
           `<div class="absolute top-3 right-3 bg-luxury text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">Premium</div>` : ''}
         ${property.listing_type ? 
-          `<div class="absolute bottom-3 left-3 ${getListingTypeBadgeClass(property.listing_type)} bg-opacity-90 text-white text-xs px-3 py-1.5 rounded-full shadow-md capitalize flex items-center">
+          `<div class="absolute bottom-3 left-3 ${badgeClass} bg-opacity-90 text-white text-xs px-3 py-1.5 rounded-full shadow-md capitalize flex items-center">
             ${getListingTypeIcon()}
             ${property.listing_type}
           </div>` : ''}
         <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-md">
-          <span class="text-primary font-bold text-sm">${property.price}</span>
+          <span class="${priceColor} font-bold text-sm">${property.price}</span>
         </div>
       </div>
       <div class="p-4 bg-white">
@@ -124,7 +168,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
             </div>
             <div class="flex items-center gap-2">
               <button 
-                class="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-full transition-colors" 
+                class="p-2 ${accentClass} rounded-full transition-colors" 
                 aria-label="Message owner"
                 data-action="message"
                 data-owner-id="${property.owner.id || 0}"
@@ -132,7 +176,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
               </button>
               <button 
-                class="p-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-full transition-colors" 
+                class="p-2 ${accentClass} rounded-full transition-colors" 
                 aria-label="Save property"
                 data-action="save"
                 data-property-id="${property.id}"
