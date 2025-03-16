@@ -10,12 +10,6 @@ import { usePropertyPopup } from './usePropertyPopup';
 import { usePropertyMarkers } from './usePropertyMarkers';
 import { useCityUpdate } from './useCityUpdate';
 
-// CSS to apply hardware acceleration for better performance and marker stability
-const mapStyles = {
-  transform: 'translate3d(0, 0, 0)', // Force hardware acceleration
-  willChange: 'transform', // Optimize for animations
-};
-
 export function MapView() {
   const { mapContainer, map, markersRef, mapLoaded } = useMapSetup();
   const { properties, loading, selectedCity } = useSearch();
@@ -47,7 +41,7 @@ export function MapView() {
     <div className="relative flex-1 w-full">
       <MapLoadingState show={loading} />
       <MapEmptyState show={propertiesWithOwners.length === 0 && !loading} />
-      <div ref={mapContainer} className="absolute inset-0 w-full h-full" style={mapStyles} />
+      <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
     </div>
   );
 }

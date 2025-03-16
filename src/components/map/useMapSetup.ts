@@ -17,24 +17,13 @@ export function useMapSetup() {
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Create the map instance with optimized settings for marker stability
+    // Create the map instance
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v11',
       center: [3.042048, 36.752887], // Default center (Algiers)
       zoom: 12,
-      attributionControl: false,
-      renderWorldCopies: false,  // Prevents duplicate markers when zooming out
-      projection: {
-        name: 'mercator'  // Use the projection object format expected by MapboxGL
-      },
-      boxZoom: true,             // Enables box zoom for better control
-      maxZoom: 18,               // Limit max zoom level
-      minZoom: 5,                // Limit min zoom level to prevent global view issues
-      maxBounds: [
-        [-10, 20],  // Southwest coordinates (Western Sahara, Mali)
-        [15, 40]    // Northeast coordinates (Libya, Mediterranean)
-      ]
+      attributionControl: false
     });
 
     // Add navigation controls

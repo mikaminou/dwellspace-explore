@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 import { generateCoordsFromLocation } from './mapUtils';
@@ -31,7 +31,6 @@ export function usePropertyMarkers(
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
-    // Remove existing markers
     Object.values(markersRef.current).forEach(marker => marker.remove());
     markersRef.current = {};
 
@@ -70,9 +69,7 @@ export function usePropertyMarkers(
 
       if (!coords) return;
 
-      // Use fixed LngLat for markers - never recalculate positions
-      const lngLat: [number, number] = [coords.lng, coords.lat];
-      bounds.extend(lngLat);
+      bounds.extend([coords.lng, coords.lat]);
       propertiesWithCoords++;
 
       const markerEl = document.createElement('div');
@@ -80,7 +77,7 @@ export function usePropertyMarkers(
       
       const handleMarkerClick = () => {
         setActiveMarkerId(property.id);
-        showPropertyPopup(property, lngLat);
+        showPropertyPopup(property, [coords.lng, coords.lat]);
       };
 
       const root = createRoot(markerEl);
@@ -93,14 +90,13 @@ export function usePropertyMarkers(
         })
       );
       
-      // Create the marker with fixed position settings
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
         offset: [0, 0],
         clickTolerance: 10
       })
-        .setLngLat(lngLat)
+        .setLngLat([coords.lng, coords.lat])
         .addTo(map.current!);
 
       markersRef.current[property.id] = marker;
@@ -113,12 +109,6 @@ export function usePropertyMarkers(
         maxZoom: 15
       });
     }
-
-    // No map movement handlers needed since we're using fixed coordinates
-
-    return () => {
-      // No event listeners to remove
-    };
   }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup]);
 
   return { activeMarkerId, setActiveMarkerId, updateMarkerZIndex };

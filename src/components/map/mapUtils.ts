@@ -2,30 +2,24 @@
 import { Property } from "@/api/properties";
 
 // Helper function to generate coordinates from location string
-// This is now only used as a fallback when actual coordinates are not available
+// This now considers the city name in the location string
 export function generateCoordsFromLocation(location: string, id: number): { lat: number, lng: number } | null {
   // Check if the location contains a city name and use that city's coordinates as base
   const cityCoords = getCityCoordinatesFromLocation(location);
   
   if (cityCoords) {
-    // Generate deterministic but very small offsets based on ID
-    const offsetLat = (id % 101) * 0.0001;
-    const offsetLng = (id % 97) * 0.0001;
-    
+    // Generate slightly different coordinates based on the id to spread markers within the city
     return {
-      lat: cityCoords.lat + offsetLat,
-      lng: cityCoords.lng + offsetLng
+      lat: cityCoords.lat + (Math.sin(id) * 0.015),
+      lng: cityCoords.lng + (Math.cos(id) * 0.015)
     };
   }
   
   // Fallback to Algiers if no city is detected
   const baseCoords = { lat: 36.752887, lng: 3.042048 };
-  const offsetLat = (id % 101) * 0.0001;
-  const offsetLng = (id % 97) * 0.0001;
-  
   return {
-    lat: baseCoords.lat + offsetLat,
-    lng: baseCoords.lng + offsetLng
+    lat: baseCoords.lat + (Math.sin(id) * 0.03),
+    lng: baseCoords.lng + (Math.cos(id) * 0.03)
   };
 }
 
