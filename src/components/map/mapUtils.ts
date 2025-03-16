@@ -1,3 +1,4 @@
+
 import { Property } from "@/api/properties";
 
 // Helper function to generate coordinates from location string
@@ -6,10 +7,10 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   const cityCoords = getCityCoordinatesFromLocation(location);
   
   if (cityCoords) {
-    // Generate slightly different coordinates based on the id
-    // Using a very small offset to keep markers close to their origin
-    const offset = 0.002; // Reduced offset to minimize marker spread
-    const idHash = (id % 10) * offset;
+    // Generate slightly different coordinates based on the id to spread markers within the city
+    // Using a deterministic but small offset to avoid extreme displacements
+    const offset = 0.01; // Small offset in degrees
+    const idHash = Math.abs(Math.sin(id * 0.1)) * offset; // Normalize the offset
     
     return {
       lat: restrictLatitude(cityCoords.lat + (Math.sin(id) * idHash)),
@@ -19,8 +20,8 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   
   // Fallback to Algiers if no city is detected
   const baseCoords = { lat: 36.752887, lng: 3.042048 };
-  const offset = 0.002;
-  const idHash = (id % 10) * offset;
+  const offset = 0.01; // Small offset in degrees
+  const idHash = Math.abs(Math.sin(id * 0.1)) * offset; // Normalize the offset
   
   return {
     lat: restrictLatitude(baseCoords.lat + (Math.sin(id) * idHash)),
@@ -28,25 +29,30 @@ export function generateCoordsFromLocation(location: string, id: number): { lat:
   };
 }
 
-// Ensure longitude stays within North Africa region
+// Ensure longitude stays within -180 to 180 degrees
 function restrictLongitude(lng: number): number {
-  return Math.max(-15, Math.min(35, lng));
+  // Use modulo to wrap the longitude value
+  let wrapped = ((lng + 180) % 360) - 180;
+  
+  // Handle negative modulo edge case
+  if (wrapped < -180) wrapped += 360;
+  
+  return wrapped;
 }
 
-// Ensure latitude stays within North Africa region
+// Ensure latitude stays within -85 to 85 degrees (mapbox limits)
 function restrictLatitude(lat: number): number {
-  return Math.max(20, Math.min(38, lat));
+  return Math.max(-85, Math.min(85, lat));
 }
 
 // Helper function to extract city from location string
 function getCityCoordinatesFromLocation(location: string): { lat: number, lng: number } | null {
-  const cities = getCitiesCoordinates();
-  const locationLower = location.toLowerCase();
+  const cities = Object.keys(getCitiesCoordinates());
   
   // Check if the location string contains any of our known cities
-  for (const [cityName, coords] of Object.entries(cities)) {
-    if (locationLower.includes(cityName.toLowerCase())) {
-      return coords;
+  for (const city of cities) {
+    if (location.toLowerCase().includes(city.toLowerCase())) {
+      return getCityCoordinates(city);
     }
   }
   
@@ -54,23 +60,10 @@ function getCityCoordinatesFromLocation(location: string): { lat: number, lng: n
 }
 
 // Helper function to get city coordinates
+// In a real app, you would have this data in your database
 export function getCityCoordinates(city: string): { lat: number, lng: number } | null {
   const cities = getCitiesCoordinates();
-  
-  // Try exact match first
-  if (cities[city]) {
-    return cities[city];
-  }
-  
-  // If not found, try case-insensitive match
-  const cityLower = city.toLowerCase();
-  for (const [name, coords] of Object.entries(cities)) {
-    if (name.toLowerCase() === cityLower) {
-      return coords;
-    }
-  }
-  
-  return null;
+  return cities[city] || null;
 }
 
 // Centralized function to get all cities coordinates

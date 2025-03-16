@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 import { generateCoordsFromLocation } from './mapUtils';
@@ -15,7 +15,7 @@ export function usePropertyMarkers(
   showPropertyPopup: (property: Property, coordinates: [number, number]) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
-  const [propertyCoordinates, setPropertyCoordinates] = useState<{[key: number]: [number, number]}>({});
+  const [markerElements, setMarkerElements] = useState<{[key: number]: HTMLElement}>({});
 
   const updateMarkerZIndex = (propertyId: number | null) => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
@@ -29,33 +29,7 @@ export function usePropertyMarkers(
     }
   };
 
-  // Get property coordinates (once and store them)
-  const getPropertyCoordinates = useCallback((property: Property): [number, number] | null => {
-    // Use stored coordinates if available
-    if (propertyCoordinates[property.id]) {
-      return propertyCoordinates[property.id];
-    }
-    
-    // First priority: Use actual coordinates from the database
-    if (typeof property.latitude === 'number' && typeof property.longitude === 'number') {
-      if (property.longitude >= -15 && property.longitude <= 35 && 
-          property.latitude >= 20 && property.latitude <= 38) {
-        return [property.longitude, property.latitude];
-      }
-    }
-    
-    // Second priority: Generate from location if coordinates not available
-    if (property.location) {
-      const coords = generateCoordsFromLocation(property.location + ', ' + property.city, property.id);
-      if (coords) {
-        return [coords.lng, coords.lat];
-      }
-    }
-    
-    return null;
-  }, [propertyCoordinates]);
-
-  // Create markers when properties change
+  // Create markers when properties or map changes
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
@@ -66,32 +40,56 @@ export function usePropertyMarkers(
     if (propertiesWithOwners.length === 0) return;
 
     const bounds = new mapboxgl.LngLatBounds();
-    let newPropertyCoordinates: {[key: number]: [number, number]} = {};
     let propertiesWithCoords = 0;
     
-    console.log('Creating markers for', propertiesWithOwners.length, 'properties');
+    console.log('Properties to display on map:', propertiesWithOwners.map(p => ({
+      id: p.id, 
+      title: p.title, 
+      city: p.city,
+      lat: p.latitude, 
+      lng: p.longitude
+    })));
+
+    // Create marker DOM elements first
+    const newMarkerElements: {[key: number]: HTMLElement} = {};
 
     propertiesWithOwners.forEach(property => {
-      const coords = getPropertyCoordinates(property);
+      let coords;
       
-      if (!coords) {
+      // First priority: Use actual coordinates from the database
+      if (typeof property.latitude === 'number' && typeof property.longitude === 'number') {
+        coords = {
+          lat: property.latitude,
+          lng: property.longitude
+        };
+        console.log(`Using actual coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
+      } 
+      // Second priority: Generate from location if coordinates not available
+      else if (property.location) {
+        coords = generateCoordsFromLocation(property.location + ', ' + property.city, property.id);
+        console.log(`Using generated coordinates for property ${property.id} in ${property.city}: [${coords.lng}, ${coords.lat}]`);
+      } else {
         console.log(`No coordinates available for property ${property.id}`);
         return;
       }
 
-      // Store coordinates for consistent positioning
-      newPropertyCoordinates[property.id] = coords;
+      if (!coords) return;
       
-      bounds.extend(coords);
+      // Ensure coordinates are within valid range
+      if (coords.lng < -180 || coords.lng > 180 || coords.lat < -85 || coords.lat > 85) {
+        console.warn(`Invalid coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
+        return;
+      }
+
+      bounds.extend([coords.lng, coords.lat]);
       propertiesWithCoords++;
 
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker-container';
-      markerEl.setAttribute('data-property-id', property.id.toString());
       
       const handleMarkerClick = () => {
         setActiveMarkerId(property.id);
-        showPropertyPopup(property, coords);
+        showPropertyPopup(property, [coords.lng, coords.lat]);
       };
 
       const root = createRoot(markerEl);
@@ -103,60 +101,66 @@ export function usePropertyMarkers(
           onClick: handleMarkerClick
         })
       );
+      
+      newMarkerElements[property.id] = markerEl;
 
-      // Create marker with fixed settings optimized for stability
+      // Create the marker with optimized positioning settings
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
         offset: [0, 0],
         clickTolerance: 10,
-        pitchAlignment: 'viewport',
-        rotationAlignment: 'viewport',
+        pitchAlignment: 'viewport',  // Keep marker aligned with the viewport
+        rotationAlignment: 'viewport',  // Align with viewport
       })
-        .setLngLat(coords)
+        .setLngLat([coords.lng, coords.lat])
         .addTo(map.current!);
 
       markersRef.current[property.id] = marker;
     });
 
-    setPropertyCoordinates(newPropertyCoordinates);
+    setMarkerElements(newMarkerElements);
 
     if (propertiesWithCoords > 0) {
+      console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
       map.current.fitBounds(bounds, {
         padding: 50,
-        maxZoom: 14
+        maxZoom: 15
       });
     }
-
-  }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup, getPropertyCoordinates]);
-
-  // Add single zoom handler to update marker positions
-  useEffect(() => {
-    if (!map.current || !mapLoaded) return;
     
-    // Function to update marker positions after zoom/pan ends
-    const updateAllMarkerPositions = () => {
-      // Loop through all markers and reset their positions
-      Object.entries(propertyCoordinates).forEach(([idStr, coords]) => {
-        const id = parseInt(idStr, 10);
-        if (markersRef.current[id]) {
-          // Reset marker to its original position
-          markersRef.current[id].setLngLat(coords);
+    // Add zoom handler to prevent marker movement on zoom
+    const handleZoom = () => {
+      if (!map.current) return;
+      
+      // Reposition markers at their original coordinates after zoom
+      propertiesWithOwners.forEach(property => {
+        if (!markersRef.current[property.id]) return;
+        
+        let coords;
+        if (typeof property.latitude === 'number' && typeof property.longitude === 'number') {
+          coords = { lat: property.latitude, lng: property.longitude };
+        } else if (property.location) {
+          coords = generateCoordsFromLocation(property.location + ', ' + property.city, property.id);
+        } else {
+          return;
+        }
+        
+        if (coords) {
+          markersRef.current[property.id].setLngLat([coords.lng, coords.lat]);
         }
       });
     };
     
-    // Add event handlers for zoom and movement
-    map.current.on('zoomend', updateAllMarkerPositions);
-    map.current.on('moveend', updateAllMarkerPositions);
+    // Listen for zoom events to ensure markers stay in place
+    map.current.on('zoom', handleZoom);
     
     return () => {
       if (map.current) {
-        map.current.off('zoomend', updateAllMarkerPositions);
-        map.current.off('moveend', updateAllMarkerPositions);
+        map.current.off('zoom', handleZoom);
       }
     };
-  }, [mapLoaded, propertyCoordinates]);
+  }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup]);
 
   return { activeMarkerId, setActiveMarkerId, updateMarkerZIndex };
 }

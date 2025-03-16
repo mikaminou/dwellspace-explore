@@ -17,27 +17,30 @@ export function useMapSetup() {
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Create the map instance with optimized settings for performance
+    // Create the map instance with optimized settings for marker stability
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v11',
       center: [3.042048, 36.752887], // Default center (Algiers)
       zoom: 12,
       attributionControl: false,
-      renderWorldCopies: false,
-      fadeDuration: 0,
-      maxZoom: 16,
-      minZoom: 5,
-      trackResize: true,
-      maxBounds: [[-20, 15], [40, 40]], // Restrict to North Africa region
-      antialias: true
+      renderWorldCopies: false,      // Critical: Prevents markers from duplicating across antimeridian
+      boxZoom: true,                 // Enables box zoom for better control
+      fadeDuration: 0,               // Reduces marker position changes during zoom
+      maxBounds: [[-180, -85], [180, 85]], // Restrict panning to prevent extreme distortion
+      antialias: true                // Smoother rendering
     });
 
-    // Add only essential controls to improve performance
-    map.current.addControl(new mapboxgl.NavigationControl({
-      showCompass: false
-    }), 'top-right');
-    
+    // Add navigation controls
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.current.addControl(new mapboxgl.FullscreenControl());
+    map.current.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true
+    }));
+
     // Add attribution control in the bottom-right
     map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
 
@@ -47,9 +50,15 @@ export function useMapSetup() {
       setMapLoaded(true);
     });
 
+    // Handle map error
+    map.current.on('error', (e) => {
+      console.error('Map error:', e);
+    });
+
     // Clean up on unmount
     return () => {
       if (map.current) {
+        console.log('Cleaning up map instance');
         map.current.remove();
         map.current = null;
       }
