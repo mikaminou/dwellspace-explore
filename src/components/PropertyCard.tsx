@@ -9,9 +9,10 @@ import { useLanguage } from "@/contexts/language/LanguageContext";
 
 interface PropertyCardProps {
   property: Property;
+  compact?: boolean;
 }
 
-export default function PropertyCard({ property }: PropertyCardProps) {
+export default function PropertyCard({ property, compact = false }: PropertyCardProps) {
   const { t, dir } = useLanguage();
   
   const getPropertyImage = (property: Property): string => {
@@ -40,6 +41,44 @@ export default function PropertyCard({ property }: PropertyCardProps) {
 
   const isPremiumProperty = property.isPremium || (property.owner && property.owner.role === 'seller');
 
+  // If compact is true, render a simplified card for map popups
+  if (compact) {
+    return (
+      <div className={`bg-white dark:bg-card ${isPremiumProperty ? 'border-luxury border' : 'border'}`}>
+        <div className="relative">
+          {isPremiumProperty && (
+            <div className="absolute top-0 right-0 bg-luxury text-white text-xs px-2 py-1 z-10">
+              {t('luxury.badge')}
+            </div>
+          )}
+          <Badge className={`absolute top-2 left-2 flex items-center gap-1 z-10 ${getListingTypeColor(property)}`}>
+            <TicketIcon className="h-3 w-3 mr-1" />
+            {getListingTypeText(property)}
+          </Badge>
+          <img
+            src={getPropertyImage(property)}
+            alt={property.title}
+            className="w-full h-32 object-cover"
+          />
+        </div>
+        <div className="p-2">
+          <p className="text-primary font-semibold">{property.price}</p>
+          <div className="text-sm text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <BedDoubleIcon className="h-3 w-3" />
+              {property.beds} {t('property.beds')}
+            </div>
+            <div className="flex items-center gap-1">
+              <SquareIcon className="h-3 w-3" />
+              {property.living_area} m²
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard card for property listings
   return (
     <Link 
       to={`/property/${property.id}`} 
