@@ -97,34 +97,63 @@ export function usePropertyMarkers({
 
       // Create markers for each property
       properties.forEach(property => {
-        if (!property || !property.location) {
-          console.warn(`Property ${property?.id} has no location information`);
+        if (!property) {
+          console.warn(`Undefined property found`);
           return;
         }
 
         try {
-          const coords = generateCoordsFromLocation(property.location, property.id);
-          if (!coords) {
-            console.warn(`Could not generate coordinates for property ${property.id} at location "${property.location}"`);
+          // First try to use the database coordinates if they exist
+          if (property.longitude && property.latitude) {
+            const coords = {
+              lng: Number(property.longitude),
+              lat: Number(property.latitude)
+            };
+            
+            // Update bounds
+            bounds = updateBounds(bounds, coords.lat, coords.lng);
+            propertiesWithCoords++;
+
+            // Create and add marker
+            const marker = renderPropertyMarker(
+              { 
+                property, 
+                coordinates: coords, 
+                onMarkerClick 
+              },
+              map.current!
+            );
+
+            markersRef.current[property.id] = marker;
+          } 
+          // Fall back to generating coordinates from location
+          else if (property.location) {
+            const coords = generateCoordsFromLocation(property.location, property.id);
+            if (!coords) {
+              console.warn(`Could not generate coordinates for property ${property.id} at location "${property.location}"`);
+              missingCoords++;
+              return;
+            }
+
+            // Update bounds
+            bounds = updateBounds(bounds, coords.lat, coords.lng);
+            propertiesWithCoords++;
+
+            // Create and add marker
+            const marker = renderPropertyMarker(
+              { 
+                property, 
+                coordinates: coords, 
+                onMarkerClick 
+              },
+              map.current!
+            );
+
+            markersRef.current[property.id] = marker;
+          } else {
+            console.warn(`Property ${property.id} has no location information`);
             missingCoords++;
-            return;
           }
-
-          // Update bounds
-          bounds = updateBounds(bounds, coords.lat, coords.lng);
-          propertiesWithCoords++;
-
-          // Create and add marker
-          const marker = renderPropertyMarker(
-            { 
-              property, 
-              coordinates: coords, 
-              onMarkerClick 
-            },
-            map.current!
-          );
-
-          markersRef.current[property.id] = marker;
         } catch (markerError) {
           console.error(`Error creating marker for property ${property.id}:`, markerError);
         }
