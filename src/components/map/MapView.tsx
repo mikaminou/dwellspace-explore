@@ -19,6 +19,7 @@ function MapView() {
   const { mapContainer, map, mapLoaded, mapError } = useMapSetup();
   const { properties, loading, selectedCity } = useSearch();
   const [mapUnavailable, setMapUnavailable] = useState(false);
+  const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
   
   // Check if Mapbox is available
   useEffect(() => {
@@ -62,17 +63,7 @@ function MapView() {
   // Get properties with owner data
   const { propertiesWithOwners } = usePropertiesWithOwners(properties || []);
 
-  // Initialize marker and popup state containers with default values
-  const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
-
-  // Initialize marker and popup handlers
-  const handleMarkerClick = (property: Property, coordinates: [number, number]) => {
-    if (popupRef.current) {
-      popupRef.current.remove();
-    }
-    showPropertyPopup(property, coordinates, setActiveMarkerId, updateMarkerZIndex);
-  };
-
+  // Helper to update marker z-index
   const updateMarkerZIndex = (propertyId: number | null) => {
     try {
       // Reset all markers to default z-index
@@ -89,6 +80,11 @@ function MapView() {
     } catch (error) {
       console.error('Error updating marker z-index:', error);
     }
+  };
+
+  // Handle marker click with property popup
+  const handleMarkerClick = (property: Property, coordinates: [number, number]) => {
+    showPropertyPopup(property, coordinates, setActiveMarkerId, updateMarkerZIndex);
   };
 
   // Set up popup functionality

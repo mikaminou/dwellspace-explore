@@ -74,9 +74,9 @@ export function useMapSetup() {
           
           if (!mapContainer.current || !isMounted) return;
           
-          // Create the map instance
+          // Create the map instance - CHANGED HERE: store as const instead of ref.current
           console.log('Creating map instance...');
-          map.current = new mapboxgl.Map({
+          const mapInstance = new mapboxgl.Map({
             container: mapContainer.current,
             style: 'mapbox://styles/mapbox/streets-v11',
             center: [3.042048, 36.752887], // Default center (Algiers)
@@ -85,6 +85,9 @@ export function useMapSetup() {
             failIfMajorPerformanceCaveat: false, // Helps with some devices
             preserveDrawingBuffer: true // Helps with screenshots and exports
           });
+          
+          // Assign to ref after creation
+          map.current = mapInstance;
 
           console.log('Map instance created');
 

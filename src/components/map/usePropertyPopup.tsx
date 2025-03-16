@@ -1,7 +1,6 @@
 
 import { useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { createPortal } from 'react-dom';
 import { Property } from '@/api/properties';
 import { PropertyPopup } from './PropertyPopup';
 
