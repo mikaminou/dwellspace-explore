@@ -28,12 +28,12 @@ export function getCityCoordinates(city: string): { lat: number, lng: number } |
   return cities[city] || null;
 }
 
-// Helper function to format price
+// Helper function to format price in DZD (Algerian Dinar)
 export function formatPrice(price: string): string {
   const numericPrice = parseInt(price.replace(/[^0-9]/g, ''));
   if (numericPrice < 1000000) {
-    return `$${Math.round(numericPrice / 1000)}K`;
+    return `${Math.round(numericPrice / 1000)}K DZD`;
   } else {
-    return `$${(numericPrice / 1000000).toFixed(1)}M`;
+    return `${(numericPrice / 1000000).toFixed(1)}M DZD`;
   }
 }
