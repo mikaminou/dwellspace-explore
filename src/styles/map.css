@@ -63,3 +63,9 @@
   max-width: 200px;
   z-index: 999;
 }
+
+/* Fix for HoverCard positioning in markers */
+.custom-marker .hover-card-content {
+  position: absolute;
+  z-index: 20;
+}
