@@ -34,7 +34,8 @@ export function useSearchInitialData(
 
         // 2. Fetch all cities
         const citiesList = await getAllCities();
-        setCities(['any', ...citiesList]);
+        // Remove 'any' option from the city list
+        setCities(citiesList);
         
         // 3. Get the city with the lowest property count
         const defaultCity = await getCityWithLowestPropertyCount();

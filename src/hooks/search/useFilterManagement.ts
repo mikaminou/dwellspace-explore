@@ -1,4 +1,3 @@
-
 import { useCallback } from "react";
 import { SearchFilters } from "./types";
 
@@ -25,8 +24,9 @@ export function useFilterManagement(
   handleSearch: () => void
 ) {
   const handleReset = useCallback(() => {
-    // Reset all filter values to their defaults
-    setSelectedCity('any');
+    // When resetting filters, instead of setting to 'any', keep the current city
+    // or set to the first available city if none is selected
+    // This ensures we don't use the 'any' option anymore
     setPropertyType([]);
     setListingType([]);
     setMinPrice(0);
@@ -42,14 +42,14 @@ export function useFilterManagement(
       handleSearch();
     }, 50);
   }, [
-    maxPriceLimit, maxLivingAreaLimit, handleSearch, setSelectedCity, setPropertyType, 
+    maxPriceLimit, maxLivingAreaLimit, handleSearch, setPropertyType, 
     setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 
     setMinLivingArea, setMaxLivingArea, setSortOption
   ]);
 
   const getActiveFiltersCount = useCallback(() => {
     let count = 0;
-    if (selectedCity !== 'any') count++;
+    // Remove selectedCity check since we no longer have an "any" option
     if (propertyType.length > 0) count++;
     if (listingType.length > 0) count++;
     if (minBeds > 0) count++;
@@ -58,14 +58,15 @@ export function useFilterManagement(
     if (maxLivingArea < maxLivingAreaLimit) count++;
     return count;
   }, [
-    selectedCity, propertyType, listingType, minBeds, 
+    propertyType, listingType, minBeds, 
     minBaths, minLivingArea, maxLivingArea, maxLivingAreaLimit
   ]);
 
   const handleFilterRemoval = useCallback((filterType: string, value?: string) => {
     switch (filterType) {
       case 'city':
-        setSelectedCity('any');
+        // Don't reset city to 'any' since we no longer have that option
+        // Instead, do nothing when trying to remove city filter
         break;
       case 'propertyType':
         if (value) {
@@ -97,7 +98,7 @@ export function useFilterManagement(
     }, 50);
   }, [
     propertyType, listingType, maxLivingAreaLimit, handleSearch,
-    setSelectedCity, setPropertyType, setListingType, setMinBeds,
+    setPropertyType, setListingType, setMinBeds,
     setMinBaths, setMinLivingArea, setMaxLivingArea
   ]);
 

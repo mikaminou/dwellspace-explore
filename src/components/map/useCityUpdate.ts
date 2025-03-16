@@ -14,8 +14,8 @@ export function useCityUpdate(
   useEffect(() => {
     if (!map.current || !mapLoaded || !selectedCity) return;
     
-    // Skip if it's the same city as before or "any"
-    if (selectedCity === 'any' || selectedCity === prevCityRef.current) {
+    // Skip if it's the same city as before
+    if (selectedCity === prevCityRef.current) {
       return;
     }
     

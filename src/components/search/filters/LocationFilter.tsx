@@ -17,18 +17,21 @@ export const LocationFilter = memo(function LocationFilter({
 }: LocationFilterProps) {
   const { t, dir } = useLanguage();
 
+  // Filter out the "any" option from the cities array
+  const filteredCities = cities.filter(city => city !== "any");
+
   return (
     <div>
       <h4 className="text-sm font-medium mb-2">{t('search.location')}</h4>
       <Select value={selectedCity} onValueChange={setSelectedCity}>
         <SelectTrigger className={`${dir === 'rtl' ? 'arabic-text' : ''} border-2`}>
-          <SelectValue placeholder={t('search.anyCity')} />
+          <SelectValue placeholder={t('search.location')} />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {cities.map(city => (
+            {filteredCities.map(city => (
               <SelectItem key={city} value={city} className={dir === 'rtl' ? 'arabic-text' : ''}>
-                {city === "any" ? t('search.anyCity') : city}
+                {city}
               </SelectItem>
             ))}
           </SelectGroup>
