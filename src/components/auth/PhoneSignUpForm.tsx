@@ -34,6 +34,8 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
   } = usePhoneSignUp(onShowOtp, onError, onPhoneDetailsCapture);
 
   const [error, setError] = useState("");
+  const [agency, setAgency] = useState("");
+  const [licenseNumber, setLicenseNumber] = useState("");
 
   return (
     <form onSubmit={handlePhoneSubmit} className="space-y-4">
@@ -70,7 +72,14 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
         </p>
       </div>
       
-      <RoleSelector userRole={userRole} setUserRole={setUserRole} />
+      <RoleSelector 
+        userRole={userRole} 
+        setUserRole={setUserRole}
+        agency={agency}
+        setAgency={setAgency}
+        licenseNumber={licenseNumber}
+        setLicenseNumber={setLicenseNumber}
+      />
       
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Sending code..." : "Send Verification Code"}

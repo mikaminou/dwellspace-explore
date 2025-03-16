@@ -25,6 +25,8 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     setUserRole,
     agency,
     setAgency,
+    licenseNumber,
+    setLicenseNumber,
     showAgencyField,
     loading,
     confirmationSent,
@@ -104,26 +106,13 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       
       <RoleSelector 
         userRole={userRole} 
-        setUserRole={setUserRole} 
+        setUserRole={setUserRole}
+        agency={agency}
+        setAgency={setAgency}
+        licenseNumber={licenseNumber}
+        setLicenseNumber={setLicenseNumber}
         disabled={loading || confirmationSent}
       />
-      
-      {showAgencyField && (
-        <div className="space-y-2">
-          <Label htmlFor="agency">Agency Name</Label>
-          <Input 
-            id="agency" 
-            placeholder="Your real estate agency" 
-            value={agency}
-            onChange={(e) => setAgency(e.target.value)}
-            required
-            disabled={loading || confirmationSent}
-          />
-          <p className="text-xs text-muted-foreground">
-            Required for real estate agents
-          </p>
-        </div>
-      )}
       
       <Button 
         type="submit" 

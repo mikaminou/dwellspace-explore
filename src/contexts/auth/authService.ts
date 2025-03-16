@@ -57,27 +57,17 @@ export const authService = {
       
       if (confirmationRequired) {
         console.log("Email confirmation required for:", email);
-        toast({
-          title: "Confirmation email sent",
-          description: "Please check your inbox to confirm your email address.",
-        });
+        toast.success("Confirmation email sent. Please check your inbox.");
         return { confirmationRequired: true };
       } else {
         console.log("User created without confirmation requirement");
-        toast({
-          title: "Account created successfully",
-          description: "Welcome to DwellSpace!",
-        });
+        toast.success("Account created successfully. Welcome to DwellSpace!");
         return undefined;
       }
       
     } catch (error: any) {
       console.error("Full signup error:", error);
-      toast({
-        title: "Sign up failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(`Sign up failed: ${error.message}`);
       throw error;
     }
   },
@@ -88,17 +78,10 @@ export const authService = {
       
       if (error) throw error;
       
-      toast({
-        title: "Signed in successfully",
-        description: "Welcome back!",
-      });
+      toast.success("Signed in successfully. Welcome back!");
       
     } catch (error: any) {
-      toast({
-        title: "Sign in failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(`Sign in failed: ${error.message}`);
       throw error;
     }
   },
@@ -111,17 +94,10 @@ export const authService = {
       
       if (error) throw error;
       
-      toast({
-        title: "Verification code sent",
-        description: "Please check your phone for the verification code",
-      });
+      toast.success("Verification code sent. Please check your phone.");
       
     } catch (error: any) {
-      toast({
-        title: "Phone sign in failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(`Phone sign in failed: ${error.message}`);
       throw error;
     }
   },
@@ -136,17 +112,10 @@ export const authService = {
       
       if (error) throw error;
       
-      toast({
-        title: "Phone verified successfully",
-        description: "Welcome to DwellSpace!",
-      });
+      toast.success("Phone verified successfully. Welcome to DwellSpace!");
       
     } catch (error: any) {
-      toast({
-        title: "Verification failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(`Verification failed: ${error.message}`);
       throw error;
     }
   },
@@ -166,15 +135,9 @@ export const authService = {
         }
       }
       
-      toast({
-        title: "Signed out successfully",
-      });
+      toast.success("Signed out successfully");
     } catch (error: any) {
-      toast({
-        title: "Sign out failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(`Sign out failed: ${error.message}`);
       throw error;
     }
   }

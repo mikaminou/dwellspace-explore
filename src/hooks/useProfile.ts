@@ -63,16 +63,22 @@ export function useProfile() {
         if (error) throw error;
 
         if (data) {
-          form.reset({
-            first_name: data.first_name || "",
-            last_name: data.last_name || "",
-            phone_number: data.phone_number || "",
-            bio: data.bio || "",
-            role: data.role,
-            agency: data.agency || "",
+          // Add license_number to data if not already present
+          const profileWithLicense = {
+            ...data,
             license_number: data.license_number || "",
+          };
+
+          form.reset({
+            first_name: profileWithLicense.first_name || "",
+            last_name: profileWithLicense.last_name || "",
+            phone_number: profileWithLicense.phone_number || "",
+            bio: profileWithLicense.bio || "",
+            role: profileWithLicense.role,
+            agency: profileWithLicense.agency || "",
+            license_number: profileWithLicense.license_number || "",
           });
-          setProfileData(data as ProfileFormValues);
+          setProfileData(profileWithLicense as ProfileFormValues);
         }
       } catch (error: any) {
         toast({
@@ -127,7 +133,7 @@ export function useProfile() {
   const userAvatar = session?.user?.user_metadata?.avatar_url;
   const userName = profileData?.first_name || session?.user?.user_metadata?.first_name || "";
   const userAgency = profileData?.agency || session?.user?.user_metadata?.agency || "";
-  const userLicenseNumber = profileData?.license_number || "";
+  const userLicenseNumber = profileData?.license_number || session?.user?.user_metadata?.license_number || "";
   const userInitials = userName 
     ? userName.slice(0, 2).toUpperCase() 
     : userEmail 

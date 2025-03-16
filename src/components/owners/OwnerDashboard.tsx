@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,7 +9,7 @@ import { Plus, Settings, Home, MessageSquare, Bell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Property } from "@/api/properties";
+import { Property } from "@/data/properties";
 
 export function OwnerDashboard() {
   const { session, isLoaded } = useAuth();
@@ -35,21 +35,10 @@ export function OwnerDashboard() {
 
         if (propertyError) throw propertyError;
         
-        // Transform property data
-        const transformedProperties = propertyData.map(property => ({
-          id: property.id,
-          title: property.title,
-          price: property.price,
-          location: property.location,
-          description: property.description,
-          type: property.type,
-          beds: property.beds,
-          baths: property.baths,
-          image: property.image,
-          createdAt: property.created_at,
-          owner_id: property.owner_id,
-          // Add other property fields as needed
-        }));
+        // Transform property data to match Property type
+        const transformedProperties = propertyData.map(property => 
+          transformPropertyData(property)
+        );
         
         setProperties(transformedProperties);
         
@@ -103,17 +92,10 @@ export function OwnerDashboard() {
       // Update local state
       setProperties(properties.filter(property => property.id !== propertyId));
       
-      toast({
-        title: "Property deleted",
-        description: "Your property listing has been deleted.",
-      });
+      toast.success("Property deleted successfully");
     } catch (error: any) {
       console.error("Error deleting property:", error);
-      toast({
-        title: "Error deleting property",
-        description: error.message || "Could not delete your property.",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Could not delete your property.");
     }
   };
 
@@ -128,10 +110,7 @@ export function OwnerDashboard() {
 
   const replyToInquiry = (inquiryId: number) => {
     // In a real app, this would open a message composer or similar
-    toast({
-      title: "Reply to inquiry",
-      description: "This feature is coming soon!",
-    });
+    toast.info("Reply to inquiry feature coming soon!");
   };
 
   if (loading) {

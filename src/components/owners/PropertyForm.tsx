@@ -73,7 +73,7 @@ export function PropertyForm() {
         const { data, error } = await supabase
           .from("properties")
           .select("*")
-          .eq("id", id)
+          .eq("id", parseInt(id))
           .single();
 
         if (error) throw error;
@@ -81,14 +81,17 @@ export function PropertyForm() {
         if (data) {
           // Check if the current user is the owner
           if (data.owner_id !== session?.user?.id) {
-            toast({
-              title: "Unauthorized",
-              description: "You do not have permission to edit this property.",
-              variant: "destructive",
-            });
+            toast.error("You do not have permission to edit this property.");
             navigate("/dashboard");
             return;
           }
+
+          // Convert features to string array if needed
+          const features = data.features ? 
+            (Array.isArray(data.features) ? 
+              data.features.map(f => String(f)) : 
+              []
+            ) : [];
 
           form.reset({
             title: data.title,
@@ -106,7 +109,7 @@ export function PropertyForm() {
             longitude: data.longitude || undefined,
             latitude: data.latitude || undefined,
             listing_type: data.listing_type,
-            features: data.features ? (Array.isArray(data.features) ? data.features : []) : [],
+            features: features,
             image: data.image || "",
           });
 
@@ -114,11 +117,7 @@ export function PropertyForm() {
         }
       } catch (error: any) {
         console.error("Error fetching property:", error);
-        toast({
-          title: "Error",
-          description: error.message || "Failed to load property data.",
-          variant: "destructive",
-        });
+        toast.error(error.message || "Failed to load property data.");
       } finally {
         setLoading(false);
       }
@@ -159,22 +158,14 @@ export function PropertyForm() {
       return data.publicUrl;
     } catch (error: any) {
       console.error("Error uploading image:", error);
-      toast({
-        title: "Error",
-        description: "Failed to upload image. Using default image instead.",
-        variant: "destructive",
-      });
+      toast.error("Failed to upload image. Using default image instead.");
       return null;
     }
   };
 
   const onSubmit = async (values: PropertyFormValues) => {
     if (!session?.user?.id) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to create or edit properties.",
-        variant: "destructive",
-      });
+      toast.error("You must be logged in to create or edit properties.");
       return;
     }
 
@@ -191,44 +182,37 @@ export function PropertyForm() {
         updated_at: new Date().toISOString(),
       };
       
-      if (isEditing) {
+      if (isEditing && id) {
         // Update existing property
         const { error } = await supabase
           .from("properties")
           .update(propertyData)
-          .eq("id", id);
+          .eq("id", parseInt(id));
         
         if (error) throw error;
         
-        toast({
-          title: "Success",
-          description: "Property updated successfully.",
-        });
+        toast.success("Property updated successfully.");
       } else {
-        // Create new property
-        propertyData.created_at = new Date().toISOString();
+        // Create new property with all required fields
+        const newProperty = {
+          ...propertyData,
+          created_at: new Date().toISOString(),
+        };
         
         const { error } = await supabase
           .from("properties")
-          .insert([propertyData]);
+          .insert([newProperty]);
         
         if (error) throw error;
         
-        toast({
-          title: "Success",
-          description: "Property created successfully.",
-        });
+        toast.success("Property created successfully.");
       }
       
       // Navigate back to dashboard
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Error saving property:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to save property data.",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to save property data.");
     } finally {
       setLoading(false);
     }
