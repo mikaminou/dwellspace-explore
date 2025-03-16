@@ -10,6 +10,7 @@ import { usePropertyMarkers } from './usePropertyMarkers';
 import { usePropertyPopup } from './usePropertyPopup';
 import { useCitySelection } from './useCitySelection';
 import { usePropertiesWithOwners } from './usePropertiesWithOwners';
+import { Property } from '@/api/properties';
 
 function MapView() {
   console.log("MapView component rendering");
@@ -55,7 +56,7 @@ function MapView() {
     };
 
     // Get properties with owner data - with error handling
-    let propertiesWithOwners = [];
+    let propertiesWithOwners: Property[] = [];
     try {
       const { propertiesWithOwners: fetchedProps } = usePropertiesWithOwners(properties);
       propertiesWithOwners = fetchedProps;
@@ -66,7 +67,8 @@ function MapView() {
 
     // Set up popup functionality - with error handling
     let popupRef = { current: null };
-    let showPropertyPopup = () => {};
+    let showPropertyPopup = (property: Property, coordinates: [number, number], setId: (id: number | null) => void, updateZIndex: (id: number | null) => void) => {};
+    
     try {
       const popupResult = usePropertyPopup({
         map,
@@ -83,8 +85,8 @@ function MapView() {
     // Set up property markers - with error handling
     let markersRef = { current: {} };
     let activeMarkerId = null;
-    let setActiveMarkerId = () => {};
-    let updateMarkerZIndex = () => {};
+    let setActiveMarkerId = (id: number | null) => {};
+    let updateMarkerZIndex = (id: number | null) => {};
     
     try {
       const markersResult = usePropertyMarkers({
