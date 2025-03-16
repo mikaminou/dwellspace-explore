@@ -16,3 +16,22 @@
 
 /* Import map styles */
 @import './styles/map.css';
+
+/* Compact property card styles */
+.property-card-compact {
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.property-card-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dark .property-card-compact {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .property-card-compact:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}

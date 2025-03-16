@@ -9,9 +9,10 @@ import { useLanguage } from "@/contexts/language/LanguageContext";
 
 interface PropertyCardProps {
   property: Property;
+  compact?: boolean; // Add compact prop
 }
 
-export default function PropertyCard({ property }: PropertyCardProps) {
+export default function PropertyCard({ property, compact = false }: PropertyCardProps) {
   const { t, dir } = useLanguage();
   
   const getPropertyImage = (property: Property): string => {
@@ -40,6 +41,55 @@ export default function PropertyCard({ property }: PropertyCardProps) {
 
   const isPremiumProperty = property.isPremium || (property.owner && property.owner.role === 'seller');
 
+  // Render compact version if requested
+  if (compact) {
+    return (
+      <Link 
+        to={`/property/${property.id}`} 
+        className={`property-card-compact group bg-white dark:bg-card rounded-lg shadow-sm overflow-hidden ${isPremiumProperty ? 'premium-property' : ''}`}
+      >
+        <div className="flex">
+          <div className="w-24 h-24 flex-shrink-0">
+            <img
+              src={getPropertyImage(property)}
+              alt={property.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="p-3 flex-1">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-sm font-semibold truncate">{property.title}</h3>
+                <p className="text-xs text-muted-foreground flex items-center mt-1">
+                  <MapPinIcon className="h-3 w-3 mr-1" />
+                  <span className="truncate">{property.location || property.city}</span>
+                </p>
+              </div>
+              <span className={`${isPremiumProperty ? 'text-luxury' : 'text-primary'} font-semibold text-sm`}>
+                {property.price}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+              {property.beds && (
+                <span className="flex items-center">
+                  <BedDoubleIcon className="h-3 w-3 mr-1" />
+                  {property.beds}
+                </span>
+              )}
+              {property.type && (
+                <span className="flex items-center">
+                  <HomeIcon className="h-3 w-3 mr-1" />
+                  {property.type}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // Regular (full) card version
   return (
     <Link 
       to={`/property/${property.id}`} 
