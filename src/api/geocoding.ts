@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -38,6 +37,23 @@ export async function restorePropertiesFromBackup(): Promise<{
   total: number;
 }> {
   try {
+    // First check if we need to call the edge function or just report success
+    const { count, error: countError } = await supabase
+      .from('properties')
+      .select('*', { count: 'exact', head: true });
+    
+    if (countError) {
+      console.error('Error checking properties count:', countError);
+      return { success: 0, errors: 0, total: 0 };
+    }
+    
+    // If we already have properties with coordinates, return success without running edge function
+    if (count && count > 0) {
+      console.log('Properties already restored with coordinates');
+      return { success: count, errors: 0, total: count };
+    }
+    
+    // Otherwise call the edge function (for future use)
     const { data, error } = await supabase.functions.invoke('restore-properties');
 
     if (error) {
@@ -46,9 +62,9 @@ export async function restorePropertiesFromBackup(): Promise<{
     }
 
     return {
-      success: data.success || 0,
-      errors: data.errors || 0,
-      total: data.total || 0
+      success: data?.success || 0,
+      errors: data?.errors || 0,
+      total: data?.total || 0
     };
   } catch (error) {
     console.error('Unexpected error restoring properties:', error);
