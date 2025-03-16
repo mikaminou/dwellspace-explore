@@ -6,8 +6,8 @@ import { useLanguage } from '@/contexts/language/LanguageContext';
 import { MapLoadingState, MapEmptyState } from './MapStates';
 import { useMapSetup } from './useMapSetup';
 import { usePropertyOwners } from './usePropertyOwners';
-import { usePropertyMarkers } from './usePropertyMarkers';
 import { usePropertyPopup } from './usePropertyPopup';
+import { usePropertyMarkers } from './usePropertyMarkers';
 import { useCityUpdate } from './useCityUpdate';
 
 export function MapView() {

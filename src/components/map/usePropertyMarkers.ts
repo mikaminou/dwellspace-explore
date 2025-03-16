@@ -33,6 +33,7 @@ export function usePropertyMarkers(
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
+    // Remove all existing markers first
     Object.values(markersRef.current).forEach(marker => marker.remove());
     markersRef.current = {};
 
@@ -40,33 +41,46 @@ export function usePropertyMarkers(
 
     const bounds = new mapboxgl.LngLatBounds();
     let propertiesWithCoords = 0;
+    
+    console.log('Properties to display on map:', propertiesWithOwners.map(p => ({
+      id: p.id, 
+      title: p.title, 
+      lat: p.latitude, 
+      lng: p.longitude
+    })));
 
     propertiesWithOwners.forEach(property => {
       // Determine coordinates - first try to use actual lat/lng from database
       let coords;
       
-      if (typeof property.longitude === 'number' && typeof property.latitude === 'number') {
+      if (typeof property.latitude === 'number' && typeof property.longitude === 'number') {
         // Use the actual coordinates from the database
         coords = {
-          lng: property.longitude,
-          lat: property.latitude
+          lat: property.latitude,
+          lng: property.longitude
         };
+        console.log(`Using actual coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
       } else if (property.location) {
         // Fallback to generated coordinates only if necessary
         coords = generateCoordsFromLocation(property.location, property.id);
+        console.log(`Using generated coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
       } else {
         // No location data available
+        console.log(`No coordinates available for property ${property.id}`);
         return;
       }
 
       if (!coords) return;
 
+      // Add to bounds calculation
       bounds.extend([coords.lng, coords.lat]);
       propertiesWithCoords++;
 
+      // Create marker element
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker-container';
       
+      // Create and add marker to map
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
@@ -76,21 +90,26 @@ export function usePropertyMarkers(
         .setLngLat([coords.lng, coords.lat])
         .addTo(map.current!);
 
+      // Create price element
       const priceElement = document.createElement('div');
       priceElement.className = 'price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
       priceElement.innerText = property.price;
       markerEl.appendChild(priceElement);
 
+      // Add click event to price element
       priceElement.addEventListener('click', (e) => {
         e.stopPropagation();
         setActiveMarkerId(property.id);
         showPropertyPopup(property, [coords.lng, coords.lat]);
       });
 
+      // Store marker reference
       markersRef.current[property.id] = marker;
     });
 
+    // Fit map to bounds if we have properties with coordinates
     if (propertiesWithCoords > 0) {
+      console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
       map.current.fitBounds(bounds, {
         padding: 50,
         maxZoom: 15
