@@ -17,76 +17,115 @@ export function useMapSetup() {
   // Initialize map
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
+    
+    console.log('Initializing map setup...'); // Debug log
+    
+    let mapboxgl: any;
+    let isMounted = true;
 
     // Delay map initialization to ensure DOM and libraries are ready
-    const timer = setTimeout(() => {
+    const initMap = async () => {
       try {
+        // Wait a bit for the DOM to be fully ready
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (!isMounted) return;
+        
         // Safely import mapboxgl
-        import('mapbox-gl').then(mapboxgl => {
-          try {
-            // Ensure access token is set
-            mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
-            
-            console.log('Initializing map with token:', mapboxgl.accessToken);
-            
-            if (mapContainer.current) {
-              map.current = new mapboxgl.Map({
-                container: mapContainer.current,
-                style: 'mapbox://styles/mapbox/streets-v11',
-                center: [3.042048, 36.752887], // Default center (Algiers)
-                zoom: 12,
-                attributionControl: false,
-                failIfMajorPerformanceCaveat: false // Helps with some devices
-              });
+        try {
+          console.log('Importing mapbox-gl...');
+          const mapboxModule = await import('mapbox-gl');
+          mapboxgl = mapboxModule.default;
+          
+          if (!mapboxgl) {
+            throw new Error('Failed to import mapbox-gl');
+          }
+          
+          // Make mapboxgl available on window for debugging
+          if (typeof window !== 'undefined') {
+            window.mapboxgl = mapboxgl;
+          }
+        } catch (importError) {
+          console.error('Error importing mapbox-gl:', importError);
+          if (isMounted) {
+            setMapError(importError instanceof Error ? importError : new Error(String(importError)));
+            toast.error('Failed to load map library');
+          }
+          return;
+        }
 
-              // Safely add controls after ensuring map is created
-              if (map.current) {
-                // Add navigation controls
-                map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-                map.current.addControl(new mapboxgl.FullscreenControl());
-                map.current.addControl(new mapboxgl.GeolocateControl({
-                  positionOptions: {
-                    enableHighAccuracy: true
-                  },
-                  trackUserLocation: true
-                }));
+        try {
+          // Ensure access token is set
+          mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
+          
+          console.log('Initializing map with token:', mapboxgl.accessToken);
+          
+          if (!mapContainer.current || !isMounted) return;
+          
+          map.current = new mapboxgl.Map({
+            container: mapContainer.current,
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [3.042048, 36.752887], // Default center (Algiers)
+            zoom: 12,
+            attributionControl: false,
+            failIfMajorPerformanceCaveat: false, // Helps with some devices
+            preserveDrawingBuffer: true // Helps with screenshots and exports
+          });
 
-                // Add attribution control in the bottom-right
-                map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
+          // Safely add controls after ensuring map is created
+          if (map.current) {
+            // Add navigation controls
+            map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+            map.current.addControl(new mapboxgl.FullscreenControl());
+            map.current.addControl(new mapboxgl.GeolocateControl({
+              positionOptions: {
+                enableHighAccuracy: true
+              },
+              trackUserLocation: true
+            }));
 
-                // Set map loaded state when the map is ready
-                map.current.on('load', () => {
-                  console.log('Map loaded successfully');
-                  setMapLoaded(true);
-                });
+            // Add attribution control in the bottom-right
+            map.current.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
 
-                // Handle map error
-                map.current.on('error', (e) => {
-                  console.error('Map error:', e);
-                  setMapError(e.error || new Error('Unknown map error'));
-                  toast.error('There was a problem loading the map');
-                });
+            // Set map loaded state when the map is ready
+            map.current.on('load', () => {
+              console.log('Map loaded successfully');
+              if (isMounted) {
+                setMapLoaded(true);
               }
-            }
-          } catch (initError) {
-            console.error('Error in map initialization:', initError);
+            });
+
+            // Handle map error
+            map.current.on('error', (e: any) => {
+              console.error('Map error:', e);
+              if (isMounted) {
+                setMapError(e.error || new Error('Unknown map error'));
+                toast.error('There was a problem loading the map');
+              }
+            });
+          }
+        } catch (initError) {
+          console.error('Error in map initialization:', initError);
+          if (isMounted) {
             setMapError(initError instanceof Error ? initError : new Error(String(initError)));
             toast.error('Failed to initialize map');
           }
-        }).catch(importError => {
-          console.error('Error importing mapbox-gl:', importError);
-          setMapError(importError);
-        });
+        }
       } catch (error) {
         console.error('Error in mapbox setup:', error);
-        setMapError(error instanceof Error ? error : new Error(String(error)));
-        toast.error('Failed to setup map');
+        if (isMounted) {
+          setMapError(error instanceof Error ? error : new Error(String(error)));
+          toast.error('Failed to setup map');
+        }
       }
-    }, 500); // Delay to ensure DOM is ready
+    };
+    
+    // Start initialization
+    initMap();
     
     // Clean up on unmount
     return () => {
-      clearTimeout(timer);
+      isMounted = false;
       if (map.current) {
         console.log('Cleaning up map instance');
         try {

@@ -13,6 +13,7 @@ import { usePropertiesWithOwners } from './usePropertiesWithOwners';
 import { AlertTriangle } from 'lucide-react';
 
 function MapView() {
+  console.log('Rendering MapView component'); // Debug log
   const navigate = useNavigate();
   const { mapContainer, map, mapLoaded, mapError } = useMapSetup();
   const { properties, loading, selectedCity } = useSearch();
@@ -21,13 +22,27 @@ function MapView() {
   // Check if Mapbox is available
   useEffect(() => {
     try {
-      if (typeof window === 'undefined' || !window.mapboxgl) {
+      console.log('Checking Mapbox availability'); // Debug log
+      if (typeof window === 'undefined') {
+        console.error("Window is undefined");
         setMapUnavailable(true);
+      } else if (!window.mapboxgl) {
         console.error("Mapbox GL not available on window object");
+        setMapUnavailable(true);
+        // Try to load mapboxgl dynamically
+        import('mapbox-gl').then(mapboxgl => {
+          console.log('Mapbox GL loaded dynamically');
+          window.mapboxgl = mapboxgl.default;
+          setMapUnavailable(false);
+        }).catch(err => {
+          console.error('Failed to load Mapbox GL dynamically:', err);
+        });
+      } else {
+        console.log('Mapbox GL is available on window'); // Debug log
       }
     } catch (e) {
-      setMapUnavailable(true);
       console.error("Error accessing Mapbox GL:", e);
+      setMapUnavailable(true);
     }
   }, []);
 
@@ -46,27 +61,44 @@ function MapView() {
   // Get properties with owner data
   const { propertiesWithOwners } = usePropertiesWithOwners(properties || []);
 
-  // Set up popup functionality
-  const { popupRef, showPropertyPopup } = usePropertyPopup({
-    map,
-    onSaveProperty: handleSaveProperty,
-    onMessageOwner: handleMessageOwner,
-    navigate
-  });
+  // Setup components with error handling
+  let popupSetup = { popupRef: { current: null }, showPropertyPopup: () => {} };
+  let markerSetup = { markersRef: { current: {} }, activeMarkerId: null, setActiveMarkerId: () => {}, updateMarkerZIndex: () => {} };
 
-  // Set up property markers
-  const { markersRef, activeMarkerId, setActiveMarkerId, updateMarkerZIndex } = usePropertyMarkers({
-    map,
-    properties: propertiesWithOwners || [],
-    mapLoaded,
-    loading,
-    onMarkerClick: (property, coordinates) => {
-      showPropertyPopup(property, coordinates, setActiveMarkerId, updateMarkerZIndex);
-    }
-  });
+  try {
+    // Set up popup functionality
+    popupSetup = usePropertyPopup({
+      map,
+      onSaveProperty: handleSaveProperty,
+      onMessageOwner: handleMessageOwner,
+      navigate
+    });
+
+    // Set up property markers
+    markerSetup = usePropertyMarkers({
+      map,
+      properties: propertiesWithOwners || [],
+      mapLoaded,
+      loading,
+      onMarkerClick: (property, coordinates) => {
+        popupSetup.showPropertyPopup(property, coordinates, markerSetup.setActiveMarkerId, markerSetup.updateMarkerZIndex);
+      }
+    });
+  } catch (error) {
+    console.error('Error setting up map components:', error);
+    setMapUnavailable(true);
+  }
+
+  // Destructure safely after setup
+  const { popupRef, showPropertyPopup } = popupSetup;
+  const { markersRef, activeMarkerId, setActiveMarkerId, updateMarkerZIndex } = markerSetup;
 
   // Handle city selection
-  useCitySelection({ map, mapLoaded, selectedCity });
+  try {
+    useCitySelection({ map, mapLoaded, selectedCity });
+  } catch (error) {
+    console.error('Error in city selection:', error);
+  }
 
   // If map is unavailable, show a fallback UI
   if (mapUnavailable || mapError) {

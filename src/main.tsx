@@ -1,6 +1,6 @@
 
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import "mapbox-gl/dist/mapbox-gl.css"; // Import Mapbox CSS FIRST to ensure styling is available
 import App from "./App";
 import "./index.css";
@@ -17,13 +17,13 @@ window.addEventListener('error', (event) => {
   console.error('Global error caught:', event.error);
 });
 
-// Create and render the app without strict mode to avoid double initialization
+// Create and render the app with React 18 createRoot API
 const rootElement = document.getElementById("root");
 if (rootElement) {
-  ReactDOM.render(
+  const root = createRoot(rootElement);
+  root.render(
     <AuthProvider>
       <App />
-    </AuthProvider>,
-    rootElement
+    </AuthProvider>
   );
 }
