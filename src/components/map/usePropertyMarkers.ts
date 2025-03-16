@@ -41,6 +41,7 @@ export function usePropertyMarkers(
     console.log('Properties to display on map:', propertiesWithOwners.map(p => ({
       id: p.id, 
       title: p.title, 
+      city: p.city,
       lat: p.latitude, 
       lng: p.longitude
     })));
@@ -55,8 +56,8 @@ export function usePropertyMarkers(
         };
         console.log(`Using actual coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
       } else if (property.location) {
-        coords = generateCoordsFromLocation(property.location, property.id);
-        console.log(`Using generated coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
+        coords = generateCoordsFromLocation(property.location + ', ' + property.city, property.id);
+        console.log(`Using generated coordinates for property ${property.id} in ${property.city}: [${coords.lng}, ${coords.lat}]`);
       } else {
         console.log(`No coordinates available for property ${property.id}`);
         return;
