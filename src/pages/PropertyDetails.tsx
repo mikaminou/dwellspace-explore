@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -136,6 +137,36 @@ export default function PropertyDetails() {
       default: return 'listing-badge-sale';
     }
   };
+  
+  const getListingTypeColor = (): string => {
+    const listingType = property?.listing_type?.toLowerCase() || 'sale';
+    
+    if (listingType === 'rent') return 'text-blue-500';
+    if (listingType === 'construction') return 'text-amber-500';
+    if (listingType === 'commercial') return 'text-purple-500';
+    if (listingType === 'vacation') return 'text-teal-500';
+    return 'text-green-500'; // default for sale
+  };
+  
+  const getListingTypeButtonClass = (): string => {
+    const listingType = property?.listing_type?.toLowerCase() || 'sale';
+    
+    if (listingType === 'rent') return 'bg-blue-500 hover:bg-blue-600';
+    if (listingType === 'construction') return 'bg-amber-500 hover:bg-amber-600';
+    if (listingType === 'commercial') return 'bg-purple-500 hover:bg-purple-600';
+    if (listingType === 'vacation') return 'bg-teal-500 hover:bg-teal-600';
+    return 'bg-green-500 hover:bg-green-600'; // default for sale
+  };
+  
+  const getListingTypeDotClass = (): string => {
+    const listingType = property?.listing_type?.toLowerCase() || 'sale';
+    
+    if (listingType === 'rent') return 'bg-blue-500';
+    if (listingType === 'construction') return 'bg-amber-500';
+    if (listingType === 'commercial') return 'bg-purple-500';
+    if (listingType === 'vacation') return 'bg-teal-500';
+    return 'bg-green-500'; // default for sale
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -214,7 +245,7 @@ export default function PropertyDetails() {
             </div>
           </div>
           <div className={`flex flex-col ${dir === 'rtl' ? 'items-start' : 'items-end'}`}>
-            <span className="text-3xl font-bold text-primary mb-2">{property.price}</span>
+            <span className={`text-3xl font-bold ${getListingTypeColor()} mb-2`}>{property.price}</span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={handleSave}>
                 <HeartIcon className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
@@ -241,7 +272,7 @@ export default function PropertyDetails() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-4 mb-6">
               {(property.features || []).map((feature: string, index: number) => (
                 <div key={index} className={`flex items-center ${dir === 'rtl' ? 'flex-row-reverse justify-end arabic-text' : ''}`}>
-                  <div className={`h-2 w-2 rounded-full bg-primary ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                  <div className={`h-2 w-2 rounded-full ${getListingTypeDotClass()} ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                   {feature}
                 </div>
               ))}
@@ -281,7 +312,10 @@ export default function PropertyDetails() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
-                <Button className="w-full" onClick={handleContact}>
+                <Button 
+                  className={`w-full text-white ${getListingTypeButtonClass()}`} 
+                  onClick={handleContact}
+                >
                   <Trans id="property.contactAgent" />
                 </Button>
               </div>

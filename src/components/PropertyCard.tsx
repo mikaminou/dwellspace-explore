@@ -51,6 +51,16 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     if (listingType === 'vacation') return 'bg-teal-500 text-white';
     return 'bg-green-500 text-white'; // default for sale
   };
+  
+  const getListingTypeTextColor = (property: Property): string => {
+    const listingType = property.listing_type?.toLowerCase() || 'sale';
+    
+    if (listingType === 'rent') return 'text-blue-500';
+    if (listingType === 'construction') return 'text-amber-500';
+    if (listingType === 'commercial') return 'text-purple-500';
+    if (listingType === 'vacation') return 'text-teal-500';
+    return 'text-green-500'; // default for sale
+  };
 
   const getListingTypeText = (property: Property): string => {
     const listingType = property.listing_type?.toLowerCase() || 'sale';
@@ -98,7 +108,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       <div className={`p-4 border-t-0 rounded-b-lg ${dir === 'rtl' ? 'text-right' : ''}`}>
         <div className={`flex justify-between items-start mb-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
           <h3 className={`text-lg font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>{property.title}</h3>
-          <span className={`${isPremiumProperty ? 'text-luxury' : 'text-primary'} font-semibold ${dir === 'rtl' ? 'arabic-text' : ''}`}>
+          <span className={`font-semibold ${isPremiumProperty ? 'text-luxury' : getListingTypeTextColor(property)} ${dir === 'rtl' ? 'arabic-text' : ''}`}>
             {property.price}
           </span>
         </div>

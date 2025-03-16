@@ -76,3 +76,27 @@ export function getListingTypeBadgeClass(type: string = 'sale'): string {
     default: return 'bg-green-500 text-white';
   }
 }
+
+// Get text color for a listing type
+export function getListingTypeTextColor(type: string = 'sale'): string {
+  switch (type.toLowerCase()) {
+    case 'rent': return 'text-blue-500';
+    case 'construction': return 'text-amber-500';
+    case 'commercial': return 'text-purple-500';
+    case 'vacation': return 'text-teal-500';
+    case 'sale':
+    default: return 'text-green-500';
+  }
+}
+
+// Get button background color for a listing type
+export function getListingTypeButtonClass(type: string = 'sale'): string {
+  switch (type.toLowerCase()) {
+    case 'rent': return 'bg-blue-500 hover:bg-blue-600';
+    case 'construction': return 'bg-amber-500 hover:bg-amber-600';
+    case 'commercial': return 'bg-purple-500 hover:bg-purple-600';
+    case 'vacation': return 'bg-teal-500 hover:bg-teal-600';
+    case 'sale':
+    default: return 'bg-green-500 hover:bg-green-600';
+  }
+}
