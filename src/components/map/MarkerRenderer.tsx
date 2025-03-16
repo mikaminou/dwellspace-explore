@@ -23,7 +23,7 @@ export const renderPropertyMarker = (
   const markerEl = document.createElement('div');
   markerEl.className = 'custom-marker-container';
   
-  // Create the mapbox marker
+  // Create the mapbox marker with high z-index to ensure visibility
   const marker = new mapboxgl.Marker({
     element: markerEl,
     anchor: 'bottom',

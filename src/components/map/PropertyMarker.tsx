@@ -31,10 +31,21 @@ const formatPrice = (price: string | number): string => {
       const amount = parseFloat(numericValue);
       if (isNaN(amount)) return String(price); // Return original if parsing fails
       
+      // Format based on value size
+      if (amount >= 1000000) {
+        return `$${(amount / 1000000).toFixed(1)}M`;
+      } else if (amount >= 1000) {
+        return `$${Math.round(amount / 1000)}K`;
+      }
       return `$${amount.toLocaleString()}`;
     }
     
     // If it's a number
+    if (price >= 1000000) {
+      return `$${(price / 1000000).toFixed(1)}M`;
+    } else if (price >= 1000) {
+      return `$${Math.round(price / 1000)}K`;
+    }
     return `$${price.toLocaleString()}`;
   } catch (error) {
     console.error("[PropertyMarker] Error formatting price:", error);

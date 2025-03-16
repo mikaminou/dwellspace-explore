@@ -1,132 +1,82 @@
 
 import { Property } from "@/api/properties";
 
-// A safeguard function to ensure we always get valid numbers
-const ensureValidNumber = (value: any, defaultValue: number): number => {
-  if (typeof value !== 'number' || isNaN(value) || !isFinite(value)) {
-    return defaultValue;
-  }
-  return value;
-};
-
-// Global fallback coordinates (Algiers)
-const FALLBACK_COORDS = { lat: 36.752887, lng: 3.042048 };
-
-// Helper function to generate coordinates from location string
-// In a real app, you would have actual coordinates in your database
-export function generateCoordsFromLocation(location: string, id: number): { lat: number, lng: number } | null {
-  if (!location) {
-    console.warn('Location string is empty or missing');
-    // Return fallback with slight variation based on id
-    return {
-      lat: FALLBACK_COORDS.lat + (Math.sin(id * 0.3) * 0.01),
-      lng: FALLBACK_COORDS.lng + (Math.cos(id * 0.3) * 0.01)
-    };
-  }
+// Helper function to generate slightly varied coordinates for properties in the same city
+export function generateVariedCoordinates(baseCoords: [number, number], propertyId: number): [number, number] {
+  // Use the property ID to create a deterministic but varied position
+  // This creates a spiral-like pattern around the base coordinates
+  const angle = (propertyId % 20) * (Math.PI / 10); // 20 positions in a circle
+  const radius = 0.001 + (propertyId % 5) * 0.0005; // Varying distances from center (100m-300m)
   
-  try {
-    // Extract city from location (assuming format is "Area, City")
-    const parts = location.split(',');
-    const cityPart = parts.length > 1 ? parts[parts.length - 1].trim() : location.trim();
-    
-    // Get base coordinates for the city
-    const cityCoords = getCityCoordinates(cityPart);
-    
-    if (!cityCoords) {
-      // Fallback to Algiers if city not found
-      console.warn(`City not recognized in location "${location}", using fallback coordinates`);
-      return {
-        lat: ensureValidNumber(FALLBACK_COORDS.lat + (Math.sin(id) * 0.01), FALLBACK_COORDS.lat),
-        lng: ensureValidNumber(FALLBACK_COORDS.lng + (Math.cos(id) * 0.01), FALLBACK_COORDS.lng)
-      };
-    }
-    
-    // Generate slightly different coordinates based on the id to spread markers within the city
-    return {
-      lat: ensureValidNumber(cityCoords.lat + (Math.sin(id * 0.5) * 0.01), cityCoords.lat),
-      lng: ensureValidNumber(cityCoords.lng + (Math.cos(id * 0.5) * 0.01), cityCoords.lng)
-    };
-  } catch (error) {
-    console.error('Error generating coordinates from location:', error, 'location:', location, 'id:', id);
-    // Return fallback coordinates on error
-    return {
-      lat: ensureValidNumber(FALLBACK_COORDS.lat + (Math.sin(id) * 0.005), FALLBACK_COORDS.lat),
-      lng: ensureValidNumber(FALLBACK_COORDS.lng + (Math.cos(id) * 0.005), FALLBACK_COORDS.lng)
-    };
-  }
+  return [
+    baseCoords[0] + radius * Math.cos(angle),
+    baseCoords[1] + radius * Math.sin(angle)
+  ];
 }
 
-// Helper function to get city coordinates
-// In a real app, you would have this data in your database
-export function getCityCoordinates(city: string): { lat: number, lng: number } | null {
-  if (!city || typeof city !== 'string') {
-    console.warn('Invalid city name provided:', city);
-    return null;
-  }
+// Format price for display
+export function formatPrice(price: string | number | undefined): string {
+  if (!price) return 'N/A';
   
   try {
-    // Normalize city name for comparison (remove leading/trailing spaces, case insensitive)
-    const normalizedCity = city.trim().toLowerCase();
+    // Convert string price to number
+    const numericPrice = typeof price === 'string' 
+      ? parseFloat(price.replace(/[^0-9.]/g, ''))
+      : price;
     
-    if (normalizedCity.length === 0) {
-      return null;
-    }
+    if (isNaN(numericPrice)) return 'N/A';
     
-    // Check if the normalized city name contains any of our known cities
-    const cities: {[key: string]: { lat: number, lng: number }} = {
-      'algiers': { lat: 36.752887, lng: 3.042048 },
-      'oran': { lat: 35.691544, lng: -0.642049 },
-      'constantine': { lat: 36.365, lng: 6.614722 },
-      'annaba': { lat: 36.897503, lng: 7.765092 },
-      'setif': { lat: 36.190073, lng: 5.408341 },
-      'tizi ouzou': { lat: 36.7167, lng: 4.0500 },
-      'blida': { lat: 36.4700, lng: 2.8300 },
-      'tlemcen': { lat: 34.8800, lng: -1.3200 },
-      'bejaia': { lat: 36.7500, lng: 5.0833 },
-      'bouira': { lat: 36.3800, lng: 3.9000 },
-      'ghardaia': { lat: 32.4900, lng: 3.6700 },
-      'adrar': { lat: 27.8700, lng: -0.2900 }
-    };
-    
-    // Try to find a matching city
-    for (const [knownCity, coords] of Object.entries(cities)) {
-      if (normalizedCity.includes(knownCity)) {
-        return coords;
-      }
-    }
-    
-    // No match found
-    return null;
-  } catch (error) {
-    console.error('Error getting city coordinates:', error, 'city:', city);
-    return null;
-  }
-}
-
-// Helper function to format price with robust error handling
-export function formatPrice(price: string): string {
-  try {
-    if (!price || typeof price !== 'string') {
-      return '$0';
-    }
-    
-    // Extract numeric value, handle various formats
-    const numericString = price.replace(/[^0-9.]/g, '');
-    const numericPrice = parseFloat(numericString);
-    
-    if (isNaN(numericPrice)) {
-      return '$0';
-    }
-    
-    if (numericPrice < 1000) {
-      return `$${Math.round(numericPrice)}`;
-    } else if (numericPrice < 1000000) {
-      return `$${Math.round(numericPrice / 1000)}K`;
-    } else {
+    // Format based on magnitude
+    if (numericPrice >= 1000000) {
       return `$${(numericPrice / 1000000).toFixed(1)}M`;
+    } else if (numericPrice >= 1000) {
+      return `$${Math.round(numericPrice / 1000)}K`;
     }
+    
+    return `$${numericPrice.toLocaleString()}`;
   } catch (error) {
-    console.error('Error formatting price:', error, 'price:', price);
-    return '$0';
+    console.error('Error formatting price:', error);
+    return String(price);
   }
+}
+
+// Get city coordinates (focused on Algeria)
+export function getCityCoordinates(cityName: string): [number, number] | null {
+  if (!cityName) return null;
+  
+  const normalizedCity = cityName.trim().toLowerCase();
+  
+  const cityCoords: Record<string, [number, number]> = {
+    // Algeria
+    'algiers': [36.7538, 3.0588],
+    'oran': [35.6969, -0.6331],
+    'constantine': [36.3650, 6.6147],
+    'annaba': [36.9000, 7.7667],
+    'batna': [35.5553, 6.1742],
+    'setif': [36.1898, 5.4108],
+    'blida': [36.4703, 2.8277],
+    'tlemcen': [34.8828, -1.3167],
+    'bejaia': [36.7539, 5.0843],
+    'tizi ouzou': [36.7169, 4.0497],
+    'biskra': [34.8500, 5.7333],
+    'tiaret': [35.3706, 1.3195],
+    'sidi bel abbes': [35.1892, -0.6306],
+    'tebessa': [35.4000, 8.1167]
+  };
+  
+  // Try direct match
+  if (cityCoords[normalizedCity]) {
+    return cityCoords[normalizedCity];
+  }
+  
+  // Try partial match
+  for (const [key, coords] of Object.entries(cityCoords)) {
+    if (normalizedCity.includes(key) || key.includes(normalizedCity)) {
+      return coords;
+    }
+  }
+  
+  // Default to Algiers if no match
+  console.warn(`No coordinates found for city: ${cityName}, defaulting to Algiers`);
+  return cityCoords['algiers'];
 }

@@ -2,20 +2,20 @@
 /* Custom marker styles */
 .mapboxgl-marker {
   cursor: pointer !important;
-  z-index: 2 !important;
+  z-index: 10 !important;
   transition: transform 0.2s ease;
   position: relative !important;
   pointer-events: auto !important;
 }
 
 .mapboxgl-marker:hover {
-  z-index: 3 !important;
+  z-index: 11 !important;
   transform: scale(1.1) !important;
 }
 
 /* Ensure the markers container itself is visible */
 .mapboxgl-markers {
-  z-index: 1 !important;
+  z-index: 10 !important;
   pointer-events: auto !important;
 }
 
@@ -30,7 +30,7 @@
 
 .marker-react-container {
   position: relative !important;
-  z-index: 2 !important;
+  z-index: 10 !important;
   pointer-events: auto !important;
   cursor: pointer !important;
   display: block !important;
@@ -123,7 +123,7 @@
 /* Make sure marker elements are clickable */
 .marker-wrapper {
   position: relative;
-  z-index: 2 !important;
+  z-index: 10 !important;
   pointer-events: auto !important;
   cursor: pointer !important;
   display: block !important;
