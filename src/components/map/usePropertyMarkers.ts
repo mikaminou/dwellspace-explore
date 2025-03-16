@@ -31,6 +31,7 @@ export function usePropertyMarkers(
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
     
+    // Remove existing markers
     Object.values(markersRef.current).forEach(marker => marker.remove());
     markersRef.current = {};
 
@@ -90,11 +91,15 @@ export function usePropertyMarkers(
         })
       );
       
+      // Create the marker with pitchAlignment and rotationAlignment set to 'map'
+      // This ensures markers maintain their position during zoom operations
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
         offset: [0, 0],
-        clickTolerance: 10
+        clickTolerance: 10,
+        pitchAlignment: 'map',    // Keep marker flat against the map
+        rotationAlignment: 'map'  // Maintain rotation relative to the map
       })
         .setLngLat([coords.lng, coords.lat])
         .addTo(map.current!);

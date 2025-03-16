@@ -17,13 +17,16 @@ export function useMapSetup() {
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Create the map instance
+    // Create the map instance with optimized settings for marker stability
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v11',
       center: [3.042048, 36.752887], // Default center (Algiers)
       zoom: 12,
-      attributionControl: false
+      attributionControl: false,
+      renderWorldCopies: false,  // Prevents duplicate markers when zooming out
+      boxZoom: true,             // Enables box zoom for better control
+      fadeDuration: 0            // Reduces marker position changes during zoom
     });
 
     // Add navigation controls
