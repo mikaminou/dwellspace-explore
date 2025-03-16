@@ -29,7 +29,7 @@ const formatPrice = (price: string | number): string => {
       
       // Format the number
       const amount = parseFloat(numericValue);
-      if (isNaN(amount)) return price; // Return original if parsing fails
+      if (isNaN(amount)) return String(price); // Return original if parsing fails
       
       return `$${amount.toLocaleString()}`;
     }
@@ -48,11 +48,11 @@ const getPropertyTypeIcon = (propertyType?: string) => {
   
   const type = propertyType.toLowerCase();
   
-  if (type.includes('house') || type.includes('home')) {
+  if (type.includes('house') || type.includes('home') || type.includes('villa')) {
     return <Home className="h-3 w-3" />;
-  } else if (type.includes('apartment') || type.includes('flat') || type.includes('condo')) {
+  } else if (type.includes('apartment') || type.includes('flat') || type.includes('condo') || type.includes('loft')) {
     return <Building className="h-3 w-3" />;
-  } else if (type.includes('villa') || type.includes('mansion') || type.includes('estate')) {
+  } else if (type.includes('mansion') || type.includes('estate') || type.includes('penthouse')) {
     return <Landmark className="h-3 w-3" />;
   }
   
@@ -67,51 +67,50 @@ export function PropertyMarker({
   baths,
   area
 }: PropertyMarkerProps) {
-  // Handle click event properly with stopPropagation to prevent map interactions
+  // Handle click event with stopPropagation
   const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default action
-    e.stopPropagation(); // Prevent the click from being passed to the map
-    
-    // Call the onClick handler directly
-    try {
-      onClick();
-    } catch (error) {
-      console.error("Error in marker click handler:", error);
-    }
+    e.preventDefault();
+    e.stopPropagation();
+    onClick();
   };
 
-  // Make sure price is a valid string
+  // Format price for display
   const displayPrice = formatPrice(price);
   const typeIcon = getPropertyTypeIcon(propertyType);
 
   return (
-    <HoverCard>
-      <HoverCardTrigger asChild>
-        <div 
-          className="custom-marker flex items-center justify-center cursor-pointer z-10"
-          onClick={handleClick}
-        >
-          <div className="price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none relative">
-            <div className="flex items-center gap-1">
-              {typeIcon}
-              <span>{displayPrice}</span>
+    <div className="marker-wrapper" style={{ zIndex: 100 }}>
+      <HoverCard>
+        <HoverCardTrigger asChild>
+          <div 
+            className="flex items-center justify-center cursor-pointer"
+            onClick={handleClick}
+            style={{ pointerEvents: 'auto' }}
+          >
+            <div className="price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none">
+              <div className="flex items-center gap-1">
+                {typeIcon}
+                <span>{displayPrice}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-52 p-2 text-xs">
-        <div className="space-y-1.5">
-          {propertyType && (
-            <div className="font-medium capitalize">{propertyType}</div>
-          )}
-          <div className="flex gap-2 text-muted-foreground">
-            {beds !== undefined && <span>{beds} beds</span>}
-            {baths !== undefined && <span>{baths} baths</span>}
-            {area && <span>{area} m²</span>}
+        </HoverCardTrigger>
+        <HoverCardContent className="w-52 p-2 text-xs z-[1000]">
+          <div className="space-y-1.5">
+            {propertyType && (
+              <div className="font-medium capitalize">{propertyType}</div>
+            )}
+            <div className="flex gap-2 text-muted-foreground">
+              {beds !== undefined && <span>{beds} beds</span>}
+              {baths !== undefined && <span>{baths} baths</span>}
+              {area && <span>{area} m²</span>}
+            </div>
+            <div className="text-primary-foreground font-semibold text-sm pt-1">
+              {displayPrice}
+            </div>
           </div>
-          <div className="text-primary-foreground font-semibold text-sm pt-1">{displayPrice}</div>
-        </div>
-      </HoverCardContent>
-    </HoverCard>
+        </HoverCardContent>
+      </HoverCard>
+    </div>
   );
 }

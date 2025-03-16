@@ -16,6 +16,14 @@
   cursor: pointer !important;
   display: inline-block;
   width: auto;
+  z-index: 5;
+  pointer-events: auto;
+}
+
+.marker-react-container {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .price-bubble {
@@ -23,6 +31,7 @@
   white-space: nowrap;
   user-select: none;
   transition: all 0.2s ease;
+  pointer-events: auto;
 }
 
 .price-bubble:hover {
@@ -68,4 +77,16 @@
 .custom-marker .hover-card-content {
   position: absolute;
   z-index: 20;
+}
+
+/* Ensure hover card content appears on top */
+[data-radix-popper-content-wrapper] {
+  z-index: 1000 !important;
+}
+
+/* Make sure marker elements are clickable */
+.marker-wrapper {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto !important;
 }
