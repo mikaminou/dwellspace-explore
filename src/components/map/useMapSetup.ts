@@ -28,7 +28,7 @@ export function useMapSetup() {
     } else if (!mapboxgl.accessToken || mapboxgl.accessToken.includes('undefined')) {
       try {
         // Fallback token - should be replaced with user's token
-        mapboxgl.accessToken = 'pk.eyJ1IjoiZGVtby11c2VyIiwiYSI6ImNsbTlqaTdxejExbmozcnBpdnU5bDNqd3gifQ.8fRJBmQTgZBCBeZrHtYNcw';
+        mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
         console.log('Using fallback Mapbox token:', mapboxgl.accessToken);
       } catch (e) {
         console.error('Error setting Mapbox token:', e);
