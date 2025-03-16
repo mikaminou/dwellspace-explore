@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -14,54 +14,19 @@ import { AlertTriangle } from 'lucide-react';
 import { Property } from '@/api/properties';
 
 function MapView() {
-  console.log('Rendering MapView component'); // Debug log
+  console.log('Rendering MapView component');
   const navigate = useNavigate();
   const { mapContainer, map, mapLoaded, mapError } = useMapSetup();
   const { properties, loading, selectedCity } = useSearch();
   const [mapUnavailable, setMapUnavailable] = useState(false);
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  const markersRef = useRef<{ [key: number]: any }>({});
   
   // Check if Mapbox is available
   useEffect(() => {
-    const checkMapboxAvailability = () => {
-      try {
-        console.log('Checking Mapbox availability'); // Debug log
-        
-        if (typeof window === 'undefined') {
-          console.error("Window is undefined");
-          setMapUnavailable(true);
-          return false;
-        } 
-        
-        if (!window.mapboxgl) {
-          console.error("Mapbox GL not available on window object");
-          setMapUnavailable(true);
-          
-          // Only try to load mapboxgl if we're in a browser environment
-          if (typeof window !== 'undefined') {
-            // Try to load mapboxgl dynamically
-            import('mapbox-gl').then(mapboxgl => {
-              console.log('Mapbox GL loaded dynamically');
-              window.mapboxgl = mapboxgl.default;
-              setMapUnavailable(false);
-            }).catch(err => {
-              console.error('Failed to load Mapbox GL dynamically:', err);
-            });
-          }
-          
-          return false;
-        }
-        
-        console.log('Mapbox GL is available on window'); // Debug log
-        return true;
-      } catch (e) {
-        console.error("Error accessing Mapbox GL:", e);
-        setMapUnavailable(true);
-        return false;
-      }
-    };
-    
-    checkMapboxAvailability();
+    if (typeof window === 'undefined' || !window.mapboxgl) {
+      setMapUnavailable(true);
+    }
   }, []);
 
   // Handle property save
@@ -85,24 +50,33 @@ function MapView() {
     
     try {
       // Reset all markers to default z-index
-      if (markersRef.current) {
-        Object.entries(markersRef.current).forEach(([id, marker]) => {
-          if (marker && typeof marker.getElement === 'function') {
-            const markerEl = marker.getElement();
-            if (markerEl) markerEl.style.zIndex = '1';
-          }
-        });
-      }
+      Object.entries(markersRef.current).forEach(([id, marker]) => {
+        if (marker && marker.getElement) {
+          const markerEl = marker.getElement();
+          if (markerEl) markerEl.style.zIndex = '1';
+        }
+      });
 
       // Set the active marker to higher z-index
-      if (propertyId !== null && markersRef.current && markersRef.current[propertyId]) {
-        const activeMarkerEl = markersRef.current[propertyId].getElement();
-        if (activeMarkerEl) activeMarkerEl.style.zIndex = '3';
+      if (propertyId !== null && markersRef.current[propertyId]) {
+        const activeMarker = markersRef.current[propertyId];
+        if (activeMarker && activeMarker.getElement) {
+          const activeMarkerEl = activeMarker.getElement();
+          if (activeMarkerEl) activeMarkerEl.style.zIndex = '3';
+        }
       }
     } catch (error) {
       console.error('Error updating marker z-index:', error);
     }
   };
+
+  // Set up popup functionality
+  const { showPropertyPopup } = usePropertyPopup({
+    map,
+    onSaveProperty: handleSaveProperty,
+    onMessageOwner: handleMessageOwner,
+    navigate
+  });
 
   // Handle marker click with property popup
   const handleMarkerClick = (property: Property, coordinates: [number, number]) => {
@@ -110,31 +84,20 @@ function MapView() {
     showPropertyPopup(property, coordinates, setActiveMarkerId, updateMarkerZIndex);
   };
 
-  // Set up popup functionality
-  const { popupRef, showPropertyPopup } = usePropertyPopup({
-    map,
-    onSaveProperty: handleSaveProperty,
-    onMessageOwner: handleMessageOwner,
-    navigate
-  });
-
-  // Set up property markers - only if map is loaded and available
-  const { markersRef } = usePropertyMarkers({
+  // Set up property markers
+  usePropertyMarkers({
     map,
     properties: propertiesWithOwners || [],
     mapLoaded,
     loading,
-    onMarkerClick: handleMarkerClick
+    onMarkerClick: handleMarkerClick,
+    markersRef
   });
 
   // Handle city selection
-  try {
-    useCitySelection({ map, mapLoaded, selectedCity });
-  } catch (error) {
-    console.error('Error in city selection:', error);
-  }
+  useCitySelection({ map, mapLoaded, selectedCity });
 
-  // If map is unavailable, show a fallback UI
+  //  If map is unavailable, show fallback UI
   if (mapUnavailable || mapError) {
     return (
       <div className="flex-1 w-full flex flex-col items-center justify-center p-8 bg-muted/20">
