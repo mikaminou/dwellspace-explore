@@ -37,6 +37,10 @@ export const renderPropertyMarker = (
     ReactDOM.render(
       React.createElement(PropertyMarker, { 
         price: property.price || 'N/A',
+        propertyType: property.type || undefined,
+        beds: property.beds,
+        baths: property.baths || undefined,
+        area: property.living_area || undefined,
         onClick: () => {
           onMarkerClick(property, [coordinates.lng, coordinates.lat]);
         }
