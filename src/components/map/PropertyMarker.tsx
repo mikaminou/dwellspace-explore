@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Building, Home, Landmark, MapPin } from 'lucide-react';
 import { 
   HoverCard,
@@ -37,7 +37,7 @@ const formatPrice = (price: string | number): string => {
     // If it's a number
     return `$${price.toLocaleString()}`;
   } catch (error) {
-    console.error("Error formatting price:", error);
+    console.error("[PropertyMarker] Error formatting price:", error);
     return String(price) || 'N/A';
   }
 };
@@ -67,19 +67,73 @@ export function PropertyMarker({
   baths,
   area
 }: PropertyMarkerProps) {
+  console.log(`[PropertyMarker] Rendering marker with price: ${price}, type: ${propertyType}`);
+  
   // Format price for display
   const displayPrice = formatPrice(price);
   const typeIcon = getPropertyTypeIcon(propertyType);
+  const markerRef = useRef<HTMLDivElement>(null);
+  
+  // Add effect to log when component mounts and check visibility
+  useEffect(() => {
+    console.log('[PropertyMarker] Component mounted', { 
+      price, 
+      propertyType, 
+      element: markerRef.current 
+    });
+    
+    // Check element's visibility after it's mounted
+    if (markerRef.current) {
+      const rect = markerRef.current.getBoundingClientRect();
+      console.log('[PropertyMarker] Element position and size:', {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+        visible: rect.width > 0 && rect.height > 0
+      });
+      
+      // Check computed styles
+      const computedStyle = window.getComputedStyle(markerRef.current);
+      console.log('[PropertyMarker] Element computed style:', {
+        display: computedStyle.display,
+        visibility: computedStyle.visibility,
+        zIndex: computedStyle.zIndex,
+        position: computedStyle.position,
+        opacity: computedStyle.opacity
+      });
+    }
+    
+    // Add a delayed check to see if the element is still in DOM
+    setTimeout(() => {
+      if (markerRef.current) {
+        console.log('[PropertyMarker] Element still in DOM after 2s');
+        const rect = markerRef.current.getBoundingClientRect();
+        console.log('[PropertyMarker] Element position after 2s:', rect);
+      } else {
+        console.log('[PropertyMarker] Element no longer in DOM after 2s');
+      }
+    }, 2000);
+  }, [price, propertyType]);
+  
+  const handleClick = (e: React.MouseEvent) => {
+    console.log('[PropertyMarker] Marker clicked', e);
+    e.stopPropagation();
+    onClick();
+  };
 
   return (
     <div 
+      ref={markerRef}
       className="marker-wrapper" 
-      onClick={onClick}
+      onClick={handleClick}
       style={{ 
-        zIndex: 100, 
+        zIndex: 1000, 
         pointerEvents: 'auto',
         position: 'relative',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        backgroundColor: 'transparent', // Debug style
+        padding: '5px', // Debug style
       }}
     >
       <HoverCard>
@@ -92,8 +146,12 @@ export function PropertyMarker({
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              zIndex: 1000,
+              position: 'relative',
+              border: '2px solid white', // Debug style to make more visible
             }}
+            onClick={handleClick}
           >
             <div className="flex items-center gap-1">
               {typeIcon}
@@ -101,7 +159,7 @@ export function PropertyMarker({
             </div>
           </div>
         </HoverCardTrigger>
-        <HoverCardContent className="w-52 p-2 text-xs z-[1000]">
+        <HoverCardContent className="w-52 p-2 text-xs z-[9999]">
           <div className="space-y-1.5">
             {propertyType && (
               <div className="font-medium capitalize">{propertyType}</div>
