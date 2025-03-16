@@ -29,15 +29,15 @@ export const authService = {
         userMetadata.license_number = licenseNumber;
       }
       
-      // Sign up with proper redirect URL and disable email confirmation for development
+      // Sign up with proper redirect URL 
+      // Note: We can't directly disable email confirmation in the API call
+      // But we'll handle auto sign-in afterwards to effectively bypass it
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
           data: userMetadata,
-          emailRedirectTo: `${baseUrl}/email-confirmation`,
-          // Setting this to true automatically confirms the user without email verification
-          emailConfirm: false
+          emailRedirectTo: `${baseUrl}/email-confirmation`
         }
       });
       
