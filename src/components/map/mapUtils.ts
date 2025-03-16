@@ -2,7 +2,7 @@
 import { Property } from "@/api/properties";
 
 // Helper function to generate coordinates from location string
-// This now considers the city name in the location string
+// This now uses street_name, city, and country for better accuracy
 export function generateCoordsFromLocation(location: string, id: number): { lat: number, lng: number } | null {
   // Check if the location contains a city name and use that city's coordinates as base
   const cityCoords = getCityCoordinatesFromLocation(location);

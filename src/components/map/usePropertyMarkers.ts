@@ -42,6 +42,7 @@ export function usePropertyMarkers(
     console.log('Properties to display on map:', propertiesWithOwners.map(p => ({
       id: p.id, 
       title: p.title, 
+      street: p.street_name,
       city: p.city,
       lat: p.latitude, 
       lng: p.longitude
@@ -58,10 +59,16 @@ export function usePropertyMarkers(
         };
         console.log(`Using actual coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
       } 
-      // Second priority: Generate from location if coordinates not available
+      // Second priority: Generate from street_name, city and country if coordinates not available
+      else if (property.street_name && property.city) {
+        const locationString = `${property.street_name}, ${property.city}, Algeria`;
+        coords = generateCoordsFromLocation(locationString, property.id);
+        console.log(`Using generated coordinates for property ${property.id} from ${locationString}: [${coords.lng}, ${coords.lat}]`);
+      } 
+      // Fallback: Generate from location if street_name is not available
       else if (property.location) {
-        coords = generateCoordsFromLocation(property.location + ', ' + property.city, property.id);
-        console.log(`Using generated coordinates for property ${property.id} in ${property.city}: [${coords.lng}, ${coords.lat}]`);
+        coords = generateCoordsFromLocation(property.location + ', ' + property.city + ', Algeria', property.id);
+        console.log(`Using generated coordinates from location for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
       } else {
         console.log(`No coordinates available for property ${property.id}`);
         return;
