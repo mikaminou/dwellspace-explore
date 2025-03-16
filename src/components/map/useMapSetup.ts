@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Property } from '@/api/properties';
 
 // Default Mapbox token - users should replace this with their own
-mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtODZlMWQ3ZDAzeGcyaXNlemlmd2hyeDUifQ.ExxxOcYTr6vkVwBw6J_CYA';
+mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
 
 export function useMapSetup() {
   const mapContainer = useRef<HTMLDivElement>(null);
