@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
-import { generateCoordsFromLocation } from './mapUtils';
 import { toast } from 'sonner';
 
 export function usePropertyMarkers({
@@ -56,20 +55,26 @@ export function usePropertyMarkers({
       let missingCoords = 0;
 
       properties.forEach(property => {
-        if (!property.location) {
-          console.warn(`Property ${property.id} has no location information`);
-          return;
-        }
-
         try {
-          const coords = generateCoordsFromLocation(property.location, property.id);
-          if (!coords) {
-            console.warn(`Could not generate coordinates for property ${property.id} at location "${property.location}"`);
+          // Use the stored longitude and latitude from the database
+          if (property.longitude === undefined || property.latitude === undefined) {
+            console.warn(`Property ${property.id} has no coordinates in the database`);
             missingCoords++;
             return;
           }
 
-          bounds.extend([coords.lng, coords.lat]);
+          const lng = Number(property.longitude);
+          const lat = Number(property.latitude);
+          
+          // Validate coordinates are valid numbers
+          if (isNaN(lng) || isNaN(lat)) {
+            console.warn(`Property ${property.id} has invalid coordinates: [${lng}, ${lat}]`);
+            missingCoords++;
+            return;
+          }
+
+          // Extend map bounds to include this property
+          bounds.extend([lng, lat]);
           propertiesWithCoords++;
 
           const markerEl = document.createElement('div');
@@ -81,7 +86,7 @@ export function usePropertyMarkers({
             offset: [0, 0],
             clickTolerance: 10
           })
-            .setLngLat([coords.lng, coords.lat])
+            .setLngLat([lng, lat])
             .addTo(map.current!);
 
           const priceElement = document.createElement('div');
@@ -90,14 +95,13 @@ export function usePropertyMarkers({
           markerEl.appendChild(priceElement);
 
           // Add city name as data attribute for debugging
-          const cityMatch = property.location.match(/,\s*([^,]+)$/);
-          if (cityMatch && cityMatch[1]) {
-            priceElement.setAttribute('data-city', cityMatch[1].trim());
+          if (property.city) {
+            priceElement.setAttribute('data-city', property.city);
           }
 
           priceElement.addEventListener('click', (e) => {
             e.stopPropagation();
-            onMarkerClick(property, [coords.lng, coords.lat]);
+            onMarkerClick(property, [lng, lat]);
           });
 
           markersRef.current[property.id] = marker;

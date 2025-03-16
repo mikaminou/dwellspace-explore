@@ -19,9 +19,9 @@ export function useCitySelection({
     try {
       const cityCoords = getCityCoordinates(selectedCity);
       if (cityCoords) {
-        // Access coordinates by array index since it's a [lng, lat] tuple
+        // Use the coordinates directly for flying to location
         map.current.flyTo({
-          center: [cityCoords[0], cityCoords[1]],
+          center: cityCoords,
           zoom: 12,
           essential: true
         });
