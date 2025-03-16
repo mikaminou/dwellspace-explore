@@ -1,12 +1,9 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
+import { generateCoordsFromLocation } from './mapUtils';
 import { toast } from 'sonner';
-import { generateCoordsFromLocation } from './utils/coordinateUtils';
-import { renderPropertyMarker } from './MarkerRenderer';
-import { useMarkerZIndex } from './hooks/useMarkerZIndex';
-import { useMapBounds } from './hooks/useMapBounds';
 
 export function usePropertyMarkers({
   map,
@@ -22,183 +19,110 @@ export function usePropertyMarkers({
   onMarkerClick: (property: Property, coordinates: [number, number]) => void;
 }) {
   const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
-  
-  // Get marker z-index management
-  const { activeMarkerId, setActiveMarkerId, updateMarkerZIndex: updateZIndex } = useMarkerZIndex();
-  
-  // Get map bounds utilities
-  const { initBounds, updateBounds, fitMapToBounds, setDefaultMapView } = useMapBounds();
-  
-  // Add cleanup flag to prevent memory leaks
-  const isMountedRef = useRef(true);
-  
-  // Wrapper for updateZIndex that uses our markersRef
+  const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+
+  // Update marker z-index based on active state
   const updateMarkerZIndex = (propertyId: number | null) => {
-    updateZIndex(propertyId, markersRef);
-  };
-  
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-      // Remove all markers on unmount
-      try {
-        Object.values(markersRef.current).forEach(marker => {
-          if (marker && typeof marker.remove === 'function') {
-            marker.remove();
-          }
-        });
-        markersRef.current = {};
-      } catch (e) {
-        console.error('[usePropertyMarkers] Error cleaning up markers:', e);
+    try {
+      // Reset all markers to default z-index
+      Object.entries(markersRef.current).forEach(([id, marker]) => {
+        const markerEl = marker.getElement();
+        markerEl.style.zIndex = '1';
+      });
+
+      // Set the active marker to higher z-index
+      if (propertyId !== null && markersRef.current[propertyId]) {
+        const activeMarkerEl = markersRef.current[propertyId].getElement();
+        activeMarkerEl.style.zIndex = '3';
       }
-    };
-  }, []);
+    } catch (error) {
+      console.error('Error updating marker z-index:', error);
+    }
+  };
 
   // Update markers when properties change
   useEffect(() => {
-    console.log(`[usePropertyMarkers] Properties or map changed. Properties: ${properties.length}, Map loaded: ${mapLoaded}, Loading: ${loading}`);
-    
-    if (!map.current || !mapLoaded || loading) {
-      console.log('[usePropertyMarkers] Map not ready or loading. Skipping marker creation.');
-      return;
-    }
+    if (!map.current || !mapLoaded || loading) return;
     
     try {
-      console.log(`[usePropertyMarkers] Creating markers for ${properties.length} properties...`);
-      console.log('[usePropertyMarkers] Map center:', map.current.getCenter());
-      console.log('[usePropertyMarkers] Map zoom:', map.current.getZoom());
-      
       // Remove existing markers
-      Object.values(markersRef.current).forEach(marker => {
-        if (marker && typeof marker.remove === 'function') {
-          try {
-            marker.remove();
-          } catch (e) {
-            console.error('[usePropertyMarkers] Error removing marker:', e);
-          }
-        }
-      });
+      Object.values(markersRef.current).forEach(marker => marker.remove());
       markersRef.current = {};
 
-      if (!properties || properties.length === 0) {
-        console.log('[usePropertyMarkers] No properties to display on map');
-        return;
-      }
+      if (properties.length === 0) return;
 
-      // Initialize bounds and counters
-      let bounds = initBounds();
+      const bounds = new mapboxgl.LngLatBounds();
       let propertiesWithCoords = 0;
       let missingCoords = 0;
 
-      // Create markers for each property
       properties.forEach(property => {
-        if (!property || !property.id) {
-          console.warn('[usePropertyMarkers] Invalid property data:', property);
+        if (!property.location) {
+          console.warn(`Property ${property.id} has no location information`);
           return;
         }
 
         try {
-          const coords = generateCoordsFromLocation(property.location || 'Algiers', property.id);
+          const coords = generateCoordsFromLocation(property.location, property.id);
           if (!coords) {
+            console.warn(`Could not generate coordinates for property ${property.id} at location "${property.location}"`);
             missingCoords++;
-            console.warn(`[usePropertyMarkers] Missing coordinates for property ${property.id}`);
             return;
           }
 
-          console.log(`[usePropertyMarkers] Creating marker for property ID ${property.id} at coordinates: lat=${coords.lat}, lng=${coords.lng}`);
-          
-          // Update bounds
-          bounds = updateBounds(bounds, coords.lat, coords.lng);
+          bounds.extend([coords.lng, coords.lat]);
           propertiesWithCoords++;
 
-          // Create and add marker
-          const marker = renderPropertyMarker(
-            { 
-              property, 
-              coordinates: coords, 
-              onMarkerClick 
-            },
-            map.current!
-          );
+          const markerEl = document.createElement('div');
+          markerEl.className = 'custom-marker-container';
+          
+          const marker = new mapboxgl.Marker({
+            element: markerEl,
+            anchor: 'bottom',
+            offset: [0, 0],
+            clickTolerance: 10
+          })
+            .setLngLat([coords.lng, coords.lat])
+            .addTo(map.current!);
+
+          const priceElement = document.createElement('div');
+          priceElement.className = 'price-bubble bg-primary text-white px-3 py-1.5 text-xs rounded-full shadow-md hover:bg-primary/90 transition-colors font-medium select-none cursor-pointer';
+          priceElement.innerText = property.price;
+          markerEl.appendChild(priceElement);
+
+          // Add city name as data attribute for debugging
+          const cityMatch = property.location.match(/,\s*([^,]+)$/);
+          if (cityMatch && cityMatch[1]) {
+            priceElement.setAttribute('data-city', cityMatch[1].trim());
+          }
+
+          priceElement.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onMarkerClick(property, [coords.lng, coords.lat]);
+          });
 
           markersRef.current[property.id] = marker;
-          console.log(`[usePropertyMarkers] Marker for property ${property.id} added to markersRef`);
-          
-          // Debug: Get marker element
-          const markerEl = marker.getElement();
-          console.log(`[usePropertyMarkers] Marker element for property ${property.id}:`, markerEl);
-          
-          // Check for marker element after a delay (in case of async rendering issues)
-          setTimeout(() => {
-            try {
-              const markerElDelayed = marker.getElement();
-              console.log(`[usePropertyMarkers] Marker element for property ${property.id} after 1s:`, markerElDelayed);
-              
-              // Check computed styles
-              if (markerElDelayed) {
-                const computedStyle = window.getComputedStyle(markerElDelayed);
-                console.log(`[usePropertyMarkers] Marker computed style for property ${property.id}:`, {
-                  display: computedStyle.display,
-                  visibility: computedStyle.visibility,
-                  zIndex: computedStyle.zIndex,
-                  position: computedStyle.position,
-                  opacity: computedStyle.opacity
-                });
-              }
-            } catch (e) {
-              console.error(`[usePropertyMarkers] Error checking delayed marker for property ${property.id}:`, e);
-            }
-          }, 1000);
         } catch (markerError) {
-          console.error(`[usePropertyMarkers] Error creating marker for property ${property.id}:`, markerError);
+          console.error(`Error creating marker for property ${property.id}:`, markerError);
         }
       });
 
-      // Handle map positioning
       if (propertiesWithCoords > 0) {
-        console.log(`[usePropertyMarkers] Fitting map to bounds with ${propertiesWithCoords} properties`);
-        fitMapToBounds(map.current, bounds, propertiesWithCoords);
-        
-        // Log visible map area after fitting bounds
-        setTimeout(() => {
-          if (map.current) {
-            console.log('[usePropertyMarkers] Map center after fit:', map.current.getCenter());
-            console.log('[usePropertyMarkers] Map zoom after fit:', map.current.getZoom());
-            console.log('[usePropertyMarkers] Map bounds after fit:', map.current.getBounds());
-          }
-        }, 1000);
+        map.current.fitBounds(bounds, {
+          padding: 50,
+          maxZoom: 15
+        });
       } else {
-        console.log('[usePropertyMarkers] No valid coordinates, using default map view');
-        setDefaultMapView(map.current);
+        console.warn('No properties with valid coordinates found');
       }
 
-      // Show warnings for missing coordinates
-      if (missingCoords > 0 && isMountedRef.current) {
-        toast.warning(`${missingCoords} properties couldn't be displayed on the map`);
+      if (missingCoords > 0) {
+        console.warn(`${missingCoords} properties are missing valid coordinates`);
       }
-      
-      // Log all markers after everything is done
-      setTimeout(() => {
-        console.log(`[usePropertyMarkers] Total markers created: ${Object.keys(markersRef.current).length}`);
-        
-        // Debug: check for visible marker elements in the DOM
-        const markerElements = document.querySelectorAll('.mapboxgl-marker');
-        console.log(`[usePropertyMarkers] Total mapboxgl-marker elements in DOM: ${markerElements.length}`);
-        
-        const customMarkerElements = document.querySelectorAll('.custom-marker-container');
-        console.log(`[usePropertyMarkers] Total custom-marker-container elements in DOM: ${customMarkerElements.length}`);
-        
-        const priceElements = document.querySelectorAll('.price-bubble');
-        console.log(`[usePropertyMarkers] Total price-bubble elements in DOM: ${priceElements.length}`);
-      }, 2000);
     } catch (error) {
-      console.error('[usePropertyMarkers] Error updating property markers:', error);
-      if (isMountedRef.current) {
-        toast.error('Error displaying properties on map');
-      }
+      console.error('Error updating property markers:', error);
+      toast.error('Error displaying properties on map');
     }
-  }, [properties, mapLoaded, loading, onMarkerClick, map, fitMapToBounds, setDefaultMapView, initBounds, updateBounds]);
+  }, [properties, mapLoaded, loading, onMarkerClick]);
 
   return {
     markersRef,
