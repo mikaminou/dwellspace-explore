@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 import { generateCoordsFromLocation } from './mapUtils';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { PropertyMarker } from './PropertyMarker';
 
 export function usePropertyMarkers(
@@ -82,19 +82,20 @@ export function usePropertyMarkers(
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker-container';
       
-      // Render React component to the marker element
+      // Setup marker click handler
       const handleMarkerClick = () => {
         setActiveMarkerId(property.id);
         showPropertyPopup(property, [coords.lng, coords.lat]);
       };
 
-      ReactDOM.render(
-        <PropertyMarker 
-          price={property.price} 
-          isPremium={property.isPremium} 
-          onClick={handleMarkerClick} 
-        />, 
-        markerEl
+      // Create React root and render PropertyMarker component
+      const root = createRoot(markerEl);
+      root.render(
+        PropertyMarker({
+          price: property.price,
+          isPremium: property.isPremium,
+          onClick: handleMarkerClick
+        })
       );
       
       // Create and add marker to map
