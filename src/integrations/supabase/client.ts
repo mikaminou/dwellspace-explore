@@ -52,6 +52,8 @@ export const transformPropertyData = (property: any): Property => {
     isPremium: property.isPremium ?? false,
     image: property.image || property.featured_image_url || '',
     images: Array.isArray(property.images) ? property.images : Array.isArray(property.gallery_image_urls) ? property.gallery_image_urls : [],
+    agent: property.agent || null,
+    owner: property.agent || null, // Make sure owner is set when agent is available
   };
 };
 

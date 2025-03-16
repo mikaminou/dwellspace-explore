@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -72,7 +71,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     return t('property.forSale'); // default for sale
   };
 
-  const isPremiumProperty = property.isPremium || (property.owner && property.owner.role === 'seller');
+  const isPremiumProperty = property.isPremium || (property.agent?.role === 'seller') || (property.owner?.role === 'seller');
 
   return (
     <Link 

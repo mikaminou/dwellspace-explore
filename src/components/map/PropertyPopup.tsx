@@ -1,3 +1,4 @@
+
 import { Property } from "@/api/properties";
 import { formatPrice } from './mapUtils';
 import { Home, Building, Construction, Castle } from 'lucide-react';
@@ -126,18 +127,18 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
             <span>${property.living_area || 0} m²</span>
           </div>
         </div>
-        ${property.owner ? `
+        ${(property.owner || property.agent) ? `
           <div class="flex items-center justify-between pt-3 border-t border-gray-100">
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden shadow-sm">
-                ${property.owner.avatar_url ? 
-                  `<img src="${property.owner.avatar_url}" alt="Agent" class="w-full h-full object-cover" />` : 
-                  `<span class="text-xs font-medium">${property.owner.first_name?.charAt(0) || ''}${property.owner.last_name?.charAt(0) || ''}</span>`
+                ${(property.owner?.avatar_url || property.agent?.avatar_url) ? 
+                  `<img src="${property.owner?.avatar_url || property.agent?.avatar_url}" alt="Agent" class="w-full h-full object-cover" />` : 
+                  `<span class="text-xs font-medium">${property.owner?.first_name?.charAt(0) || property.agent?.first_name?.charAt(0) || ''}${property.owner?.last_name?.charAt(0) || property.agent?.last_name?.charAt(0) || ''}</span>`
                 }
               </div>
               <div class="text-xs">
-                <p class="font-medium">${property.owner.first_name || ''} ${property.owner.last_name || ''}</p>
-                <p class="text-gray-500">${property.owner.role || ''}</p>
+                <p class="font-medium">${property.owner?.first_name || property.agent?.first_name || ''} ${property.owner?.last_name || property.agent?.last_name || ''}</p>
+                <p class="text-gray-500">${property.owner?.role || property.agent?.role || ''}</p>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -145,7 +146,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
                 class="p-2 ${getListingTypeButtonBgClass(property.listing_type)} rounded-full transition-colors" 
                 aria-label="Message owner"
                 data-action="message"
-                data-owner-id="${property.owner.id || 0}"
+                data-owner-id="${property.owner?.id || property.agent?.id || property.owner_id || 0}"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
               </button>

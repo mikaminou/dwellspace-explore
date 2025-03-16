@@ -41,6 +41,7 @@ export interface Property {
   updated_at: string;
   updatedAt?: number; // Added to match data model
   agent?: Agent;
+  owner?: Agent; // Added to support components using owner
   image?: string;
   images?: string[];
   isPremium?: boolean;

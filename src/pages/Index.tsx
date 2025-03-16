@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
 import { SearchIcon, ArrowRightIcon, StarIcon } from "lucide-react";
@@ -10,8 +11,7 @@ import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useProperties } from "@/hooks/useProperties";
-import { Property } from "@/api/properties";
-import { properties as mockProperties } from "@/data/properties";
+import { Property } from "@/data/properties";
 import PropertyCard from "@/components/PropertyCard";
 
 const VIDEO_BUCKET = "herosection";

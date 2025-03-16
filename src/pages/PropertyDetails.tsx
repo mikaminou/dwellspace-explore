@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -96,8 +95,8 @@ export default function PropertyDetails() {
     setMessage("");
   };
 
-  const owner = property?.owner;
-  const ownerName = owner ? `${owner.first_name} ${owner.last_name}`.trim() : 'Unknown';
+  const owner = property?.owner || property?.agent;
+  const ownerName = owner ? `${owner.first_name || ''} ${owner.last_name || ''}`.trim() || owner.name : 'Unknown';
   const ownerInitials = ownerName !== 'Unknown' ? ownerName.charAt(0) : '?';
 
   const getListingTypeLabel = (type: string) => {
