@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { PropertyMarker } from './PropertyMarker';
 import { Property } from '@/api/properties';
 import mapboxgl from 'mapbox-gl';
@@ -34,18 +34,19 @@ export const renderPropertyMarker = (
     const markerContainer = document.createElement('div');
     markerEl.appendChild(markerContainer);
     
-    ReactDOM.render(
-      React.createElement(PropertyMarker, { 
-        price: property.price || 'N/A',
-        propertyType: property.type || undefined,
-        beds: property.beds,
-        baths: property.baths || undefined,
-        area: property.living_area || undefined,
-        onClick: () => {
+    // Create root for React 18
+    const root = ReactDOM.createRoot(markerContainer);
+    root.render(
+      <PropertyMarker 
+        price={property.price || 'N/A'}
+        propertyType={property.type || undefined}
+        beds={property.beds}
+        baths={property.baths || undefined}
+        area={property.living_area || undefined}
+        onClick={() => {
           onMarkerClick(property, [coordinates.lng, coordinates.lat]);
-        }
-      }),
-      markerContainer
+        }}
+      />
     );
   } catch (renderError) {
     console.error(`Error rendering React marker for property ${property.id}:`, renderError);

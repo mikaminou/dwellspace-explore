@@ -67,15 +67,12 @@ export function PropertyMarker({
   baths,
   area
 }: PropertyMarkerProps) {
-  console.log("Rendering PropertyMarker with price:", price);
-
   // Handle click event properly with stopPropagation to prevent map interactions
   const handleClick = (e: React.MouseEvent) => {
-    console.log("PropertyMarker clicked");
     e.preventDefault(); // Prevent default action
     e.stopPropagation(); // Prevent the click from being passed to the map
     
-    // Call the onClick handler directly without timeout
+    // Call the onClick handler directly
     try {
       onClick();
     } catch (error) {
