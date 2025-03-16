@@ -1,4 +1,3 @@
-
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +10,7 @@ export const authService = {
       
       console.log("Starting Supabase signup process for:", email);
       console.log("Using redirect URL:", baseUrl);
+      console.log("User role:", role);
       
       // Prepare user metadata including role and agency if applicable
       const userMetadata: Record<string, any> = {
@@ -29,9 +29,9 @@ export const authService = {
         userMetadata.license_number = licenseNumber;
       }
       
+      console.log("User metadata being sent:", userMetadata);
+      
       // Sign up with proper redirect URL 
-      // Note: We can't directly disable email confirmation in the API call
-      // But we'll handle auto sign-in afterwards to effectively bypass it
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
@@ -76,7 +76,16 @@ export const authService = {
       
     } catch (error: any) {
       console.error("Full signup error:", error);
-      toast.error(`Sign up failed: ${error.message}`);
+      
+      // Provide more specific error messages for common issues
+      if (error.message && error.message.includes("user_role")) {
+        toast.error("There was an issue with your selected role. Please try again.");
+      } else if (error.message && error.message.includes("duplicate key value")) {
+        toast.error("An account with this email already exists. Please sign in instead.");
+      } else {
+        toast.error(`Sign up failed: ${error.message}`);
+      }
+      
       throw error;
     }
   },
