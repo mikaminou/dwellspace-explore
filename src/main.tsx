@@ -1,8 +1,8 @@
 
 import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
+import ReactDOM from "react-dom";
 import "mapbox-gl/dist/mapbox-gl.css"; // Import Mapbox CSS FIRST to ensure styling is available
+import App from "./App";
 import "./index.css";
 import "./styles/hero.css"; // Import the hero styles
 import "./styles/animations.css"; // Import animation styles
@@ -17,11 +17,13 @@ window.addEventListener('error', (event) => {
   console.error('Global error caught:', event.error);
 });
 
-// Create the root and render the app with strict mode disabled in development
-// to avoid double rendering which can cause issues with auth providers
-const root = ReactDOM.createRoot(document.getElementById("root")!);
-root.render(
-  <AuthProvider>
-    <App />
-  </AuthProvider>
-);
+// Create and render the app without strict mode to avoid double initialization
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  ReactDOM.render(
+    <AuthProvider>
+      <App />
+    </AuthProvider>,
+    rootElement
+  );
+}

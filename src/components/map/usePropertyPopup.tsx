@@ -1,7 +1,7 @@
 
 import { useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import { Property } from '@/api/properties';
 import { PropertyPopup } from './PropertyPopup';
 
@@ -17,8 +17,7 @@ export function usePropertyPopup({
   navigate: (path: string) => void;
 }) {
   const popupRef = useRef<mapboxgl.Popup | null>(null);
-  const popupRootRef = useRef<Record<number, any>>({});
-
+  
   // Show property popup
   const showPropertyPopup = (
     property: Property, 
@@ -32,16 +31,6 @@ export function usePropertyPopup({
       popupRef.current.remove();
       popupRef.current = null;
     }
-
-    // Clean up any existing roots
-    Object.values(popupRootRef.current).forEach(root => {
-      try {
-        root.unmount();
-      } catch (e) {
-        console.error('Error unmounting popup:', e);
-      }
-    });
-    popupRootRef.current = {};
 
     // Set active marker
     setActiveMarkerId(property.id);
@@ -60,17 +49,15 @@ export function usePropertyPopup({
     const popupElement = document.getElementById(`property-popup-${property.id}`);
     if (popupElement) {
       try {
-        // Create a root using React 18's createRoot API instead of ReactDOM.render
-        const root = createRoot(popupElement);
-        popupRootRef.current[property.id] = root;
-        
-        root.render(
+        // Use ReactDOM.render instead of createRoot for better compatibility
+        ReactDOM.render(
           <PropertyPopup 
             property={property} 
             onSave={onSaveProperty}
             onMessageOwner={onMessageOwner}
             onClick={() => navigate(`/property/${property.id}`)}
-          />
+          />,
+          popupElement
         );
       } catch (error) {
         console.error('Error rendering property popup:', error);
@@ -85,16 +72,6 @@ export function usePropertyPopup({
           popupRef.current = null;
           setActiveMarkerId(null);
           updateMarkerZIndex(null);
-          
-          // Clean up roots
-          Object.values(popupRootRef.current).forEach(root => {
-            try {
-              root.unmount();
-            } catch (e) {
-              console.error('Error unmounting popup:', e);
-            }
-          });
-          popupRootRef.current = {};
         }
       });
     });

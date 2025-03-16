@@ -21,14 +21,13 @@ function MapView() {
   // Check if Mapbox is available
   useEffect(() => {
     try {
-      const mapboxCheck = require('mapbox-gl');
-      if (!mapboxCheck) {
+      if (typeof window === 'undefined' || !window.mapboxgl) {
         setMapUnavailable(true);
-        console.error("Mapbox GL not available");
+        console.error("Mapbox GL not available on window object");
       }
     } catch (e) {
       setMapUnavailable(true);
-      console.error("Error importing Mapbox GL:", e);
+      console.error("Error accessing Mapbox GL:", e);
     }
   }, []);
 
@@ -45,7 +44,7 @@ function MapView() {
   };
 
   // Get properties with owner data
-  const { propertiesWithOwners } = usePropertiesWithOwners(properties);
+  const { propertiesWithOwners } = usePropertiesWithOwners(properties || []);
 
   // Set up popup functionality
   const { popupRef, showPropertyPopup } = usePropertyPopup({
@@ -58,7 +57,7 @@ function MapView() {
   // Set up property markers
   const { markersRef, activeMarkerId, setActiveMarkerId, updateMarkerZIndex } = usePropertyMarkers({
     map,
-    properties: propertiesWithOwners,
+    properties: propertiesWithOwners || [],
     mapLoaded,
     loading,
     onMarkerClick: (property, coordinates) => {
@@ -77,7 +76,7 @@ function MapView() {
           <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 mb-4" />
           <h3 className="text-xl font-semibold mb-2">Map unavailable</h3>
           <p className="text-muted-foreground mb-4">
-            {mapError ? mapError.message : "The map couldn't be loaded. This might be due to network issues or an unsupported browser."}
+            {mapError ? String(mapError) : "The map couldn't be loaded. This might be due to network issues or an unsupported browser."}
           </p>
           <p className="text-sm text-muted-foreground">
             Try using a different browser or check your internet connection.
@@ -89,8 +88,10 @@ function MapView() {
 
   return (
     <div className="relative flex-1 w-full">
-      <MapLoadingState show={loading} />
-      <MapEmptyState show={propertiesWithOwners.length === 0 && !loading} />
+      {loading && <MapLoadingState show={loading} />}
+      {!loading && propertiesWithOwners && propertiesWithOwners.length === 0 && (
+        <MapEmptyState show={true} />
+      )}
       <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
     </div>
   );
