@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+import { Property } from '@/data/properties';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://kaebtzbmtozoqvsdojkl.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImthZWJ0emJtdG96b3F2c2RvamtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE4NzM5NTIsImV4cCI6MjA1NzQ0OTk1Mn0.Q6o77e2NGxGYZ0kuckJfw521QmYQXER2e_cn15q3-bs';
@@ -9,53 +10,33 @@ export const supabase = createClient<Database>(
   supabaseAnonKey
 );
 
-// Normalize the data from Supabase to ensure consistent format
-export const transformPropertyData = (property: any) => {
-  // Extract features from json field (or use empty array if null/undefined)
-  const features = property.features ? 
-    (typeof property.features === 'string' ? 
-      JSON.parse(property.features) : 
-      property.features) : 
-    [];
-  
-  // Extract gallery images from json field (or use empty array if null/undefined)
-  const galleryImages = property.images ? 
-    (typeof property.images === 'string' ? 
-      JSON.parse(property.images) : 
-      property.images) : 
-    [];
-  
-  // Set default value for listing_type if it doesn't exist in the data
-  const listingType = property.listing_type || 'sale';
-
+export const transformPropertyData = (property: any): Property => {
   return {
     id: property.id,
     title: property.title,
     price: property.price,
     location: property.location,
     city: property.city || '',
+    streetName: property.street_name || '',
     beds: property.beds || 0,
     baths: property.baths || null,
-    postal_code: property.postal_code || null,
-    living_area: property.living_area || null,
-    plot_area: property.plot_area || null,
-    type: property.type || 'House',
+    livingArea: property.living_area || null,
+    plotArea: property.plot_area || null,
+    type: property.type,
+    listingType: property.listing_type || 'sale',
     description: property.description,
-    year_built: property.year_built || null,
-    features: Array.isArray(features) ? features : [],
-    additional_details: property.additional_details || null,
-    featured_image_url: property.image || '',
-    gallery_image_urls: Array.isArray(galleryImages) ? galleryImages : [],
-    owner_id: property.owner_id,
-    created_at: property.created_at,
-    updated_at: property.updated_at,
-    latitude: property.latitude,
+    yearBuilt: property.year_built || null,
+    features: Array.isArray(property.features) ? property.features : [],
+    additionalDetails: property.additional_details || null,
+    featuredImageUrl: property.featured_image_url || '',
+    galleryImageUrls: Array.isArray(property.gallery_image_urls) ? property.gallery_image_urls : [],
     longitude: property.longitude,
-    listing_type: listingType,
-    // Add these properties for compatibility with mock data
-    image: property.image || '',
-    images: galleryImages,
-    isPremium: false
+    latitude: property.latitude,
+    postalCode: property.postal_code || null,
+    ownerId: property.owner_id,
+    createdAt: property.created_at, // Keep string format
+    updatedAt: property.updated_at,
+    isPremium: property.isPremium ?? false,
   };
 };
 

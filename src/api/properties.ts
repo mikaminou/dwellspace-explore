@@ -2,38 +2,37 @@ import { supabase, transformPropertyData } from "@/integrations/supabase/client"
 import { Json } from "@/integrations/supabase/types";
 import { Agent } from "./agents";
 
-export type Property = {
+export interface Property {
   id: number;
   title: string;
   price: string;
   location: string;
   city: string;
-  street_name?: string;   // Added street_name property
-  latitude: number;   // Already had latitude property
-  longitude: number;  // Already had longitude property
+  street_name?: string;
   beds: number;
-  baths: number | null;
-  postal_code: number | null;
-  living_area: number | null;
-  plot_area: number | null;
+  baths?: number;
+  living_area?: number;
+  plot_area?: number;
   type: string;
+  listing_type: string;
   description: string;
-  year_built: number | null;
+  year_built?: number;
   features: string[];
-  additional_details: string | null;
+  additional_details?: string;
   featured_image_url: string;
   gallery_image_urls: string[];
-  owner_id: string;
+  owner_id: number;
+  latitude: number;
+  longitude: number;
+  postal_code?: number;
   created_at: string;
   updated_at: string;
-  listing_type?: string; // Changed to accept any string value
-  // Make owner explicitly optional with proper typing
-  owner?: Agent;
-  // Add these properties for compatibility with mock data
+  agent?: Agent;
   image?: string;
   images?: string[];
   isPremium?: boolean;
-};
+}
+
 
 // Function to get all properties
 export const getAllProperties = async (): Promise<Property[]> => {
