@@ -3,9 +3,7 @@ project_id = "kaebtzbmtozoqvsdojkl"
 
 [api]
 enabled = true
-# Properly format the email verification URL setting
-# Rename from email_confirm_url to email_confirm_template
-email_confirm_template = "https://kaebtzbmtozoqvsdojkl.supabase.co/functions/v1/custom-email-verification"
+# Remove the email_confirm_template key as it's causing errors
 
 [functions.custom-email-verification]
 verify_jwt = false
