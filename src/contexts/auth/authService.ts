@@ -136,6 +136,22 @@ export const authService = {
     }
   },
 
+  sendEmailConfirmation: async (email: string, role: string) => {
+    try {
+      // In development mode, we're skipping actual email confirmation
+      // Just redirecting to profile completion
+      console.log("Development mode: Skipping email confirmation for", email);
+      console.log("Role selected:", role);
+      
+      // Return success
+      return true;
+    } catch (error: any) {
+      console.error("Error sending email confirmation:", error);
+      toast.error(`Failed to send confirmation: ${error.message}`);
+      throw error;
+    }
+  },
+
   signIn: async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });

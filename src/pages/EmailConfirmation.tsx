@@ -9,7 +9,6 @@ import { CheckCircle, Info, Loader2, Mail, RefreshCw, Send } from "lucide-react"
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
-import { authService } from "@/contexts/auth/authService";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -53,7 +52,7 @@ export default function EmailConfirmationPage() {
     if (token && type === "signup") {
       verifyToken();
     }
-  }, [token, type, email, pendingConfirmation, session, navigate]);
+  }, [token, type, email, pendingConfirmation, session]);
 
   if (session && !token && !pendingConfirmation) {
     return <Navigate to="/" />;
@@ -85,7 +84,11 @@ export default function EmailConfirmationPage() {
         if (userError) throw userError;
         
         if (userData && userData.user) {
-          await authService.createProfile(userData.user.id, storedRole);
+          await supabase.from('profiles').upsert({
+            id: userData.user.id,
+            role: storedRole,
+            updated_at: new Date().toISOString()
+          });
           
           localStorage.removeItem('user_selected_role');
           
@@ -123,22 +126,7 @@ export default function EmailConfirmationPage() {
       setSendingConfirmation(true);
       setError("");
       
-      await authService.sendEmailConfirmation(email, selectedRole);
-      setConfirmationSent(true);
-      
-      setProgress(0);
-      const timer = setInterval(() => {
-        setProgress((prevProgress) => {
-          const increment = prevProgress < 90 ? 10 : 2;
-          const newProgress = Math.min(prevProgress + increment, 100);
-          
-          if (newProgress === 100) {
-            clearInterval(timer);
-          }
-          
-          return newProgress;
-        });
-      }, 1000);
+      navigate(`/profile-completion?email=${encodeURIComponent(email)}&role=${encodeURIComponent(selectedRole)}`);
       
     } catch (error: any) {
       setError(error.message);
@@ -159,9 +147,7 @@ export default function EmailConfirmationPage() {
       console.log("Resending confirmation to:", email);
       console.log("With role:", selectedRole);
       
-      await authService.sendEmailConfirmation(email, selectedRole);
-      
-      toast.success("Confirmation email resent. Please check your inbox.");
+      navigate(`/profile-completion?email=${encodeURIComponent(email)}&role=${encodeURIComponent(selectedRole)}`);
       
     } catch (error: any) {
       setError(error.message);

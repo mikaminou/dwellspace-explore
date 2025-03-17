@@ -64,6 +64,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signInWithPhone: authService.signInWithPhone,
     verifyOTP: authService.verifyOTP,
     signOut: authService.signOut,
+    sendEmailConfirmation: authService.sendEmailConfirmation, // Add the missing method
   };
   
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

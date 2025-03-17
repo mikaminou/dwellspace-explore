@@ -23,4 +23,6 @@ export interface AuthContextType {
   signInWithPhone: (phone: string) => Promise<void>;
   signOut: () => Promise<void>;
   verifyOTP: (phone: string, otp: string) => Promise<void>;
+  // Add the missing sendEmailConfirmation method
+  sendEmailConfirmation: (email: string, role: string) => Promise<boolean>;
 }
