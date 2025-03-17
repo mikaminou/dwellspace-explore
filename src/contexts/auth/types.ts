@@ -9,8 +9,16 @@ export interface AuthContextType {
   currentUser: User | null;
   session: Session | null;
   isLoaded: boolean;
-  signUp: (email: string, password: string, displayName: string) => Promise<{ confirmationRequired?: boolean } | undefined>;
-  createProfile: (userId: string, role: string) => Promise<boolean>;
+  signUp: (email: string, password: string, displayName: string) => Promise<{ user: any, session: any } | undefined>;
+  createProfile: (userId: string, profileData: {
+    first_name: string;
+    last_name: string;
+    role: string;
+    agency?: string;
+    license_number?: string;
+    phone_number?: string;
+    bio?: string;
+  }) => Promise<boolean>;
   signIn: (email: string, password: string) => Promise<void>;
   signInWithPhone: (phone: string) => Promise<void>;
   signOut: () => Promise<void>;

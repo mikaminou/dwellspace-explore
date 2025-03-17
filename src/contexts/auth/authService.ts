@@ -18,28 +18,23 @@ const validateRole = (role: string): UserRole => {
 export const authService = {
   signUp: async (email: string, password: string, displayName: string) => {
     try {
-      // Get base URL - ensure it's the absolute URL including protocol
-      const baseUrl = window.location.origin;
-      
       console.log("Starting Supabase signup process for:", email);
-      console.log("Using redirect URL:", baseUrl);
       
       // Prepare user metadata without role
       const userMetadata: Record<string, any> = {
         first_name: displayName.split(' ')[0],
         last_name: displayName.split(' ').slice(1).join(' '),
-        // No role yet - will be set during confirmation
       };
       
       console.log("User metadata being sent:", userMetadata);
       
-      // Sign up with deferred email verification (no email sent yet)
+      // Sign up and auto-confirm email (for development)
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
           data: userMetadata,
-          emailRedirectTo: `${baseUrl}/email-confirmation`
+          emailRedirectTo: `${window.location.origin}/profile-completion`
         }
       });
       
@@ -53,12 +48,12 @@ export const authService = {
       // Check if user was created successfully
       if (data.user) {
         console.log("User created successfully:", email);
-        toast.success("Account created successfully. Please verify your email.");
-        return { user: data.user, confirmationRequired: true };
+        toast.success("Account created successfully. Please complete your profile.");
+        return { user: data.user, session: data.session };
       } else {
         console.log("Something went wrong with signup");
         toast.error("Something went wrong during signup. Please try again.");
-        return { confirmationRequired: true };
+        return { user: null, session: null };
       }
       
     } catch (error: any) {
@@ -77,65 +72,21 @@ export const authService = {
     }
   },
 
-  sendEmailConfirmation: async (email: string, role: string) => {
-    try {
-      console.log("Sending confirmation email to:", email);
-      console.log("Selected role:", role);
-      
-      // Validate role
-      const validatedRole = validateRole(role);
-      
-      // Store the selected role in local storage for later
-      localStorage.setItem('user_selected_role', validatedRole);
-      
-      // Get the current site URL
-      const siteUrl = window.location.origin;
-      
-      // Use the custom email verification function
-      const emailConfirmUrl = "https://kaebtzbmtozoqvsdojkl.supabase.co/functions/v1/custom-email-verification";
-      
-      // Call the custom email verification endpoint with the correct parameters
-      const response = await fetch(emailConfirmUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          email,
-          role: validatedRole
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error response from verification endpoint:", errorData);
-        throw new Error(errorData.error || "Failed to send verification email");
-      }
-      
-      toast.success("Verification email sent. Please check your inbox.");
-      return { success: true };
-      
-    } catch (error: any) {
-      console.error("Error sending confirmation email:", error);
-      toast.error(`Failed to send verification email: ${error.message}`);
-      throw error;
-    }
-  },
-
-  createProfile: async (userId: string, role: string) => {
+  createProfile: async (userId: string, profileData: {
+    first_name: string;
+    last_name: string;
+    role: string;
+    agency?: string;
+    license_number?: string;
+    phone_number?: string;
+    bio?: string;
+  }) => {
     try {
       console.log("Creating profile for user:", userId);
-      console.log("With role:", role);
+      console.log("With data:", profileData);
       
       // Validate role before saving to database
-      const validatedRole = validateRole(role);
-      
-      // Get the user's metadata from the auth
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      
-      if (userError) throw userError;
-      
-      const firstName = userData.user.user_metadata.first_name || '';
-      const lastName = userData.user.user_metadata.last_name || '';
-      const email = userData.user.email;
+      const validatedRole = validateRole(profileData.role);
       
       // Check if profile already exists
       const { data: existingProfile, error: profileCheckError } = await supabase
@@ -149,24 +100,26 @@ export const authService = {
       }
       
       if (existingProfile) {
-        console.log("Profile already exists, updating role");
-        // Update the existing profile with the selected role
+        console.log("Profile already exists, updating data");
+        // Update the existing profile with the provided data
         const { error: updateError } = await supabase
           .from('profiles')
-          .update({ role: validatedRole })
+          .update({ 
+            ...profileData,
+            role: validatedRole,
+            updated_at: new Date().toISOString()
+          })
           .eq('id', userId);
           
         if (updateError) throw updateError;
       } else {
         console.log("Creating new profile");
-        // Insert a new profile with string role (will need schema update later)
+        // Insert a new profile
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: userId,
-            first_name: firstName,
-            last_name: lastName,
-            email: email,
+            ...profileData,
             role: validatedRole,
           });
           

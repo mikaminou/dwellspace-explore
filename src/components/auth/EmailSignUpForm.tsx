@@ -48,13 +48,12 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     try {
       setLoading(true);
       
-      // Create the account without role selection
+      // Create the account
       const result = await signUp(email, password, displayName);
       console.log("Account created:", result);
       
-      // Navigate to confirmation page with email
-      const encodedEmail = encodeURIComponent(email);
-      navigate(`/email-confirmation?email=${encodedEmail}&pendingConfirmation=true`);
+      // Navigate to profile completion page
+      navigate('/profile-completion');
       
     } catch (err: any) {
       console.error("Signup error:", err);

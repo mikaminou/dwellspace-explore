@@ -17,6 +17,7 @@ import Dashboard from "./pages/Dashboard";
 import PropertyCreate from "./pages/PropertyCreate";
 import PropertyEdit from "./pages/PropertyEdit";
 import NotFound from "./pages/NotFound";
+import ProfileCompletion from "./pages/ProfileCompletion";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Create a new query client instance
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/email-confirmation" element={<EmailConfirmation />} />
+            <Route path="/profile-completion" element={<ProfileCompletion />} />
             <Route 
               path="/profile" 
               element={
