@@ -38,6 +38,8 @@ export const authService = {
       }
       
       console.log("User metadata being sent:", userMetadata);
+      console.log("User email being sent:", email);
+      console.log("User password being sent:", password);
       
       // Sign up with proper redirect URL 
       const { data, error } = await supabase.auth.signUp({ 
@@ -45,7 +47,7 @@ export const authService = {
         password,
         options: {
           data: userMetadata,
-          emailRedirectTo: `${baseUrl}/email-confirmation`
+          emailRedirectTo: `${baseUrl}/email-confirmation?${email}`
         }
       });
       

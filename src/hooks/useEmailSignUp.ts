@@ -84,7 +84,7 @@ export function useEmailSignUp(onError: (message: string) => void) {
           console.log("Auto sign-in successful, redirecting to home page");
           toast({
             title: "Account created and signed in",
-            description: "Welcome to DwellSpace!",
+            description: "Welcome to Osken!",
           });
           navigate("/");
           return result;
