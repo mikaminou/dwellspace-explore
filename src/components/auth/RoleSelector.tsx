@@ -26,14 +26,23 @@ export function RoleSelector({
   const [showAgencyField, setShowAgencyField] = useState(false);
   const [showLicenseField, setShowLicenseField] = useState(false);
   
+  // Allowed roles that match the database enum
+  const allowedRoles = ["buyer", "seller", "agent"];
+  
   useEffect(() => {
+    // Make sure userRole is valid on component mount
+    if (!allowedRoles.includes(userRole)) {
+      console.warn(`Invalid role detected: ${userRole}, defaulting to buyer`);
+      setUserRole("buyer");
+    }
+    
     setShowAgencyField(userRole === 'agent' || userRole === 'seller');
     setShowLicenseField(userRole === 'agent');
-  }, [userRole]);
+  }, [userRole, setUserRole]);
 
   // Make sure the role is restricted to valid enum values in database
   const handleRoleChange = (value: string) => {
-    if (["buyer", "seller", "agent"].includes(value)) {
+    if (allowedRoles.includes(value)) {
       setUserRole(value);
     } else {
       console.error("Invalid role selected:", value);
