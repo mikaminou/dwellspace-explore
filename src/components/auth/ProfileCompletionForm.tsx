@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RoleSelector } from "@/components/auth/RoleSelector";
 import { Loader2 } from "lucide-react";
 
 interface ProfileCompletionFormProps {
@@ -58,10 +58,8 @@ export function ProfileCompletionForm({ onComplete }: ProfileCompletionFormProps
         role,
         phone_number: phoneNumber,
         bio,
-        ...(role === "agent" || role === "seller" ? { 
-          agency,
-          ...(role === "agent" ? { license_number: licenseNumber } : {})
-        } : {})
+        agency,
+        license_number: licenseNumber,
       };
       
       // Call the onComplete callback
@@ -73,9 +71,6 @@ export function ProfileCompletionForm({ onComplete }: ProfileCompletionFormProps
       setLoading(false);
     }
   };
-  
-  // Determine if we should show agency/license number fields
-  const isOwner = role === "agent" || role === "seller";
   
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -115,55 +110,14 @@ export function ProfileCompletionForm({ onComplete }: ProfileCompletionFormProps
         />
       </div>
       
-      <div className="space-y-3">
-        <Label>
-          I am a <span className="text-red-500">*</span>
-        </Label>
-        <RadioGroup value={role} onValueChange={setRole} className="grid grid-cols-2 gap-4">
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="buyer" id="buyer" />
-            <Label htmlFor="buyer">Buyer</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="seller" id="seller" />
-            <Label htmlFor="seller">Seller</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="agent" id="agent" />
-            <Label htmlFor="agent">Agent</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="admin" id="admin" />
-            <Label htmlFor="admin">Admin</Label>
-          </div>
-        </RadioGroup>
-      </div>
-      
-      {isOwner && (
-        <div className="space-y-2">
-          <Label htmlFor="agency">
-            {role === "agent" ? "Agency Name" : "Business Name"}
-          </Label>
-          <Input
-            id="agency"
-            value={agency}
-            onChange={(e) => setAgency(e.target.value)}
-            placeholder={role === "agent" ? "Agency name" : "Business name"}
-          />
-        </div>
-      )}
-      
-      {role === "agent" && (
-        <div className="space-y-2">
-          <Label htmlFor="license-number">License Number</Label>
-          <Input
-            id="license-number"
-            value={licenseNumber}
-            onChange={(e) => setLicenseNumber(e.target.value)}
-            placeholder="Your license number"
-          />
-        </div>
-      )}
+      <RoleSelector 
+        userRole={role}
+        setUserRole={setRole}
+        agency={agency}
+        setAgency={setAgency}
+        licenseNumber={licenseNumber}
+        setLicenseNumber={setLicenseNumber}
+      />
       
       <div className="space-y-2">
         <Label htmlFor="bio">About Me</Label>

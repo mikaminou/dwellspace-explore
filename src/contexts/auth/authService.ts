@@ -1,3 +1,4 @@
+
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -88,14 +89,15 @@ export const authService = {
       // Validate role before saving to database
       const validatedRole = validateRole(profileData.role);
       
-      // Check if profile already exists
+      // Check if profile already exists, but use maybeSingle() instead of single()
+      // This won't throw an error if no profile is found
       const { data: existingProfile, error: profileCheckError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
-      if (profileCheckError && !profileCheckError.message.includes('No rows found')) {
+      if (profileCheckError) {
         throw profileCheckError;
       }
       
