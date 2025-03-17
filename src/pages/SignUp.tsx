@@ -106,7 +106,7 @@ export default function SignUpPage() {
             <p className={`text-sm text-muted-foreground ${dir === 'rtl' ? 'arabic-text' : ''}`}>
               {t('signup.alreadyHaveAccount') || "Already have an account?"}{" "}
               <Link to="/signin" className="text-primary hover:underline">
-                {t('nav.signin')}
+                {t('nav.signIn')}
               </Link>
             </p>
           </CardFooter>

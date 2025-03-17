@@ -9,7 +9,25 @@ export const en = {
     signUp: "Sign Up",
     logOut: "Log Out"
   },
-  
+  signin: {
+    "title": "Sign In",
+    "subtitle": "Welcome back! Please sign in to continue.",
+    "email": "Email Address",
+    "password": "Password",
+    "noAccount": "Don't have an account?",
+    "create": "Create one",
+    "button": "Sign In"
+  },
+  signup: {
+    "title": "Sign Up",
+    "subtitle": "Create an account to get started.",
+    "emailAlert": "Please enter a valid email address.",
+    "note": "By signing up, you agree to our Terms and Privacy Policy.",
+    "algerianNumbersNote": "Only Algerian phone numbers are supported.",
+    "emailTab": "Sign up with Email",
+    "phoneTab": "Sign up with Phone Number",
+    "alreadyHaveAccount": "Already have an account?"
+  },
   // Hero section
   hero: {
     title: "Find Your Dream Home in Algeria",
