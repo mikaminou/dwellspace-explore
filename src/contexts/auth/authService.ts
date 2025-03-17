@@ -2,6 +2,19 @@
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Database } from "@/integrations/supabase/types";
+
+// Define valid role types matching the database enum
+type UserRole = Database["public"]["Enums"]["user_role"];
+const validRoles: UserRole[] = ["buyer", "seller", "agent", "admin"];
+
+// Function to validate roles
+const validateRole = (role: string): UserRole => {
+  if (validRoles.includes(role as UserRole)) {
+    return role as UserRole;
+  }
+  return "buyer"; // Default to buyer if invalid role
+};
 
 export const authService = {
   signUp: async (email: string, password: string, displayName: string) => {
@@ -71,14 +84,17 @@ export const authService = {
       console.log("Sending confirmation email to:", email);
       console.log("Selected role:", role);
       
+      // Validate role
+      const validatedRole = validateRole(role);
+      
       // Store the selected role in local storage for later
-      localStorage.setItem('user_selected_role', role);
+      localStorage.setItem('user_selected_role', validatedRole);
       
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: `${window.location.origin}/email-confirmation?role=${encodeURIComponent(role)}`
+          emailRedirectTo: `${window.location.origin}/email-confirmation?role=${encodeURIComponent(validatedRole)}`
         }
       });
       
@@ -99,12 +115,8 @@ export const authService = {
       console.log("Creating profile for user:", userId);
       console.log("With role:", role);
       
-      // Validate role
-      const validRoles = ["buyer", "seller", "agent", "admin"];
-      if (!validRoles.includes(role)) {
-        console.error("Invalid role provided:", role);
-        throw new Error("Invalid user role selected");
-      }
+      // Validate role before saving to database
+      const validatedRole = validateRole(role);
       
       // Get the user's metadata from the auth
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -131,7 +143,7 @@ export const authService = {
         // Update the existing profile with the selected role
         const { error: updateError } = await supabase
           .from('profiles')
-          .update({ role })
+          .update({ role: validatedRole })
           .eq('id', userId);
           
         if (updateError) throw updateError;
@@ -145,7 +157,7 @@ export const authService = {
             first_name: firstName,
             last_name: lastName,
             email: email,
-            role: role,
+            role: validatedRole,
           });
           
         if (insertError) throw insertError;

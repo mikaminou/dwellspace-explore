@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { authService } from "@/contexts/auth/authService";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export default function EmailConfirmationPage() {
   // Get query parameters from URL
@@ -24,7 +25,7 @@ export default function EmailConfirmationPage() {
   const pendingConfirmation = searchParams.get("pendingConfirmation") === "true";
   
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast: toastHook } = useToast();
   const { session } = useAuth();
   
   const [verifying, setVerifying] = useState(false);
@@ -56,7 +57,7 @@ export default function EmailConfirmationPage() {
     if (token && type === "signup") {
       verifyToken();
     }
-  }, [token, type, email, pendingConfirmation, session, navigate, toast]);
+  }, [token, type, email, pendingConfirmation, session, navigate]);
 
   // Redirect if user is already logged in and there's no token to verify and not pending confirmation
   if (session && !token && !pendingConfirmation) {
