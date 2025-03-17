@@ -12,7 +12,7 @@ export function useEmailSignUp(onError: (message: string) => void) {
   const [agency, setAgency] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
   const [loading, setLoading] = useState(false);
-  const [confirmationSent, setConfirmationSent] = useState(false);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [demoMode, setDemoMode] = useState(false);
   const { signUp } = useAuth();
@@ -79,46 +79,20 @@ export function useEmailSignUp(onError: (message: string) => void) {
         );
         console.log("Signup result:", result);
 
-        // If no confirmation required (auto sign-in), redirect to home
-        if (!result?.confirmationRequired) {
-          console.log("Auto sign-in successful, redirecting to home page");
-          toast({
-            title: "Account created and signed in",
-            description: "Welcome to Osken!",
-          });
-          navigate("/");
-          return result;
-        }
-
-        // If confirmation is still required for some reason
-        if (result?.confirmationRequired) {
-          console.log("Confirmation required, proceeding with navigation");
-          setConfirmationSent(true);
-          
-          // Encode email for URL
-          const encodedEmail = encodeURIComponent(email);
-          
-          // Log the exact URL we're trying to navigate to
-          const redirectUrl = `/email-confirmation?email=${encodedEmail}`;
-          console.log("Attempting to navigate to:", redirectUrl);
-          
-          // Force navigation with a slight delay to ensure state updates complete
-          setTimeout(() => {
-            console.log("Executing delayed navigation now");
-            // Use replace to prevent back button from returning to signup
-            window.location.replace(redirectUrl);
-          }, 100);
-          
-          return result;
-        }
-
+        // Account created successfully but confirmation needed
+        setRegistrationComplete(true);
+        
+        // Navigate to confirmation page without sending email yet
+        const encodedEmail = encodeURIComponent(email);
+        navigate(`/email-confirmation?email=${encodedEmail}&pendingConfirmation=true`);
+        
         return result;
       } catch (error: any) {
         // Check if it's a rate limit error
         if (error.message && error.message.includes("rate limit exceeded")) {
           console.log("Email rate limit detected, switching to demo mode");
           setDemoMode(true);
-          setConfirmationSent(true);
+          setRegistrationComplete(true);
           
           // Show toast notification about demo mode
           toast({
@@ -131,9 +105,7 @@ export function useEmailSignUp(onError: (message: string) => void) {
           const redirectUrl = `/email-confirmation?email=${encodedEmail}&demo=true`;
           console.log("Navigating to demo confirmation page:", redirectUrl);
           
-          setTimeout(() => {
-            window.location.replace(redirectUrl);
-          }, 100);
+          navigate(redirectUrl);
           
           return { confirmationRequired: true, demoMode: true };
         } else {
@@ -171,7 +143,7 @@ export function useEmailSignUp(onError: (message: string) => void) {
     showAgencyField,
     showLicenseField,
     loading,
-    confirmationSent,
+    registrationComplete,
     showPassword,
     demoMode,
     handleSubmit,

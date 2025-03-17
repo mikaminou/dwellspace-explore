@@ -29,7 +29,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     setLicenseNumber,
     showAgencyField,
     loading,
-    confirmationSent,
+    registrationComplete,
     showPassword,
     demoMode,
     handleSubmit,
@@ -86,7 +86,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           required
-          disabled={loading || confirmationSent}
+          disabled={loading || registrationComplete}
         />
       </div>
       <div className="space-y-2">
@@ -98,7 +98,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          disabled={loading || confirmationSent}
+          disabled={loading || registrationComplete}
         />
       </div>
       <div className="space-y-2">
@@ -108,7 +108,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           setPassword={setPassword}
           showPassword={showPassword}
           togglePasswordVisibility={togglePasswordVisibility}
-          disabled={loading || confirmationSent}
+          disabled={loading || registrationComplete}
         />
         <p className="text-xs text-muted-foreground">
           Password must be at least 6 characters long
@@ -122,16 +122,16 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
         setAgency={setAgency}
         licenseNumber={licenseNumber}
         setLicenseNumber={setLicenseNumber}
-        disabled={loading || confirmationSent}
+        disabled={loading || registrationComplete}
       />
       
       <Button 
         type="submit" 
         className="w-full" 
-        disabled={loading || confirmationSent}
+        disabled={loading || registrationComplete}
       >
         {loading ? "Creating account..." : 
-         confirmationSent ? (demoMode ? "Demo Mode Active" : "Confirmation Email Sent") : 
+         registrationComplete ? (demoMode ? "Demo Mode Active" : "Account Created") : 
          "Create Account"}
       </Button>
     </form>

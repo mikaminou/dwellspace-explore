@@ -6,10 +6,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Info, Loader2, Mail, RefreshCw } from "lucide-react";
+import { CheckCircle, Info, Loader2, Mail, RefreshCw, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { authService } from "@/contexts/auth/authService";
 
 export default function EmailConfirmationPage() {
   // Get query parameters from URL
@@ -18,6 +19,7 @@ export default function EmailConfirmationPage() {
   const type = searchParams.get("type");
   const email = searchParams.get("email") || "";
   const demo = searchParams.get("demo") === "true";
+  const pendingConfirmation = searchParams.get("pendingConfirmation") === "true";
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -27,7 +29,8 @@ export default function EmailConfirmationPage() {
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState("");
   const [progress, setProgress] = useState(0);
-  const [showResendButton, setShowResendButton] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
+  const [sendingConfirmation, setSendingConfirmation] = useState(false);
 
   useEffect(() => {
     // Log for debugging
@@ -36,12 +39,13 @@ export default function EmailConfirmationPage() {
       type, 
       email, 
       demo,
+      pendingConfirmation,
       hasSession: !!session,
       url: window.location.href
     });
 
-    if (!email && !token && !demo) {
-      console.warn("No email or token found in URL");
+    if (!email && !token && !demo && !pendingConfirmation) {
+      console.warn("No email, token, or pending confirmation found in URL");
     }
     
     // If in demo mode, auto-verify after a delay
@@ -70,10 +74,10 @@ export default function EmailConfirmationPage() {
       
       return () => clearInterval(timer);
     }
-  }, [token, type, email, demo, session, navigate, toast]);
+  }, [token, type, email, demo, pendingConfirmation, session, navigate, toast]);
 
-  // Redirect if user is already logged in and there's no token to verify
-  if (session && !token && !demo) {
+  // Redirect if user is already logged in and there's no token to verify and not pending confirmation
+  if (session && !token && !demo && !pendingConfirmation) {
     return <Navigate to="/" />;
   }
 
@@ -121,8 +125,21 @@ export default function EmailConfirmationPage() {
     }
   }, [token, type, navigate, toast]);
 
-  useEffect(() => {
-    if (!token && !verified && !showResendButton && !demo) {
+  const handleSendConfirmation = async () => {
+    if (!email) {
+      setError("Email is required to send confirmation");
+      return;
+    }
+    
+    try {
+      setSendingConfirmation(true);
+      setError("");
+      
+      await authService.sendEmailConfirmation(email);
+      setConfirmationSent(true);
+      
+      // Start progress animation
+      setProgress(0);
       const timer = setInterval(() => {
         setProgress((prevProgress) => {
           const increment = prevProgress < 90 ? 10 : 2;
@@ -130,18 +147,18 @@ export default function EmailConfirmationPage() {
           
           if (newProgress === 100) {
             clearInterval(timer);
-            setTimeout(() => {
-              setShowResendButton(true);
-            }, 500);
           }
           
           return newProgress;
         });
       }, 1000);
       
-      return () => clearInterval(timer);
+    } catch (error: any) {
+      setError(error.message);
+    } finally {
+      setSendingConfirmation(false);
     }
-  }, [token, verified, showResendButton, demo]);
+  };
 
   const handleResendConfirmation = async () => {
     try {
@@ -150,7 +167,6 @@ export default function EmailConfirmationPage() {
       }
       
       setProgress(0);
-      setShowResendButton(false);
       setError("");
       
       console.log("Resending confirmation to:", email);
@@ -174,7 +190,6 @@ export default function EmailConfirmationPage() {
         description: error.message,
         variant: "destructive",
       });
-      setShowResendButton(true);
     }
   };
 
@@ -185,7 +200,10 @@ export default function EmailConfirmationPage() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
-              {verified ? "Email Verified" : demo ? "Demo Mode Active" : "Verify Your Email"}
+              {verified ? "Email Verified" : 
+               demo ? "Demo Mode Active" : 
+               pendingConfirmation && !confirmationSent ? "Confirm Your Email" : 
+               "Verify Your Email"}
             </CardTitle>
             <CardDescription className="text-center">
               {verified 
@@ -194,7 +212,9 @@ export default function EmailConfirmationPage() {
                   ? "You're in demo mode to bypass email verification"
                   : token && verifying
                     ? "Verifying your email..."
-                    : "Please check your inbox to confirm your email address"}
+                    : pendingConfirmation && !confirmationSent
+                      ? "Click the button below to send a confirmation email"
+                      : "Please check your inbox to confirm your email address"}
             </CardDescription>
           </CardHeader>
           
@@ -205,7 +225,43 @@ export default function EmailConfirmationPage() {
               </Alert>
             )}
             
-            {!token && !verified && !demo && (
+            {pendingConfirmation && !confirmationSent && !token && !verified && !demo && (
+              <>
+                <div className="flex justify-center">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 rounded-full p-5 mb-4">
+                    <Mail className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+                  </div>
+                </div>
+                
+                <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+                  <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <AlertDescription className="text-blue-600 dark:text-blue-400">
+                    Your account has been created. To complete registration, click the button below 
+                    to send a confirmation email to <strong>{email}</strong>.
+                  </AlertDescription>
+                </Alert>
+                
+                <Button 
+                  className="w-full" 
+                  onClick={handleSendConfirmation}
+                  disabled={sendingConfirmation}
+                >
+                  {sendingConfirmation ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Send Confirmation Email
+                    </>
+                  )}
+                </Button>
+              </>
+            )}
+            
+            {confirmationSent && !token && !verified && !demo && (
               <>
                 <div className="flex justify-center">
                   <div className="bg-blue-50 dark:bg-blue-900/20 rounded-full p-5 mb-4">
@@ -227,6 +283,16 @@ export default function EmailConfirmationPage() {
                   </p>
                   <Progress value={progress} className="h-2" />
                 </div>
+                
+                {progress === 100 && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full" 
+                    onClick={handleResendConfirmation}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" /> Resend Confirmation Email
+                  </Button>
+                )}
               </>
             )}
             
@@ -273,16 +339,6 @@ export default function EmailConfirmationPage() {
           </CardContent>
           
           <CardFooter className="flex flex-col space-y-4">
-            {showResendButton && !verified && !demo && (
-              <Button 
-                variant="outline" 
-                className="w-full" 
-                onClick={handleResendConfirmation}
-              >
-                <RefreshCw className="mr-2 h-4 w-4" /> Resend Confirmation Email
-              </Button>
-            )}
-            
             <Button 
               variant="link" 
               className="w-full"

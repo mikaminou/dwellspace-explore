@@ -1,4 +1,3 @@
-
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -40,13 +39,15 @@ export const authService = {
       console.log("User metadata being sent:", userMetadata);
       console.log("User email being sent:", email);
       
-      // Sign up with proper redirect URL 
+      // Sign up with deferred email verification (no email sent yet)
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
           data: userMetadata,
-          emailRedirectTo: `${baseUrl}/email-confirmation?${email}`
+          emailRedirectTo: `${baseUrl}/email-confirmation`,
+          // Don't auto-send the confirmation email
+          emailConfirmationRedirectTo: `${baseUrl}/email-confirmation`
         }
       });
       
@@ -65,18 +66,9 @@ export const authService = {
       
       // Check if user was created successfully
       if (data.user) {
-        console.log("User created successfully, auto-signing in:", email);
-        toast.success("Account created successfully. Welcome to DwellSpace!");
-        
-        // Auto sign in the user after signup
-        try {
-          await supabase.auth.signInWithPassword({ email, password });
-        } catch (signInError) {
-          console.error("Auto sign-in error:", signInError);
-          // We don't throw this error as the account was created successfully
-        }
-        
-        return undefined;
+        console.log("User created successfully:", email);
+        toast.success("Account created successfully. Please verify your email.");
+        return { user: data.user, confirmationRequired: true };
       } else {
         console.log("Something went wrong with signup");
         toast.error("Something went wrong during signup. Please try again.");
@@ -97,6 +89,30 @@ export const authService = {
         toast.error(`Sign up failed: ${error.message}`);
       }
       
+      throw error;
+    }
+  },
+
+  sendEmailConfirmation: async (email: string) => {
+    try {
+      console.log("Sending confirmation email to:", email);
+      
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/email-confirmation`
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast.success("Verification email sent. Please check your inbox.");
+      return { success: true };
+      
+    } catch (error: any) {
+      console.error("Error sending confirmation email:", error);
+      toast.error(`Failed to send verification email: ${error.message}`);
       throw error;
     }
   },
