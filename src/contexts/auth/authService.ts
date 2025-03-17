@@ -1,4 +1,3 @@
-
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -47,7 +46,6 @@ export const authService = {
         options: {
           data: userMetadata,
           emailRedirectTo: `${baseUrl}/email-confirmation`
-          // Remove emailConfirmationRedirectTo as it's not a valid property
         }
       });
       
