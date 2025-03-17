@@ -14,7 +14,8 @@ export const authService = {
       console.log("User role:", role);
       
       // Validate role value to ensure it matches the user_role enum in database
-      if (!["buyer", "seller", "agent", "admin"].includes(role)) {
+      const validRoles = ["buyer", "seller", "agent"];
+      if (!validRoles.includes(role)) {
         console.error("Invalid role provided:", role);
         throw new Error("Invalid user role selected");
       }
@@ -85,7 +86,9 @@ export const authService = {
       console.error("Full signup error:", error);
       
       // Provide more specific error messages for common issues
-      if (error.message && error.message.includes("user_role")) {
+      if (error.message && error.message.includes("Database error saving new user")) {
+        toast.error("There was an issue with your information. Please verify your role and try again.");
+      } else if (error.message && error.message.includes("user_role")) {
         toast.error("There was an issue with your selected role. Please try again.");
       } else if (error.message && error.message.includes("duplicate key value")) {
         toast.error("An account with this email already exists. Please sign in instead.");

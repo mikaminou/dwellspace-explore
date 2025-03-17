@@ -50,6 +50,17 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     // Clear any existing errors
     setError("");
     
+    // Validate required fields based on role
+    if (userRole === 'agent' && !agency.trim()) {
+      handleLocalError("Agency name is required for agents");
+      return;
+    }
+    
+    if (userRole === 'agent' && !licenseNumber.trim()) {
+      handleLocalError("License number is required for agents");
+      return;
+    }
+    
     try {
       // Let useEmailSignUp handle all navigation logic
       await handleSubmit(e);

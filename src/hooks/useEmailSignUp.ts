@@ -55,11 +55,18 @@ export function useEmailSignUp(onError: (message: string) => void) {
       return;
     }
 
-    // Note: We removed the validation for sellers since business name is now optional
+    // Ensure userRole is one of the allowed values
+    const validRoles = ["buyer", "seller", "agent"];
+    if (!validRoles.includes(userRole)) {
+      const errorMsg = "Invalid role selected";
+      onError(errorMsg);
+      return;
+    }
 
     try {
       setLoading(true);
       console.log("Starting signup process for:", email);
+      console.log("Selected role:", userRole);
       
       try {
         const result = await signUp(
