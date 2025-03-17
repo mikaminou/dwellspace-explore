@@ -1,10 +1,9 @@
 
 import { User } from "firebase/auth";
 import { Session } from "@supabase/supabase-js";
-import { Database } from "@/integrations/supabase/types";
 
-// Use the enum type from Supabase
-export type UserRole = Database["public"]["Enums"]["user_role"];
+// Define UserRole type directly since we're not using the database enum yet
+export type UserRole = "buyer" | "seller" | "agent" | "admin";
 
 export interface AuthContextType {
   currentUser: User | null;

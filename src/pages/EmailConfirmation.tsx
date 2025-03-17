@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -16,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 export default function EmailConfirmationPage() {
-  // Get query parameters from URL
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const type = searchParams.get("type");
@@ -38,7 +36,6 @@ export default function EmailConfirmationPage() {
   const [creatingProfile, setCreatingProfile] = useState(false);
 
   useEffect(() => {
-    // Log for debugging
     console.log("Email confirmation page loaded with params:", { 
       token, 
       type, 
@@ -53,13 +50,11 @@ export default function EmailConfirmationPage() {
       console.warn("No email, token, or pending confirmation found in URL");
     }
     
-    // If token is present, verify it
     if (token && type === "signup") {
       verifyToken();
     }
   }, [token, type, email, pendingConfirmation, session, navigate]);
 
-  // Redirect if user is already logged in and there's no token to verify and not pending confirmation
   if (session && !token && !pendingConfirmation) {
     return <Navigate to="/" />;
   }
@@ -69,7 +64,6 @@ export default function EmailConfirmationPage() {
       setVerifying(true);
       setError("");
       
-      // First, check if we have a stored role
       const storedRole = localStorage.getItem('user_selected_role') || selectedRole || "buyer";
       console.log("Stored role:", storedRole);
       
@@ -83,11 +77,9 @@ export default function EmailConfirmationPage() {
       setVerified(true);
       setProgress(100);
       
-      // Now create/update the profile with the selected role
       try {
         setCreatingProfile(true);
         
-        // Get the current user
         const { data: userData, error: userError } = await supabase.auth.getUser();
         
         if (userError) throw userError;
@@ -95,7 +87,6 @@ export default function EmailConfirmationPage() {
         if (userData && userData.user) {
           await authService.createProfile(userData.user.id, storedRole);
           
-          // Clear the stored role
           localStorage.removeItem('user_selected_role');
           
           toast.success("Email verified and profile created successfully");
@@ -126,7 +117,6 @@ export default function EmailConfirmationPage() {
       return;
     }
     
-    // Store the selected role
     localStorage.setItem('user_selected_role', selectedRole);
     
     try {
@@ -136,7 +126,6 @@ export default function EmailConfirmationPage() {
       await authService.sendEmailConfirmation(email, selectedRole);
       setConfirmationSent(true);
       
-      // Start progress animation
       setProgress(0);
       const timer = setInterval(() => {
         setProgress((prevProgress) => {

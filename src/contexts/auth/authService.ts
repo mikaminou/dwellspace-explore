@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 
-// Define valid role types matching the database enum
-type UserRole = Database["public"]["Enums"]["user_role"];
+// Define valid role types - using string literals for now since the enum might not exist yet
+type UserRole = "buyer" | "seller" | "agent" | "admin";
 const validRoles: UserRole[] = ["buyer", "seller", "agent", "admin"];
 
 // Function to validate roles
@@ -33,7 +33,6 @@ export const authService = {
       };
       
       console.log("User metadata being sent:", userMetadata);
-      console.log("User email being sent:", email);
       
       // Sign up with deferred email verification (no email sent yet)
       const { data, error } = await supabase.auth.signUp({ 
@@ -149,7 +148,7 @@ export const authService = {
         if (updateError) throw updateError;
       } else {
         console.log("Creating new profile");
-        // Insert a new profile
+        // Insert a new profile with string role (will need schema update later)
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
