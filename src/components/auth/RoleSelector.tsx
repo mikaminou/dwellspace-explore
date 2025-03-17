@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserRole } from "@/contexts/auth/types";
 
 interface RoleSelectorProps {
   userRole: string;
@@ -27,11 +28,11 @@ export function RoleSelector({
   const [showLicenseField, setShowLicenseField] = useState(false);
   
   // Allowed roles that match the database enum
-  const allowedRoles = ["buyer", "seller", "agent"];
+  const allowedRoles: UserRole[] = ["buyer", "seller", "agent"];
   
   useEffect(() => {
     // Make sure userRole is valid on component mount
-    if (!allowedRoles.includes(userRole)) {
+    if (!allowedRoles.includes(userRole as UserRole)) {
       console.warn(`Invalid role detected: ${userRole}, defaulting to buyer`);
       setUserRole("buyer");
     }
@@ -42,7 +43,7 @@ export function RoleSelector({
 
   // Make sure the role is restricted to valid enum values in database
   const handleRoleChange = (value: string) => {
-    if (allowedRoles.includes(value)) {
+    if (allowedRoles.includes(value as UserRole)) {
       setUserRole(value);
     } else {
       console.error("Invalid role selected:", value);

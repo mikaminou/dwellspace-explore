@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { UserRole } from "@/contexts/auth/types";
 
 export default function EmailConfirmationPage() {
   const [searchParams] = useSearchParams();
@@ -31,7 +32,9 @@ export default function EmailConfirmationPage() {
   const [progress, setProgress] = useState(0);
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [sendingConfirmation, setSendingConfirmation] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(roleFromUrl || "buyer");
+  const [selectedRole, setSelectedRole] = useState<UserRole>(
+    (roleFromUrl || "buyer") as UserRole
+  );
   const [creatingProfile, setCreatingProfile] = useState(false);
 
   useEffect(() => {
@@ -58,6 +61,11 @@ export default function EmailConfirmationPage() {
     return <Navigate to="/" />;
   }
 
+  const validateRole = (role: string): UserRole => {
+    const validRoles: UserRole[] = ["buyer", "seller", "agent", "admin"];
+    return validRoles.includes(role as UserRole) ? role as UserRole : "buyer";
+  };
+
   const verifyToken = async () => {
     try {
       setVerifying(true);
@@ -65,6 +73,8 @@ export default function EmailConfirmationPage() {
       
       const storedRole = localStorage.getItem('user_selected_role') || selectedRole || "buyer";
       console.log("Stored role:", storedRole);
+      
+      const validatedRole = validateRole(storedRole);
       
       const { error } = await supabase.auth.verifyOtp({
         token_hash: token,
@@ -86,7 +96,7 @@ export default function EmailConfirmationPage() {
         if (userData && userData.user) {
           await supabase.from('profiles').upsert({
             id: userData.user.id,
-            role: storedRole,
+            role: validatedRole,
             updated_at: new Date().toISOString()
           });
           
@@ -160,7 +170,7 @@ export default function EmailConfirmationPage() {
       <Label htmlFor="role">I am a</Label>
       <Select 
         value={selectedRole} 
-        onValueChange={setSelectedRole}
+        onValueChange={(value) => setSelectedRole(value as UserRole)}
       >
         <SelectTrigger>
           <SelectValue placeholder="Select your role" />
