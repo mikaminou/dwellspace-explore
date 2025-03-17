@@ -59,6 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     session,
     isLoaded,
     signUp: authService.signUp,
+    createProfile: authService.createProfile,
     signIn: authService.signIn,
     signInWithPhone: authService.signInWithPhone,
     verifyOTP: authService.verifyOTP,

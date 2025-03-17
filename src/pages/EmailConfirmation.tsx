@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { authService } from "@/contexts/auth/authService";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 export default function EmailConfirmationPage() {
   // Get query parameters from URL
@@ -18,7 +20,7 @@ export default function EmailConfirmationPage() {
   const token = searchParams.get("token");
   const type = searchParams.get("type");
   const email = searchParams.get("email") || "";
-  const demo = searchParams.get("demo") === "true";
+  const roleFromUrl = searchParams.get("role") || "";
   const pendingConfirmation = searchParams.get("pendingConfirmation") === "true";
   
   const navigate = useNavigate();
@@ -31,6 +33,8 @@ export default function EmailConfirmationPage() {
   const [progress, setProgress] = useState(0);
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [sendingConfirmation, setSendingConfirmation] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(roleFromUrl || "buyer");
+  const [creatingProfile, setCreatingProfile] = useState(false);
 
   useEffect(() => {
     // Log for debugging
@@ -38,92 +42,82 @@ export default function EmailConfirmationPage() {
       token, 
       type, 
       email, 
-      demo,
+      role: roleFromUrl,
       pendingConfirmation,
       hasSession: !!session,
       url: window.location.href
     });
 
-    if (!email && !token && !demo && !pendingConfirmation) {
+    if (!email && !token && !pendingConfirmation) {
       console.warn("No email, token, or pending confirmation found in URL");
     }
     
-    // If in demo mode, auto-verify after a delay
-    if (demo) {
-      setProgress(0);
-      const timer = setInterval(() => {
-        setProgress((prevProgress) => {
-          const newProgress = Math.min(prevProgress + 10, 100);
-          
-          if (newProgress === 100) {
-            clearInterval(timer);
-            setVerified(true);
-            toast({
-              title: "Demo mode",
-              description: "Your account has been verified in demo mode.",
-              variant: "default",
-            });
-            setTimeout(() => {
-              navigate("/");
-            }, 2000);
-          }
-          
-          return newProgress;
-        });
-      }, 500);
-      
-      return () => clearInterval(timer);
+    // If token is present, verify it
+    if (token && type === "signup") {
+      verifyToken();
     }
-  }, [token, type, email, demo, pendingConfirmation, session, navigate, toast]);
+  }, [token, type, email, pendingConfirmation, session, navigate, toast]);
 
   // Redirect if user is already logged in and there's no token to verify and not pending confirmation
-  if (session && !token && !demo && !pendingConfirmation) {
+  if (session && !token && !pendingConfirmation) {
     return <Navigate to="/" />;
   }
 
-  useEffect(() => {
-    if (token && type === "signup") {
-      const verifyToken = async () => {
-        try {
-          setVerifying(true);
-          setError("");
-          
-          const { error } = await supabase.auth.verifyOtp({
-            token_hash: token,
-            type: "signup",
-          });
+  const verifyToken = async () => {
+    try {
+      setVerifying(true);
+      setError("");
+      
+      // First, check if we have a stored role
+      const storedRole = localStorage.getItem('user_selected_role') || selectedRole || "buyer";
+      console.log("Stored role:", storedRole);
+      
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: "signup",
+      });
 
-          if (error) throw error;
+      if (error) throw error;
+      
+      setVerified(true);
+      setProgress(100);
+      
+      // Now create/update the profile with the selected role
+      try {
+        setCreatingProfile(true);
+        
+        // Get the current user
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        
+        if (userError) throw userError;
+        
+        if (userData && userData.user) {
+          await authService.createProfile(userData.user.id, storedRole);
           
-          setVerified(true);
-          setProgress(100);
+          // Clear the stored role
+          localStorage.removeItem('user_selected_role');
           
-          toast({
-            title: "Email verified successfully",
-            description: "Your account has been verified. Redirecting to homepage...",
-            variant: "default",
-          });
+          toast.success("Email verified and profile created successfully");
           
           setTimeout(() => {
-            navigate("/");
-          }, 3000);
-          
-        } catch (error: any) {
-          setError(error.message);
-          setProgress(100);
-          toast({
-            title: "Verification failed",
-            description: error.message,
-            variant: "destructive",
-          });
-        } finally {
-          setVerifying(false);
+            navigate("/profile");
+          }, 2000);
         }
-      };
-
-      verifyToken();
+      } catch (profileError: any) {
+        console.error("Error creating profile:", profileError);
+        toast.error(`Failed to create profile: ${profileError.message}`);
+      } finally {
+        setCreatingProfile(false);
+      }
+      
+    } catch (error: any) {
+      setError(error.message);
+      setProgress(100);
+      toast.error(`Verification failed: ${error.message}`);
+    } finally {
+      setVerifying(false);
     }
-  }, [token, type, navigate, toast]);
+  };
 
   const handleSendConfirmation = async () => {
     if (!email) {
@@ -131,11 +125,14 @@ export default function EmailConfirmationPage() {
       return;
     }
     
+    // Store the selected role
+    localStorage.setItem('user_selected_role', selectedRole);
+    
     try {
       setSendingConfirmation(true);
       setError("");
       
-      await authService.sendEmailConfirmation(email);
+      await authService.sendEmailConfirmation(email, selectedRole);
       setConfirmationSent(true);
       
       // Start progress animation
@@ -170,28 +167,37 @@ export default function EmailConfirmationPage() {
       setError("");
       
       console.log("Resending confirmation to:", email);
+      console.log("With role:", selectedRole);
       
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email,
-      });
+      await authService.sendEmailConfirmation(email, selectedRole);
       
-      if (error) throw error;
-      
-      toast({
-        title: "Confirmation email resent",
-        description: "Please check your inbox for the confirmation link",
-      });
+      toast.success("Confirmation email resent. Please check your inbox.");
       
     } catch (error: any) {
       setError(error.message);
-      toast({
-        title: "Failed to resend confirmation",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(`Failed to resend confirmation: ${error.message}`);
     }
   };
+
+  const RoleSelector = () => (
+    <div className="space-y-2">
+      <Label htmlFor="role">I am a</Label>
+      <Select 
+        value={selectedRole} 
+        onValueChange={setSelectedRole}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Select your role" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="buyer">Buyer</SelectItem>
+          <SelectItem value="seller">Seller</SelectItem>
+          <SelectItem value="agent">Agent</SelectItem>
+        </SelectContent>
+      </Select>
+      <p className="text-xs text-muted-foreground">Select your role in the platform</p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -201,20 +207,17 @@ export default function EmailConfirmationPage() {
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
               {verified ? "Email Verified" : 
-               demo ? "Demo Mode Active" : 
                pendingConfirmation && !confirmationSent ? "Confirm Your Email" : 
                "Verify Your Email"}
             </CardTitle>
             <CardDescription className="text-center">
               {verified 
                 ? "Your email has been verified successfully"
-                : demo
-                  ? "You're in demo mode to bypass email verification"
-                  : token && verifying
-                    ? "Verifying your email..."
-                    : pendingConfirmation && !confirmationSent
-                      ? "Click the button below to send a confirmation email"
-                      : "Please check your inbox to confirm your email address"}
+                : token && verifying
+                  ? "Verifying your email..."
+                  : pendingConfirmation && !confirmationSent
+                    ? "Select your role and click the button below to send a confirmation email"
+                    : "Please check your inbox to confirm your email address"}
             </CardDescription>
           </CardHeader>
           
@@ -225,7 +228,7 @@ export default function EmailConfirmationPage() {
               </Alert>
             )}
             
-            {pendingConfirmation && !confirmationSent && !token && !verified && !demo && (
+            {pendingConfirmation && !confirmationSent && !token && !verified && (
               <>
                 <div className="flex justify-center">
                   <div className="bg-blue-50 dark:bg-blue-900/20 rounded-full p-5 mb-4">
@@ -236,10 +239,12 @@ export default function EmailConfirmationPage() {
                 <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
                   <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   <AlertDescription className="text-blue-600 dark:text-blue-400">
-                    Your account has been created. To complete registration, click the button below 
+                    Your account has been created. To complete registration, select your role and click the button below 
                     to send a confirmation email to <strong>{email}</strong>.
                   </AlertDescription>
                 </Alert>
+                
+                <RoleSelector />
                 
                 <Button 
                   className="w-full" 
@@ -261,7 +266,7 @@ export default function EmailConfirmationPage() {
               </>
             )}
             
-            {confirmationSent && !token && !verified && !demo && (
+            {confirmationSent && !token && !verified && (
               <>
                 <div className="flex justify-center">
                   <div className="bg-blue-50 dark:bg-blue-900/20 rounded-full p-5 mb-4">
@@ -296,35 +301,12 @@ export default function EmailConfirmationPage() {
               </>
             )}
             
-            {demo && (
-              <>
-                <div className="flex justify-center">
-                  <div className="bg-amber-50 dark:bg-amber-900/20 rounded-full p-5 mb-4">
-                    <Info className="h-12 w-12 text-amber-600 dark:text-amber-400" />
-                  </div>
-                </div>
-                
-                <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
-                  <Info className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                  <AlertDescription className="text-amber-600 dark:text-amber-400">
-                    You are in <strong>demo mode</strong> because of email rate limitations. 
-                    No actual verification email has been sent.
-                  </AlertDescription>
-                </Alert>
-                
-                <div className="space-y-2">
-                  <p className="text-sm text-center text-muted-foreground">
-                    Simulating verification...
-                  </p>
-                  <Progress value={progress} className="h-2" />
-                </div>
-              </>
-            )}
-            
             {token && verifying && (
               <div className="flex flex-col items-center justify-center py-6">
                 <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
-                <p className="text-center text-muted-foreground">Verifying your email...</p>
+                <p className="text-center text-muted-foreground">
+                  {creatingProfile ? "Creating your profile..." : "Verifying your email..."}
+                </p>
                 <Progress value={progress} className="h-2 w-full mt-4" />
               </div>
             )}
@@ -332,7 +314,7 @@ export default function EmailConfirmationPage() {
             {verified && (
               <div className="flex flex-col items-center justify-center py-6">
                 <CheckCircle className="h-12 w-12 text-green-500 mb-4" />
-                <p className="text-center">You'll be redirected to the homepage in a few seconds.</p>
+                <p className="text-center">You'll be redirected to your profile in a few seconds.</p>
                 <Progress value={progress} className="h-2 w-full mt-4" />
               </div>
             )}

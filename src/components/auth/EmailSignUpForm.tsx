@@ -5,38 +5,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
 import { PasswordField } from "./PasswordField";
-import { RoleSelector } from "./RoleSelector";
-import { useEmailSignUp } from "@/hooks/useEmailSignUp";
 import { useState } from "react";
+import { useAuth } from "@/contexts/auth";
+import { useNavigate } from "react-router-dom";
 
 interface EmailSignUpFormProps {
   onError: (message: string) => void;
 }
 
 export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
-  const {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    displayName,
-    setDisplayName,
-    userRole,
-    setUserRole,
-    agency,
-    setAgency,
-    licenseNumber,
-    setLicenseNumber,
-    showAgencyField,
-    loading,
-    registrationComplete,
-    showPassword,
-    demoMode,
-    handleSubmit,
-    togglePasswordVisibility
-  } = useEmailSignUp(onError);
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleLocalError = (message: string) => {
     setError(message);
@@ -50,22 +39,28 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
     // Clear any existing errors
     setError("");
     
-    // Validate required fields based on role
-    if (userRole === 'agent' && !agency.trim()) {
-      handleLocalError("Agency name is required for agents");
-      return;
-    }
-    
-    if (userRole === 'agent' && !licenseNumber.trim()) {
-      handleLocalError("License number is required for agents");
+    // Validate password
+    if (password.length < 6) {
+      handleLocalError("Password must be at least 6 characters long");
       return;
     }
     
     try {
-      // Let useEmailSignUp handle all navigation logic
-      await handleSubmit(e);
+      setLoading(true);
+      
+      // Create the account without role selection
+      const result = await signUp(email, password, displayName);
+      console.log("Account created:", result);
+      
+      // Navigate to confirmation page with email
+      const encodedEmail = encodeURIComponent(email);
+      navigate(`/email-confirmation?email=${encodedEmail}&pendingConfirmation=true`);
+      
     } catch (err: any) {
       console.error("Signup error:", err);
+      handleLocalError(err.message || "Failed to create account");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,7 +81,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           required
-          disabled={loading || registrationComplete}
+          disabled={loading}
         />
       </div>
       <div className="space-y-2">
@@ -98,7 +93,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          disabled={loading || registrationComplete}
+          disabled={loading}
         />
       </div>
       <div className="space-y-2">
@@ -108,31 +103,19 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
           setPassword={setPassword}
           showPassword={showPassword}
           togglePasswordVisibility={togglePasswordVisibility}
-          disabled={loading || registrationComplete}
+          disabled={loading}
         />
         <p className="text-xs text-muted-foreground">
           Password must be at least 6 characters long
         </p>
       </div>
       
-      <RoleSelector 
-        userRole={userRole} 
-        setUserRole={setUserRole}
-        agency={agency}
-        setAgency={setAgency}
-        licenseNumber={licenseNumber}
-        setLicenseNumber={setLicenseNumber}
-        disabled={loading || registrationComplete}
-      />
-      
       <Button 
         type="submit" 
         className="w-full" 
-        disabled={loading || registrationComplete}
+        disabled={loading}
       >
-        {loading ? "Creating account..." : 
-         registrationComplete ? (demoMode ? "Demo Mode Active" : "Account Created") : 
-         "Create Account"}
+        {loading ? "Creating account..." : "Create Account"}
       </Button>
     </form>
   );

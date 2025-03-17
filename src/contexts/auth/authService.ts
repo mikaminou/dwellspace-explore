@@ -1,40 +1,23 @@
+
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const authService = {
-  signUp: async (email: string, password: string, displayName: string, role: string = "buyer", agency: string = "", licenseNumber: string = "") => {
+  signUp: async (email: string, password: string, displayName: string) => {
     try {
       // Get base URL - ensure it's the absolute URL including protocol
       const baseUrl = window.location.origin;
       
       console.log("Starting Supabase signup process for:", email);
       console.log("Using redirect URL:", baseUrl);
-      console.log("User role:", role);
       
-      // Validate role value to ensure it matches the user_role enum in database
-      const validRoles = ["buyer", "seller", "agent", "admin"];
-      if (!validRoles.includes(role)) {
-        console.error("Invalid role provided:", role);
-        throw new Error("Invalid user role selected");
-      }
-      
-      // Prepare user metadata including role and agency if applicable
+      // Prepare user metadata without role
       const userMetadata: Record<string, any> = {
         first_name: displayName.split(' ')[0],
         last_name: displayName.split(' ').slice(1).join(' '),
-        role: role,
+        // No role yet - will be set during confirmation
       };
-      
-      // Only add agency field if role is agent (required) or seller (optional) and agency is provided
-      if ((role === 'agent' || (role === 'seller' && agency.trim())) && agency) {
-        userMetadata.agency = agency;
-      }
-      
-      // Add license number for agents
-      if (role === 'agent' && licenseNumber) {
-        userMetadata.license_number = licenseNumber;
-      }
       
       console.log("User metadata being sent:", userMetadata);
       console.log("User email being sent:", email);
@@ -51,12 +34,6 @@ export const authService = {
       
       if (error) {
         console.error("Supabase signup error:", error);
-        
-        // Check if it's a rate limit error
-        if (error.message && error.message.includes("rate limit exceeded")) {
-          throw error; // Let the caller handle the rate limit error
-        }
-        
         throw error;
       }
       
@@ -78,9 +55,7 @@ export const authService = {
       
       // Provide more specific error messages for common issues
       if (error.message && error.message.includes("Database error saving new user")) {
-        toast.error("There was an issue with your information. Please verify your role and try again.");
-      } else if (error.message && error.message.includes("user_role")) {
-        toast.error("There was an issue with your selected role. Please try again.");
+        toast.error("There was an issue with your information. Please try again.");
       } else if (error.message && error.message.includes("duplicate key value")) {
         toast.error("An account with this email already exists. Please sign in instead.");
       } else {
@@ -91,15 +66,19 @@ export const authService = {
     }
   },
 
-  sendEmailConfirmation: async (email: string) => {
+  sendEmailConfirmation: async (email: string, role: string) => {
     try {
       console.log("Sending confirmation email to:", email);
+      console.log("Selected role:", role);
+      
+      // Store the selected role in local storage for later
+      localStorage.setItem('user_selected_role', role);
       
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: `${window.location.origin}/email-confirmation`
+          emailRedirectTo: `${window.location.origin}/email-confirmation?role=${encodeURIComponent(role)}`
         }
       });
       
@@ -111,6 +90,73 @@ export const authService = {
     } catch (error: any) {
       console.error("Error sending confirmation email:", error);
       toast.error(`Failed to send verification email: ${error.message}`);
+      throw error;
+    }
+  },
+
+  createProfile: async (userId: string, role: string) => {
+    try {
+      console.log("Creating profile for user:", userId);
+      console.log("With role:", role);
+      
+      // Validate role
+      const validRoles = ["buyer", "seller", "agent", "admin"];
+      if (!validRoles.includes(role)) {
+        console.error("Invalid role provided:", role);
+        throw new Error("Invalid user role selected");
+      }
+      
+      // Get the user's metadata from the auth
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) throw userError;
+      
+      const firstName = userData.user.user_metadata.first_name || '';
+      const lastName = userData.user.user_metadata.last_name || '';
+      const email = userData.user.email;
+      
+      // Check if profile already exists
+      const { data: existingProfile, error: profileCheckError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (profileCheckError && !profileCheckError.message.includes('No rows found')) {
+        throw profileCheckError;
+      }
+      
+      if (existingProfile) {
+        console.log("Profile already exists, updating role");
+        // Update the existing profile with the selected role
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ role })
+          .eq('id', userId);
+          
+        if (updateError) throw updateError;
+      } else {
+        console.log("Creating new profile");
+        // Insert a new profile
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            role: role,
+          });
+          
+        if (insertError) throw insertError;
+      }
+      
+      toast.success("Profile created successfully!");
+      return true;
+      
+    } catch (error: any) {
+      console.error("Error creating/updating profile:", error);
+      toast.error(`Failed to create profile: ${error.message}`);
       throw error;
     }
   },
