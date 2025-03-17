@@ -50,6 +50,15 @@ export default function SignUpPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert className="mb-4 bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800">
+                <Info className="h-4 w-4 text-red-600 dark:text-red-400" />
+                <AlertDescription className="text-red-600 dark:text-red-400">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
+            
             {activeTab === "email" && (
               <Alert className="mb-4 bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
                 <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />

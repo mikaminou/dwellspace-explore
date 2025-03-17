@@ -1,3 +1,4 @@
+
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +12,12 @@ export const authService = {
       console.log("Starting Supabase signup process for:", email);
       console.log("Using redirect URL:", baseUrl);
       console.log("User role:", role);
+      
+      // Validate role value to ensure it matches the user_role enum in database
+      if (!["buyer", "seller", "agent", "admin"].includes(role)) {
+        console.error("Invalid role provided:", role);
+        throw new Error("Invalid user role selected");
+      }
       
       // Prepare user metadata including role and agency if applicable
       const userMetadata: Record<string, any> = {

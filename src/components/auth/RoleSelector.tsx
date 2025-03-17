@@ -31,11 +31,25 @@ export function RoleSelector({
     setShowLicenseField(userRole === 'agent');
   }, [userRole]);
 
+  // Make sure the role is restricted to valid enum values in database
+  const handleRoleChange = (value: string) => {
+    if (["buyer", "seller", "agent"].includes(value)) {
+      setUserRole(value);
+    } else {
+      console.error("Invalid role selected:", value);
+      setUserRole("buyer"); // Default to buyer if invalid
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="role">I am a</Label>
-        <Select value={userRole} onValueChange={setUserRole} disabled={disabled}>
+        <Select 
+          value={userRole} 
+          onValueChange={handleRoleChange}
+          disabled={disabled}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select your role" />
           </SelectTrigger>
@@ -59,6 +73,7 @@ export function RoleSelector({
             value={agency}
             onChange={(e) => setAgency(e.target.value)}
             disabled={disabled}
+            required={userRole === 'agent'}
           />
         </div>
       )}
@@ -72,6 +87,7 @@ export function RoleSelector({
             value={licenseNumber}
             onChange={(e) => setLicenseNumber(e.target.value)}
             disabled={disabled}
+            required={true}
           />
         </div>
       )}
