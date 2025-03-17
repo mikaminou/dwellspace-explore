@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { SearchIcon, MapIcon, HeartIcon, UserIcon, LogOut } from "lucide-react";
+import { SearchIcon, MapIcon, HeartIcon, UserIcon, LogOut, LayoutDashboard, Home, PlusCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
@@ -42,11 +42,14 @@ export function MainNav() {
   const userEmail = session?.user?.email || currentUser?.email;
   const userName = session?.user?.user_metadata?.first_name || currentUser?.displayName;
   const userAvatar = session?.user?.user_metadata?.avatar_url || currentUser?.photoURL;
+  const userRole = session?.user?.user_metadata?.role || "buyer";
   const userInitials = userName 
     ? userName.slice(0, 2).toUpperCase() 
     : userEmail 
       ? userEmail.slice(0, 2).toUpperCase() 
       : "U";
+
+  const isOwner = userRole === "seller" || userRole === "agent";
 
   return (
     <div className="border-b glass">
@@ -115,6 +118,16 @@ export function MainNav() {
                 </Link>
               </Button>
             </NavigationMenuItem>
+            {isOwner && (
+              <NavigationMenuItem>
+                <Button variant="ghost" asChild>
+                  <Link to="/dashboard" className="flex items-center gap-2">
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </Button>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
         <div className="ml-auto flex items-center space-x-4">
@@ -158,6 +171,25 @@ export function MainNav() {
                       <span>Favorites</span>
                     </Link>
                   </DropdownMenuItem>
+                  
+                  {isOwner && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/dashboard">
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          <span>My Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/property/create">
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          <span>Add Property</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
