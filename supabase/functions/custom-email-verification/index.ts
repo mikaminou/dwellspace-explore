@@ -11,7 +11,6 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     if (req.method === "GET") {
       // Handle GET request for email verification link
-      // Get the token hash from the URL query params
       const url = new URL(req.url);
       const tokenHash = url.searchParams.get("token_hash");
       const type = url.searchParams.get("type");
@@ -40,7 +39,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     } else if (req.method === "POST") {
       // Handle POST request to send custom verification email
-      const { email, role, redirectUrl } = await req.json();
+      const { email, role } = await req.json();
       
       if (!email) {
         throw new Error("Email is required");
@@ -54,11 +53,14 @@ const handler = async (req: Request): Promise<Response> => {
         throw new Error("Missing required environment variables");
       }
       
-      // Create a custom redirect URL with the role
-      const finalRedirectUrl = redirectUrl || `${Deno.env.get("SITE_URL") || "https://kaebtzbmtozoqvsdojkl.supabase.co"}/email-confirmation?role=${encodeURIComponent(role || "buyer")}`;
+      // The base URL for our site - ideally from environment variable
+      const siteUrl = Deno.env.get("SITE_URL") || "https://kaebtzbmtozoqvsdojkl.supabase.co";
       
-      // Use Supabase API to send the verification email
-      const response = await fetch(`${supabaseUrl}/auth/v1/admin/users/${encodeURIComponent(email)}/magiclink`, {
+      // Create a custom redirect URL with role embedded
+      const redirectTo = `${siteUrl}/functions/v1/custom-email-verification?role=${encodeURIComponent(role || "buyer")}`;
+      
+      // Use Supabase Auth API to generate magic link
+      const response = await fetch(`${supabaseUrl}/auth/v1/magiclink`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           email,
           options: {
-            redirectTo: finalRedirectUrl
+            redirectTo
           }
         })
       });

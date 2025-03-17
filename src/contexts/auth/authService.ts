@@ -1,4 +1,3 @@
-
 import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -89,22 +88,25 @@ export const authService = {
       // Store the selected role in local storage for later
       localStorage.setItem('user_selected_role', validatedRole);
       
+      // Get the current site URL
+      const siteUrl = window.location.origin;
+      
       // Use the custom email verification function
       const emailConfirmUrl = "https://kaebtzbmtozoqvsdojkl.supabase.co/functions/v1/custom-email-verification";
       
-      // Call the custom email verification endpoint
+      // Call the custom email verification endpoint with the correct parameters
       const response = await fetch(emailConfirmUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           email,
-          role: validatedRole,
-          redirectUrl: `${window.location.origin}/email-confirmation?role=${encodeURIComponent(validatedRole)}`
+          role: validatedRole
         })
       });
       
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Error response from verification endpoint:", errorData);
         throw new Error(errorData.error || "Failed to send verification email");
       }
       
