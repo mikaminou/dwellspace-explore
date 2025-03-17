@@ -14,7 +14,7 @@ export const authService = {
       console.log("User role:", role);
       
       // Validate role value to ensure it matches the user_role enum in database
-      const validRoles = ["buyer", "seller", "agent"];
+      const validRoles = ["buyer", "seller", "agent", "admin"];
       if (!validRoles.includes(role)) {
         console.error("Invalid role provided:", role);
         throw new Error("Invalid user role selected");
@@ -39,7 +39,6 @@ export const authService = {
       
       console.log("User metadata being sent:", userMetadata);
       console.log("User email being sent:", email);
-      console.log("User password being sent:", password);
       
       // Sign up with proper redirect URL 
       const { data, error } = await supabase.auth.signUp({ 

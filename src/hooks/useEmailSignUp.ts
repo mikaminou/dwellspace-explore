@@ -55,8 +55,8 @@ export function useEmailSignUp(onError: (message: string) => void) {
       return;
     }
 
-    // Ensure userRole is one of the allowed values
-    const validRoles = ["buyer", "seller", "agent"];
+    // Ensure userRole is one of the allowed values that match our user_role type in the database
+    const validRoles = ["buyer", "seller", "agent", "admin"];
     if (!validRoles.includes(userRole)) {
       const errorMsg = "Invalid role selected";
       onError(errorMsg);
