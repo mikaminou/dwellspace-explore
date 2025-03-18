@@ -23,11 +23,6 @@ export default function PropertyCreate() {
       return;
     }
     
-    if (isProfileLoaded && !isSellerOrAgent) {
-      toast.error("Only sellers and agents can create properties");
-      navigate("/dashboard");
-      return;
-    }
   }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent]);
 
   return (
