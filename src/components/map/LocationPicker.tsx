@@ -32,12 +32,24 @@ interface LocationPickerProps {
   };
 }
 
+interface SearchResult {
+  place_name: string;
+  center: [number, number];
+  text: string;
+  context?: Array<{
+    id: string;
+    text: string;
+  }>;
+}
+
 export function LocationPicker({ onLocationSelect, initialLocation }: LocationPickerProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   // Initialize map
   useEffect(() => {
@@ -164,62 +176,112 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     }
   };
 
-  // Search for a location
-  const handleSearch = async (e: React.FormEvent) => {
+  // Handle search input changes
+  const handleSearchInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    if (query.trim().length > 2) {
+      try {
+        const response = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&limit=5`
+        );
+        
+        const data = await response.json();
+        
+        if (data.features && data.features.length > 0) {
+          setSearchResults(data.features);
+          setShowDropdown(true);
+        } else {
+          setSearchResults([]);
+          setShowDropdown(false);
+        }
+      } catch (error) {
+        console.error('Error searching for locations:', error);
+        setSearchResults([]);
+        setShowDropdown(false);
+      }
+    } else {
+      setSearchResults([]);
+      setShowDropdown(false);
+    }
+  };
+
+  // Handle selection of a search result
+  const handleSelectLocation = (result: SearchResult) => {
+    setSearchQuery(result.place_name);
+    setShowDropdown(false);
+    
+    const [lng, lat] = result.center;
+    
+    // Update map view
+    if (map.current) {
+      map.current.flyTo({
+        center: [lng, lat],
+        zoom: 14,
+        essential: true
+      });
+    }
+    
+    // Update marker position
+    if (marker.current) {
+      marker.current.setLngLat([lng, lat]);
+    } else if (map.current) {
+      marker.current = new mapboxgl.Marker({ draggable: true })
+        .setLngLat([lng, lat])
+        .addTo(map.current);
+        
+      marker.current.on('dragend', handleMarkerDragEnd);
+    }
+    
+    // Get location details for the selected result
+    getLocationDetails(lng, lat);
+  };
+
+  // Search for a location (for the search button)
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!searchQuery.trim() || !map.current) return;
     
-    try {
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${mapboxgl.accessToken}&limit=1`
-      );
-      
-      const data = await response.json();
-      
-      if (data.features && data.features.length > 0) {
-        const [lng, lat] = data.features[0].center;
-        
-        // Update map view
-        map.current.flyTo({
-          center: [lng, lat],
-          zoom: 14,
-          essential: true
-        });
-        
-        // Update marker position
-        if (marker.current) {
-          marker.current.setLngLat([lng, lat]);
-        } else {
-          marker.current = new mapboxgl.Marker({ draggable: true })
-            .setLngLat([lng, lat])
-            .addTo(map.current);
-            
-          marker.current.on('dragend', handleMarkerDragEnd);
-        }
-        
-        // Get location details for the searched location
-        getLocationDetails(lng, lat);
-      }
-    } catch (error) {
-      console.error('Error searching for location:', error);
+    // If there are search results, use the first one
+    if (searchResults.length > 0) {
+      handleSelectLocation(searchResults[0]);
     }
   };
 
   return (
     <div className="space-y-4">
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <Input
-          type="text"
-          placeholder="Search for a location..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1"
-        />
-        <Button type="submit" variant="secondary" size="icon">
-          <Search className="h-4 w-4" />
-        </Button>
-      </form>
+      <div className="relative">
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Search for a location..."
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+            className="flex-1"
+          />
+          <Button type="submit" variant="secondary" size="icon">
+            <Search className="h-4 w-4" />
+          </Button>
+        </form>
+        
+        {showDropdown && searchResults.length > 0 && (
+          <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg max-h-60 overflow-auto">
+            <ul className="py-1">
+              {searchResults.map((result, index) => (
+                <li
+                  key={index}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                  onClick={() => handleSelectLocation(result)}
+                >
+                  {result.place_name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
       
       <div 
         ref={mapContainer} 

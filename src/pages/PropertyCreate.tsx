@@ -18,12 +18,22 @@ export default function PropertyCreate() {
   const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
 
   useEffect(() => {
+    // Log the current auth and profile state for debugging
+    console.log("Auth state:", { session, isLoaded });
+    console.log("Profile state:", { profileData, isProfileLoaded, userRole });
+    
     if (isLoaded && !session) {
+      toast.error("Please sign in to create a property listing");
       navigate("/signin");
       return;
     }
     
-  }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent]);
+    if (isLoaded && isProfileLoaded && !isSellerOrAgent) {
+      toast.error("Only sellers and agents can create property listings");
+      navigate("/");
+      return;
+    }
+  }, [session, isLoaded, navigate, isProfileLoaded, userRole, isSellerOrAgent, profileData]);
 
   return (
     <ProtectedRoute>
