@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
@@ -22,7 +23,7 @@ import {
   Check
 } from "lucide-react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -963,4 +964,308 @@ export function PropertyForm({ id }: PropertyFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Floor</FormLabel>
-                          <FormControl
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="0"
+                              placeholder="Optional"
+                              {...field}
+                              value={field.value === undefined ? "" : field.value}
+                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="total_floors"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Total Floors</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="0"
+                              placeholder="Optional"
+                              {...field}
+                              value={field.value === undefined ? "" : field.value}
+                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Additional Features</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="parking"
+                        render={({ field }) => (
+                          <FormItem className="flex items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox 
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>Parking Available</FormLabel>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="furnished"
+                        render={({ field }) => (
+                          <FormItem className="flex items-start space-x-3 space-y-0">
+                            <FormControl>
+                              <Checkbox 
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <FormLabel>Furnished</FormLabel>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Amenities</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <FormField
+                        control={form.control}
+                        name="amenities"
+                        render={({ field }) => (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {amenityOptions.map((amenity) => (
+                              <AmenityItem
+                                key={amenity}
+                                label={amenity}
+                                isSelected={field.value?.includes(amenity)}
+                                onSelect={() => {
+                                  const currentAmenities = field.value || [];
+                                  if (currentAmenities.includes(amenity)) {
+                                    field.onChange(
+                                      currentAmenities.filter((item) => item !== amenity)
+                                    );
+                                  } else {
+                                    field.onChange([...currentAmenities, amenity]);
+                                  }
+                                }}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="media" className="space-y-6">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Main Image</h3>
+                    <div className="border rounded-md p-4">
+                      <ImageUploadDropzone 
+                        value={imageUrl ? [imageUrl] : []}
+                        onValueChange={handleMainImageChange}
+                        maxFiles={1}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Additional Images</h3>
+                    <div className="border rounded-md p-4">
+                      <ImageUploadDropzone 
+                        onValueChange={handleAdditionalImagesChange}
+                        maxFiles={5}
+                        maxSize={5 * 1024 * 1024} // 5MB max
+                      />
+                    </div>
+                    
+                    {additionalImageUrls.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="text-md font-medium mb-2">Image Gallery Preview</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+                          {additionalImageUrls.map((url, index) => (
+                            <div key={index} className="relative group">
+                              <img 
+                                src={url} 
+                                alt={`Additional property image ${index + 1}`}
+                                className="h-24 w-full object-cover rounded-md"
+                              />
+                              <button 
+                                type="button"
+                                onClick={() => removeAdditionalImage(index)}
+                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Property Description</h3>
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe your property in detail" 
+                              {...field} 
+                              className="min-h-[150px]"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  {isRental && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Rental Details</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <FormField
+                          control={form.control}
+                          name="rental_period"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Rental Period</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value || "monthly"}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select period" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="daily">Daily</SelectItem>
+                                  <SelectItem value="weekly">Weekly</SelectItem>
+                                  <SelectItem value="monthly">Monthly</SelectItem>
+                                  <SelectItem value="yearly">Yearly</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="security_deposit"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Security Deposit</FormLabel>
+                              <FormControl>
+                                <NumberInput 
+                                  placeholder="Optional" 
+                                  value={field.value || ""}
+                                  onChange={(value) => field.onChange(value ? Number(value) : undefined)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="available_from"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Available From</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="date" 
+                                  {...field}
+                                  value={field.value || new Date().toISOString().split('T')[0]}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            <div className="flex justify-between mt-8">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={goToPreviousStep}
+                disabled={formSteps.findIndex(step => step.id === currentStep) === 0}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              
+              {formSteps.findIndex(step => step.id === currentStep) < formSteps.length - 1 ? (
+                <Button
+                  type="button"
+                  onClick={goToNextStep}
+                  disabled={!isCurrentStepValid()}
+                  className="flex items-center gap-2"
+                >
+                  Next
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleSaveAsDraft}
+                    className="flex items-center gap-2"
+                  >
+                    Save as Draft
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isSaving}
+                    className="flex items-center gap-2"
+                  >
+                    {isSaving ? (
+                      <>Saving...</>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        {isEditing ? "Update Property" : "Submit Property"}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+}
