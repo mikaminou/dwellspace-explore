@@ -52,8 +52,13 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       const result = await signUp(email, password, displayName);
       console.log("Account created:", result);
       
-      // Navigate to profile completion page
-      navigate('/profile-completion');
+      // Navigate to profile completion page if we have a session
+      if (result && result.session) {
+        navigate('/profile-completion');
+      } else {
+        // If we don't have a session but user was created, go to email confirmation
+        navigate('/email-confirmation', { state: { email } });
+      }
       
     } catch (err: any) {
       console.error("Signup error:", err);

@@ -54,7 +54,7 @@ const App = () => (
               } 
             />
             <Route 
-              path="/property/create" 
+              path="/property-create" 
               element={
                 <ProtectedRoute>
                   <PropertyCreate />

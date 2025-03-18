@@ -4,11 +4,17 @@ import { useAuth } from "@/contexts/auth";
 import { MainNav } from "@/components/MainNav";
 import { OwnerDashboard } from "@/components/owners/OwnerDashboard";
 import { useNavigate } from "react-router-dom";
+import { useProfile } from "@/hooks/useProfile";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   const { session, isLoaded } = useAuth();
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const { profileData, isLoaded: isProfileLoaded } = useProfile();
   const navigate = useNavigate();
+
+  // Get user role from profile data
+  const userRole = profileData?.role || "buyer"; // Default to buyer if no role found
+  const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
 
   useEffect(() => {
     if (isLoaded && !session) {
@@ -16,24 +22,22 @@ export default function Dashboard() {
       return;
     }
 
-    // Get the user role from the session
-    if (session) {
-      const role = session.user.user_metadata.role || "buyer";
-      setUserRole(role);
-      
-      // Redirect buyers to a different page since they don't have owner dashboard access
-      if (role === "buyer") {
+    // Only run this check when profile data is loaded
+    if (isProfileLoaded && session) {
+      // Redirect buyers to profile page since they don't have dashboard access
+      if (!isSellerOrAgent) {
+        toast.info("Only sellers and agents have access to the dashboard");
         navigate("/profile");
       }
     }
-  }, [session, isLoaded, navigate]);
+  }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent]);
 
-  if (!isLoaded || !session) {
+  if (!isLoaded || !isProfileLoaded) {
     return <div className="container mx-auto py-8">Loading...</div>;
   }
 
   // Only show dashboard for agents and sellers
-  if (userRole !== "agent" && userRole !== "seller") {
+  if (!isSellerOrAgent) {
     return null; // This will be caught by the redirect in useEffect
   }
 
