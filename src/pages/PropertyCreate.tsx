@@ -18,12 +18,9 @@ export default function PropertyCreate() {
   const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
 
   useEffect(() => {
-    if (isLoaded && isProfileLoaded && session) {
-      // Redirect buyers to profile page since they can't create properties
-      if (!isSellerOrAgent) {
-        toast.info("Only sellers and agents can create property listings");
-        navigate("/profile");
-      }
+    if (isLoaded && !session) {
+      navigate("/signin");
+      return;
     }
   }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent]);
 
