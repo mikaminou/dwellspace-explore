@@ -55,7 +55,7 @@ export default function PropertyCreate() {
       <div className="min-h-screen bg-background">
         <MainNav />
         <main className="container mx-auto py-6 px-4">
-          {isSellerOrAgent && <PropertyForm />}
+          { <PropertyForm />}
         </main>
       </div>
     </ProtectedRoute>
