@@ -1,6 +1,5 @@
 
 import React from "react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
@@ -32,24 +31,16 @@ interface AmenityItemProps {
 export function AmenityItem({ name, checked, onCheckedChange }: AmenityItemProps) {
   const icon = amenityIcons[name] || <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>;
 
-  // Handle click without navigation
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default behavior
-    e.stopPropagation(); // Stop event propagation to prevent bubbling
-    onCheckedChange(!checked); // Toggle the checked state
-  };
-
   return (
-    <div 
+    <button
+      type="button"
       className={cn(
-        "relative flex flex-col items-center justify-center border rounded-md p-4 cursor-pointer transition-all",
+        "relative flex flex-col items-center justify-center border rounded-md p-4 w-full transition-all",
         checked 
           ? "border-primary bg-primary/5 text-primary" 
           : "border-gray-200 hover:border-gray-300 text-gray-600"
       )}
-      onClick={handleClick}
-      role="button"
-      tabIndex={0}
+      onClick={() => onCheckedChange(!checked)}
       aria-pressed={checked}
     >
       <div className="absolute top-2 right-2">
@@ -59,13 +50,6 @@ export function AmenityItem({ name, checked, onCheckedChange }: AmenityItemProps
         {icon}
       </div>
       <span className="text-xs text-center">{name}</span>
-      {/* Hidden checkbox for form state */}
-      <Checkbox
-        checked={checked}
-        onCheckedChange={onCheckedChange}
-        className="sr-only"
-        tabIndex={-1}
-      />
-    </div>
+    </button>
   );
 }
