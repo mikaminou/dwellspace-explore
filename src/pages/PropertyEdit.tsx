@@ -41,7 +41,7 @@ export default function PropertyEdit() {
       <div className="min-h-screen bg-background">
         <MainNav />
         <main className="container mx-auto py-6 px-4">
-          <PropertyForm propertyId={id} />
+          {id && <PropertyForm id={id} />}
         </main>
       </div>
     </ProtectedRoute>

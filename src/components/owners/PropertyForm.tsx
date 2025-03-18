@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
@@ -38,7 +37,6 @@ import { AmenityItem } from "@/components/owners/AmenityItem";
 import { ImageUploadDropzone } from "@/components/owners/ImageUploadDropzone";
 import { LocationPicker } from "@/components/map/LocationPicker";
 
-// Ensure we use strings for amenities and features
 const propertySchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
@@ -74,17 +72,14 @@ const propertySchema = z.object({
 
 type PropertyFormValues = z.infer<typeof propertySchema>;
 
-// Form steps
-const formSteps = [
-  { id: "location", label: "Location", icon: <MapPin className="h-4 w-4" /> },
-  { id: "basic", label: "Basic Info", icon: <Info className="h-4 w-4" /> },
-  { id: "features", label: "Features", icon: <Home className="h-4 w-4" /> },
-  { id: "media", label: "Media", icon: <ImageIcon className="h-4 w-4" /> }
-];
+interface PropertyFormProps {
+  id?: string;
+}
 
-export function PropertyForm() {
-  const { id } = useParams<{ id: string }>();
-  const isEditing = !!id;
+export function PropertyForm({ id }: PropertyFormProps) {
+  const params = useParams<{ id?: string }>();
+  const propertyId = id || params.id;
+  const isEditing = !!propertyId;
   const navigate = useNavigate();
   const { session } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -121,7 +116,6 @@ export function PropertyForm() {
     },
   });
 
-  // Watch listing_type to show/hide rental-specific fields
   const watchListingType = form.watch("listing_type");
 
   useEffect(() => {
@@ -130,48 +124,43 @@ export function PropertyForm() {
 
   useEffect(() => {
     const fetchProperty = async () => {
-      if (!isEditing || !id) return;
+      if (!isEditing || !propertyId) return;
 
       try {
         setLoading(true);
         const { data, error } = await supabase
           .from("properties")
           .select("*")
-          .eq("id", parseInt(id))
+          .eq("id", parseInt(propertyId))
           .single();
 
         if (error) throw error;
 
         if (data) {
-          // Check if the current user is the owner
           if (data.owner_id !== session?.user?.id) {
             toast.error("You do not have permission to edit this property.");
             navigate("/dashboard");
             return;
           }
 
-          // Fetch location details
           const { data: locationData } = await supabase
             .from("property_locations")
             .select("*")
-            .eq("property_id", parseInt(id))
+            .eq("property_id", parseInt(propertyId))
             .maybeSingle();
 
-          // Fetch rental details if it's a rental property
           const { data: rentalData } = await supabase
             .from("rental_details")
             .select("*")
-            .eq("property_id", parseInt(id))
+            .eq("property_id", parseInt(propertyId))
             .maybeSingle();
 
-          // Fetch media
           const { data: mediaData } = await supabase
             .from("property_media")
             .select("*")
-            .eq("property_id", parseInt(id))
+            .eq("property_id", parseInt(propertyId))
             .eq("media_type", "image");
 
-          // Set initial form values
           const formValues: Partial<PropertyFormValues> = {
             title: data.title,
             description: data.description,
@@ -192,28 +181,22 @@ export function PropertyForm() {
             parking: data.parking || false,
             furnished: data.furnished || false,
             year_built: data.year_built || undefined,
-            // Fix: Ensure amenities is properly typed as string[]
             amenities: Array.isArray(data.amenities) 
               ? data.amenities.map(a => String(a)) 
               : [],
-            // Fix: Ensure features is properly typed as string[]
             features: Array.isArray(data.features) 
               ? data.features.map(f => String(f)) 
               : [],
             image: data.image || "",
           };
 
-          // Add location data if available
           if (locationData) {
             formValues.state = locationData.state;
             formValues.country = locationData.country;
-            // Note: postal_code is not directly in property_locations table
-            // We need to handle it differently or add it to the table
             formValues.latitude = locationData.latitude;
             formValues.longitude = locationData.longitude;
           }
 
-          // Add rental data if available
           if (rentalData) {
             formValues.rental_period = rentalData.rental_period;
             formValues.security_deposit = rentalData.security_deposit;
@@ -225,7 +208,6 @@ export function PropertyForm() {
 
           form.reset(formValues);
 
-          // Set image URLs
           setImageUrl(data.image || "");
           
           if (mediaData && mediaData.length > 0) {
@@ -244,13 +226,12 @@ export function PropertyForm() {
     };
 
     fetchProperty();
-  }, [id, isEditing, session, form, navigate]);
+  }, [propertyId, isEditing, session, form, navigate]);
 
   const handleMainImageChange = (files: File[]) => {
     if (files.length > 0) {
       setImageFile(files[0]);
       
-      // Create a preview URL
       const url = URL.createObjectURL(files[0]);
       setImageUrl(url);
     }
@@ -259,7 +240,6 @@ export function PropertyForm() {
   const handleAdditionalImagesChange = (files: File[]) => {
     setAdditionalImages(prev => [...prev, ...files]);
     
-    // Create preview URLs for the new images
     const newUrls = files.map(file => URL.createObjectURL(file));
     setAdditionalImageUrls(prev => [...prev, ...newUrls]);
   };
@@ -327,7 +307,6 @@ export function PropertyForm() {
       
       const uploadedUrls = await Promise.all(uploadPromises);
       
-      // Add to property_media table
       const mediaEntries = uploadedUrls.map(url => ({
         property_id: propertyId,
         media_url: url,
@@ -358,10 +337,8 @@ export function PropertyForm() {
     try {
       setIsSaving(true);
       
-      // Upload main image if a new one is selected
       const imageUrl = await uploadImage();
       
-      // Prepare property data
       const propertyData = {
         title: values.title,
         description: values.description,
@@ -382,9 +359,7 @@ export function PropertyForm() {
         parking: values.parking,
         furnished: values.furnished,
         year_built: values.year_built,
-        // Fix: Ensure amenities is properly handled as JSONB
         amenities: values.amenities,
-        // Fix: Ensure features is properly handled as JSONB
         features: values.features,
         image: imageUrl,
         owner_id: session.user.id,
@@ -393,20 +368,18 @@ export function PropertyForm() {
 
       let propertyId: number;
       
-      if (isEditing && id) {
-        // Update existing property
+      if (isEditing && propertyId) {
         const { error } = await supabase
           .from("properties")
           .update(propertyData)
-          .eq("id", parseInt(id));
+          .eq("id", parseInt(propertyId));
         
         if (error) throw error;
         
-        propertyId = parseInt(id);
+        propertyId = parseInt(propertyId);
         
         toast.success("Property updated successfully.");
       } else {
-        // Create new property
         const newProperty = {
           ...propertyData,
           created_at: new Date().toISOString(),
@@ -428,21 +401,17 @@ export function PropertyForm() {
         toast.success("Property created successfully.");
       }
       
-      // Handle location data
       const locationData = {
         property_id: propertyId,
         address: values.street_name,
         state: values.state,
         country: values.country,
-        // postal_code is not directly in property_locations table
-        // based on current structure
         latitude: values.latitude,
         longitude: values.longitude,
         updated_at: new Date().toISOString(),
       };
       
       if (isEditing) {
-        // Check if location exists
         const { data: existingLocation } = await supabase
           .from("property_locations")
           .select("id")
@@ -450,25 +419,21 @@ export function PropertyForm() {
           .maybeSingle();
         
         if (existingLocation) {
-          // Update existing location
           await supabase
             .from("property_locations")
             .update(locationData)
             .eq("property_id", propertyId);
         } else {
-          // Insert new location
           await supabase
             .from("property_locations")
             .insert([{ ...locationData, created_at: new Date().toISOString() }]);
         }
       } else {
-        // Insert new location
         await supabase
           .from("property_locations")
           .insert([{ ...locationData, created_at: new Date().toISOString() }]);
       }
       
-      // Handle rental details if it's a rental
       if (values.listing_type === "rent") {
         const rentalData = {
           property_id: propertyId,
@@ -479,7 +444,6 @@ export function PropertyForm() {
         };
         
         if (isEditing) {
-          // Check if rental details exist
           const { data: existingRental } = await supabase
             .from("rental_details")
             .select("id")
@@ -487,29 +451,24 @@ export function PropertyForm() {
             .maybeSingle();
           
           if (existingRental) {
-            // Update existing rental details
             await supabase
               .from("rental_details")
               .update(rentalData)
               .eq("property_id", propertyId);
           } else {
-            // Insert new rental details
             await supabase
               .from("rental_details")
               .insert([{ ...rentalData, created_at: new Date().toISOString() }]);
           }
         } else {
-          // Insert new rental details
           await supabase
             .from("rental_details")
             .insert([{ ...rentalData, created_at: new Date().toISOString() }]);
         }
       }
       
-      // Handle additional images
       await uploadAdditionalImages(propertyId);
       
-      // Navigate back to dashboard
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Error saving property:", error);
@@ -526,7 +485,6 @@ export function PropertyForm() {
     "Cable TV", "Washing Machine", "Dishwasher", "Microwave", "Refrigerator"
   ];
 
-  // Handle form step navigation
   const goToNextStep = () => {
     const currentIndex = formSteps.findIndex(step => step.id === currentStep);
     if (currentIndex < formSteps.length - 1) {
@@ -541,7 +499,6 @@ export function PropertyForm() {
     }
   };
 
-  // Check if current step is valid
   const isCurrentStepValid = () => {
     const basicFields = ["title", "price", "currency", "type", "listing_type", "status"];
     const featureFields = ["beds", "baths", "living_area"];
@@ -553,18 +510,14 @@ export function PropertyForm() {
     else if (currentStep === "features") fieldsToValidate = featureFields;
     else if (currentStep === "location") fieldsToValidate = locationFields;
     
-    // Media step doesn't need validation
     if (currentStep === "media") return true;
     
-    // Trigger validation for the current fields
     return fieldsToValidate.every(field => {
       const fieldState = form.getFieldState(field as any);
       if (fieldState.invalid) return false;
       
-      // Also check if the field has a value
       const value = form.getValues(field as any);
       if (value === undefined || value === "" || value === null) {
-        // Don't require these optional fields
         if (field === "plot_area" || field === "floor" || field === "total_floors") {
           return true;
         }
@@ -604,7 +557,6 @@ export function PropertyForm() {
                 ))}
               </TabsList>
 
-              {/* Step 1: Location (moved to first position) */}
               <TabsContent value="location" className="space-y-6">
                 <div className="space-y-6">
                   <h3 className="text-lg font-medium">Select Location on Map</h3>
@@ -741,7 +693,6 @@ export function PropertyForm() {
                 </div>
               </TabsContent>
 
-              {/* Step 2: Basic Info (moved to second position) */}
               <TabsContent value="basic" className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
@@ -911,7 +862,6 @@ export function PropertyForm() {
                 </div>
               </TabsContent>
 
-              {/* Step 3: Property Features */}
               <TabsContent value="features" className="space-y-6">
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1186,7 +1136,6 @@ export function PropertyForm() {
                 )}
               </TabsContent>
 
-              {/* Step 4: Description & Media */}
               <TabsContent value="media" className="space-y-6">
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Description</h3>
@@ -1264,7 +1213,6 @@ export function PropertyForm() {
               </TabsContent>
             </Tabs>
 
-            {/* Navigation and Submit Buttons */}
             <div className="sticky bottom-0 pt-4 flex flex-wrap gap-2 justify-between bg-white border-t mt-8 -mx-6 px-6 py-4">
               <div className="flex gap-2">
                 {currentStep !== formSteps[0].id && (
