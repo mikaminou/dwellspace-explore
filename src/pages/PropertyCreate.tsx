@@ -37,6 +37,7 @@ export default function PropertyCreate() {
         <div className="container mx-auto py-8">
           {isSellerOrAgent && <PropertyForm />}
         </div>
-      </ProtectedRoute>
-    );
+      </div>
+    </ProtectedRoute>
+  );
 }
