@@ -37,6 +37,14 @@ import { AmenityItem } from "@/components/owners/AmenityItem";
 import { ImageUploadDropzone } from "@/components/owners/ImageUploadDropzone";
 import { LocationPicker } from "@/components/map/LocationPicker";
 
+// Define the form steps
+const formSteps = [
+  { id: "location", label: "Location", icon: <MapPin className="h-4 w-4" /> },
+  { id: "basic", label: "Basic Info", icon: <Home className="h-4 w-4" /> },
+  { id: "features", label: "Features", icon: <Info className="h-4 w-4" /> },
+  { id: "media", label: "Media", icon: <ImageIcon className="h-4 w-4" /> },
+];
+
 const propertySchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
@@ -366,7 +374,7 @@ export function PropertyForm({ id }: PropertyFormProps) {
         updated_at: new Date().toISOString(),
       };
 
-      let propertyId: number;
+      let propertyIdNumber: number;
       
       if (isEditing && propertyId) {
         const { error } = await supabase
@@ -376,7 +384,7 @@ export function PropertyForm({ id }: PropertyFormProps) {
         
         if (error) throw error;
         
-        propertyId = parseInt(propertyId);
+        propertyIdNumber = parseInt(propertyId);
         
         toast.success("Property updated successfully.");
       } else {
@@ -396,13 +404,14 @@ export function PropertyForm({ id }: PropertyFormProps) {
           throw new Error("Failed to create property");
         }
         
-        propertyId = data[0].id;
+        propertyIdNumber = data[0].id;
         
         toast.success("Property created successfully.");
       }
       
+      // Fix for TS2345 error: Convert propertyIdNumber to string for locationData
       const locationData = {
-        property_id: propertyId,
+        property_id: propertyIdNumber,
         address: values.street_name,
         state: values.state,
         country: values.country,
@@ -415,14 +424,14 @@ export function PropertyForm({ id }: PropertyFormProps) {
         const { data: existingLocation } = await supabase
           .from("property_locations")
           .select("id")
-          .eq("property_id", propertyId)
+          .eq("property_id", propertyIdNumber)
           .maybeSingle();
         
         if (existingLocation) {
           await supabase
             .from("property_locations")
             .update(locationData)
-            .eq("property_id", propertyId);
+            .eq("property_id", propertyIdNumber);
         } else {
           await supabase
             .from("property_locations")
@@ -436,7 +445,7 @@ export function PropertyForm({ id }: PropertyFormProps) {
       
       if (values.listing_type === "rent") {
         const rentalData = {
-          property_id: propertyId,
+          property_id: propertyIdNumber,
           rental_period: values.rental_period || "monthly",
           security_deposit: values.security_deposit,
           available_from: values.available_from || new Date().toISOString().split('T')[0],
@@ -447,14 +456,14 @@ export function PropertyForm({ id }: PropertyFormProps) {
           const { data: existingRental } = await supabase
             .from("rental_details")
             .select("id")
-            .eq("property_id", propertyId)
+            .eq("property_id", propertyIdNumber)
             .maybeSingle();
           
           if (existingRental) {
             await supabase
               .from("rental_details")
               .update(rentalData)
-              .eq("property_id", propertyId);
+              .eq("property_id", propertyIdNumber);
           } else {
             await supabase
               .from("rental_details")
@@ -467,7 +476,7 @@ export function PropertyForm({ id }: PropertyFormProps) {
         }
       }
       
-      await uploadAdditionalImages(propertyId);
+      await uploadAdditionalImages(propertyIdNumber);
       
       navigate("/dashboard");
     } catch (error: any) {
@@ -954,330 +963,4 @@ export function PropertyForm({ id }: PropertyFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Floor</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              min="0"
-                              placeholder="Optional"
-                              {...field}
-                              value={field.value || ""}
-                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="total_floors"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Total Floors</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              min="0"
-                              placeholder="Optional"
-                              {...field}
-                              value={field.value || ""}
-                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                    <FormField
-                      control={form.control}
-                      name="parking"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Parking Available</FormLabel>
-                            <p className="text-sm text-muted-foreground">
-                              This property includes parking spaces
-                            </p>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="furnished"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Furnished</FormLabel>
-                            <p className="text-sm text-muted-foreground">
-                              This property comes furnished
-                            </p>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-4 pt-4">
-                  <h3 className="text-lg font-medium">Amenities</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                    <FormField
-                      control={form.control}
-                      name="amenities"
-                      render={({ field }) => (
-                        <>
-                          {amenityOptions.map((amenity) => (
-                            <AmenityItem
-                              key={amenity}
-                              name={amenity}
-                              checked={field.value?.includes(amenity)}
-                              onCheckedChange={(checked) => {
-                                const currentAmenities = field.value || [];
-                                return checked
-                                  ? field.onChange([...currentAmenities, amenity])
-                                  : field.onChange(
-                                      currentAmenities.filter(
-                                        (value) => value !== amenity
-                                      )
-                                    );
-                              }}
-                            />
-                          ))}
-                        </>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {isRental && (
-                  <div className="space-y-4 pt-4">
-                    <h3 className="text-lg font-medium">Rental Details</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="rental_period"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Rental Period</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value || "monthly"}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select period" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="daily">Daily</SelectItem>
-                                <SelectItem value="weekly">Weekly</SelectItem>
-                                <SelectItem value="monthly">Monthly</SelectItem>
-                                <SelectItem value="yearly">Yearly</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="security_deposit"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Security Deposit</FormLabel>
-                            <FormControl>
-                              <NumberInput 
-                                placeholder="Optional" 
-                                value={field.value || ""}
-                                onChange={(value) => field.onChange(value ? Number(value) : undefined)}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="available_from"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Available From</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="date" 
-                                {...field}
-                                value={field.value || new Date().toISOString().split('T')[0]}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="media" className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Description</h3>
-                  
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Property Description</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Describe the property" 
-                            rows={5}
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <Separator />
-                
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Images</h3>
-                  
-                  <div>
-                    <FormLabel>Main Property Image</FormLabel>
-                    <div className="mt-2">
-                      <ImageUploadDropzone
-                        onChange={(files) => handleMainImageChange(files)}
-                        value={imageFile ? [imageFile] : []}
-                        maxFiles={1}
-                        imageUrls={imageUrl ? [imageUrl] : []}
-                        onRemoveExisting={() => setImageUrl("")}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <FormLabel>Additional Images</FormLabel>
-                    <div className="mt-2">
-                      <ImageUploadDropzone
-                        onChange={handleAdditionalImagesChange}
-                        value={additionalImages}
-                        maxFiles={10}
-                        imageUrls={additionalImageUrls}
-                        onRemoveExisting={removeAdditionalImage}
-                      />
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {additionalImageUrls.map((url, index) => (
-                          <div key={index} className="relative w-24 h-24">
-                            <img 
-                              src={url} 
-                              alt={`Additional image ${index + 1}`} 
-                              className="w-full h-full object-cover rounded-md"
-                            />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="absolute top-1 right-1 h-5 w-5"
-                              onClick={() => removeAdditionalImage(index)}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </TabsContent>
-            </Tabs>
-
-            <div className="sticky bottom-0 pt-4 flex flex-wrap gap-2 justify-between bg-white border-t mt-8 -mx-6 px-6 py-4">
-              <div className="flex gap-2">
-                {currentStep !== formSteps[0].id && (
-                  <Button 
-                    type="button" 
-                    variant="outline"
-                    onClick={goToPreviousStep}
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Previous
-                  </Button>
-                )}
-                
-                {currentStep !== formSteps[formSteps.length - 1].id && (
-                  <Button 
-                    type="button" 
-                    onClick={goToNextStep}
-                    disabled={!isCurrentStepValid()}
-                  >
-                    Next
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-              
-              <div className="flex gap-2">
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  onClick={() => navigate("/dashboard")}
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  Cancel
-                </Button>
-                
-                <Button 
-                  type="button"
-                  variant="secondary"
-                  onClick={handleSaveAsDraft}
-                  disabled={isSaving}
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  {isSaving && saveAsDraft ? "Saving..." : "Save as Draft"}
-                </Button>
-                
-                {currentStep === formSteps[formSteps.length - 1].id && (
-                  <Button 
-                    type="submit" 
-                    disabled={isSaving && !saveAsDraft}
-                    className="bg-cta hover:bg-cta-dark"
-                  >
-                    <Check className="mr-2 h-4 w-4" />
-                    {isSaving && !saveAsDraft 
-                      ? "Saving..." 
-                      : isEditing 
-                        ? "Update Property" 
-                        : "Create Property"
-                    }
-                  </Button>
-                )}
-              </div>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
-  );
-}
+                          <FormControl
