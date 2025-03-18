@@ -7,7 +7,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Set your Mapbox access token here
-mapboxgl.accessToken = 'pk.eyJ1IjoibG92YWJsZWRldiIsImEiOiJjbHdjOHU4ZXgwNzg2MnNvZWNqcWg0ZmlrIn0.hN3QgBrZSLYA8OBEjVCqiA';
+mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
 
 interface LocationData {
   city: string;
