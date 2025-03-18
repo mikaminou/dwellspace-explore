@@ -36,6 +36,7 @@ import { NumberInput } from "@/components/ui/number-input";
 import { YearPicker } from "@/components/owners/YearPicker";
 import { AmenityItem } from "@/components/owners/AmenityItem";
 import { ImageUploadDropzone } from "@/components/owners/ImageUploadDropzone";
+import { LocationPicker } from "@/components/map/LocationPicker";
 
 // Ensure we use strings for amenities and features
 const propertySchema = z.object({
@@ -75,9 +76,9 @@ type PropertyFormValues = z.infer<typeof propertySchema>;
 
 // Form steps
 const formSteps = [
+  { id: "location", label: "Location", icon: <MapPin className="h-4 w-4" /> },
   { id: "basic", label: "Basic Info", icon: <Info className="h-4 w-4" /> },
   { id: "features", label: "Features", icon: <Home className="h-4 w-4" /> },
-  { id: "location", label: "Location", icon: <MapPin className="h-4 w-4" /> },
   { id: "media", label: "Media", icon: <ImageIcon className="h-4 w-4" /> }
 ];
 
@@ -87,7 +88,7 @@ export function PropertyForm() {
   const navigate = useNavigate();
   const { session } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState("basic");
+  const [currentStep, setCurrentStep] = useState("location");
   const [imageUrl, setImageUrl] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [additionalImages, setAdditionalImages] = useState<File[]>([]);
@@ -256,11 +257,26 @@ export function PropertyForm() {
   };
 
   const handleAdditionalImagesChange = (files: File[]) => {
-    setAdditionalImages(files);
+    setAdditionalImages(prev => [...prev, ...files]);
+    
+    // Create preview URLs for the new images
+    const newUrls = files.map(file => URL.createObjectURL(file));
+    setAdditionalImageUrls(prev => [...prev, ...newUrls]);
   };
 
   const removeAdditionalImage = (index: number) => {
     setAdditionalImageUrls(prev => prev.filter((_, i) => i !== index));
+    setAdditionalImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleLocationSelect = (locationData: any) => {
+    form.setValue("city", locationData.city, { shouldValidate: true });
+    form.setValue("state", locationData.state, { shouldValidate: true });
+    form.setValue("country", locationData.country, { shouldValidate: true });
+    form.setValue("street_name", locationData.streetName, { shouldValidate: true });
+    form.setValue("location", locationData.location, { shouldValidate: true });
+    form.setValue("longitude", locationData.longitude, { shouldValidate: true });
+    form.setValue("latitude", locationData.latitude, { shouldValidate: true });
   };
 
   const uploadImage = async (): Promise<string | null> => {
@@ -588,7 +604,144 @@ export function PropertyForm() {
                 ))}
               </TabsList>
 
-              {/* Step 1: Basic Info */}
+              {/* Step 1: Location (moved to first position) */}
+              <TabsContent value="location" className="space-y-6">
+                <div className="space-y-6">
+                  <h3 className="text-lg font-medium">Select Location on Map</h3>
+                  <LocationPicker 
+                    onLocationSelect={handleLocationSelect}
+                    initialLocation={{
+                      longitude: form.getValues("longitude"),
+                      latitude: form.getValues("latitude"),
+                      city: form.getValues("city"),
+                      state: form.getValues("state"),
+                      country: form.getValues("country"),
+                      streetName: form.getValues("street_name"),
+                      location: form.getValues("location")
+                    }}
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <FormField
+                      control={form.control}
+                      name="city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City</FormLabel>
+                          <FormControl>
+                            <Input placeholder="City name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Neighborhood/Area</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Neighborhood/Area" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <FormField
+                    control={form.control}
+                    name="street_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Street Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Street address" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="state"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>State/Province</FormLabel>
+                          <FormControl>
+                            <Input placeholder="State or province" {...field} value={field.value || ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="country"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Country</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Country" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="latitude"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Latitude</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              step="0.000001"
+                              placeholder="Optional"
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="longitude"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Longitude</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              step="0.000001"
+                              placeholder="Optional"
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Step 2: Basic Info (moved to second position) */}
               <TabsContent value="basic" className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
@@ -758,7 +911,7 @@ export function PropertyForm() {
                 </div>
               </TabsContent>
 
-              {/* Step 2: Property Features */}
+              {/* Step 3: Property Features */}
               <TabsContent value="features" className="space-y-6">
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1033,134 +1186,6 @@ export function PropertyForm() {
                 )}
               </TabsContent>
 
-              {/* Step 3: Location */}
-              <TabsContent value="location" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>City</FormLabel>
-                        <FormControl>
-                          <Input placeholder="City name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Location</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Neighborhood/Area" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <FormField
-                  control={form.control}
-                  name="street_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Street Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Street address" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>State/Province</FormLabel>
-                        <FormControl>
-                          <Input placeholder="State or province" {...field} value={field.value || ""} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Country</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Country" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="latitude"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Latitude</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            step="0.000001"
-                            placeholder="Optional"
-                            {...field}
-                            value={field.value || ""}
-                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  
-                  <FormField
-                    control={form.control}
-                    name="longitude"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Longitude</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            step="0.000001"
-                            placeholder="Optional"
-                            {...field}
-                            value={field.value || ""}
-                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Map placeholder - would be integrated with an actual map service */}
-                <div className="mt-4 border rounded-md p-6 text-center bg-gray-50">
-                  <p className="text-muted-foreground">
-                    Interactive map selection coming soon.
-                  </p>
-                </div>
-              </TabsContent>
-
               {/* Step 4: Description & Media */}
               <TabsContent value="media" className="space-y-6">
                 <div className="space-y-4">
@@ -1213,6 +1238,26 @@ export function PropertyForm() {
                         imageUrls={additionalImageUrls}
                         onRemoveExisting={removeAdditionalImage}
                       />
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {additionalImageUrls.map((url, index) => (
+                          <div key={index} className="relative w-24 h-24">
+                            <img 
+                              src={url} 
+                              alt={`Additional image ${index + 1}`} 
+                              className="w-full h-full object-cover rounded-md"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-1 right-1 h-5 w-5"
+                              onClick={() => removeAdditionalImage(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

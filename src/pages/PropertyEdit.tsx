@@ -8,7 +8,9 @@ export default function PropertyEdit() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <MainNav />
-        <PropertyForm />
+        <main className="container mx-auto py-6 px-4">
+          <PropertyForm />
+        </main>
       </div>
     </ProtectedRoute>
   );

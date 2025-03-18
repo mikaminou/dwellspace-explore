@@ -22,13 +22,21 @@ export default function PropertyCreate() {
       navigate("/signin");
       return;
     }
+    
+    if (isProfileLoaded && !isSellerOrAgent) {
+      toast.error("Only sellers and agents can create properties");
+      navigate("/dashboard");
+      return;
+    }
   }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent]);
 
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <MainNav />
-        {<PropertyForm />}
+        <main className="container mx-auto py-6 px-4">
+          <PropertyForm />
+        </main>
       </div>
     </ProtectedRoute>
   );
