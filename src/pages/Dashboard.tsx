@@ -13,22 +13,13 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   // Get user role from profile data
-  const userRole = profileData?.role || "buyer"; // Default to buyer if no role found
+  const userRole = profileData?.role || "buyer";
   const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
 
   useEffect(() => {
     if (isLoaded && !session) {
       navigate("/signin");
       return;
-    }
-
-    // Only run this check when profile data is loaded
-    if (isProfileLoaded && session) {
-      // Redirect buyers to profile page since they don't have dashboard access
-      if (!isSellerOrAgent) {
-        toast.info("Only sellers and agents have access to the dashboard");
-        navigate("/profile");
-      }
     }
   }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent]);
 
