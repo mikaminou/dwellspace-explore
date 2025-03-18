@@ -22,14 +22,21 @@ export default function PropertyCreate() {
       navigate("/signin");
       return;
     }
+
+    if (isLoaded && isProfileLoaded && !isSellerOrAgent) {
+      toast.error("Only sellers and agents can create property listings");
+      navigate("/dashboard");
+      return;
+    }
   }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent]);
 
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <MainNav />
-        {isSellerOrAgent && <PropertyForm />}
-      </div>
-    </ProtectedRoute>
-  );
+        <div className="container mx-auto py-8">
+          {isSellerOrAgent && <PropertyForm />}
+        </div>
+      </ProtectedRoute>
+    );
 }
