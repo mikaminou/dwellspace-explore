@@ -18,44 +18,24 @@ export default function PropertyCreate() {
   const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
 
   useEffect(() => {
-    console.log("PropertyCreate: Auth state", { session, isLoaded, profileData, isProfileLoaded, userRole, isSellerOrAgent });
-    
     if (isLoaded && !session) {
-      console.log("No session, redirecting to signin");
       navigate("/signin");
       return;
     }
     
-    // Only check role after profile data is loaded
-    if (isProfileLoaded) {
-      console.log("Profile loaded, checking role:", userRole);
-      if (!isSellerOrAgent) {
-        console.log("User is not seller/agent, redirecting");
-        toast.error("Only sellers and agents can create properties");
-        navigate("/dashboard");
-      }
+    if (isProfileLoaded && !isSellerOrAgent) {
+      toast.error("Only sellers and agents can create properties");
+      navigate("/dashboard");
+      return;
     }
-  }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent, userRole]);
+  }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent]);
 
-  // Show loading state while profile data is loading
-  if (!isProfileLoaded) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4">Loading profile data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Only render the form if user is a seller or agent
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <MainNav />
         <main className="container mx-auto py-6 px-4">
-          { <PropertyForm />}
+          <PropertyForm />
         </main>
       </div>
     </ProtectedRoute>
