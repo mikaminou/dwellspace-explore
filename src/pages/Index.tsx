@@ -1,7 +1,6 @@
-
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
-import { SearchIcon, ArrowRightIcon, StarIcon } from "lucide-react";
+import { SearchIcon, ArrowRightIcon, StarIcon, Plus, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Input } from "@/components/ui/input";
@@ -13,6 +12,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useProperties } from "@/hooks/useProperties";
 import { Property } from "@/api/properties";
 import PropertyCard from "@/components/PropertyCard";
+import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/contexts/auth";
 
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
@@ -39,12 +40,16 @@ export default function Index() {
   const [videoError, setVideoError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
+  const { session, isLoaded } = useAuth();
+  const { profileData } = useProfile();
+  
+  const userRole = profileData?.role || "buyer";
+  const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
   
   const [videoUrl, setVideoUrl] = useState(FALLBACK_SIGNED_URL);
 
   const { properties, loading, error } = useProperties();
   
-  // Use properties as is, no need for mockProperties
   const allProperties = properties;
   
   const premiumProperties = allProperties.filter((p: Property) => 
@@ -237,26 +242,64 @@ export default function Index() {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className={`bg-accent hover:bg-accent/90 text-white font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
-              asChild
-            >
-              <Link to="/signup">
-                {t('hero.list')}
-              </Link>
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className={`bg-white hover:bg-white/90 text-secondary font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
-              asChild
-            >
-              <Link to="/search" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                <SearchIcon className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                {t('hero.browse')}
-              </Link>
-            </Button>
+            {isLoaded && session && isSellerOrAgent ? (
+              <>
+                <Button 
+                  size="lg" 
+                  variant="default" 
+                  className={`bg-primary hover:bg-primary/90 text-white font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
+                  asChild
+                >
+                  <Link to="/dashboard" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                    <LayoutDashboard className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                    {t('dashboard.viewDashboard') || "View Dashboard"}
+                  </Link>
+                </Button>
+                <Button 
+                  size="lg" 
+                  className={`bg-accent hover:bg-accent/90 text-white font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
+                  asChild
+                >
+                  <Link to="/property-create" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                    <Plus className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                    {t('property.create') || "List Your Property"}
+                  </Link>
+                </Button>
+              </>
+            ) : isLoaded && session ? (
+              <Button 
+                size="lg" 
+                className={`bg-accent hover:bg-accent/90 text-white font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
+                asChild
+              >
+                <Link to="/search">
+                  {t('hero.browse')}
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button 
+                  size="lg" 
+                  className={`bg-accent hover:bg-accent/90 text-white font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
+                  asChild
+                >
+                  <Link to="/signup">
+                    {t('hero.list')}
+                  </Link>
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className={`bg-white hover:bg-white/90 text-secondary font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
+                  asChild
+                >
+                  <Link to="/search" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+                    <SearchIcon className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
+                    {t('hero.browse')}
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </section>

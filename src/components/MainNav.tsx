@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { SearchIcon, MapIcon, HeartIcon, UserIcon, LogOut } from "lucide-react";
+import { SearchIcon, MapIcon, HeartIcon, UserIcon, LogOut, HomeIcon, MessageSquare, Plus, LayoutDashboard } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
@@ -25,6 +25,7 @@ import { useAuth } from "@/contexts/auth";
 import { NotificationBell } from "./NotificationBell";
 import { LanguageToggle } from "./LanguageToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useProfile } from "@/hooks/useProfile";
 
 // Logo URL configuration
 const LOGO_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/logo.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9sb2dvLnBuZyIsImlhdCI6MTc0MTk1NDgzOCwiZXhwIjoxNzczNDkwODM4fQ.8WLPyFQhA5EnkDuoHlClDrI2JzmZ5wKbpGE1clp8VrU";
@@ -33,6 +34,11 @@ export function MainNav() {
   const { session, currentUser, isLoaded, signOut } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  
+  // Get user profile data to determine role
+  const { profileData, isLoaded: isProfileLoaded } = useProfile();
+  const userRole = profileData?.role || "buyer"; // Default to buyer if no role found
+  const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
   
   const handleSignOut = async () => {
     await signOut();
@@ -99,6 +105,8 @@ export function MainNav() {
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
+            
+            {/* Common navigation items for all users */}
             <NavigationMenuItem>
               <Button variant="ghost" asChild>
                 <Link to="/search" className="flex items-center gap-2">
@@ -115,6 +123,20 @@ export function MainNav() {
                 </Link>
               </Button>
             </NavigationMenuItem>
+            
+            {/* Role-specific navigation items */}
+            {isLoaded && session && isSellerOrAgent && (
+              <>
+                <NavigationMenuItem>
+                  <Button variant="ghost" asChild>
+                    <Link to="/dashboard" className="flex items-center gap-2">
+                      <LayoutDashboard className="h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                  </Button>
+                </NavigationMenuItem>
+              </>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
         <div className="ml-auto flex items-center space-x-4">
@@ -128,6 +150,15 @@ export function MainNav() {
                   <span className="sr-only">Favorites</span>
                 </Link>
               </Button>
+              
+              {/* Messages button for all authenticated users */}
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/messages">
+                  <MessageSquare className="h-5 w-5" />
+                  <span className="sr-only">Messages</span>
+                </Link>
+              </Button>
+              
               <NotificationBell />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -144,6 +175,9 @@ export function MainNav() {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuLabel className="font-normal">
                     {userName || userEmail}
+                    {userRole && (
+                      <div className="text-xs text-muted-foreground capitalize">{userRole}</div>
+                    )}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
@@ -158,6 +192,26 @@ export function MainNav() {
                       <span>Favorites</span>
                     </Link>
                   </DropdownMenuItem>
+                  
+                  {/* Role-specific dropdown items */}
+                  {isSellerOrAgent && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/dashboard">
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          <span>My Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/property-create">
+                          <Plus className="mr-2 h-4 w-4" />
+                          <span>Add Property</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
