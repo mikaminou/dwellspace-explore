@@ -57,12 +57,16 @@ export type Database = {
       properties: {
         Row: {
           additional_details: string | null
+          amenities: Json | null
           baths: number | null
           beds: number
           city: string
           created_at: string
+          currency: string | null
           description: string
           features: Json | null
+          floor: number | null
+          furnished: boolean | null
           id: number
           image: string | null
           images: Json | null
@@ -72,23 +76,30 @@ export type Database = {
           location: string
           longitude: number | null
           owner_id: string
+          parking: boolean | null
           plot_area: number | null
           postal_code: number | null
           price: string
+          status: string | null
           street_name: string
           title: string
+          total_floors: number | null
           type: string
           updated_at: string
           year_built: number | null
         }
         Insert: {
           additional_details?: string | null
+          amenities?: Json | null
           baths?: number | null
           beds: number
           city: string
           created_at?: string
+          currency?: string | null
           description: string
           features?: Json | null
+          floor?: number | null
+          furnished?: boolean | null
           id?: number
           image?: string | null
           images?: Json | null
@@ -98,23 +109,30 @@ export type Database = {
           location: string
           longitude?: number | null
           owner_id: string
+          parking?: boolean | null
           plot_area?: number | null
           postal_code?: number | null
           price: string
+          status?: string | null
           street_name?: string
           title: string
+          total_floors?: number | null
           type: string
           updated_at?: string
           year_built?: number | null
         }
         Update: {
           additional_details?: string | null
+          amenities?: Json | null
           baths?: number | null
           beds?: number
           city?: string
           created_at?: string
+          currency?: string | null
           description?: string
           features?: Json | null
+          floor?: number | null
+          furnished?: boolean | null
           id?: number
           image?: string | null
           images?: Json | null
@@ -124,11 +142,14 @@ export type Database = {
           location?: string
           longitude?: number | null
           owner_id?: string
+          parking?: boolean | null
           plot_area?: number | null
           postal_code?: number | null
           price?: string
+          status?: string | null
           street_name?: string
           title?: string
+          total_floors?: number | null
           type?: string
           updated_at?: string
           year_built?: number | null
@@ -217,6 +238,178 @@ export type Database = {
           year_built?: number | null
         }
         Relationships: []
+      }
+      property_favorites: {
+        Row: {
+          property_id: number
+          saved_at: string | null
+          user_id: string
+        }
+        Insert: {
+          property_id: number
+          saved_at?: string | null
+          user_id: string
+        }
+        Update: {
+          property_id?: number
+          saved_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_favorites_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_locations: {
+        Row: {
+          address: string
+          country: string
+          created_at: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          property_id: number
+          state: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address: string
+          country?: string
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          property_id: number
+          state?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string
+          country?: string
+          created_at?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          property_id?: number
+          state?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_locations_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_media: {
+        Row: {
+          id: string
+          is_featured: boolean | null
+          media_type: string
+          media_url: string
+          property_id: number
+          uploaded_at: string | null
+        }
+        Insert: {
+          id?: string
+          is_featured?: boolean | null
+          media_type: string
+          media_url: string
+          property_id: number
+          uploaded_at?: string | null
+        }
+        Update: {
+          id?: string
+          is_featured?: boolean | null
+          media_type?: string
+          media_url?: string
+          property_id?: number
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_media_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_views: {
+        Row: {
+          id: string
+          property_id: number
+          user_id: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          id?: string
+          property_id: number
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          id?: string
+          property_id?: number
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_views_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_details: {
+        Row: {
+          available_from: string
+          created_at: string | null
+          id: string
+          property_id: number
+          rental_period: string
+          security_deposit: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          available_from: string
+          created_at?: string | null
+          id?: string
+          property_id: number
+          rental_period: string
+          security_deposit?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          available_from?: string
+          created_at?: string | null
+          id?: string
+          property_id?: number
+          rental_period?: string
+          security_deposit?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_details_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
