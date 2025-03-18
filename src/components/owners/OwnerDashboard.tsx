@@ -71,7 +71,7 @@ export function OwnerDashboard() {
 
   const handleCreateProperty = () => {
     // Navigate to property creation page
-    navigate("/property/create");
+    navigate("/property-create");
   };
 
   const handleEditProperty = (propertyId: number) => {
