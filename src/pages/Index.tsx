@@ -266,7 +266,7 @@ export default function Index() {
                   </Link>
                 </Button>
               </>
-            ) : isLoaded && session ? (
+            ) : isLoaded (
               <Button 
                 size="lg" 
                 className={`bg-accent hover:bg-accent/90 text-white font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
@@ -276,30 +276,8 @@ export default function Index() {
                   {t('hero.browse')}
                 </Link>
               </Button>
-            ) : (
-              <>
-                <Button 
-                  size="lg" 
-                  className={`bg-accent hover:bg-accent/90 text-white font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
-                  asChild
-                >
-                  <Link to="/signup">
-                    {t('hero.list')}
-                  </Link>
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className={`bg-white hover:bg-white/90 text-secondary font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
-                  asChild
-                >
-                  <Link to="/search" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                    <SearchIcon className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                    {t('hero.browse')}
-                  </Link>
-                </Button>
-              </>
-            )}
+            ) 
+            }
           </div>
         </div>
       </section>
