@@ -30,13 +30,11 @@ export default function PropertyCreate() {
   }, [session, isLoaded, navigate, isProfileLoaded, userRole, isSellerOrAgent, profileData]);
 
   return (
-    <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <MainNav />
         <main className="container mx-auto py-6 px-4">
           <PropertyForm />
         </main>
       </div>
-    </ProtectedRoute>
   );
 }
