@@ -41,10 +41,10 @@ export default function Index() {
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const { session, isLoaded } = useAuth();
-  const { profileData } = useProfile();
+  const { profileData, isLoaded: isProfileLoaded } = useProfile();
   
-  const userRole = profileData?.role || "buyer";
-  const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
+  const userRole = profileData?.role ?? "buyer";
+  const isSellerOrAgent = isProfileLoaded && profileData ? ["seller", "agent", "admin"].includes(userRole) : false;
   
   const [videoUrl, setVideoUrl] = useState(FALLBACK_SIGNED_URL);
 
@@ -167,11 +167,9 @@ export default function Index() {
           )}
           
           {isVideoLoading && !videoError && (
-            <img 
-              src="/img/algeria-real-estate.jpg" 
-              alt={t('hero.title')} 
-              className="object-cover w-full h-full opacity-20"
-            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <p className="text-white">Loading video...</p>
+            </div>
           )}
         </div>
         
@@ -242,7 +240,7 @@ export default function Index() {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isLoaded && session && isSellerOrAgent ? (
+            {isLoaded && session && isProfileLoaded && isSellerOrAgent ? (
               <>
                 <Button 
                   size="lg" 
