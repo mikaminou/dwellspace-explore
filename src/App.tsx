@@ -18,6 +18,7 @@ import PropertyEdit from "./pages/PropertyEdit";
 import NotFound from "./pages/NotFound";
 import ProfileCompletion from "./pages/ProfileCompletion";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { PublicRoute } from "./components/PublicRoute";
 
 // Create a new query client instance
 const queryClient = new QueryClient();
@@ -28,85 +29,79 @@ const App = () => (
       <LanguageProvider>
         <BrowserRouter>
           <Routes>
+            {/* Public routes */}
             <Route path="/" element={
+              <PublicRoute>
                 <Index />
+              </PublicRoute>
             } />
             <Route path="/search" element={
-              <ProtectedRoute isPublic>
+              <PublicRoute>
                 <Search />
-              </ProtectedRoute>
+              </PublicRoute>
             } />
             <Route path="/map" element={
-              <ProtectedRoute isPublic>
+              <PublicRoute>
                 <Map />
-              </ProtectedRoute>
+              </PublicRoute>
             } />
             <Route path="/property/:id" element={
-              <ProtectedRoute isPublic>
+              <PublicRoute>
                 <PropertyDetails />
-              </ProtectedRoute>
+              </PublicRoute>
             } />
             <Route path="/signin" element={
-              <ProtectedRoute isPublic>
+              <PublicRoute>
                 <Auth />
-              </ProtectedRoute>
+              </PublicRoute>
             } />
             <Route path="/signup" element={
-              <ProtectedRoute isPublic>
+              <PublicRoute>
                 <Auth />
-              </ProtectedRoute>
+              </PublicRoute>
             } />
             <Route path="/auth" element={
-              <ProtectedRoute isPublic>
+              <PublicRoute>
                 <Auth />
-              </ProtectedRoute>
+              </PublicRoute>
             } />
             <Route path="/email-confirmation" element={
-              <ProtectedRoute isPublic>
+              <PublicRoute>
                 <EmailConfirmation />
+              </PublicRoute>
+            } />
+            
+            {/* Protected routes */}
+            <Route path="/profile-completion" element={
+              <ProtectedRoute>
+                <ProfileCompletion />
               </ProtectedRoute>
             } />
-            <Route path="/profile-completion" element={<ProfileCompletion />} />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/property-create" 
-              element={
-                <ProtectedRoute>
-                  <PropertyCreate />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/property/edit/:id" 
-              element={
-                <ProtectedRoute>
-                  <PropertyEdit />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/favorites" 
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } 
-            />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/property-create" element={
+              <ProtectedRoute>
+                <PropertyCreate />
+              </ProtectedRoute>
+            } />
+            <Route path="/property/edit/:id" element={
+              <ProtectedRoute>
+                <PropertyEdit />
+              </ProtectedRoute>
+            } />
+            <Route path="/favorites" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <Toaster />
