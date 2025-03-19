@@ -105,7 +105,7 @@ const App = () => (
               path="/favorites" 
               element={
                 <ProtectedRoute>
-                  <NotFound />
+                  <Profile />
                 </ProtectedRoute>
               } 
             />

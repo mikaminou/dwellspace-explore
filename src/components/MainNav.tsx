@@ -34,8 +34,8 @@ export function MainNav() {
   const isMobile = useIsMobile();
   
   const { profileData, isLoaded: isProfileLoaded } = useProfile();
-  const userRole = profileData?.role || "buyer";
-  const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
+  const userRole = profileData?.role ?? "buyer";
+  const isSellerOrAgent = profileData ? ["seller", "agent", "admin"].includes(userRole) : false;
   
   const handleSignOut = async () => {
     await signOut();
