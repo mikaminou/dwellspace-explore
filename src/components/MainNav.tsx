@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -215,11 +216,8 @@ export function MainNav() {
             </>
           ) : (
             <>
-              <Button variant="ghost" asChild>
-                <Link to="/auth">Sign In</Link>
-              </Button>
-              <Button variant="default" asChild>
-                <Link to="/auth?tab=signup">Sign Up</Link>
+              <Button variant="primary" className="bg-primary hover:bg-primary-dark" asChild>
+                <Link to="/auth">Log In</Link>
               </Button>
             </>
           )}
