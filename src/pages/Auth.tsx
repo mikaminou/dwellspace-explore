@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
@@ -16,21 +15,20 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth";
 import { PasswordField } from "@/components/auth/PasswordField";
 
+const LOGO_URL = "/og-image.png";
+
 export default function AuthPage() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(() => {
-    // Default to sign-in unless URL has 'signup' in it
     return location.pathname.includes('signup') || location.search.includes('tab=signup') ? "signup" : "signin";
   });
   
-  // SignIn state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   
-  // SignUp state
   const [signupError, setSignupError] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -162,7 +160,6 @@ export default function AuthPage() {
                         showPassword={showPassword}
                         togglePasswordVisibility={togglePasswordVisibility}
                         dir={dir}
-                        className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
                       />
                     </div>
                     <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" disabled={loading}>
