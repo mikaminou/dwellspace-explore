@@ -28,14 +28,46 @@ const App = () => (
       <LanguageProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/map" element={<Map />} />
-            <Route path="/property/:id" element={<PropertyDetails />} />
-            <Route path="/signin" element={<Auth />} />
-            <Route path="/signup" element={<Auth />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/email-confirmation" element={<EmailConfirmation />} />
+            <Route path="/" element={
+              <ProtectedRoute isPublic>
+                <Index />
+              </ProtectedRoute>
+            } />
+            <Route path="/search" element={
+              <ProtectedRoute isPublic>
+                <Search />
+              </ProtectedRoute>
+            } />
+            <Route path="/map" element={
+              <ProtectedRoute isPublic>
+                <Map />
+              </ProtectedRoute>
+            } />
+            <Route path="/property/:id" element={
+              <ProtectedRoute isPublic>
+                <PropertyDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="/signin" element={
+              <ProtectedRoute isPublic>
+                <Auth />
+              </ProtectedRoute>
+            } />
+            <Route path="/signup" element={
+              <ProtectedRoute isPublic>
+                <Auth />
+              </ProtectedRoute>
+            } />
+            <Route path="/auth" element={
+              <ProtectedRoute isPublic>
+                <Auth />
+              </ProtectedRoute>
+            } />
+            <Route path="/email-confirmation" element={
+              <ProtectedRoute isPublic>
+                <EmailConfirmation />
+              </ProtectedRoute>
+            } />
             <Route path="/profile-completion" element={<ProfileCompletion />} />
             <Route 
               path="/profile" 
