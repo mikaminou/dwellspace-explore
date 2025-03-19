@@ -28,7 +28,7 @@ export default function PropertyCreate() {
       return;
     }
     
-    if (isLoaded && isProfileLoaded && !isSellerOrAgent) {
+    if (isLoaded && isProfileLoaded) {
       toast.error("Only sellers and agents can create property listings");
       navigate("/");
       return;
