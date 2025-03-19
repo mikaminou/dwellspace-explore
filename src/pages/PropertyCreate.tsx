@@ -27,12 +27,6 @@ export default function PropertyCreate() {
       navigate("/signin");
       return;
     }
-    
-    if (isLoaded && isProfileLoaded) {
-      toast.error("Only sellers and agents can create property listings");
-      navigate("/");
-      return;
-    }
   }, [session, isLoaded, navigate, isProfileLoaded, userRole, isSellerOrAgent, profileData]);
 
   return (
