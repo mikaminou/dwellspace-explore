@@ -19,4 +19,5 @@ export function ProtectedRoute({ children, isPublic = false }: ProtectedRoutePro
   if (isPublic || session) {
     return <>{children}</>;
   }
+  return <Navigate to="/signin" replace />;
 }

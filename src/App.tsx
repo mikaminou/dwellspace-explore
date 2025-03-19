@@ -29,9 +29,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={
-              <ProtectedRoute isPublic>
                 <Index />
-              </ProtectedRoute>
             } />
             <Route path="/search" element={
               <ProtectedRoute isPublic>
