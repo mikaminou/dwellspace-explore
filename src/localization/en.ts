@@ -33,7 +33,9 @@ export const en = {
     title: "Find Your Dream Home in Algeria",
     subtitle: "Discover the perfect property with our extensive listings across the country",
     list: "List Your Property",
-    browse: "Browse Listings"
+    browse: "Browse Listings",
+    viewDashboard: "View Dashboard",
+    createProperty: "Create Property"
   },
   
   // Featured and Luxury sections

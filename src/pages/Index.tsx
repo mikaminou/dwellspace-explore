@@ -252,7 +252,7 @@ export default function Index() {
                 >
                   <Link to="/dashboard" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                     <LayoutDashboard className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                    {t('dashboard.viewDashboard') || "View Dashboard"}
+                    {t('hero.viewDashboard') || "View Dashboard"}
                   </Link>
                 </Button>
                 <Button 
@@ -262,7 +262,7 @@ export default function Index() {
                 >
                   <Link to="/property-create" className={`flex items-center gap-2 ${dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
                     <Plus className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
-                    {t('property.create') || "List Your Property"}
+                    {t('hero.createProperty') || "List Your Property"}
                   </Link>
                 </Button>
               </>
