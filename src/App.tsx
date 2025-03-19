@@ -9,8 +9,7 @@ import Index from "./pages/Index";
 import Search from "./pages/Search";
 import Map from "./pages/Map";
 import PropertyDetails from "./pages/PropertyDetails";
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
+import Auth from "./pages/Auth";
 import EmailConfirmation from "./pages/EmailConfirmation";
 import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
@@ -33,8 +32,9 @@ const App = () => (
             <Route path="/search" element={<Search />} />
             <Route path="/map" element={<Map />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
+            <Route path="/signin" element={<Auth />} />
+            <Route path="/signup" element={<Auth />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/email-confirmation" element={<EmailConfirmation />} />
             <Route path="/profile-completion" element={<ProfileCompletion />} />
             <Route 

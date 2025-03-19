@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -27,7 +26,6 @@ import { LanguageToggle } from "./LanguageToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProfile } from "@/hooks/useProfile";
 
-// Logo URL configuration
 const LOGO_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/logo.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9sb2dvLnBuZyIsImlhdCI6MTc0MTk1NDgzOCwiZXhwIjoxNzczNDkwODM4fQ.8WLPyFQhA5EnkDuoHlClDrI2JzmZ5wKbpGE1clp8VrU";
 
 export function MainNav() {
@@ -35,9 +33,8 @@ export function MainNav() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
-  // Get user profile data to determine role
   const { profileData, isLoaded: isProfileLoaded } = useProfile();
-  const userRole = profileData?.role || "buyer"; // Default to buyer if no role found
+  const userRole = profileData?.role || "buyer";
   const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
   
   const handleSignOut = async () => {
@@ -106,7 +103,6 @@ export function MainNav() {
               </NavigationMenuContent>
             </NavigationMenuItem>
             
-            {/* Common navigation items for all users */}
             <NavigationMenuItem>
               <Button variant="ghost" asChild>
                 <Link to="/search" className="flex items-center gap-2">
@@ -124,7 +120,6 @@ export function MainNav() {
               </Button>
             </NavigationMenuItem>
             
-            {/* Role-specific navigation items */}
             {isLoaded && session && isSellerOrAgent && (
               <>
                 <NavigationMenuItem>
@@ -151,7 +146,6 @@ export function MainNav() {
                 </Link>
               </Button>
               
-              {/* Messages button for all authenticated users */}
               <Button variant="ghost" size="icon" asChild>
                 <Link to="/messages">
                   <MessageSquare className="h-5 w-5" />
@@ -193,7 +187,6 @@ export function MainNav() {
                     </Link>
                   </DropdownMenuItem>
                   
-                  {/* Role-specific dropdown items */}
                   {isSellerOrAgent && (
                     <>
                       <DropdownMenuSeparator />
@@ -223,10 +216,10 @@ export function MainNav() {
           ) : (
             <>
               <Button variant="ghost" asChild>
-                <Link to="/signin">Sign In</Link>
+                <Link to="/auth">Sign In</Link>
               </Button>
               <Button variant="default" asChild>
-                <Link to="/signup">Sign Up</Link>
+                <Link to="/auth?tab=signup">Sign Up</Link>
               </Button>
             </>
           )}
