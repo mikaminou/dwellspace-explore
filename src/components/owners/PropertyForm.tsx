@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
@@ -38,7 +37,6 @@ import { AmenityItem } from "@/components/owners/AmenityItem";
 import { ImageUploadDropzone } from "@/components/owners/ImageUploadDropzone";
 import { LocationPicker } from "@/components/map/LocationPicker";
 
-// Define the form steps
 const formSteps = [
   { id: "location", label: "Location", icon: <MapPin className="h-4 w-4" /> },
   { id: "basic", label: "Basic Info", icon: <Home className="h-4 w-4" /> },
@@ -410,7 +408,6 @@ export function PropertyForm({ id }: PropertyFormProps) {
         toast.success("Property created successfully.");
       }
       
-      // Fix for TS2345 error: Convert propertyIdNumber to string for locationData
       const locationData = {
         property_id: propertyIdNumber,
         address: values.street_name,
@@ -1053,9 +1050,9 @@ export function PropertyForm({ id }: PropertyFormProps) {
                             {amenityOptions.map((amenity) => (
                               <AmenityItem
                                 key={amenity}
-                                label={amenity}
-                                isSelected={field.value?.includes(amenity)}
-                                onSelect={() => {
+                                name={amenity}
+                                checked={field.value?.includes(amenity)}
+                                onCheckedChange={() => {
                                   const currentAmenities = field.value || [];
                                   if (currentAmenities.includes(amenity)) {
                                     field.onChange(
@@ -1081,8 +1078,8 @@ export function PropertyForm({ id }: PropertyFormProps) {
                     <h3 className="text-lg font-medium mb-4">Main Image</h3>
                     <div className="border rounded-md p-4">
                       <ImageUploadDropzone 
-                        value={imageUrl ? [imageUrl] : []}
-                        onValueChange={handleMainImageChange}
+                        onChange={handleMainImageChange}
+                        value={imageFile ? [imageFile] : []} 
                         maxFiles={1}
                       />
                     </div>
@@ -1092,9 +1089,9 @@ export function PropertyForm({ id }: PropertyFormProps) {
                     <h3 className="text-lg font-medium mb-4">Additional Images</h3>
                     <div className="border rounded-md p-4">
                       <ImageUploadDropzone 
-                        onValueChange={handleAdditionalImagesChange}
+                        onChange={handleAdditionalImagesChange}
+                        value={additionalImages}
                         maxFiles={5}
-                        maxSize={5 * 1024 * 1024} // 5MB max
                       />
                     </div>
                     
