@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -215,11 +214,9 @@ export function MainNav() {
               </DropdownMenu>
             </>
           ) : (
-            <>
-              <Button variant="primary" className="bg-primary hover:bg-primary-dark" asChild>
-                <Link to="/auth">Log In</Link>
-              </Button>
-            </>
+            <Button variant="default" asChild>
+              <Link to="/auth">Log In</Link>
+            </Button>
           )}
         </div>
       </div>
