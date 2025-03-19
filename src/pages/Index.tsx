@@ -242,7 +242,7 @@ export default function Index() {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isLoaded && session && isSellerOrAgent ? (
+            {isLoaded && isSellerOrAgent ? (
               <>
                 <Button 
                   size="lg" 
