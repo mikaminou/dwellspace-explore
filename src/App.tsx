@@ -32,9 +32,9 @@ const App = () => (
             <Route path="/search" element={<Search />} />
             <Route path="/map" element={<Map />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/signin" element={<Auth />} />
             <Route path="/signup" element={<Auth />} />
-            <Route path="/auth" element={<Auth />} />
             <Route path="/email-confirmation" element={<EmailConfirmation />} />
             <Route path="/profile-completion" element={<ProfileCompletion />} />
             <Route 

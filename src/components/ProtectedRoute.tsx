@@ -14,5 +14,5 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
-  return session ? <>{children}</> : <Navigate to="/signin" replace />;
+  return session ? <>{children}</> : <Navigate to="/auth" replace />;
 }
