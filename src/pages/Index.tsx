@@ -266,7 +266,7 @@ export default function Index() {
                   </Link>
                 </Button>
               </>
-            ) : isLoaded (
+            ) : (
               <Button 
                 size="lg" 
                 className={`bg-accent hover:bg-accent/90 text-white font-semibold ${dir === 'rtl' ? 'flex-row-reverse arabic-text' : ''}`}
@@ -276,8 +276,7 @@ export default function Index() {
                   {t('hero.browse')}
                 </Link>
               </Button>
-            ) 
-            }
+            )}
           </div>
         </div>
       </section>
