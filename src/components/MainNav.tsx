@@ -216,10 +216,7 @@ export function MainNav() {
           ) : (
             <>
               <Button variant="ghost" asChild>
-                <Link to="/auth">Sign In</Link>
-              </Button>
-              <Button variant="default" asChild>
-                <Link to="/auth?tab=signup">Sign Up</Link>
+                <Link to="/auth">Log In</Link>
               </Button>
             </>
           )}
