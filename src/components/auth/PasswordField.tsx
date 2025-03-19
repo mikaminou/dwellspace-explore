@@ -9,7 +9,6 @@ interface PasswordFieldProps {
   togglePasswordVisibility: () => void;
   disabled?: boolean;
   dir?: "ltr" | "rtl";  // Add the dir property to the interface
-  className?: string;  // Add className to the interface
 }
 
 export function PasswordField({
@@ -18,8 +17,7 @@ export function PasswordField({
   showPassword,
   togglePasswordVisibility,
   disabled = false,
-  dir = "ltr",  // Set a default value
-  className
+  dir = "ltr"  // Set a default value
 }: PasswordFieldProps) {
   return (
     <div className="relative">
@@ -31,7 +29,7 @@ export function PasswordField({
         onChange={(e) => setPassword(e.target.value)}
         required
         disabled={disabled}
-        className={`pr-10 ${dir === 'rtl' ? 'text-right' : ''} ${className || ''}`}
+        className={`pr-10 ${dir === 'rtl' ? 'text-right' : ''}`}
         dir={dir}
       />
       <button 
