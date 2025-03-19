@@ -16,6 +16,9 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth";
 import { PasswordField } from "@/components/auth/PasswordField";
 
+// Define the LOGO_URL constant
+const LOGO_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/logo.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9sb2dvLnBuZyIsImlhdCI6MTc0MTk1NDgzOCwiZXhwIjoxNzczNDkwODM4fQ.8WLPyFQhA5EnkDuoHlClDrI2JzmZ5wKbpGE1clp8VrU";
+
 export default function AuthPage() {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(() => {
@@ -162,7 +165,6 @@ export default function AuthPage() {
                         showPassword={showPassword}
                         togglePasswordVisibility={togglePasswordVisibility}
                         dir={dir}
-                        className="bg-gray-700 border-gray-600 text-white placeholder:text-gray-400"
                       />
                     </div>
                     <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-semibold" disabled={loading}>
