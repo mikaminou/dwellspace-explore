@@ -41,7 +41,7 @@ export default function Index() {
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   
-  const { profileData, isLoaded: isProfileLoaded, isAuthenticated } = useProfile(false);
+  const { profileData, isLoaded: isProfileLoaded } = useProfile();
   
   const userRole = profileData?.role ?? "buyer";
   const isSellerOrAgent = isProfileLoaded && profileData ? ["seller", "agent", "admin"].includes(userRole) : false;

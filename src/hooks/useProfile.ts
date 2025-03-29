@@ -38,8 +38,7 @@ interface ExtendedProfile {
   updated_at: string;
 }
 
-// Add a parameter to control whether to enforce authentication
-export function useProfile(enforceAuth: boolean = true) {
+export function useProfile() {
   const { session, isLoaded } = useAuth();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileFormValues | null>(null);
@@ -63,57 +62,53 @@ export function useProfile(enforceAuth: boolean = true) {
   useEffect(() => {
     if (!isLoaded) return;
 
-    // Only redirect if enforceAuth is true and there's no session
-    if (enforceAuth && !session) {
+    if (!session) {
       navigate("/signin");
       return;
     }
 
-    // Only attempt to fetch profile if there's a session
-    if (session) {
-      const fetchProfile = async () => {
-        try {
-          setLoading(true);
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", session.user.id)
-            .single();
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
 
-          if (error) throw error;
+        if (error) throw error;
 
-          if (data) {
-            // Add license_number to data if not already present
-            const profileWithLicense = {
-              ...data,
-              license_number: (data as ExtendedProfile).license_number || "",
-            };
+        if (data) {
+          // Add license_number to data if not already present
+          const profileWithLicense = {
+            ...data,
+            license_number: (data as ExtendedProfile).license_number || "",
+          };
 
-            form.reset({
-              first_name: profileWithLicense.first_name || "",
-              last_name: profileWithLicense.last_name || "",
-              phone_number: profileWithLicense.phone_number || "",
-              bio: profileWithLicense.bio || "",
-              role: profileWithLicense.role,
-              agency: profileWithLicense.agency || "",
-              license_number: profileWithLicense.license_number || "",
-            });
-            setProfileData(profileWithLicense as ProfileFormValues);
-          }
-        } catch (error: any) {
-          toast({
-            title: t('profile.errorLoading') || "Error loading profile",
-            description: error.message || t('profile.errorLoadingDescription') || "Could not load your profile information.",
-            variant: "destructive",
+          form.reset({
+            first_name: profileWithLicense.first_name || "",
+            last_name: profileWithLicense.last_name || "",
+            phone_number: profileWithLicense.phone_number || "",
+            bio: profileWithLicense.bio || "",
+            role: profileWithLicense.role,
+            agency: profileWithLicense.agency || "",
+            license_number: profileWithLicense.license_number || "",
           });
-        } finally {
-          setLoading(false);
+          setProfileData(profileWithLicense as ProfileFormValues);
         }
-      };
+      } catch (error: any) {
+        toast({
+          title: t('profile.errorLoading') || "Error loading profile",
+          description: error.message || t('profile.errorLoadingDescription') || "Could not load your profile information.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchProfile();
-    }
-  }, [session, isLoaded, navigate, toast, form, t, enforceAuth]);
+    fetchProfile();
+  }, [session, isLoaded, navigate, toast, form, t]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     try {
@@ -149,7 +144,7 @@ export function useProfile(enforceAuth: boolean = true) {
     }
   };
 
-  // Get user information with fallbacks for anonymous users
+  // Get user information
   const userEmail = session?.user?.email;
   const userAvatar = session?.user?.user_metadata?.avatar_url;
   const userName = profileData?.first_name || session?.user?.user_metadata?.first_name || "";
@@ -175,7 +170,6 @@ export function useProfile(enforceAuth: boolean = true) {
       userAgency,
       userLicenseNumber,
     },
-    isLoaded,
-    isAuthenticated: !!session
+    isLoaded
   };
 }
