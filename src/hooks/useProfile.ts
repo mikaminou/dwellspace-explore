@@ -38,7 +38,8 @@ interface ExtendedProfile {
   updated_at: string;
 }
 
-export function useProfile() {
+// Add a parameter to control whether to enforce authentication
+export function useProfile(enforceAuth: boolean = true) {
   const { session, isLoaded } = useAuth();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileFormValues | null>(null);
@@ -62,53 +63,57 @@ export function useProfile() {
   useEffect(() => {
     if (!isLoaded) return;
 
-    if (!session) {
+    // Only redirect if enforceAuth is true and there's no session
+    if (enforceAuth && !session) {
       navigate("/signin");
       return;
     }
 
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
+    // Only attempt to fetch profile if there's a session
+    if (session) {
+      const fetchProfile = async () => {
+        try {
+          setLoading(true);
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", session.user.id)
+            .single();
 
-        if (error) throw error;
+          if (error) throw error;
 
-        if (data) {
-          // Add license_number to data if not already present
-          const profileWithLicense = {
-            ...data,
-            license_number: (data as ExtendedProfile).license_number || "",
-          };
+          if (data) {
+            // Add license_number to data if not already present
+            const profileWithLicense = {
+              ...data,
+              license_number: (data as ExtendedProfile).license_number || "",
+            };
 
-          form.reset({
-            first_name: profileWithLicense.first_name || "",
-            last_name: profileWithLicense.last_name || "",
-            phone_number: profileWithLicense.phone_number || "",
-            bio: profileWithLicense.bio || "",
-            role: profileWithLicense.role,
-            agency: profileWithLicense.agency || "",
-            license_number: profileWithLicense.license_number || "",
+            form.reset({
+              first_name: profileWithLicense.first_name || "",
+              last_name: profileWithLicense.last_name || "",
+              phone_number: profileWithLicense.phone_number || "",
+              bio: profileWithLicense.bio || "",
+              role: profileWithLicense.role,
+              agency: profileWithLicense.agency || "",
+              license_number: profileWithLicense.license_number || "",
+            });
+            setProfileData(profileWithLicense as ProfileFormValues);
+          }
+        } catch (error: any) {
+          toast({
+            title: t('profile.errorLoading') || "Error loading profile",
+            description: error.message || t('profile.errorLoadingDescription') || "Could not load your profile information.",
+            variant: "destructive",
           });
-          setProfileData(profileWithLicense as ProfileFormValues);
+        } finally {
+          setLoading(false);
         }
-      } catch (error: any) {
-        toast({
-          title: t('profile.errorLoading') || "Error loading profile",
-          description: error.message || t('profile.errorLoadingDescription') || "Could not load your profile information.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    fetchProfile();
-  }, [session, isLoaded, navigate, toast, form, t]);
+      fetchProfile();
+    }
+  }, [session, isLoaded, navigate, toast, form, t, enforceAuth]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     try {
@@ -144,7 +149,7 @@ export function useProfile() {
     }
   };
 
-  // Get user information
+  // Get user information with fallbacks for anonymous users
   const userEmail = session?.user?.email;
   const userAvatar = session?.user?.user_metadata?.avatar_url;
   const userName = profileData?.first_name || session?.user?.user_metadata?.first_name || "";
@@ -170,6 +175,7 @@ export function useProfile() {
       userAgency,
       userLicenseNumber,
     },
-    isLoaded
+    isLoaded,
+    isAuthenticated: !!session
   };
 }
