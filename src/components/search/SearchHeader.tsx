@@ -2,13 +2,17 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search as SearchIcon, Filter as FilterIcon } from "lucide-react";
+import { Search as SearchIcon, Filter as FilterIcon, Sparkles } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { useSearch } from "@/contexts/search/SearchContext";
+import { SearchSuggestions } from "./SearchSuggestions";
+import { toast } from "@/components/ui/use-toast";
 
 export function SearchHeader() {
   const [searchHeaderSticky, setSearchHeaderSticky] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const searchHeaderRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { t, dir } = useLanguage();
   const { 
     searchTerm, 
@@ -31,6 +35,34 @@ export function SearchHeader() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleInputFocus = () => {
+    setShowSuggestions(true);
+  };
+
+  const handleSelectSuggestion = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    handleSearch();
+    toast({
+      title: t('search.searchingFor') || "Searching for",
+      description: suggestion,
+      duration: 3000,
+    });
+  };
+
+  // Handle keyboard shortcut to open search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Open search on Ctrl+K or Cmd+K
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSuggestions(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <div 
       ref={searchHeaderRef}
@@ -43,16 +75,24 @@ export function SearchHeader() {
           <div className="relative w-full md:flex-1">
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input 
+              ref={inputRef}
               className={`pl-10 ${dir === 'rtl' ? 'arabic-text' : ''} h-12 border-2 focus:border-cta transition-colors`} 
               placeholder={t('search.placeholder')} 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onFocus={handleInputFocus}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleSearch();
+                  setShowSuggestions(false);
                 }
               }}
             />
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">
+              <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </div>
           </div>
           
           <Button 
@@ -81,6 +121,14 @@ export function SearchHeader() {
           </Button>
         </div>
       </div>
+
+      <SearchSuggestions
+        open={showSuggestions}
+        setOpen={setShowSuggestions}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        onSelectSuggestion={handleSelectSuggestion}
+      />
     </div>
   );
 }

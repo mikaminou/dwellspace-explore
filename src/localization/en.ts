@@ -123,7 +123,16 @@ export const en = {
     livingArea: "Living Area",
     searchFailed: "Search failed",
     errorFetchingLimits: "Error fetching limits",
-    clearAll: "Clear All"
+    clearAll: "Clear All",
+    ai: "AI",
+    aiSuggestions: "AI Suggestions",
+    recentSearches: "Recent Searches",
+    trendingSearches: "Trending Searches",
+    searchFor: "Search for",
+    suggestionsPlaceholder: "Type to search...",
+    searchingFor: "Searching for",
+    aiActivated: "AI Search Activated",
+    aiDescription: "We're analyzing your natural language query to find the perfect properties."
   },
   
   // Property details

@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
-import { SearchIcon, ArrowRightIcon, StarIcon, Plus, LayoutDashboard } from "lucide-react";
+import { SearchIcon, ArrowRightIcon, StarIcon, Plus, LayoutDashboard, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { useProperties } from "@/hooks/useProperties";
 import { Property } from "@/api/properties";
 import PropertyCard from "@/components/PropertyCard";
 import { useProfile } from "@/hooks/useProfile";
+import { SearchSuggestions } from "@/components/search/SearchSuggestions";
 
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
@@ -40,8 +41,12 @@ export default function Index() {
   const [videoError, setVideoError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [selectedPropertyType, setSelectedPropertyType] = useState('any');
+  const [selectedListingType, setSelectedListingType] = useState('any');
   
-  const { profileData, isLoaded: isProfileLoaded } = useProfile();
+  const { profileData, isLoaded: isProfileLoaded } = useProfile(false);
   
   const userRole = profileData?.role ?? "buyer";
   const isSellerOrAgent = isProfileLoaded && profileData ? ["seller", "agent", "admin"].includes(userRole) : false;
@@ -76,13 +81,13 @@ export default function Index() {
   const getListingTypeColor = (property: Property): string => {
     if (property.listing_type === 'rent') return 'bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300';
     if (property.listing_type === 'construction') return 'bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-300';
-    return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300'; // default for sale
+    return 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300';
   };
 
   const getListingTypeText = (property: Property): string => {
     if (property.listing_type === 'rent') return t('property.forRent');
     if (property.listing_type === 'construction') return t('property.underConstruction');
-    return t('property.forSale'); // default for sale
+    return t('property.forSale');
   };
 
   useEffect(() => {
@@ -127,6 +132,30 @@ export default function Index() {
       variant: "destructive",
     });
   };
+
+  const handleSearchSubmit = () => {
+    if (searchInput.trim()) {
+      window.location.href = `/search?q=${encodeURIComponent(searchInput)}&propertyType=${selectedPropertyType}&listingType=${selectedListingType}`;
+    }
+  };
+
+  const handleSelectSuggestion = (suggestion: string) => {
+    setSearchInput(suggestion);
+    setShowSearchSuggestions(false);
+    handleSearchSubmit();
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearchSuggestions(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -183,15 +212,33 @@ export default function Index() {
           
           <div className="bg-white dark:bg-card p-2 rounded-lg shadow-lg mb-8 max-w-3xl mx-auto animate-slide-up delay-100">
             <div className="flex flex-col md:flex-row">
-              <div className="flex-grow md:border-r dark:border-gray-700 p-2">
+              <div className="flex-grow md:border-r dark:border-gray-700 p-2 relative">
                 <Input 
                   placeholder={t('search.location')}
                   className={`h-12 border-0 shadow-none ${dir === 'rtl' ? 'arabic-text text-right pr-4' : ''}`}
                   dir={dir}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onFocus={() => setShowSearchSuggestions(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearchSubmit();
+                    }
+                  }}
                 />
+                
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                  <div className="bg-cta/10 text-cta text-xs p-1 rounded-md flex items-center">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    <span>{t('search.ai') || "AI"}</span>
+                  </div>
+                </div>
               </div>
               <div className="md:w-44 p-2">
-                <Select>
+                <Select 
+                  value={selectedPropertyType} 
+                  onValueChange={setSelectedPropertyType}
+                >
                   <SelectTrigger className={`h-12 border-0 shadow-none ${dir === 'rtl' ? 'arabic-text text-right' : ''}`} dir={dir}>
                     <SelectValue placeholder={t('search.propertyType')} />
                   </SelectTrigger>
@@ -211,7 +258,10 @@ export default function Index() {
                 </Select>
               </div>
               <div className="md:w-44 p-2">
-                <Select>
+                <Select
+                  value={selectedListingType}
+                  onValueChange={setSelectedListingType}
+                >
                   <SelectTrigger className={`h-12 border-0 shadow-none ${dir === 'rtl' ? 'arabic-text text-right' : ''}`} dir={dir}>
                     <SelectValue placeholder={t('search.listingType')} />
                   </SelectTrigger>
@@ -231,7 +281,11 @@ export default function Index() {
                 </Select>
               </div>
               <div className="p-2">
-                <Button className={`w-full h-12 bg-primary hover:bg-primary/90 text-white ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`} size="lg">
+                <Button 
+                  className={`w-full h-12 bg-primary hover:bg-primary/90 text-white ${dir === 'rtl' ? 'arabic-text flex-row-reverse' : ''}`} 
+                  size="lg"
+                  onClick={handleSearchSubmit}
+                >
                   <SearchIcon className={`h-5 w-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                   {t('search.search')}
                 </Button>
@@ -277,6 +331,14 @@ export default function Index() {
             )}
           </div>
         </div>
+
+        <SearchSuggestions
+          open={showSearchSuggestions}
+          setOpen={setShowSearchSuggestions}
+          searchTerm={searchInput}
+          setSearchTerm={setSearchInput}
+          onSelectSuggestion={handleSelectSuggestion}
+        />
       </section>
       
       <section className="py-16 bg-gray-50 dark:bg-secondary/10">

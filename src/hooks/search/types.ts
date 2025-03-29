@@ -9,6 +9,7 @@ export interface SearchFilters {
   minLivingArea?: number;
   maxLivingArea?: number;
   listingType?: string;
+  naturalLanguageQuery?: string; // Add support for natural language queries
 }
 
 export interface SearchState {
@@ -51,6 +52,12 @@ export interface SearchActions {
   handleReset: () => void;
   getActiveFiltersCount: () => number;
   handleFilterRemoval: (filterType: string, value?: string) => void;
+}
+
+export interface SearchSuggestion {
+  text: string;
+  type: "history" | "ai" | "trending";
+  timestamp?: number;
 }
 
 export type SearchHookResult = SearchState & SearchActions & {
