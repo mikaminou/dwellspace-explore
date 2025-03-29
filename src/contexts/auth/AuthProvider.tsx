@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { Session } from "@supabase/supabase-js";
@@ -17,6 +16,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   
   useEffect(() => {
+    // Set isLoaded to true immediately
+    setIsLoaded(true);
+
     // Firebase auth state for notifications
     let unsubscribeFirebase = () => {};
     
@@ -44,9 +46,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       (_event, session) => {
         console.log("Auth state changed:", _event, session);
         setSession(session);
-        setIsLoaded(true);
       }
     );
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+      setSession(initialSession);
+    });
     
     return () => {
       unsubscribeFirebase();
@@ -64,7 +70,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signInWithPhone: authService.signInWithPhone,
     verifyOTP: authService.verifyOTP,
     signOut: authService.signOut,
-    sendEmailConfirmation: authService.sendEmailConfirmation, // Add the missing method
+    sendEmailConfirmation: authService.sendEmailConfirmation,
   };
   
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

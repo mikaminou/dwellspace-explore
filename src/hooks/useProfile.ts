@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
@@ -62,55 +61,74 @@ export function useProfile() {
   useEffect(() => {
     if (!isLoaded) return;
 
+    // Only fetch profile if there's a session
+    if (session) {
+      const fetchProfile = async () => {
+        try {
+          setLoading(true);
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", session.user.id)
+            .single();
+
+          if (error) throw error;
+
+          if (data) {
+            // Add license_number to data if not already present
+            const profileWithLicense = {
+              ...data,
+              license_number: (data as ExtendedProfile).license_number || "",
+            };
+
+            form.reset({
+              first_name: profileWithLicense.first_name || "",
+              last_name: profileWithLicense.last_name || "",
+              phone_number: profileWithLicense.phone_number || "",
+              bio: profileWithLicense.bio || "",
+              role: profileWithLicense.role,
+              agency: profileWithLicense.agency || "",
+              license_number: profileWithLicense.license_number || "",
+            });
+            setProfileData(profileWithLicense as ProfileFormValues);
+          }
+        } catch (error: any) {
+          toast({
+            title: t('profile.errorLoading') || "Error loading profile",
+            description: error.message || t('profile.errorLoadingDescription') || "Could not load your profile information.",
+            variant: "destructive",
+          });
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchProfile();
+    } else {
+      // Reset form and profile data when there's no session
+      form.reset({
+        first_name: "",
+        last_name: "",
+        phone_number: "",
+        bio: "",
+        role: "buyer",
+        agency: "",
+        license_number: "",
+      });
+      setProfileData(null);
+    }
+  }, [session, isLoaded, toast, form, t]);
+
+  const onSubmit = async (values: ProfileFormValues) => {
     if (!session) {
-      navigate("/signin");
+      toast({
+        title: t('profile.errorNotAuthenticated') || "Not authenticated",
+        description: t('profile.errorNotAuthenticatedDescription') || "Please sign in to update your profile.",
+        variant: "destructive",
+      });
       return;
     }
 
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-
-        if (error) throw error;
-
-        if (data) {
-          // Add license_number to data if not already present
-          const profileWithLicense = {
-            ...data,
-            license_number: (data as ExtendedProfile).license_number || "",
-          };
-
-          form.reset({
-            first_name: profileWithLicense.first_name || "",
-            last_name: profileWithLicense.last_name || "",
-            phone_number: profileWithLicense.phone_number || "",
-            bio: profileWithLicense.bio || "",
-            role: profileWithLicense.role,
-            agency: profileWithLicense.agency || "",
-            license_number: profileWithLicense.license_number || "",
-          });
-          setProfileData(profileWithLicense as ProfileFormValues);
-        }
-      } catch (error: any) {
-        toast({
-          title: t('profile.errorLoading') || "Error loading profile",
-          description: error.message || t('profile.errorLoadingDescription') || "Could not load your profile information.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [session, isLoaded, navigate, toast, form, t]);
-
-  const onSubmit = async (values: ProfileFormValues) => {
     try {
       setLoading(true);
       const { error } = await supabase
@@ -125,7 +143,7 @@ export function useProfile() {
           license_number: values.license_number,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", session?.user.id);
+        .eq("id", session.user.id);
 
       if (error) throw error;
 

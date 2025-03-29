@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,9 +25,9 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <LanguageProvider>
-        <AuthProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <LanguageProvider>
           <BrowserRouter>
             <Routes>
               {/* Public routes */}
@@ -109,9 +108,9 @@ const App = () => (
             <Toaster />
             <Sonner />
           </BrowserRouter>
-        </AuthProvider>
-      </LanguageProvider>
-    </TooltipProvider>
+        </LanguageProvider>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
