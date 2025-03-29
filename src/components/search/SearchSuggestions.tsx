@@ -34,7 +34,7 @@ export function SearchSuggestions({
     if (!searchTerm || searchTerm.length < 2) return [];
     
     // These would normally come from an AI service, but for now we'll use static examples
-    const aiSuggestions = [
+    const aiSuggestions: SearchSuggestion[] = [
       { text: `${searchTerm} with pool`, type: "ai" },
       { text: `${searchTerm} near city center`, type: "ai" },
       { text: `modern ${searchTerm}`, type: "ai" },
@@ -70,8 +70,14 @@ export function SearchSuggestions({
     // Add to search history if it doesn't exist already
     const exists = searchHistory.some(item => item.text === suggestion);
     if (!exists) {
+      const newHistoryItem: SearchSuggestion = {
+        text: suggestion, 
+        type: "history", 
+        timestamp: Date.now()
+      };
+      
       const newHistory = [
-        { text: suggestion, type: "history", timestamp: Date.now() },
+        newHistoryItem,
         ...searchHistory,
       ].slice(0, 10); // Keep only the last 10 searches
       
