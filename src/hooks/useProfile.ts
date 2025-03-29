@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
@@ -37,7 +38,7 @@ interface ExtendedProfile {
   updated_at: string;
 }
 
-export function useProfile() {
+export function useProfile(redirectIfNotAuth: boolean = true) {
   const { session, isLoaded } = useAuth();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileFormValues | null>(null);
@@ -116,8 +117,13 @@ export function useProfile() {
         license_number: "",
       });
       setProfileData(null);
+      
+      // Redirect to auth page if not authenticated and redirectIfNotAuth is true
+      if (redirectIfNotAuth) {
+        navigate('/auth');
+      }
     }
-  }, [session, isLoaded, toast, form, t]);
+  }, [session, isLoaded, toast, form, t, navigate, redirectIfNotAuth]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     if (!session) {
