@@ -4,6 +4,7 @@ import { CommandDialog, CommandGroup, CommandInput, CommandItem, CommandList } f
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Building, Clock, Search, Sparkles, TrendingUp } from "lucide-react";
+import { parseNaturalLanguageQuery } from "@/utils/naturalLanguageSearch";
 
 export interface SearchSuggestion {
   text: string;
@@ -33,7 +34,7 @@ export function SearchSuggestions({
   const getAiSuggestions = (): SearchSuggestion[] => {
     if (!searchTerm || searchTerm.length < 2) return [];
     
-    // These would normally come from an AI service, but for now we'll use static examples
+    // Create common property-related natural language suggestions
     const aiSuggestions: SearchSuggestion[] = [
       { text: `${searchTerm} with pool`, type: "ai" },
       { text: `${searchTerm} near city center`, type: "ai" },
@@ -42,15 +43,33 @@ export function SearchSuggestions({
       { text: `${searchTerm} under $500,000`, type: "ai" },
     ];
     
+    // If the search term already has natural language elements,
+    // generate more specific suggestions based on what's already there
+    const extractedFilters = parseNaturalLanguageQuery(searchTerm);
+    if (Object.keys(extractedFilters).length > 0) {
+      // Add more contextually relevant suggestions
+      if (!extractedFilters.beds) {
+        aiSuggestions.push({ text: `${searchTerm} with 2 bedrooms`, type: "ai" });
+      }
+      
+      if (!extractedFilters.maxPrice) {
+        aiSuggestions.push({ text: `${searchTerm} under $300,000`, type: "ai" });
+      }
+      
+      if (!extractedFilters.city && !searchTerm.includes("near")) {
+        aiSuggestions.push({ text: `${searchTerm} in Algiers`, type: "ai" });
+      }
+    }
+    
     return aiSuggestions.slice(0, 3); // Limit to 3 suggestions
   };
   
   // Get trending searches
   const getTrendingSearches = (): SearchSuggestion[] => {
     return [
-      { text: "Villa with pool", type: "trending" },
+      { text: "Villa with pool in Algiers", type: "trending" },
       { text: "Apartment near university", type: "trending" },
-      { text: "3 bedroom house", type: "trending" },
+      { text: "3 bedroom house under $200,000", type: "trending" },
     ];
   };
   
@@ -85,6 +104,12 @@ export function SearchSuggestions({
     }
     
     setOpen(false);
+  };
+
+  // Check if search term appears to be a natural language query
+  const isNaturalLanguageQuery = (query: string): boolean => {
+    const nlpTriggers = ['bedroom', 'with', 'near', 'under', 'between', 'modern', 'in'];
+    return nlpTriggers.some(trigger => query.toLowerCase().includes(trigger));
   };
 
   return (
@@ -147,7 +172,11 @@ export function SearchSuggestions({
               onSelect={() => handleSelect(searchTerm)}
               className={dir === "rtl" ? "flex-row-reverse arabic-text text-right" : ""}
             >
-              <Search className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"}`} />
+              {isNaturalLanguageQuery(searchTerm) ? (
+                <Sparkles className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"} text-cta`} />
+              ) : (
+                <Search className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"}`} />
+              )}
               {t('search.searchFor') || "Search for"} "{searchTerm}"
             </CommandItem>
           </CommandGroup>

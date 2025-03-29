@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/language/LanguageContext";
 import { useSearch } from "@/contexts/search/SearchContext";
 import { SearchSuggestions } from "./SearchSuggestions";
 import { toast } from "@/components/ui/use-toast";
+import { parseNaturalLanguageQuery, applyNaturalLanguageFilters } from "@/utils/naturalLanguageSearch";
 
 export function SearchHeader() {
   const [searchHeaderSticky, setSearchHeaderSticky] = useState(false);
@@ -20,7 +21,13 @@ export function SearchHeader() {
     showFilters, 
     setShowFilters, 
     getActiveFiltersCount, 
-    handleSearch 
+    handleSearch,
+    setPropertyType,
+    setMinBeds,
+    setMinPrice,
+    setMaxPrice,
+    setSelectedCity,
+    filtersApplied
   } = useSearch();
 
   useEffect(() => {
@@ -41,12 +48,57 @@ export function SearchHeader() {
 
   const handleSelectSuggestion = (suggestion: string) => {
     setSearchTerm(suggestion);
+    
+    // Process natural language query
+    const extractedFilters = parseNaturalLanguageQuery(suggestion);
+    
+    // Apply filters if we found any
+    if (Object.keys(extractedFilters).length > 0) {
+      applyNaturalLanguageFilters(
+        extractedFilters, 
+        { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCity }
+      );
+      
+      // Mark filters as applied
+      filtersApplied.current = true;
+      
+      // Show filters if we've applied any
+      if (!showFilters) {
+        setShowFilters(true);
+      }
+    }
+    
     handleSearch();
+    
     toast({
       title: t('search.searchingFor') || "Searching for",
       description: suggestion,
       duration: 3000,
     });
+  };
+
+  const handleSearchClick = () => {
+    // Process natural language query
+    const extractedFilters = parseNaturalLanguageQuery(searchTerm);
+    
+    // Apply filters if we found any
+    if (Object.keys(extractedFilters).length > 0) {
+      applyNaturalLanguageFilters(
+        extractedFilters, 
+        { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCity }
+      );
+      
+      // Mark filters as applied
+      filtersApplied.current = true;
+      
+      // Show filters if we've applied any
+      if (!showFilters) {
+        setShowFilters(true);
+      }
+    }
+    
+    handleSearch();
+    setShowSuggestions(false);
   };
 
   // Handle keyboard shortcut to open search
@@ -77,13 +129,13 @@ export function SearchHeader() {
             <Input 
               ref={inputRef}
               className={`pl-10 ${dir === 'rtl' ? 'arabic-text' : ''} h-12 border-2 focus:border-cta transition-colors`} 
-              placeholder={t('search.placeholder')} 
+              placeholder={t('search.placeholder') || "Try 'modern 3 bedroom house with pool in Algiers'"}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onFocus={handleInputFocus}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleSearch();
+                  handleSearchClick();
                   setShowSuggestions(false);
                 }
               }}
@@ -111,7 +163,7 @@ export function SearchHeader() {
           </Button>
 
           <Button 
-            onClick={handleSearch} 
+            onClick={handleSearchClick} 
             variant="cta" 
             size="lg"
             className="w-full md:w-auto transition-all duration-200"

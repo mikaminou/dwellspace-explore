@@ -8,6 +8,7 @@ import { SearchProvider } from "@/contexts/search/SearchContext";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { Sparkles } from "lucide-react";
+import { parseNaturalLanguageQuery } from "@/utils/naturalLanguageSearch";
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -15,7 +16,7 @@ export default function Search() {
   const propertyType = searchParams.get('propertyType');
   const listingType = searchParams.get('listingType');
 
-  // Show notification for natural language queries
+  // Show notification and analyze natural language queries
   useEffect(() => {
     if (searchQuery && (
       searchQuery.includes("bedroom") || 
@@ -24,13 +25,27 @@ export default function Search() {
       searchQuery.includes("under") ||
       searchQuery.toLowerCase().includes("modern")
     )) {
+      // Parse the natural language query to identify what we can extract
+      const extractedFilters = parseNaturalLanguageQuery(searchQuery);
+      const filterCount = Object.keys(extractedFilters).filter(key => 
+        extractedFilters[key as keyof typeof extractedFilters] !== undefined && 
+        (
+          !Array.isArray(extractedFilters[key as keyof typeof extractedFilters]) || 
+          (extractedFilters[key as keyof typeof extractedFilters] as any[]).length > 0
+        )
+      ).length;
+      
+      const filterDescription = filterCount > 0 
+        ? `We found ${filterCount} search criteria in your query.` 
+        : "We're analyzing your natural language query.";
+
       setTimeout(() => {
         toast({
           title: "AI Search Activated",
           description: (
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-cta" />
-              <span>We're analyzing your natural language query to find the perfect properties.</span>
+              <span>{filterDescription}</span>
             </div>
           ),
           duration: 5000,
