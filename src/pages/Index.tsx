@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import { Button } from "@/components/ui/button";
 import { MainNav } from "@/components/MainNav";
 import { SearchIcon, ArrowRightIcon, StarIcon, Plus, LayoutDashboard } from "lucide-react";
@@ -13,7 +14,6 @@ import { useProperties } from "@/hooks/useProperties";
 import { Property } from "@/api/properties";
 import PropertyCard from "@/components/PropertyCard";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuth } from "@/contexts/auth";
 
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
@@ -40,7 +40,7 @@ export default function Index() {
   const [videoError, setVideoError] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
-  const { session, isLoaded } = useAuth();
+  
   const { profileData, isLoaded: isProfileLoaded } = useProfile();
   
   const userRole = profileData?.role ?? "buyer";
@@ -240,7 +240,7 @@ export default function Index() {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isLoaded && session && isProfileLoaded && isSellerOrAgent ? (
+            {isProfileLoaded && isSellerOrAgent ? (
               <>
                 <Button 
                   size="lg" 
