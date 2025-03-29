@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,12 +37,11 @@ interface ExtendedProfile {
   updated_at: string;
 }
 
-export function useProfile(redirectIfNotAuth: boolean = true) {
+export function useProfile(redirectIfNotAuth: boolean = false) {
   const { session, isLoaded } = useAuth();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileFormValues | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
   const { t } = useLanguage();
 
   const form = useForm<ProfileFormValues>({
@@ -118,12 +116,9 @@ export function useProfile(redirectIfNotAuth: boolean = true) {
       });
       setProfileData(null);
       
-      // Redirect to auth page if not authenticated and redirectIfNotAuth is true
-      if (redirectIfNotAuth) {
-        navigate('/auth');
-      }
+      // No automatic redirection - this should be handled by route components
     }
-  }, [session, isLoaded, toast, form, t, navigate, redirectIfNotAuth]);
+  }, [session, isLoaded, toast, form, t]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     if (!session) {
