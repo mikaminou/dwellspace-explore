@@ -139,10 +139,12 @@ export default function Index() {
     }
   };
 
-  const handleSelectSuggestion = (suggestion: string) => {
-    setSearchInput(suggestion);
-    setShowSearchSuggestions(false);
-    handleSearchSubmit();
+  const handleSelectSuggestion = (suggestion?: string) => {
+    if (suggestion && suggestion.trim()) {
+      setSearchInput(suggestion);
+      setShowSearchSuggestions(false);
+      handleSearchSubmit();
+    }
   };
 
   useEffect(() => {
