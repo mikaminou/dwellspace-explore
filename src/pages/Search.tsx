@@ -27,9 +27,13 @@ export default function Search() {
       setTimeout(() => {
         toast({
           title: "AI Search Activated",
-          description: "We're analyzing your natural language query to find the perfect properties.",
+          description: (
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-cta" />
+              <span>We're analyzing your natural language query to find the perfect properties.</span>
+            </div>
+          ),
           duration: 5000,
-          icon: <Sparkles className="h-4 w-4 text-cta" />
         });
       }, 500);
     }
