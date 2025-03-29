@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/language/LanguageContext";
+import { AuthProvider } from "@/contexts/auth";
 import Index from "./pages/Index";
 import Search from "./pages/Search";
 import Map from "./pages/Map";
@@ -27,86 +28,88 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <LanguageProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={
-              <PublicRoute>
-                <Index />
-              </PublicRoute>
-            } />
-            <Route path="/search" element={
-              <PublicRoute>
-                <Search />
-              </PublicRoute>
-            } />
-            <Route path="/map" element={
-              <PublicRoute>
-                <Map />
-              </PublicRoute>
-            } />
-            <Route path="/property/:id" element={
-              <PublicRoute>
-                <PropertyDetails />
-              </PublicRoute>
-            } />
-            <Route path="/signin" element={
-              <PublicRoute>
-                <Auth />
-              </PublicRoute>
-            } />
-            <Route path="/signup" element={
-              <PublicRoute>
-                <Auth />
-              </PublicRoute>
-            } />
-            <Route path="/auth" element={
-              <PublicRoute>
-                <Auth />
-              </PublicRoute>
-            } />
-            <Route path="/email-confirmation" element={
-              <PublicRoute>
-                <EmailConfirmation />
-              </PublicRoute>
-            } />
-            
-            {/* Protected routes */}
-            <Route path="/profile-completion" element={
-              <ProtectedRoute>
-                <ProfileCompletion />
-              </ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/property-create" element={
-              <ProtectedRoute>
-                <PropertyCreate />
-              </ProtectedRoute>
-            } />
-            <Route path="/property/edit/:id" element={
-              <ProtectedRoute>
-                <PropertyEdit />
-              </ProtectedRoute>
-            } />
-            <Route path="/favorites" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Toaster />
-          <Sonner />
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={
+                <PublicRoute>
+                  <Index />
+                </PublicRoute>
+              } />
+              <Route path="/search" element={
+                <PublicRoute>
+                  <Search />
+                </PublicRoute>
+              } />
+              <Route path="/map" element={
+                <PublicRoute>
+                  <Map />
+                </PublicRoute>
+              } />
+              <Route path="/property/:id" element={
+                <PublicRoute>
+                  <PropertyDetails />
+                </PublicRoute>
+              } />
+              <Route path="/signin" element={
+                <PublicRoute>
+                  <Auth />
+                </PublicRoute>
+              } />
+              <Route path="/signup" element={
+                <PublicRoute>
+                  <Auth />
+                </PublicRoute>
+              } />
+              <Route path="/auth" element={
+                <PublicRoute>
+                  <Auth />
+                </PublicRoute>
+              } />
+              <Route path="/email-confirmation" element={
+                <PublicRoute>
+                  <EmailConfirmation />
+                </PublicRoute>
+              } />
+              
+              {/* Protected routes */}
+              <Route path="/profile-completion" element={
+                <ProtectedRoute>
+                  <ProfileCompletion />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/property-create" element={
+                <ProtectedRoute>
+                  <PropertyCreate />
+                </ProtectedRoute>
+              } />
+              <Route path="/property/edit/:id" element={
+                <ProtectedRoute>
+                  <PropertyEdit />
+                </ProtectedRoute>
+              } />
+              <Route path="/favorites" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Toaster />
+            <Sonner />
+          </BrowserRouter>
+        </AuthProvider>
       </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
