@@ -139,7 +139,7 @@ export default function Index() {
     }
   };
 
-  const handleSelectSuggestion = (suggestion?: string) => {
+  const handleSelectSuggestion = (suggestion: string | undefined) => {
     if (suggestion && suggestion.trim()) {
       setSearchInput(suggestion);
       setShowSearchSuggestions(false);
