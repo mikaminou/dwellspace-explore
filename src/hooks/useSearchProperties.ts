@@ -42,7 +42,7 @@ export function useSearchProperties(): SearchHookResult {
     setInitialLoadDone
   );
 
-  // Search operations
+  // Search operations - fixed the parameter order
   const { handleSearch } = useSearchOperations(
     searchTerm,
     selectedCities,
@@ -51,12 +51,13 @@ export function useSearchProperties(): SearchHookResult {
     minPrice,
     maxPrice,
     minBeds,
+    minBaths,
     minLivingArea,
     maxLivingArea,
-    setProperties,
-    setLoading,
     filtersApplied,
-    selectedAmenities
+    selectedAmenities,
+    setProperties,
+    setLoading
   );
 
   // Filter management

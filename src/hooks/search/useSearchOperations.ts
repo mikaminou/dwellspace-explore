@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { searchProperties } from "@/api";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { Property } from "@/api/properties";
 
 export function useSearchOperations(
   searchTerm: string,
@@ -15,10 +16,10 @@ export function useSearchOperations(
   minBaths: number,
   minLivingArea: number,
   maxLivingArea: number,
-  setProperties: (properties: any[]) => void,
-  setLoading: (loading: boolean) => void,
   filtersApplied: React.MutableRefObject<boolean>,
-  selectedAmenities: string[] = []
+  selectedAmenities: string[] = [],
+  setProperties: (properties: Property[]) => void,
+  setLoading: (loading: boolean) => void
 ) {
   const { t } = useLanguage();
 
