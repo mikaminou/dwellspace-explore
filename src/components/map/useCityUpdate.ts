@@ -23,7 +23,6 @@ export function useCityUpdate(
     if (cityCoords) {
       console.log(`Flying to ${selectedCity}: [${cityCoords.lng}, ${cityCoords.lat}]`);
       
-      // Ensure the coordinates are valid (not in water for coastal cities)
       map.current.flyTo({
         center: [cityCoords.lng, cityCoords.lat],
         zoom: 12,

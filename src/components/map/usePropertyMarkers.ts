@@ -62,22 +62,6 @@ export function usePropertyMarkers(
         return;
       }
       
-      // For Oran city, validate and fix coordinates if they appear to be in the water
-      if (property.city === 'Oran') {
-        // Check if latitude and longitude are likely swapped or in water
-        // Golfe d'Oran approximate bounds check
-        const inWater = property.longitude > -1.0 && property.longitude < 0.0 && 
-                        property.latitude > 35.5 && property.latitude < 36.0;
-        
-        // If coordinates appear to be in water, get corrected ones from the city
-        if (inWater) {
-          console.warn(`Property ${property.id} appears to be in water. Using city center coordinates instead.`);
-          // Use corrected coordinates for Oran (these are land coordinates from city center)
-          property.latitude = 35.691544;  
-          property.longitude = -0.642049;
-        }
-      }
-      
       // Create LngLat coordinates for mapbox (longitude first, then latitude)
       const lngLat: [number, number] = [property.longitude, property.latitude];
       
