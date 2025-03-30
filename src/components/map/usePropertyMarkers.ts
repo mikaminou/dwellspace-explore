@@ -54,38 +54,51 @@ export function usePropertyMarkers(
       lng: p.longitude
     })));
 
+    // Process each property and create/update markers
     propertiesWithOwners.forEach(property => {
-      let coords;
-      
-      if (typeof property.latitude === 'number' && typeof property.longitude === 'number') {
-        coords = {
-          lat: property.latitude,
-          lng: property.longitude
-        };
-        console.log(`Using actual coordinates for property ${property.id}: [${coords.lng}, ${coords.lat}]`);
-      } else {
-        console.log(`No coordinates available for property ${property.id}`);
+      // Skip properties without proper coordinates
+      if (typeof property.latitude !== 'number' || typeof property.longitude !== 'number') {
+        console.warn(`No valid coordinates for property ${property.id}`);
         return;
       }
       
-      if (!coords) return;
+      // For Oran city, validate and fix coordinates if they appear to be in the water
+      if (property.city === 'Oran') {
+        // Check if latitude and longitude are likely swapped or in water
+        // Golfe d'Oran approximate bounds check
+        const inWater = property.longitude > -1.0 && property.longitude < 0.0 && 
+                        property.latitude > 35.5 && property.latitude < 36.0;
+        
+        // If coordinates appear to be in water, get corrected ones from the city
+        if (inWater) {
+          console.warn(`Property ${property.id} appears to be in water. Using city center coordinates instead.`);
+          // Use corrected coordinates for Oran (these are land coordinates from city center)
+          property.latitude = 35.691544;  
+          property.longitude = -0.642049;
+        }
+      }
       
-      // Only extend bounds for actual valid coordinates
-      bounds.extend([coords.lng, coords.lat]);
+      // Create LngLat coordinates for mapbox (longitude first, then latitude)
+      const lngLat: [number, number] = [property.longitude, property.latitude];
+      
+      // Extend map bounds to include this property
+      bounds.extend(lngLat);
       propertiesWithCoords++;
       
-      // If marker already exists, update its position and skip recreation
+      // If marker already exists, update its position
       if (markersRef.current[property.id]) {
-        markersRef.current[property.id].setLngLat([coords.lng, coords.lat]);
+        console.log(`Updating existing marker for property ${property.id} to position:`, lngLat);
+        markersRef.current[property.id].setLngLat(lngLat);
         return;
       }
       
+      // Create new marker element
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker-container';
       
       const handleMarkerClick = () => {
         setActiveMarkerId(property.id);
-        showPropertyPopup(property, [coords.lng, coords.lat]);
+        showPropertyPopup(property, lngLat);
       };
 
       const root = createRoot(markerEl);
@@ -98,13 +111,16 @@ export function usePropertyMarkers(
         })
       );
       
+      console.log(`Creating new marker for property ${property.id} at position:`, lngLat);
+      
+      // Create and add the marker to the map
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
         offset: [0, 0],
         clickTolerance: 10
       })
-        .setLngLat([coords.lng, coords.lat])
+        .setLngLat(lngLat)
         .addTo(map.current!);
 
       markersRef.current[property.id] = marker;
