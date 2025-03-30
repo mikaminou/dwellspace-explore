@@ -22,14 +22,25 @@ export function useSearchOperations(
   setLoading: (loading: boolean) => void
 ) {
   const { t } = useLanguage();
+  // Add a flag to track if a search is already in progress
+  let searchInProgress = false;
 
   const handleSearch = useCallback(async () => {
+    // Prevent concurrent searches
+    if (searchInProgress) {
+      console.log("Search already in progress, skipping");
+      return;
+    }
+    
     if (selectedCities.length === 0) {
       console.log("No cities selected, cannot search");
       setProperties([]);
       setLoading(false);
       return;
     }
+    
+    // Set flag to indicate search is starting
+    searchInProgress = true;
     
     // Set loading state first
     setLoading(true);
@@ -105,6 +116,8 @@ export function useSearchOperations(
       setProperties([]);
     } finally {
       setLoading(false);
+      // Reset the flag to allow future searches
+      searchInProgress = false;
     }
   }, [
     searchTerm, selectedCities, propertyType, listingType, minPrice, maxPrice, 

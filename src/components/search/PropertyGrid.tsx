@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
@@ -15,20 +15,24 @@ interface PropertyGridProps {
 
 export function PropertyGrid({ properties, loading, handleReset, selectedCities }: PropertyGridProps) {
   const { t } = useLanguage();
-  const [isTransitioning, setIsTransitioning] = React.useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  // Add a local state to track the current properties for rendering
+  const [displayedProperties, setDisplayedProperties] = useState<Property[]>(properties);
   
   // Handle smooth transitions between loading states
-  React.useEffect(() => {
+  useEffect(() => {
     if (loading) {
       setIsTransitioning(true);
     } else {
+      // When loading finishes, update the displayed properties
+      setDisplayedProperties(properties);
       // Delay removing the transition state slightly for smoother UI
       const timeout = setTimeout(() => {
         setIsTransitioning(false);
       }, 300);
       return () => clearTimeout(timeout);
     }
-  }, [loading]);
+  }, [loading, properties]);
 
   if (loading || isTransitioning) {
     return (
@@ -45,7 +49,7 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
     );
   }
 
-  if (properties.length === 0) {
+  if (displayedProperties.length === 0) {
     if (selectedCities.length === 0) {
       return (
         <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-12 text-center animate-fade-in">
@@ -72,7 +76,7 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-      {properties.map((property) => (
+      {displayedProperties.map((property) => (
         <PropertyCard key={property.id} property={property} />
       ))}
     </div>

@@ -31,6 +31,7 @@ export function useSearchHeaderOperations({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchHeaderRef = useRef<HTMLDivElement>(null);
   const [searchHeaderSticky, setSearchHeaderSticky] = useState(false);
+  const clearOperationInProgress = useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -124,6 +125,9 @@ export function useSearchHeaderOperations({
   };
 
   const handleSearchClick = () => {
+    // Prevent execution if clear operation is in progress
+    if (clearOperationInProgress.current) return;
+    
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(searchTerm);
     
@@ -179,6 +183,9 @@ export function useSearchHeaderOperations({
   };
 
   const handleClearSearch = () => {
+    // Set a flag to prevent concurrent operations
+    clearOperationInProgress.current = true;
+    
     // First clear the search term
     setSearchTerm('');
     
@@ -202,15 +209,14 @@ export function useSearchHeaderOperations({
     // Close the suggestions if they're open
     setShowSuggestions(false);
     
-    // Important: Don't focus the input after clearing
-    // This was removed to address the user's request
-    
     // Trigger a new search with the city selection intact
     // We need to trigger this outside the current event loop to ensure
     // the state updates have been processed
     setTimeout(() => {
       handleSearch();
-    }, 50);
+      // Reset the flag after the operation completes
+      clearOperationInProgress.current = false;
+    }, 150); // Increased timeout to ensure state updates are processed
   };
 
   return {
