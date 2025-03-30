@@ -22,10 +22,9 @@ export function useSearchOperations(
   setLoading: (loading: boolean) => void
 ) {
   const { t } = useLanguage();
-  // Add a request in progress ref to prevent duplicate requests
-  const requestInProgress = useRef(false);
-  // Add a request counter to track the latest request
-  const requestCounter = useRef(0);
+  // Use a single requestId to track current request
+  const currentRequestId = useRef(0);
+  const isRequestInProgress = useRef(false);
 
   // Define available amenities for validation
   const availableAmenities = [
@@ -35,12 +34,13 @@ export function useSearchOperations(
   ];
 
   const handleSearch = useCallback(async () => {
-    // If there's already a request in progress, don't start another one
-    if (requestInProgress.current) {
-      console.log("Search already in progress, skipping");
+    // If there's already a request in progress, skip this one
+    if (isRequestInProgress.current) {
+      console.log("Search request already in progress, skipping");
       return;
     }
     
+    // Check if cities are selected
     if (!selectedCities || selectedCities.length === 0) {
       console.log("No cities selected, cannot search");
       setProperties([]);
@@ -48,97 +48,91 @@ export function useSearchOperations(
       return;
     }
     
-    // Set loading state and mark request as in progress
+    // Set loading state and lock request state
     setLoading(true);
-    requestInProgress.current = true;
+    isRequestInProgress.current = true;
     filtersApplied.current = true;
     
-    // Increment request counter for this specific request
-    const currentRequestId = ++requestCounter.current;
+    // Create a new request ID for this search
+    const requestId = ++currentRequestId.current;
     
     try {
-      console.log("Searching with cities:", selectedCities);
-      console.log("Property types:", propertyType);
+      console.log(`Starting search request #${requestId} for cities:`, selectedCities);
       
       let features: string[] = [];
       
-      // Only include valid amenities if they exist
+      // Process amenities
       if (selectedAmenities && selectedAmenities.length > 0) {
-        // Validate amenities against available options
         features = selectedAmenities.filter(amenity => 
           availableAmenities.includes(amenity.toLowerCase())
         );
       }
       
+      // Process search term for additional features
       if (searchTerm) {
         const lowerQuery = searchTerm.toLowerCase();
         
-        // Extract and validate amenities from search term
         availableAmenities.forEach(amenity => {
           if (lowerQuery.includes(amenity.toLowerCase()) && !features.includes(amenity)) {
             features.push(amenity);
           }
         });
         
-        // Extract "near" locations
         const nearMatch = lowerQuery.match(/near\s+(.+?)(?:\s+in|$|\s+with|\s+under|\s+between)/i);
         if (nearMatch && nearMatch[1]) {
           features.push(`near ${nearMatch[1].trim()}`);
         }
       }
       
-      // Build search parameters with proper checks
+      // Build search parameters - only include non-empty arrays and non-zero values
       const searchParams = {
         city: selectedCities,
-        propertyType: propertyType && propertyType.length > 0 ? propertyType : undefined,
+        propertyType: propertyType.length > 0 ? propertyType : undefined,
         minPrice: minPrice > 0 ? minPrice : undefined,
         maxPrice,
         minBeds: minBeds > 0 ? minBeds : undefined,
         minBaths: minBaths > 0 ? minBaths : undefined,
         minLivingArea: minLivingArea > 0 ? minLivingArea : undefined,
         maxLivingArea,
-        listingType: listingType && listingType.length > 0 ? listingType : undefined,
+        listingType: listingType.length > 0 ? listingType : undefined,
         features: features.length > 0 ? features : undefined,
       };
       
-      console.log("Search params:", searchParams);
+      console.log(`Search request #${requestId} params:`, searchParams);
       
-      // Empty search term when it's just whitespace or nonsense
+      // Clean up search term
       let effectiveSearchTerm = "";
       if (searchTerm && searchTerm.trim().length > 2) {
         effectiveSearchTerm = searchTerm;
       }
       
-      console.log("Starting API request with term:", effectiveSearchTerm);
+      // Perform the search
       const results = await searchProperties(effectiveSearchTerm, searchParams);
-      console.log("API request completed");
       
-      // Only proceed if this is still the most recent request
-      if (currentRequestId === requestCounter.current) {
-        console.log(`Found ${results.length} properties for cities:`, selectedCities);
-        
-        // Only update the UI once we have the final results
+      // Only update if this is still the current request
+      if (requestId === currentRequestId.current) {
+        console.log(`Search request #${requestId} completed with ${results.length} results`);
         setProperties(results);
-        setLoading(false);
       } else {
-        console.log("Ignoring outdated search results");
+        console.log(`Search request #${requestId} ignored - newer request exists`);
       }
     } catch (error) {
-      console.error("Search failed:", error);
-      // Only show error toast and update state if this is the most recent request
-      if (currentRequestId === requestCounter.current) {
+      console.error(`Search request #${currentRequestId.current} failed:`, error);
+      // Only show error for current request
+      if (requestId === currentRequestId.current) {
         toast.error(t('search.searchFailed') || 'Search failed');
+      }
+    } finally {
+      // Always update loading state and unlock request state for current request
+      if (requestId === currentRequestId.current) {
         setLoading(false);
       }
-      // Don't clear properties on error to prevent UI flickering
-    } finally {
-      // Reset request in progress flag regardless of outcome
-      requestInProgress.current = false;
+      isRequestInProgress.current = false;
     }
   }, [
     searchTerm, selectedCities, propertyType, listingType, minPrice, maxPrice, 
     minBeds, minBaths, minLivingArea, maxLivingArea, setProperties, setLoading, 
-    filtersApplied, t, selectedAmenities, availableAmenities
+    filtersApplied, t, selectedAmenities
   ]);
 
   return { handleSearch };

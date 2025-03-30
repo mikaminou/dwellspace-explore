@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
@@ -12,23 +12,28 @@ interface PropertyGridProps {
   loading: boolean;
   handleReset: () => void;
   selectedCities: string[];
+  initialRender: boolean;
 }
 
-export function PropertyGrid({ properties, loading, handleReset, selectedCities }: PropertyGridProps) {
+export function PropertyGrid({ 
+  properties, 
+  loading, 
+  handleReset, 
+  selectedCities, 
+  initialRender 
+}: PropertyGridProps) {
   const { t } = useLanguage();
   const [cachedProperties, setCachedProperties] = useState<Property[]>([]);
-  const isFirstLoad = useRef(true);
   
-  // Update cached properties when new properties arrive and they're not loading
+  // Cache properties when they change and we're not in loading state
   useEffect(() => {
     if (!loading && properties && properties.length > 0) {
       setCachedProperties(properties);
-      isFirstLoad.current = false;
     }
   }, [properties, loading]);
   
-  // Handle initial loading state with skeletons
-  if (loading && isFirstLoad.current) {
+  // Initial loading state with skeletons
+  if (loading && initialRender) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 6 }).map((_, index) => (
@@ -49,7 +54,7 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
     );
   }
 
-  // Handle case with no properties
+  // No properties found state
   if ((!loading && properties.length === 0) || (!loading && !properties)) {
     if (!selectedCities || selectedCities.length === 0) {
       return (
