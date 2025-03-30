@@ -1,5 +1,5 @@
 
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { searchProperties } from "@/api";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/language/LanguageContext";
@@ -23,11 +23,11 @@ export function useSearchOperations(
 ) {
   const { t } = useLanguage();
   // Add a reference to track if a search is already in progress
-  const searchInProgressRef = useRef(false);
+  let searchInProgress = false;
 
   const handleSearch = useCallback(async () => {
     // Prevent duplicate search requests
-    if (searchInProgressRef.current) {
+    if (searchInProgress) {
       console.log("Search already in progress, ignoring duplicate request");
       return;
     }
@@ -40,7 +40,7 @@ export function useSearchOperations(
     }
     
     // Set the flag to indicate a search is in progress
-    searchInProgressRef.current = true;
+    searchInProgress = true;
     
     // Set loading state first
     setLoading(true);
@@ -116,8 +116,8 @@ export function useSearchOperations(
       
       console.log(`Found ${results.length} properties for cities:`, selectedCities);
       
-      // Update the properties with the search results - force a re-render here
-      setProperties([...results]);
+      // Update the properties with the search results
+      setProperties(results);
     } catch (error: any) {
       toast.error(t('search.searchFailed'));
       console.error("Search failed:", error.message);
@@ -126,7 +126,7 @@ export function useSearchOperations(
     } finally {
       setLoading(false);
       // Reset the flag to indicate search is no longer in progress
-      searchInProgressRef.current = false;
+      searchInProgress = false;
     }
   }, [
     searchTerm, selectedCities, propertyType, listingType, minPrice, maxPrice, 

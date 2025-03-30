@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+// Removing the incorrect import of SearchFilters
 
 export function useFilterManagement(
   selectedCities: string[],
@@ -75,8 +76,6 @@ export function useFilterManagement(
   ]);
 
   const handleFilterRemoval = useCallback((filterType: string, value?: string) => {
-    console.log(`Removing filter: ${filterType}`, value ? `value: ${value}` : "");
-    
     switch (filterType) {
       case 'city':
         if (value) {
@@ -120,10 +119,8 @@ export function useFilterManagement(
       document.activeElement.blur();
     }
     
-    // Use a very small timeout to ensure the state updates complete
-    // before triggering the search
+    // Force a new search with the updated filter values
     setTimeout(() => {
-      console.log("Executing search after filter removal");
       handleSearch();
     }, 50);
   }, [

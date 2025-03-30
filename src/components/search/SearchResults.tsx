@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { FilterChips } from "./FilterChips";
 import { PropertyGrid } from "./PropertyGrid";
@@ -9,14 +9,6 @@ import { useSearch } from "@/contexts/search/SearchContext";
 export function SearchResults() {
   const { t } = useLanguage();
   const { properties, loading, handleReset, selectedCities } = useSearch();
-
-  // Force a re-render when properties change or loading state changes
-  const [forceUpdate, setForceUpdate] = React.useState(0);
-  
-  useEffect(() => {
-    // Force a re-render when properties change
-    setForceUpdate(prev => prev + 1);
-  }, [properties, loading]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -33,7 +25,6 @@ export function SearchResults() {
       </div>
       
       <PropertyGrid
-        key={`property-grid-${forceUpdate}`}
         properties={properties}
         loading={loading}
         handleReset={handleReset}
