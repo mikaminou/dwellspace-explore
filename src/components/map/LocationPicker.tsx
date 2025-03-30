@@ -3,7 +3,7 @@
 const GOOGLE_MAPS_API_KEY = localStorage.getItem('google_maps_api_key') || 'AIzaSyBtCGretTv8O2Fzf_Oh0Er9H27-EaO-itM';
 
 import { useRef, useState, useEffect, useCallback } from 'react';
-import { useLoadScript } from '@react-google-maps/api';
+import { useLoadScript, Libraries } from '@react-google-maps/api';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,8 +24,8 @@ interface LocationPickerProps {
   initialLocation?: LocationData;
 }
 
-// Define Google Maps libraries to load - using supported libraries only
-const libraries = ['places', 'geometry', 'visualization'] as const;
+// Define Google Maps libraries to load - using mutable libraries array
+const libraries: Libraries = ['places', 'geometry', 'visualization'];
 
 export function LocationPicker({ onLocationSelect, initialLocation }: LocationPickerProps) {
   const mapRef = useRef<google.maps.Map | null>(null);

@@ -1,6 +1,6 @@
 
 import React, { useCallback } from 'react';
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Libraries } from '@react-google-maps/api';
 import { useSearch } from '@/contexts/search/SearchContext';
 import { useLanguage } from '@/contexts/language/LanguageContext';
 import { MapLoadingState, MapEmptyState } from './MapStates';
@@ -29,7 +29,7 @@ export function MapView() {
   const { isLoaded: isGoogleMapsLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: apiKey,
-    libraries: libraries,
+    libraries,
   });
   
   // Use our hooks in the correct order to avoid circular references
