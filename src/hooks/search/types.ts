@@ -38,6 +38,8 @@ export interface SearchState {
 
 export interface SearchActions {
   setSearchTerm: (term: string) => void;
+  setProperties: (properties: any[]) => void;
+  setLoading: (loading: boolean) => void;
   setShowFilters: (show: boolean) => void;
   setSelectedCities: (cities: string[]) => void;
   setPropertyType: (types: string[]) => void;
