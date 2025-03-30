@@ -48,14 +48,14 @@ export function useSearchOperations(
       }
       
       const results = await searchProperties(searchTerm, {
-        city: [selectedCity], // Pass as array
-        propertyType: propertyType.length > 0 ? propertyType : undefined, // Already an array
+        city: [selectedCity], // Still passing as array, but with single value
+        propertyType: propertyType.length > 0 ? propertyType : undefined,
         minPrice: minPrice,
         maxPrice: maxPrice,
         minBeds: minBeds,
         minLivingArea: minLivingArea,
         maxLivingArea: maxLivingArea,
-        listingType: listingType.length > 0 ? listingType : undefined, // Already an array
+        listingType: listingType.length > 0 ? listingType : undefined,
         features: features.length > 0 ? features : undefined,
       });
       

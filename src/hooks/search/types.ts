@@ -1,16 +1,15 @@
-
 export interface SearchFilters {
-  city?: string;
-  propertyType?: string;
+  city?: string[];
+  propertyType?: string[];
   minPrice?: number;
   maxPrice?: number;
   minBeds?: number;
   minBaths?: number;
   minLivingArea?: number;
   maxLivingArea?: number;
-  listingType?: string;
+  listingType?: string[];
   naturalLanguageQuery?: string;
-  amenities?: string[]; // Add support for amenities filtering
+  amenities?: string[];
 }
 
 export interface SearchState {
@@ -33,7 +32,7 @@ export interface SearchState {
   maxLivingAreaLimit: number;
   activeFilterSection: string | null;
   initialLoadDone: boolean;
-  selectedAmenities: string[]; // Add selected amenities to state
+  selectedAmenities: string[];
 }
 
 export interface SearchActions {
@@ -50,7 +49,7 @@ export interface SearchActions {
   setMaxLivingArea: (area: number) => void;
   setSortOption: (option: string) => void;
   setActiveFilterSection: (section: string | null) => void;
-  setSelectedAmenities: (amenities: string[]) => void; // Add action to set amenities
+  setSelectedAmenities: (amenities: string[]) => void;
   handleSearch: () => void;
   handleReset: () => void;
   getActiveFiltersCount: () => number;
