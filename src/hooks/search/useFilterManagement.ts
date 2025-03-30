@@ -77,6 +77,8 @@ export function useFilterManagement(
   ]);
 
   const handleFilterRemoval = useCallback((filterType: string, value?: string) => {
+    console.log(`Removing filter: ${filterType}`, value ? `value: ${value}` : "");
+    
     switch (filterType) {
       case 'city':
         if (value) {
@@ -120,9 +122,12 @@ export function useFilterManagement(
       document.activeElement.blur();
     }
     
-    // Automatically apply the search after removing the filter
-    // No need for a delay here, we want to immediately show the updated results
-    handleSearch();
+    // Use a very small timeout to ensure the state updates complete
+    // before triggering the search
+    setTimeout(() => {
+      console.log("Executing search after filter removal");
+      handleSearch();
+    }, 10);
   }, [
     selectedCities, propertyType, listingType, maxLivingAreaLimit, handleSearch,
     setSelectedCities, setPropertyType, setListingType, setMinBeds,

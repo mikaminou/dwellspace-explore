@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
@@ -16,19 +16,30 @@ interface PropertyGridProps {
 export function PropertyGrid({ properties, loading, handleReset, selectedCities }: PropertyGridProps) {
   const { t } = useLanguage();
   const [isTransitioning, setIsTransitioning] = React.useState(false);
+  const [key, setKey] = React.useState(0);
   
   // Handle smooth transitions between loading states
-  React.useEffect(() => {
+  useEffect(() => {
     if (loading) {
       setIsTransitioning(true);
     } else {
       // Delay removing the transition state slightly for smoother UI
       const timeout = setTimeout(() => {
         setIsTransitioning(false);
+        // Force a re-render of the property list
+        setKey(prevKey => prevKey + 1);
       }, 300);
       return () => clearTimeout(timeout);
     }
   }, [loading]);
+
+  // Force a re-render when properties change
+  useEffect(() => {
+    if (!loading) {
+      // Force a re-render of the property list
+      setKey(prevKey => prevKey + 1);
+    }
+  }, [properties, loading]);
 
   if (loading || isTransitioning) {
     return (
@@ -71,9 +82,9 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+    <div key={key} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
       {properties.map((property) => (
-        <PropertyCard key={property.id} property={property} />
+        <PropertyCard key={`${property.id}-${key}`} property={property} />
       ))}
     </div>
   );
