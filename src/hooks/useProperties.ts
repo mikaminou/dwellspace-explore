@@ -96,14 +96,15 @@ export function useProperties() {
   const search = async (
     searchTerm: string = '',
     filters: {
-      propertyType?: string;
-      city?: string;
+      propertyType?: string[];
+      city?: string[];
       minPrice?: number;
       maxPrice?: number;
       minBeds?: number;
       minLivingArea?: number;
       maxLivingArea?: number;
       features?: string[];
+      listingType?: string[];
     } = {}
   ) => {
     setLoading(true);
