@@ -103,16 +103,39 @@ export function usePropertyMarkers(
         })
       );
       
-      // Create the AdvancedMarkerElement (once the library is loaded)
+      // Create the standard Marker instead of AdvancedMarkerElement
       const position = new google.maps.LatLng(coords.lat, coords.lng);
       
-      // Create a custom overlay marker
-      const marker = new google.maps.marker.AdvancedMarkerElement({
+      // Create a standard Google Maps marker
+      const marker = new google.maps.Marker({
         position,
         map: map.current,
-        content: markerEl,
         title: property.title,
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg width="1" height="1" xmlns="http://www.w3.org/2000/svg"></svg>'),
+          anchor: new google.maps.Point(0, 0),
+          scaledSize: new google.maps.Size(1, 1)
+        }
       });
+      
+      // Add our custom element as an overlay
+      const overlay = new google.maps.OverlayView();
+      overlay.setMap(map.current);
+      
+      overlay.onAdd = function() {
+        const pane = this.getPanes()!.overlayMouseTarget;
+        pane.appendChild(markerEl);
+      };
+      
+      overlay.draw = function() {
+        const projection = this.getProjection();
+        const point = projection.fromLatLngToDivPixel(position)!;
+        
+        markerEl.style.position = 'absolute';
+        markerEl.style.left = (point.x - 20) + 'px'; // Adjust for marker width
+        markerEl.style.top = (point.y - 40) + 'px'; // Adjust for marker height
+        markerEl.style.zIndex = '1';
+      };
       
       // Store the marker reference
       markersRef.current[property.id] = marker;
@@ -121,14 +144,22 @@ export function usePropertyMarkers(
       marker.addListener('click', () => {
         handleMarkerClick();
       });
+      
+      // Also add click event to our custom element
+      markerEl.addEventListener('click', handleMarkerClick);
     });
 
     // Only fit bounds if we haven't done it yet and we have properties with coordinates
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
-      map.current.fitBounds(bounds, {
-        padding: 50,
-      });
+      // Fix the padding issue by using the correct format
+      const boundsOptions = { 
+        top: 50, 
+        right: 50, 
+        bottom: 50, 
+        left: 50 
+      };
+      map.current.fitBounds(bounds, boundsOptions);
       setInitialBoundsSet(true);
     }
   }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup, initialBoundsSet]);

@@ -51,8 +51,8 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     lng: initialLocation?.longitude || 3.0588
   });
   
-  // Google Maps libraries
-  const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places"];
+  // Google Maps libraries - fix by removing unsupported "localContext"
+  const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
   
   // Load Google Maps API
   const { isLoaded: isGoogleMapsLoaded, loadError } = useJsApiLoader({

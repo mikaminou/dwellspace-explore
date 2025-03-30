@@ -1,6 +1,6 @@
 
 import { useRef, useState, useEffect } from 'react';
-import { LoadScriptProps } from '@react-google-maps/api';
+import { Libraries } from '@react-google-maps/api';
 
 // Default Google Maps API key - users should replace this with their own
 const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
@@ -30,8 +30,8 @@ export function useMapSetup() {
     tilt: 45, // Similar to pitch in Mapbox
   };
 
-  // Google Maps libraries to load
-  const libraries: LoadScriptProps['libraries'] = ['places', 'geometry', 'visualization'];
+  // Google Maps libraries to load - using supported libraries only
+  const libraries: Libraries = ['places', 'geometry', 'visualization'];
 
   return {
     mapContainer,
