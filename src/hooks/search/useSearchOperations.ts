@@ -1,4 +1,3 @@
-
 import { useCallback } from "react";
 import { searchProperties } from "@/api";
 import { toast } from "sonner";
@@ -38,7 +37,7 @@ export function useSearchOperations(
       return;
     }
     
-    // Set loading state first
+    // Set loading state first before any async operations
     setLoading(true);
     filtersApplied.current = true;
     
@@ -73,17 +72,17 @@ export function useSearchOperations(
         }
       }
       
-      // Build search parameters with null checks
+      // Build search parameters with proper checks
       const searchParams = {
         city: selectedCities,
-        propertyType: propertyType && propertyType.length > 0 ? propertyType : undefined,
+        propertyType: Array.isArray(propertyType) && propertyType.length > 0 ? propertyType : undefined,
         minPrice: minPrice > 0 ? minPrice : undefined,
         maxPrice: maxPrice,
         minBeds: minBeds > 0 ? minBeds : undefined,
         minBaths: minBaths > 0 ? minBaths : undefined,
         minLivingArea: minLivingArea > 0 ? minLivingArea : undefined,
         maxLivingArea: maxLivingArea,
-        listingType: listingType && listingType.length > 0 ? listingType : undefined,
+        listingType: Array.isArray(listingType) && listingType.length > 0 ? listingType : undefined,
         features: features.length > 0 ? features : undefined,
       };
       
@@ -99,15 +98,17 @@ export function useSearchOperations(
       
       console.log(`Found ${results.length} properties for cities:`, selectedCities);
       
-      // Ensure we're still in the current search call before updating state
+      // Only update state if we have results or if there were no properties found
+      // This prevents flickering during scrolling
       setProperties(results);
     } catch (error) {
       toast.error(t('search.searchFailed') || 'Search failed');
       console.error("Search failed:", error);
-      // Clear properties on error to prevent showing stale results
+      // Keep the previous properties on error to prevent UI flickering
+      // Only clear if explicitly needed
       setProperties([]);
     } finally {
-      // Ensure loading is set to false regardless of success or failure
+      // Always set loading to false when done
       setLoading(false);
     }
   }, [

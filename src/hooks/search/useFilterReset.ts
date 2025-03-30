@@ -1,3 +1,4 @@
+
 import { useCallback } from "react";
 
 /**
@@ -24,13 +25,13 @@ export function useFilterReset(
     // Do not modify selectedCities
     console.log("Resetting filters, keeping cities:", selectedCities);
     
-    // Reset all other filters with null checks
+    // Reset all other filters with null checks and use empty arrays instead of undefined
     setPropertyType([]);
     setListingType([]);
     
-    // Use sensible defaults if limits are undefined
-    const defaultMaxPrice = maxPriceLimit || 50000000;
-    const defaultMaxLivingArea = maxLivingAreaLimit || 500;
+    // Use sensible defaults if limits are undefined or zero
+    const defaultMaxPrice = maxPriceLimit && maxPriceLimit > 0 ? maxPriceLimit : 50000000;
+    const defaultMaxLivingArea = maxLivingAreaLimit && maxLivingAreaLimit > 0 ? maxLivingAreaLimit : 500;
     
     setMinPrice(0);
     setMaxPrice(defaultMaxPrice);
@@ -49,7 +50,7 @@ export function useFilterReset(
       }
       
       handleSearch();
-    }, 100);
+    }, 200); // Increased timeout to ensure all state updates complete
   }, [
     maxPriceLimit, maxLivingAreaLimit, handleSearch, setPropertyType, 
     setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 
