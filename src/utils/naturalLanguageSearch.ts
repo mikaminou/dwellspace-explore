@@ -1,3 +1,4 @@
+
 interface ExtractedFilters {
   propertyType?: string[];
   beds?: number;
@@ -86,11 +87,11 @@ export function applyNaturalLanguageFilters(
     setMinBeds: (beds: number) => void;
     setMinPrice: (price: number) => void;
     setMaxPrice: (price: number) => void;
-    setSelectedCity: (city: string) => void;
+    setSelectedCities: (cities: string[]) => void;
     setSelectedAmenities?: (amenities: string[]) => void;
   }
 ) {
-  const { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCity, setSelectedAmenities } = setters;
+  const { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCities, setSelectedAmenities } = setters;
 
   // Apply property type
   if (filters.propertyType && filters.propertyType.length > 0) {
@@ -111,9 +112,9 @@ export function applyNaturalLanguageFilters(
     setMaxPrice(filters.maxPrice);
   }
 
-  // Apply city
+  // Apply city - now we handle it as an array
   if (filters.city) {
-    setSelectedCity(filters.city);
+    setSelectedCities([filters.city]);
   }
 
   // Apply amenities if we have a setter and amenities to set
