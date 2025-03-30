@@ -92,8 +92,8 @@ export function useSearchHeaderOperations({
     
     handleSearch();
     
-    toast({
-      title: t('search.searchingFor') || "Searching for",
+    // Use the correct toast API format for sonner
+    toast(t('search.searchingFor') || "Searching for", {
       description: suggestion,
       duration: 3000,
     });
