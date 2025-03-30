@@ -1,6 +1,6 @@
 
 import { useRef, useState, useEffect } from "react";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { parseNaturalLanguageQuery, applyNaturalLanguageFilters } from "@/utils/naturalLanguageSearch";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 

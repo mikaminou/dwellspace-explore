@@ -27,7 +27,8 @@ export function SearchHeader() {
     setSelectedAmenities,
     setLoading,
     maxPriceLimit,
-    maxLivingAreaLimit
+    maxLivingAreaLimit,
+    cities
   } = useSearch();
 
   const {
@@ -58,7 +59,8 @@ export function SearchHeader() {
     showFilters,
     setShowFilters,
     maxPriceLimit,
-    maxLivingAreaLimit
+    maxLivingAreaLimit,
+    cities
   });
 
   return (
