@@ -159,12 +159,15 @@ export function useSearchHeaderOperations({
     // Make sure filters are still considered applied (to show results)
     filtersApplied.current = true;
     
-    // Focus on the search input after clearing
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    // Close the suggestions if they're open
+    setShowSuggestions(false);
+    
+    // Important: Don't focus the input after clearing
+    // This was removed to address the user's request
     
     // Trigger a new search with the city selection intact
+    // We need to trigger this outside the current event loop to ensure
+    // the state updates have been processed
     setTimeout(() => {
       handleSearch();
     }, 50);

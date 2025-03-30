@@ -1,4 +1,3 @@
-
 import { useCallback } from "react";
 // Removing the incorrect import of SearchFilters
 
@@ -45,8 +44,13 @@ export function useFilterManagement(
     
     // Force a new search with the reset values after a short delay to ensure state updates
     setTimeout(() => {
+      // Ensure we're blurring any focused element
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      
       handleSearch();
-    }, 50);
+    }, 100);
   }, [
     maxPriceLimit, maxLivingAreaLimit, handleSearch, setPropertyType, 
     setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 
@@ -108,6 +112,11 @@ export function useFilterManagement(
         break;
       default:
         break;
+    }
+    
+    // Ensure any focused element is blurred
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
     }
     
     // Force a new search with the updated filter values

@@ -27,6 +27,10 @@ export function SearchInputField({
     e.preventDefault();
     e.stopPropagation();
     handleClearSearch();
+    // Make sure the input doesn't get focus after clearing
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   };
 
   return (
