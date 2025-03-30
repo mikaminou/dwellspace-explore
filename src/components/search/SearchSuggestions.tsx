@@ -43,7 +43,7 @@ export function SearchSuggestions({
     onSelectSuggestion(suggestion);
     
     // Add to search history if it doesn't exist already
-    const exists = searchHistory.some(item => item.text === suggestion);
+    const exists = searchHistory.some(item => item.text.toLowerCase() === suggestion.toLowerCase());
     if (!exists) {
       const newHistoryItem: SearchSuggestion = {
         text: suggestion, 
@@ -51,12 +51,21 @@ export function SearchSuggestions({
         timestamp: Date.now()
       };
       
+      // Add new item to the beginning and limit to 10 entries
       const newHistory = [
         newHistoryItem,
-        ...searchHistory,
-      ].slice(0, 10); // Keep only the last 10 searches
+        ...searchHistory.filter(item => item.text.toLowerCase() !== suggestion.toLowerCase()),
+      ].slice(0, 10);
       
       setSearchHistory(newHistory);
+    } else {
+      // If the item exists, update its timestamp and move it to the top
+      const updatedHistory = [
+        { text: suggestion, type: "history", timestamp: Date.now() },
+        ...searchHistory.filter(item => item.text.toLowerCase() !== suggestion.toLowerCase()),
+      ];
+      
+      setSearchHistory(updatedHistory);
     }
     
     setOpen(false);
