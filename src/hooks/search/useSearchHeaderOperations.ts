@@ -16,6 +16,7 @@ export function useSearchHeaderOperations({
   setMinLivingArea,
   setMaxLivingArea,
   setSelectedAmenities,
+  setListingType,
   filtersApplied,
   handleSearch,
   setLoading,
@@ -73,11 +74,15 @@ export function useSearchHeaderOperations({
         extractedFilters, 
         { 
           setPropertyType, 
-          setMinBeds, 
+          setMinBeds,
+          setMinBaths, 
           setMinPrice, 
           setMaxPrice, 
           setSelectedCities,
-          setSelectedAmenities 
+          setSelectedAmenities,
+          setMinLivingArea,
+          setMaxLivingArea,
+          setListingType
         }
       );
       
@@ -92,7 +97,6 @@ export function useSearchHeaderOperations({
     
     handleSearch();
     
-    // Use the correct toast API format for sonner
     toast(t('search.searchingFor') || "Searching for", {
       description: suggestion,
       duration: 3000,
@@ -109,11 +113,15 @@ export function useSearchHeaderOperations({
         extractedFilters, 
         { 
           setPropertyType, 
-          setMinBeds, 
+          setMinBeds,
+          setMinBaths, 
           setMinPrice, 
           setMaxPrice, 
           setSelectedCities,
-          setSelectedAmenities
+          setSelectedAmenities,
+          setMinLivingArea,
+          setMaxLivingArea,
+          setListingType
         }
       );
       
@@ -143,6 +151,7 @@ export function useSearchHeaderOperations({
     setMinLivingArea(0);
     setMaxLivingArea(maxLivingAreaLimit);
     setSelectedAmenities([]);
+    setListingType([]);
     
     // Set loading state to indicate data is being fetched
     setLoading(true);

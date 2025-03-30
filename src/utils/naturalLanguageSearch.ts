@@ -2,11 +2,17 @@
 interface ExtractedFilters {
   propertyType?: string[];
   beds?: number;
+  baths?: number;
   features?: string[];
   maxPrice?: number;
   minPrice?: number;
   city?: string;
   amenities?: string[];
+  livingArea?: {
+    min?: number;
+    max?: number;
+  };
+  listingType?: string[];
 }
 
 /**
@@ -25,16 +31,35 @@ export function parseNaturalLanguageQuery(query: string): ExtractedFilters {
   if (bedroomMatch) {
     filters.beds = parseInt(bedroomMatch[1], 10);
   }
+  
+  // Extract number of bathrooms
+  const bathroomMatch = lowerQuery.match(/(\d+)\s*(bathroom|bath|ba)/);
+  if (bathroomMatch) {
+    filters.baths = parseInt(bathroomMatch[1], 10);
+  }
 
   // Extract features/amenities
-  const amenities = ['pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 'furnished', 
-    'air conditioning', 'wifi', 'elevator', 'security', 'gym', 'modern'];
+  const amenities = [
+    'pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 'furnished', 
+    'air conditioning', 'wifi', 'elevator', 'security', 'gym', 'modern', 
+    'fireplace', 'basement', 'storage', 'view', 'waterfront', 'mountain view'
+  ];
   
   // Split amenities from features for better filtering
   filters.amenities = amenities.filter(amenity => lowerQuery.includes(amenity));
   
   // Keep other features that are not specific amenities
   filters.features = [];
+  
+  // Extract listing type
+  const listingTypes = ['rent', 'sale', 'construction'];
+  const extractedListingTypes = listingTypes.filter(type => {
+    return lowerQuery.includes(`for ${type}`) || lowerQuery.includes(`to ${type}`);
+  });
+  
+  if (extractedListingTypes.length > 0) {
+    filters.listingType = extractedListingTypes;
+  }
   
   // Extract price range
   const underPriceMatch = lowerQuery.match(/under\s*\$?(\d+)k?/i);
@@ -51,15 +76,40 @@ export function parseNaturalLanguageQuery(query: string): ExtractedFilters {
     filters.minPrice = lowerQuery.includes('k') ? minValue * 1000 : minValue;
     filters.maxPrice = lowerQuery.includes('k') ? maxValue * 1000 : maxValue;
   }
+  
+  // Extract living area
+  const livingAreaMatch = lowerQuery.match(/(\d+)\s*(?:to|-)\s*(\d+)\s*(?:m2|sq\s*m|square\s*meters)/i);
+  if (livingAreaMatch) {
+    filters.livingArea = {
+      min: parseInt(livingAreaMatch[1], 10),
+      max: parseInt(livingAreaMatch[2], 10)
+    };
+  }
+  
+  const minLivingAreaMatch = lowerQuery.match(/(?:at least|minimum|min)\s*(\d+)\s*(?:m2|sq\s*m|square\s*meters)/i);
+  if (minLivingAreaMatch) {
+    if (!filters.livingArea) filters.livingArea = {};
+    filters.livingArea.min = parseInt(minLivingAreaMatch[1], 10);
+  }
+  
+  const maxLivingAreaMatch = lowerQuery.match(/(?:at most|maximum|max)\s*(\d+)\s*(?:m2|sq\s*m|square\s*meters)/i);
+  if (maxLivingAreaMatch) {
+    if (!filters.livingArea) filters.livingArea = {};
+    filters.livingArea.max = parseInt(maxLivingAreaMatch[1], 10);
+  }
 
   // Extract location
   const cities = ['algiers', 'oran', 'constantine', 'annaba', 'blida', 'batna', 'djelfa', 'sétif', 'sidi bel abbès', 'biskra'];
-  const cityMatch = cities.find(city => lowerQuery.includes(city));
-  if (cityMatch) {
-    // Capitalize first letter of each word
-    filters.city = cityMatch.split(' ')
+  
+  // Find all city mentions, not just the first one
+  const foundCities = cities.filter(city => lowerQuery.includes(city));
+  if (foundCities.length > 0) {
+    // Capitalize first letter of each word for all found cities
+    const firstCity = foundCities[0].split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+    
+    filters.city = firstCity;
   }
 
   // Extract "near" locations
@@ -68,7 +118,6 @@ export function parseNaturalLanguageQuery(query: string): ExtractedFilters {
     const nearLocation = nearMatch[1].trim();
     if (nearLocation && !cities.some(city => nearLocation.toLowerCase().includes(city))) {
       // This is a landmark or area, we could use it for more specific searches
-      // For now, we'll just add it to features
       if (!filters.features) filters.features = [];
       filters.features.push(`near ${nearLocation}`);
     }
@@ -85,13 +134,20 @@ export function applyNaturalLanguageFilters(
   setters: {
     setPropertyType: (types: string[]) => void;
     setMinBeds: (beds: number) => void;
+    setMinBaths?: (baths: number) => void;
     setMinPrice: (price: number) => void;
     setMaxPrice: (price: number) => void;
     setSelectedCities: (cities: string[]) => void;
     setSelectedAmenities?: (amenities: string[]) => void;
+    setMinLivingArea?: (area: number) => void;
+    setMaxLivingArea?: (area: number) => void;
+    setListingType?: (types: string[]) => void;
   }
 ) {
-  const { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCities, setSelectedAmenities } = setters;
+  const { 
+    setPropertyType, setMinBeds, setMinBaths, setMinPrice, setMaxPrice, 
+    setSelectedCities, setSelectedAmenities, setMinLivingArea, setMaxLivingArea, setListingType 
+  } = setters;
 
   // Apply property type
   if (filters.propertyType && filters.propertyType.length > 0) {
@@ -101,6 +157,11 @@ export function applyNaturalLanguageFilters(
   // Apply bedrooms
   if (filters.beds && filters.beds > 0) {
     setMinBeds(filters.beds);
+  }
+
+  // Apply bathrooms
+  if (filters.baths && filters.baths > 0 && setMinBaths) {
+    setMinBaths(filters.baths);
   }
 
   // Apply price range
@@ -120,5 +181,20 @@ export function applyNaturalLanguageFilters(
   // Apply amenities if we have a setter and amenities to set
   if (setSelectedAmenities && filters.amenities && filters.amenities.length > 0) {
     setSelectedAmenities(filters.amenities);
+  }
+
+  // Apply living area if we have setters and values
+  if (filters.livingArea) {
+    if (setMinLivingArea && filters.livingArea.min) {
+      setMinLivingArea(filters.livingArea.min);
+    }
+    if (setMaxLivingArea && filters.livingArea.max) {
+      setMaxLivingArea(filters.livingArea.max);
+    }
+  }
+
+  // Apply listing type if we have a setter and values
+  if (setListingType && filters.listingType && filters.listingType.length > 0) {
+    setListingType(filters.listingType);
   }
 }

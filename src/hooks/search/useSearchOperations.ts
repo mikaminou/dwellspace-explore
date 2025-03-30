@@ -12,6 +12,7 @@ export function useSearchOperations(
   minPrice: number,
   maxPrice: number,
   minBeds: number,
+  minBaths: number,
   minLivingArea: number,
   maxLivingArea: number,
   setProperties: (properties: any[]) => void,
@@ -42,7 +43,8 @@ export function useSearchOperations(
         const lowerQuery = searchTerm.toLowerCase();
         
         const amenities = ['pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 
-          'furnished', 'air conditioning', 'modern', 'elevator', 'security'];
+          'furnished', 'air conditioning', 'modern', 'elevator', 'security', 'gym', 
+          'fireplace', 'basement', 'storage', 'view', 'waterfront', 'mountain view'];
           
         amenities.forEach(amenity => {
           if (lowerQuery.includes(amenity) && !features.includes(amenity)) {
@@ -62,6 +64,7 @@ export function useSearchOperations(
         minPrice: minPrice,
         maxPrice: maxPrice,
         minBeds: minBeds,
+        minBaths: minBaths,
         minLivingArea: minLivingArea,
         maxLivingArea: maxLivingArea,
         listingType: listingType.length > 0 ? listingType : undefined,
@@ -88,7 +91,7 @@ export function useSearchOperations(
     }
   }, [
     searchTerm, selectedCities, propertyType, listingType, minPrice, maxPrice, 
-    minBeds, minLivingArea, maxLivingArea, setProperties, setLoading, 
+    minBeds, minBaths, minLivingArea, maxLivingArea, setProperties, setLoading, 
     filtersApplied, t, selectedAmenities
   ]);
 
