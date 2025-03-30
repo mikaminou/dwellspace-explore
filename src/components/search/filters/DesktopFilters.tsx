@@ -7,7 +7,7 @@ import { ListingTypeFilter } from "./ListingTypeFilter";
 import { PriceRangeFilter } from "./PriceRangeFilter";
 import { BedsBathsFilter } from "./BedsBathsFilter";
 import { LivingAreaFilter } from "./LivingAreaFilter";
-import { AmenitiesFilter } from "./AmenitiesFilter"; // Import the new component
+import { AmenitiesFilter } from "./AmenitiesFilter";
 import { FilterActions } from "./FilterActions";
 import { useSearch } from "@/contexts/search/SearchContext";
 
@@ -34,15 +34,15 @@ export function DesktopFilters() {
     maxPriceLimit,
     maxLivingAreaLimit,
     cities,
-    selectedAmenities, // Add selectedAmenities
-    setSelectedAmenities, // Add setter
+    selectedAmenities,
+    setSelectedAmenities,
     handleReset,
     handleSearch
   } = useSearch();
 
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4">
+    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
         <LocationFilter 
           selectedCity={selectedCity}
           setSelectedCity={setSelectedCity}
@@ -82,7 +82,6 @@ export function DesktopFilters() {
           maxLivingAreaLimit={maxLivingAreaLimit}
         />
 
-        {/* Add the Amenities filter */}
         <AmenitiesFilter
           selectedAmenities={selectedAmenities}
           setSelectedAmenities={setSelectedAmenities}

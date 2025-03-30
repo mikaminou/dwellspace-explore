@@ -5,6 +5,23 @@ import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { useSearch } from "@/contexts/search/SearchContext";
 
+// Maps amenities to their emoji icons
+const amenityEmojis: Record<string, string> = {
+  'pool': '🏊',
+  'garden': '🌿',
+  'garage': '🚗',
+  'balcony': '🏞️',
+  'terrace': '☕',
+  'parking': '🅿️',
+  'furnished': '🛋️',
+  'air conditioning': '❄️',
+  'elevator': '🔼',
+  'security': '🔒',
+  'gym': '💪',
+  'wifi': '📶',
+  'modern': '✨'
+};
+
 export function FilterChips() {
   const { t } = useLanguage();
   const {
@@ -16,7 +33,7 @@ export function FilterChips() {
     minLivingArea,
     maxLivingArea,
     maxLivingAreaLimit,
-    selectedAmenities, // Add amenities
+    selectedAmenities,
     filtersApplied,
     handleFilterRemoval
   } = useSearch();
@@ -28,9 +45,9 @@ export function FilterChips() {
       {selectedCity !== 'any' && (
         <Badge 
           variant="outline" 
-          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
         >
-          <MapPin size={12} /> 
+          <MapPin size={12} className="text-primary" /> 
           {selectedCity}
           <button 
             onClick={() => handleFilterRemoval('city')} 
@@ -45,9 +62,9 @@ export function FilterChips() {
         <Badge 
           key={type}
           variant="outline" 
-          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
         >
-          <Home size={12} /> 
+          <Home size={12} className="text-primary" /> 
           {type}
           <button 
             onClick={() => handleFilterRemoval('propertyType', type)} 
@@ -62,9 +79,11 @@ export function FilterChips() {
         <Badge 
           key={type}
           variant="outline" 
-          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
         >
-          {type === 'sale' ? <DollarSign size={12} /> : type === 'rent' ? <Clock size={12} /> : <Clock size={12} />} 
+          {type === 'sale' ? <DollarSign size={12} className="text-primary" /> : 
+           type === 'rent' ? <Clock size={12} className="text-primary" /> : 
+           <Clock size={12} className="text-primary" />} 
           {t(`search.${type}`)}
           <button 
             onClick={() => handleFilterRemoval('listingType', type)} 
@@ -78,9 +97,9 @@ export function FilterChips() {
       {minBeds > 0 && (
         <Badge 
           variant="outline" 
-          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
         >
-          <Bed size={12} /> 
+          <Bed size={12} className="text-primary" /> 
           {minBeds}+ {t('search.beds')}
           <button 
             onClick={() => handleFilterRemoval('beds')} 
@@ -94,9 +113,9 @@ export function FilterChips() {
       {minBaths > 0 && (
         <Badge 
           variant="outline" 
-          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
         >
-          <Bath size={12} /> 
+          <Bath size={12} className="text-primary" /> 
           {minBaths}+ {t('search.baths')}
           <button 
             onClick={() => handleFilterRemoval('baths')} 
@@ -110,9 +129,9 @@ export function FilterChips() {
       {(minLivingArea > 0 || maxLivingArea < maxLivingAreaLimit) && (
         <Badge 
           variant="outline" 
-          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
         >
-          <Ruler size={12} /> 
+          <Ruler size={12} className="text-primary" /> 
           {minLivingArea} - {maxLivingArea} m²
           <button 
             onClick={() => handleFilterRemoval('livingArea')} 
@@ -123,14 +142,13 @@ export function FilterChips() {
         </Badge>
       )}
 
-      {/* Add amenities chips */}
       {selectedAmenities.map(amenity => (
         <Badge 
           key={amenity}
           variant="outline" 
-          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
         >
-          <Package size={12} />
+          <span>{amenityEmojis[amenity] || ''}</span>
           <span className="capitalize">{amenity}</span>
           <button 
             onClick={() => handleFilterRemoval('amenities', amenity)} 

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Search, FilterIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 
 interface FilterActionsProps {
@@ -22,19 +22,20 @@ export function FilterActions({
       <Button 
         variant="outline" 
         onClick={handleReset} 
-        size="sm"
-        className={isMobile ? "text-sm" : ""}
+        size={isMobile ? "sm" : "default"}
+        className={`${isMobile ? 'text-sm' : ''} hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors`}
       >
         <X className={`${isMobile ? 'mr-1' : 'mr-2'} h-4 w-4`} />
         {t('search.resetFilters')}
       </Button>
       
       <Button 
-        variant="cta" 
-        size="sm" 
+        variant="default" 
+        size={isMobile ? "sm" : "default"}
         onClick={handleSearch}
-        className={isMobile ? "text-sm" : ""}
+        className={`${isMobile ? 'text-sm' : ''} bg-primary hover:bg-primary-dark text-white transition-colors`}
       >
+        <Search className="mr-2 h-4 w-4" />
         {t('search.applyFilters')}
       </Button>
     </div>

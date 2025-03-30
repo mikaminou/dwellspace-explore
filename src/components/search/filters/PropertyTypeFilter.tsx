@@ -1,45 +1,63 @@
 
 import React from "react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Home } from "lucide-react";
 
 interface PropertyTypeFilterProps {
   propertyType: string[];
   setPropertyType: (types: string[]) => void;
 }
 
-export function PropertyTypeFilter({ propertyType, setPropertyType }: PropertyTypeFilterProps) {
+// Maps property types to their emoji icons
+const propertyTypeEmojis: Record<string, string> = {
+  'house': '🏠',
+  'apartment': '🏢',
+  'villa': '🏛️',
+  'land': '🏞️',
+};
+
+export function PropertyTypeFilter({ 
+  propertyType, 
+  setPropertyType 
+}: PropertyTypeFilterProps) {
   const { t } = useLanguage();
 
-  const propertyTypes = [
-    { value: 'House', label: t('search.house') },
-    { value: 'Apartment', label: t('search.apartment') },
-    { value: 'Villa', label: t('search.villa') },
-    { value: 'Land', label: t('search.land') },
-  ];
+  const propertyTypes = ['house', 'apartment', 'villa', 'land'];
+
+  const handlePropertyTypeChange = (type: string) => {
+    if (propertyType.includes(type)) {
+      setPropertyType(propertyType.filter(t => t !== type));
+    } else {
+      setPropertyType([...propertyType, type]);
+    }
+  };
 
   return (
     <div>
-      <h4 className="text-sm font-medium mb-2">{t('search.propertyType')}</h4>
-      <div className="space-y-2">
+      <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
+        <Home size={16} className="text-primary" /> {t('search.propertyType')}
+      </h4>
+      <div className="space-y-2.5">
         {propertyTypes.map(type => (
-          <div key={type.value} className="flex items-center space-x-2">
-            <Checkbox
-              id={type.value}
-              checked={propertyType.includes(type.value)}
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  setPropertyType([...propertyType, type.value]);
-                } else {
-                  setPropertyType(propertyType.filter(item => item !== type.value));
-                }
-              }}
+          <div 
+            key={type} 
+            className={`flex items-center space-x-2 p-1 rounded-md transition-colors ${
+              propertyType.includes(type) ? 'bg-primary/10' : 'hover:bg-gray-50'
+            }`}
+          >
+            <Checkbox 
+              id={`property-type-${type}`}
+              checked={propertyType.includes(type)}
+              onCheckedChange={() => handlePropertyTypeChange(type)}
+              className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
             />
-            <label
-              htmlFor={type.value}
-              className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            <label 
+              htmlFor={`property-type-${type}`}
+              className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize cursor-pointer flex items-center gap-1.5"
             >
-              {type.label}
+              <span>{propertyTypeEmojis[type]}</span>
+              <span>{t(`search.${type}`)}</span>
             </label>
           </div>
         ))}

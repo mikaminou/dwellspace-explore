@@ -2,6 +2,7 @@
 import React, { memo } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { MapPin } from "lucide-react";
 
 interface LocationFilterProps {
   selectedCity: string;
@@ -22,9 +23,11 @@ export const LocationFilter = memo(function LocationFilter({
 
   return (
     <div>
-      <h4 className="text-sm font-medium mb-2">{t('search.location')}</h4>
+      <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
+        <MapPin size={16} className="text-primary" /> {t('search.location')}
+      </h4>
       <Select value={selectedCity} onValueChange={setSelectedCity}>
-        <SelectTrigger className={`${dir === 'rtl' ? 'arabic-text' : ''} border-2`}>
+        <SelectTrigger className={`${dir === 'rtl' ? 'arabic-text' : ''} border-2 hover:border-primary/50 transition-colors`}>
           <SelectValue placeholder={t('search.location')} />
         </SelectTrigger>
         <SelectContent>
