@@ -68,8 +68,8 @@ export function useSearchHeaderOperations({
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(suggestion);
     
-    // Get valid property types
-    const validPropertyTypes = ['house', 'apartment', 'villa', 'land'];
+    // Get valid property types - UPDATED to match database values
+    const validPropertyTypes = ['House', 'Apartment', 'Villa', 'Land'];
     
     // Get valid listing types
     const validListingTypes = ['rent', 'sale', 'construction'];
@@ -127,8 +127,8 @@ export function useSearchHeaderOperations({
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(searchTerm);
     
-    // Get valid property types
-    const validPropertyTypes = ['house', 'apartment', 'villa', 'land'];
+    // Get valid property types - UPDATED to match database values
+    const validPropertyTypes = ['House', 'Apartment', 'Villa', 'Land'];
     
     // Get valid listing types
     const validListingTypes = ['rent', 'sale', 'construction'];
