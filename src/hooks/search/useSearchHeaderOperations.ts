@@ -22,7 +22,8 @@ export function useSearchHeaderOperations({
   showFilters,
   setShowFilters,
   maxPriceLimit,
-  maxLivingAreaLimit
+  maxLivingAreaLimit,
+  cities
 }) {
   const { t } = useLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -148,16 +149,16 @@ export function useSearchHeaderOperations({
     // Make sure filters are still considered applied (to show results)
     filtersApplied.current = true;
     
-    // Delay the search operation slightly to ensure state updates have happened
-    setTimeout(() => {
-      // Trigger a new search with the city selection intact
-      handleSearch();
-    }, 50);
-    
     // Focus the input field after clearing
     if (inputRef.current) {
       inputRef.current.focus();
     }
+    
+    // Trigger a new search with the city selection intact
+    // We need to ensure we're not losing the search results by adding a slight delay
+    setTimeout(() => {
+      handleSearch();
+    }, 50);
   };
 
   return {

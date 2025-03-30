@@ -23,6 +23,12 @@ export function SearchInputField({
 }: SearchInputFieldProps) {
   const { t, dir } = useLanguage();
 
+  const onClearClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleClearSearch();
+  };
+
   return (
     <div className="relative w-full md:flex-1">
       <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -42,9 +48,10 @@ export function SearchInputField({
       <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
         {searchTerm && (
           <button
-            onClick={handleClearSearch}
+            onClick={onClearClick}
             className="p-1 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Clear search"
+            type="button"
           >
             <X className="h-4 w-4 text-gray-500" />
           </button>

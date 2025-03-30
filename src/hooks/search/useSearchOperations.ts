@@ -25,6 +25,7 @@ export function useSearchOperations(
     if (selectedCities.length === 0) {
       console.log("No cities selected, cannot search");
       setProperties([]);
+      setLoading(false);
       return;
     }
     
@@ -69,7 +70,9 @@ export function useSearchOperations(
       
       console.log("Search params:", searchParams);
       
-      const results = await searchProperties(searchTerm, searchParams);
+      // Use empty string for searchTerm if it's been cleared
+      const effectiveSearchTerm = searchTerm || "";
+      const results = await searchProperties(effectiveSearchTerm, searchParams);
       
       console.log(`Found ${results.length} properties for cities:`, selectedCities);
       

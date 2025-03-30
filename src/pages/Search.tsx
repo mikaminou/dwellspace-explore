@@ -24,9 +24,9 @@ export default function Search() {
     <SearchProvider>
       <div className="min-h-screen bg-background">
         <MainNav />
-        <SearchHeader />
+        <SearchHeader key="search-header" />
         <Filters />
-        <SearchResults />
+        <SearchResults key="search-results" />
       </div>
     </SearchProvider>
   );
