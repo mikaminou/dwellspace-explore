@@ -17,13 +17,13 @@ export function useFilterCounter(
   const getActiveFiltersCount = useCallback(() => {
     let count = 0;
     // We don't count cities as filters since they're required
-    if (propertyType.length > 0) count++;
-    if (listingType.length > 0) count++;
-    if (minBeds > 0) count++;
-    if (minBaths > 0) count++;
-    if (minLivingArea > 0) count++;
-    if (maxLivingArea < maxLivingAreaLimit) count++;
-    if (selectedAmenities.length > 0) count++;
+    if (propertyType && propertyType.length > 0) count++;
+    if (listingType && listingType.length > 0) count++;
+    if (minBeds && minBeds > 0) count++;
+    if (minBaths && minBaths > 0) count++;
+    if (minLivingArea && minLivingArea > 0) count++;
+    if (maxLivingArea && maxLivingAreaLimit && maxLivingArea < maxLivingAreaLimit) count++;
+    if (selectedAmenities && selectedAmenities.length > 0) count++;
     return count;
   }, [
     propertyType, listingType, minBeds, 

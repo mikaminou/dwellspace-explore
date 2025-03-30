@@ -1,3 +1,4 @@
+
 import { useCallback } from "react";
 import { searchProperties } from "@/api";
 import { toast } from "sonner";
@@ -80,11 +81,11 @@ export function useSearchOperations(
       const searchParams = {
         city: selectedCities,
         propertyType: propertyType.length > 0 ? propertyType : undefined,
-        minPrice: minPrice,
+        minPrice: minPrice > 0 ? minPrice : undefined,
         maxPrice: maxPrice,
-        minBeds: minBeds,
-        minBaths: minBaths,
-        minLivingArea: minLivingArea,
+        minBeds: minBeds > 0 ? minBeds : undefined,
+        minBaths: minBaths > 0 ? minBaths : undefined,
+        minLivingArea: minLivingArea > 0 ? minLivingArea : undefined,
         maxLivingArea: maxLivingArea,
         listingType: listingType.length > 0 ? listingType : undefined,
         features: features.length > 0 ? features : undefined,

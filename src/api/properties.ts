@@ -1,3 +1,4 @@
+
 import { supabase, transformPropertyData } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 import { Agent } from "./agents";
@@ -110,6 +111,7 @@ export const searchProperties = async (
     minPrice?: number;
     maxPrice?: number;
     minBeds?: number;
+    minBaths?: number;
     minLivingArea?: number;
     maxLivingArea?: number;
     features?: string[];
@@ -138,12 +140,16 @@ export const searchProperties = async (
     if (filters.minBeds && filters.minBeds > 0) {
       query = query.gte('beds', filters.minBeds);
     }
+    
+    if (filters.minBaths && filters.minBaths > 0) {
+      query = query.gte('baths', filters.minBaths);
+    }
 
     if (filters.minLivingArea && filters.minLivingArea > 0) {
       query = query.gte('living_area', filters.minLivingArea);
     }
     
-    if (filters.maxLivingArea && filters.maxLivingArea > 0) {
+    if (filters.maxLivingArea) {
       query = query.lte('living_area', filters.maxLivingArea);
     }
 
@@ -171,6 +177,7 @@ export const searchProperties = async (
         } as unknown as Property;
       })
       .filter(property => {
+        // Apply client-side filters for price and features
         const numericPrice = parseInt(property.price.replace(/[^0-9]/g, ''));
         
         if (filters.minPrice && numericPrice < filters.minPrice) return false;
@@ -181,6 +188,7 @@ export const searchProperties = async (
           
           for (const feature of filters.features) {
             const featureLower = feature.toLowerCase();
+            // Check if any property feature contains the search feature
             if (!propertyFeatures.some(pf => pf.includes(featureLower))) {
               return false;
             }

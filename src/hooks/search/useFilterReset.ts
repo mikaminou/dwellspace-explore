@@ -1,3 +1,4 @@
+
 import { useCallback } from "react";
 
 /**
@@ -28,11 +29,11 @@ export function useFilterReset(
     setPropertyType([]);
     setListingType([]);
     setMinPrice(0);
-    setMaxPrice(maxPriceLimit);
+    setMaxPrice(maxPriceLimit || 50000000);
     setMinBeds(0);
     setMinBaths(0);
     setMinLivingArea(0);
-    setMaxLivingArea(maxLivingAreaLimit);
+    setMaxLivingArea(maxLivingAreaLimit || 500);
     setSelectedAmenities([]);
     setSortOption('relevance');
     

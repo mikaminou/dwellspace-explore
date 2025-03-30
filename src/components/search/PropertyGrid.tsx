@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
 import { Property } from "@/api/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PropertyGridProps {
   properties: Property[];
@@ -36,9 +37,18 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
         {Array.from({ length: 6 }).map((_, index) => (
           <div 
             key={index} 
-            className="bg-gray-100 animate-pulse rounded-lg h-[300px] flex items-center justify-center text-gray-400"
+            className="bg-card border rounded-lg overflow-hidden"
           >
-            <span className="text-lg">{t('search.loading')}</span>
+            <Skeleton className="h-64 w-full" />
+            <div className="p-4 space-y-3">
+              <div className="flex justify-between">
+                <Skeleton className="h-6 w-2/3" />
+                <Skeleton className="h-6 w-1/4" />
+              </div>
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
           </div>
         ))}
       </div>
