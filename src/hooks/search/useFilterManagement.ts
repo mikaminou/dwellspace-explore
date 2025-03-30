@@ -1,5 +1,6 @@
+
 import { useCallback } from "react";
-import { SearchFilters } from "./types";
+// Removing the incorrect import of SearchFilters
 
 export function useFilterManagement(
   selectedCities: string[],
