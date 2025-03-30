@@ -59,7 +59,7 @@ export interface SearchActions {
 
 export interface SearchSuggestion {
   text: string;
-  type: "history" | "trending";
+  type: "history";
   timestamp?: number;
 }
 

@@ -3,11 +3,11 @@ import React from "react";
 import { CommandDialog, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Clock, Search, TrendingUp } from "lucide-react";
+import { Clock, Search } from "lucide-react";
 
 export interface SearchSuggestion {
   text: string;
-  type: "history" | "trending";
+  type: "history";
   timestamp?: number;
 }
 
@@ -28,15 +28,6 @@ export function SearchSuggestions({
 }: SearchSuggestionsProps) {
   const { t, dir } = useLanguage();
   const [searchHistory, setSearchHistory] = useLocalStorage<SearchSuggestion[]>("search_history", []);
-  
-  // Get trending searches
-  const getTrendingSearches = (): SearchSuggestion[] => {
-    return [
-      { text: "Villa with pool in Algiers", type: "trending" },
-      { text: "Apartment near university", type: "trending" },
-      { text: "3 bedroom house under $200,000", type: "trending" },
-    ];
-  };
   
   // Filter history based on the search term
   const getFilteredHistory = (): SearchSuggestion[] => {
@@ -90,21 +81,6 @@ export function SearchSuggestions({
               >
                 <Clock className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"} text-muted-foreground`} />
                 {item.text}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        )}
-
-        {!searchTerm && (
-          <CommandGroup heading={t('search.trendingSearches') || "Trending Searches"}>
-            {getTrendingSearches().map((trend, index) => (
-              <CommandItem
-                key={`trend-${index}`}
-                onSelect={() => handleSelect(trend.text)}
-                className={dir === "rtl" ? "flex-row-reverse arabic-text text-right" : ""}
-              >
-                <TrendingUp className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"} text-accent`} />
-                {trend.text}
               </CommandItem>
             ))}
           </CommandGroup>
