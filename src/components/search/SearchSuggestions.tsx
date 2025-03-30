@@ -1,9 +1,10 @@
 
 import React from "react";
-import { CommandDialog, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { CommandDialog, CommandInput, CommandList, CommandGroup } from "@/components/ui/command";
 import { useLanguage } from "@/contexts/language/LanguageContext";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Clock, Search } from "lucide-react";
+import { RecentSearchesGroup } from "./suggestions/RecentSearchesGroup";
+import { SearchQueryItem } from "./suggestions/SearchQueryItem";
+import { useSearchHistory } from "./suggestions/useSearchHistory";
 
 export interface SearchSuggestion {
   text: string;
@@ -27,49 +28,16 @@ export function SearchSuggestions({
   onSelectSuggestion,
 }: SearchSuggestionsProps) {
   const { t, dir } = useLanguage();
-  const [searchHistory, setSearchHistory] = useLocalStorage<SearchSuggestion[]>("search_history", []);
-  
-  // Filter history based on the search term
-  const getFilteredHistory = (): SearchSuggestion[] => {
-    if (!searchTerm) return searchHistory.slice(0, 5);
-    
-    return searchHistory
-      .filter(item => item.text.toLowerCase().includes(searchTerm.toLowerCase()))
-      .slice(0, 5);
-  };
+  const { getFilteredHistory, addToSearchHistory } = useSearchHistory();
   
   const handleSelect = (suggestion: string) => {
     setSearchTerm(suggestion);
+    addToSearchHistory(suggestion);
     onSelectSuggestion(suggestion);
-    
-    // Add to search history if it doesn't exist already
-    const exists = searchHistory.some(item => item.text.toLowerCase() === suggestion.toLowerCase());
-    if (!exists) {
-      const newHistoryItem: SearchSuggestion = {
-        text: suggestion, 
-        type: "history", 
-        timestamp: Date.now()
-      };
-      
-      // Add new item to the beginning and limit to 10 entries
-      const newHistory = [
-        newHistoryItem,
-        ...searchHistory.filter(item => item.text.toLowerCase() !== suggestion.toLowerCase()),
-      ].slice(0, 10);
-      
-      setSearchHistory(newHistory);
-    } else {
-      // If the item exists, update its timestamp and move it to the top
-      const updatedHistory: SearchSuggestion[] = [
-        { text: suggestion, type: "history", timestamp: Date.now() },
-        ...searchHistory.filter(item => item.text.toLowerCase() !== suggestion.toLowerCase()),
-      ];
-      
-      setSearchHistory(updatedHistory);
-    }
-    
     setOpen(false);
   };
+
+  const filteredHistory = getFilteredHistory(searchTerm);
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
@@ -80,30 +48,17 @@ export function SearchSuggestions({
         className={dir === "rtl" ? "arabic-text text-right" : ""}
       />
       <CommandList>
-        {getFilteredHistory().length > 0 && (
-          <CommandGroup heading={t('search.recentSearches') || "Recent Searches"}>
-            {getFilteredHistory().map((item, index) => (
-              <CommandItem
-                key={`history-${index}`}
-                onSelect={() => handleSelect(item.text)}
-                className={dir === "rtl" ? "flex-row-reverse arabic-text text-right" : ""}
-              >
-                <Clock className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"} text-muted-foreground`} />
-                {item.text}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        )}
+        <RecentSearchesGroup 
+          historyItems={filteredHistory} 
+          onSelectSuggestion={handleSelect} 
+        />
         
         {searchTerm && (
           <CommandGroup>
-            <CommandItem
-              onSelect={() => handleSelect(searchTerm)}
-              className={dir === "rtl" ? "flex-row-reverse arabic-text text-right" : ""}
-            >
-              <Search className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"}`} />
-              {t('search.searchFor') || "Search for"} "{searchTerm}"
-            </CommandItem>
+            <SearchQueryItem
+              searchTerm={searchTerm}
+              onSelect={handleSelect}
+            />
           </CommandGroup>
         )}
       </CommandList>
