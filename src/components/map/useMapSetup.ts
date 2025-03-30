@@ -1,9 +1,8 @@
-
 import { useRef, useState, useEffect } from 'react';
 import { Libraries } from '@react-google-maps/api';
 
 // Default Google Maps API key - users should replace this with their own
-const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
+const GOOGLE_MAPS_API_KEY = localStorage.getItem('google_maps_api_key') || 'YOUR_GOOGLE_MAPS_API_KEY';
 
 // Define type for Google Maps markers
 type MarkerRef = google.maps.Marker;
