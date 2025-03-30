@@ -10,7 +10,7 @@ export function getCityCoordinates(city: string): { lat: number, lng: number } |
 function getCitiesCoordinates(): {[key: string]: { lat: number, lng: number }} {
   return {
     'Algiers': { lat: 36.752887, lng: 3.042048 },
-    'Oran': { lat: 35.691544, lng: -0.642049 },
+    'Oran': { lat: 35.691544, lng: -0.642049 }, 
     'Constantine': { lat: 36.365, lng: 6.614722 },
     'Annaba': { lat: 36.897503, lng: 7.765092 },
     'Setif': { lat: 36.190073, lng: 5.408341 }

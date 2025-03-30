@@ -95,7 +95,7 @@ export function usePropertyMarkers(
         })
       );
       
-      console.log(`Creating new marker for property ${property.id} at position:`, lngLat);
+      console.log(`Creating new marker for property ${property.id} at position [${lngLat[0]}, ${lngLat[1]}]`);
       
       // Create and add the marker to the map
       const marker = new mapboxgl.Marker({
