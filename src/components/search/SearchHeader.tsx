@@ -1,8 +1,7 @@
-
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search as SearchIcon, Filter as FilterIcon } from "lucide-react";
+import { Search as SearchIcon, Filter as FilterIcon, X } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { useSearch } from "@/contexts/search/SearchContext";
 import { SearchSuggestions } from "./SearchSuggestions";
@@ -27,7 +26,8 @@ export function SearchHeader() {
     setMinPrice,
     setMaxPrice,
     setSelectedCities,
-    filtersApplied
+    filtersApplied,
+    handleReset
   } = useSearch();
 
   useEffect(() => {
@@ -101,6 +101,14 @@ export function SearchHeader() {
     setShowSuggestions(false);
   };
 
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    handleReset();
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   // Handle keyboard shortcut to open search
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -140,7 +148,16 @@ export function SearchHeader() {
                 }
               }}
             />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground">
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+              {searchTerm && (
+                <button
+                  onClick={handleClearSearch}
+                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4 text-gray-500" />
+                </button>
+              )}
               <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                 <span className="text-xs">⌘</span>K
               </kbd>
