@@ -27,7 +27,10 @@ export function useFilterManagement(
 ) {
   const handleReset = useCallback(() => {
     // When resetting filters, keep the current city selection
-    // Do not touch selectedCities
+    // Do not modify selectedCities
+    console.log("Resetting filters, keeping cities:", selectedCities);
+    
+    // Reset all other filters
     setPropertyType([]);
     setListingType([]);
     setMinPrice(0);
@@ -46,7 +49,8 @@ export function useFilterManagement(
   }, [
     maxPriceLimit, maxLivingAreaLimit, handleSearch, setPropertyType, 
     setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 
-    setMinLivingArea, setMaxLivingArea, setSortOption, setSelectedAmenities
+    setMinLivingArea, setMaxLivingArea, setSortOption, setSelectedAmenities,
+    selectedCities
   ]);
 
   const getActiveFiltersCount = useCallback(() => {

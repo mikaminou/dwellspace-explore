@@ -10,36 +10,57 @@ interface PropertyGridProps {
   properties: Property[];
   loading: boolean;
   handleReset: () => void;
+  selectedCities: string[];
 }
 
-export function PropertyGrid({ properties, loading, handleReset }: PropertyGridProps) {
+export function PropertyGrid({ properties, loading, handleReset, selectedCities }: PropertyGridProps) {
   const { t } = useLanguage();
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {loading ? (
-        Array.from({ length: 6 }).map((_, index) => (
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, index) => (
           <div 
             key={index} 
             className="bg-gray-100 animate-pulse rounded-lg h-[300px] flex items-center justify-center text-gray-400"
           >
             <span className="text-lg">{t('search.loading')}</span>
           </div>
-        ))
-      ) : properties.length > 0 ? (
-        properties.map((property) => (
-          <PropertyCard key={property.id} property={property} />
-        ))
-      ) : (
+        ))}
+      </div>
+    );
+  }
+
+  if (properties.length === 0) {
+    if (selectedCities.length === 0) {
+      return (
         <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-12 text-center">
           <SearchIcon className="h-16 w-16 text-gray-300 mb-4" />
-          <h3 className="text-xl font-medium mb-2">{t('search.noPropertiesFound')}</h3>
-          <p className="text-muted-foreground mb-4">{t('search.tryAdjustingFilters')}</p>
-          <Button onClick={handleReset} variant="outline">
-            {t('search.resetFilters')}
-          </Button>
+          <h3 className="text-xl font-medium mb-2">{t('search.selectCity') || 'Please select a city'}</h3>
+          <p className="text-muted-foreground mb-4">{t('search.noPropertiesWithoutCity') || 'You need to select at least one city to view properties'}</p>
         </div>
-      )}
+      );
+    }
+    
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <SearchIcon className="h-16 w-16 text-gray-300 mb-4" />
+        <h3 className="text-xl font-medium mb-2">{t('search.noPropertiesFound')}</h3>
+        <p className="text-muted-foreground mb-4">
+          {t('search.tryAdjustingFilters')}
+        </p>
+        <Button onClick={handleReset} variant="outline">
+          {t('search.resetFilters')}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {properties.map((property) => (
+        <PropertyCard key={property.id} property={property} />
+      ))}
     </div>
   );
 }

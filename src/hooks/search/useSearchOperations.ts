@@ -28,6 +28,7 @@ export function useSearchOperations(
       return;
     }
     
+    // Set loading state first
     setLoading(true);
     filtersApplied.current = true;
     
@@ -54,7 +55,7 @@ export function useSearchOperations(
         }
       }
       
-      const results = await searchProperties(searchTerm, {
+      const searchParams = {
         city: selectedCities,
         propertyType: propertyType.length > 0 ? propertyType : undefined,
         minPrice: minPrice,
@@ -64,9 +65,16 @@ export function useSearchOperations(
         maxLivingArea: maxLivingArea,
         listingType: listingType.length > 0 ? listingType : undefined,
         features: features.length > 0 ? features : undefined,
-      });
+      };
+      
+      console.log("Search params:", searchParams);
+      
+      const results = await searchProperties(searchTerm, searchParams);
       
       console.log(`Found ${results.length} properties for cities:`, selectedCities);
+      
+      // Ensure we're still in the current search call before updating state
+      // (prevents race conditions)
       setProperties(results);
     } catch (error: any) {
       toast.error(t('search.searchFailed'));

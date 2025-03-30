@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,14 @@ export function SearchHeader() {
     setSelectedCities,
     filtersApplied,
     handleReset,
-    selectedCities
+    selectedCities,
+    setMinBaths,
+    setMinLivingArea,
+    setMaxLivingArea,
+    setSelectedAmenities,
+    setLoading,
+    maxPriceLimit,
+    maxLivingAreaLimit
   } = useSearch();
 
   useEffect(() => {
@@ -103,22 +111,30 @@ export function SearchHeader() {
   };
 
   const handleClearSearch = () => {
+    // First clear the search term
     setSearchTerm('');
     
-    // Instead of a full reset that might clear cities as well,
-    // we'll selectively reset only what's related to the search term
-    // while keeping the selected city intact
-    filtersApplied.current = true; // Keep this true so we still show results
-    
-    // Only reset filters affected by search term, not city selection
+    // Clear all non-city related filters
     setPropertyType([]);
     setMinBeds(0);
+    setMinBaths(0);
     setMinPrice(0);
+    setMaxPrice(maxPriceLimit);
+    setMinLivingArea(0);
+    setMaxLivingArea(maxLivingAreaLimit);
+    setSelectedAmenities([]);
     
-    // Re-run search with current city selection
+    // Set loading state to indicate data is being fetched
+    setLoading(true);
+    
+    // Make sure filters are still considered applied (to show results)
+    filtersApplied.current = true;
+    
+    // Delay the search operation slightly to ensure state updates have happened
     setTimeout(() => {
+      // Trigger a new search with the city selection intact
       handleSearch();
-    }, 0);
+    }, 50);
     
     // Focus the input field after clearing
     if (inputRef.current) {

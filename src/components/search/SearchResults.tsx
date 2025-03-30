@@ -8,13 +8,17 @@ import { useSearch } from "@/contexts/search/SearchContext";
 
 export function SearchResults() {
   const { t } = useLanguage();
-  const { properties, loading, handleReset } = useSearch();
+  const { properties, loading, handleReset, selectedCities } = useSearch();
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6 animate-fade-in">
         <div className="flex justify-between items-center mb-3">
-          <h1 className="text-xl font-medium">{t('search.results')} ({properties.length})</h1>
+          <h1 className="text-xl font-medium">
+            {selectedCities.length > 0 && 
+              `${t('search.results') || 'Results'} (${properties.length})`
+            }
+          </h1>
           <SortByControl />
         </div>
         <FilterChips />
@@ -24,6 +28,7 @@ export function SearchResults() {
         properties={properties}
         loading={loading}
         handleReset={handleReset}
+        selectedCities={selectedCities}
       />
     </div>
   );
