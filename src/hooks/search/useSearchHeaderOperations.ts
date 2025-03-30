@@ -159,10 +159,15 @@ export function useSearchHeaderOperations({
     // Make sure filters are still considered applied (to show results)
     filtersApplied.current = true;
     
-    // Removed the focus logic as requested
+    // Focus on the search input after clearing
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
     
     // Trigger a new search with the city selection intact
-    handleSearch();
+    setTimeout(() => {
+      handleSearch();
+    }, 50);
   };
 
   return {

@@ -31,7 +31,10 @@ export function SearchHeader() {
     setLoading,
     maxPriceLimit,
     maxLivingAreaLimit,
-    cities
+    cities,
+    // Add map state from context
+    showMap,
+    setShowMap
   } = useSearch();
 
   const {
@@ -66,9 +69,6 @@ export function SearchHeader() {
     maxLivingAreaLimit,
     cities
   });
-
-  // State for toggling map view
-  const [showMap, setShowMap] = React.useState(false);
 
   return (
     <div 

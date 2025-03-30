@@ -38,7 +38,12 @@ export function useSearchOperations(
     try {
       console.log("Searching with cities:", selectedCities);
       
-      let features: string[] = [...selectedAmenities];
+      let features: string[] = [];
+      
+      // Only include valid amenities if they exist
+      if (selectedAmenities && selectedAmenities.length > 0) {
+        features = [...selectedAmenities];
+      }
       
       if (searchTerm) {
         const lowerQuery = searchTerm.toLowerCase();
@@ -74,8 +79,12 @@ export function useSearchOperations(
       
       console.log("Search params:", searchParams);
       
-      // Use empty string for searchTerm if it's been cleared
-      const effectiveSearchTerm = searchTerm || "";
+      // Empty search term when it's just whitespace or nonsense
+      let effectiveSearchTerm = "";
+      if (searchTerm && searchTerm.trim().length > 2) {
+        effectiveSearchTerm = searchTerm;
+      }
+      
       const results = await searchProperties(effectiveSearchTerm, searchParams);
       
       console.log(`Found ${results.length} properties for cities:`, selectedCities);

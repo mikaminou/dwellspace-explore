@@ -27,7 +27,9 @@ export function useSearchProperties(): SearchHookResult {
   const [maxLivingAreaLimit, setMaxLivingAreaLimit] = useState(500);
   const [activeFilterSection, setActiveFilterSection] = useState<string | null>(null);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]); 
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  // Add map toggle state
+  const [showMap, setShowMap] = useState(false);
   
   const filtersApplied = useRef(false);
 
@@ -134,6 +136,9 @@ export function useSearchProperties(): SearchHookResult {
     handleReset,
     getActiveFiltersCount,
     handleFilterRemoval,
-    initialLoadDone
+    initialLoadDone,
+    // Add map toggle state
+    showMap,
+    setShowMap
   };
 }
