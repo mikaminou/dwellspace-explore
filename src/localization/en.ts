@@ -28,6 +28,7 @@ export const en = {
     "phoneTab": "Sign up with Phone Number",
     "alreadyHaveAccount": "Already have an account?"
   },
+  
   // Hero section
   hero: {
     title: "Find Your Dream Home in Algeria",
@@ -132,7 +133,8 @@ export const en = {
     suggestionsPlaceholder: "Type to search...",
     searchingFor: "Searching for",
     aiActivated: "AI Search Activated",
-    aiDescription: "We're analyzing your natural language query to find the perfect properties."
+    aiDescription: "We're analyzing your natural language query to find the perfect properties.",
+    amenities: "Amenities"
   },
   
   // Property details

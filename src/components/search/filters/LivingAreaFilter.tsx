@@ -51,30 +51,20 @@ export function LivingAreaFilter({
       </h4>
       <div className="space-y-4">
         <div className="flex gap-2">
-          <div className="relative rounded-md shadow-sm">
-            <Input
-              type="number"
-              value={minLivingArea}
-              onChange={handleMinAreaChange}
-              className="pr-12 w-full"
-              placeholder="Min"
-            />
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">m²</span>
-            </div>
-          </div>
-          <div className="relative rounded-md shadow-sm">
-            <Input
-              type="number"
-              value={maxLivingArea}
-              onChange={handleMaxAreaChange}
-              className="pr-12 w-full"
-              placeholder="Max"
-            />
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">m²</span>
-            </div>
-          </div>
+          <Input
+            type="number"
+            value={minLivingArea}
+            onChange={handleMinAreaChange}
+            className="w-full"
+            placeholder="Min"
+          />
+          <Input
+            type="number"
+            value={maxLivingArea}
+            onChange={handleMaxAreaChange}
+            className="w-full"
+            placeholder="Max"
+          />
         </div>
         
         <Slider
