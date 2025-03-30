@@ -24,6 +24,8 @@ export function useSearchOperations(
   const { t } = useLanguage();
   // Add a request in progress ref to prevent duplicate requests
   const requestInProgress = useRef(false);
+  // Add a request counter to track the latest request
+  const requestCounter = useRef(0);
 
   // Define available amenities for validation
   const availableAmenities = [
@@ -50,6 +52,9 @@ export function useSearchOperations(
     setLoading(true);
     requestInProgress.current = true;
     filtersApplied.current = true;
+    
+    // Increment request counter for this specific request
+    const currentRequestId = ++requestCounter.current;
     
     try {
       console.log("Searching with cities:", selectedCities);
@@ -108,18 +113,27 @@ export function useSearchOperations(
       const results = await searchProperties(effectiveSearchTerm, searchParams);
       console.log("API request completed");
       
-      console.log(`Found ${results.length} properties for cities:`, selectedCities);
-      
-      // Only update the UI once we have the final results
-      setProperties(results);
+      // Only proceed if this is still the most recent request
+      if (currentRequestId === requestCounter.current) {
+        console.log(`Found ${results.length} properties for cities:`, selectedCities);
+        
+        // Only update the UI once we have the final results
+        setProperties(results);
+        setLoading(false);
+      } else {
+        console.log("Ignoring outdated search results");
+      }
     } catch (error) {
       console.error("Search failed:", error);
-      toast.error(t('search.searchFailed') || 'Search failed');
+      // Only show error toast and update state if this is the most recent request
+      if (currentRequestId === requestCounter.current) {
+        toast.error(t('search.searchFailed') || 'Search failed');
+        setLoading(false);
+      }
       // Don't clear properties on error to prevent UI flickering
     } finally {
-      // Reset request in progress flag and loading state
+      // Reset request in progress flag regardless of outcome
       requestInProgress.current = false;
-      setLoading(false);
     }
   }, [
     searchTerm, selectedCities, propertyType, listingType, minPrice, maxPrice, 

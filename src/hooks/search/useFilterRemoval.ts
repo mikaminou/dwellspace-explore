@@ -20,6 +20,19 @@ export function useFilterRemoval(
   setSelectedAmenities: (amenities: string[]) => void,
   handleSearch: () => void
 ) {
+  // Create a debounced search function to avoid multiple consecutive searches
+  const debouncedSearch = useCallback(() => {
+    // Ensure any focused element is blurred
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    
+    // Use requestAnimationFrame for smoother UI updates
+    requestAnimationFrame(() => {
+      handleSearch();
+    });
+  }, [handleSearch]);
+  
   // Move the callback creation outside of any conditional logic to ensure
   // hook call order remains consistent
   const handleFilterRemoval = useCallback((filterType: string, value?: string) => {
@@ -60,13 +73,8 @@ export function useFilterRemoval(
         break;
     }
     
-    // Ensure any focused element is blurred
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    
-    // Trigger a new search with the updated filter values using a fixed timeout
-    setTimeout(handleSearch, 50);
+    // Use our debounced search function instead of setTimeout
+    debouncedSearch();
   }, [
     selectedCities, 
     propertyType, 
@@ -81,7 +89,7 @@ export function useFilterRemoval(
     setMinLivingArea, 
     setMaxLivingArea,
     setSelectedAmenities, 
-    handleSearch
+    debouncedSearch
   ]);
 
   return handleFilterRemoval;

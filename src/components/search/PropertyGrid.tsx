@@ -41,7 +41,7 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
   // Use cached properties during subsequent loading states
   if (loading && cachedProperties.length > 0) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-60">
         {cachedProperties.map((property) => (
           <PropertyCard key={property.id} property={property} />
         ))}
