@@ -17,7 +17,7 @@ export function useSearchOperations(
   setProperties: (properties: any[]) => void,
   setLoading: (loading: boolean) => void,
   filtersApplied: React.MutableRefObject<boolean>,
-  selectedAmenities: string[] = [] // Add amenities parameter with default empty array
+  selectedAmenities: string[] = []
 ) {
   const { t } = useLanguage();
 
@@ -27,13 +27,11 @@ export function useSearchOperations(
     setLoading(true);
     filtersApplied.current = true;
     try {
-      // Get features from natural language query if it contains certain keywords
-      let features: string[] = [...selectedAmenities]; // Start with selected amenities
+      let features: string[] = [...selectedAmenities];
       
       if (searchTerm) {
         const lowerQuery = searchTerm.toLowerCase();
         
-        // Extract common amenities
         const amenities = ['pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 
           'furnished', 'air conditioning', 'modern', 'elevator', 'security'];
           
@@ -43,7 +41,6 @@ export function useSearchOperations(
           }
         });
         
-        // Extract "near" locations as features
         const nearMatch = lowerQuery.match(/near\s+(.+?)(?:\s+in|$|\s+with|\s+under|\s+between)/i);
         if (nearMatch && nearMatch[1]) {
           features.push(`near ${nearMatch[1].trim()}`);
@@ -51,14 +48,14 @@ export function useSearchOperations(
       }
       
       const results = await searchProperties(searchTerm, {
-        city: selectedCity === 'any' ? undefined : selectedCity,
-        propertyType: propertyType.length > 0 ? propertyType.join(',') : undefined,
+        city: [selectedCity],
+        propertyType: propertyType.length > 0 ? propertyType : undefined,
         minPrice: minPrice,
         maxPrice: maxPrice,
         minBeds: minBeds,
         minLivingArea: minLivingArea,
         maxLivingArea: maxLivingArea,
-        listingType: listingType.length > 0 ? listingType.join(',') as any : undefined,
+        listingType: listingType.length > 0 ? listingType : undefined,
         features: features.length > 0 ? features : undefined,
       });
       
@@ -72,7 +69,7 @@ export function useSearchOperations(
   }, [
     searchTerm, selectedCity, propertyType, listingType, minPrice, maxPrice, 
     minBeds, minLivingArea, maxLivingArea, setProperties, setLoading, 
-    filtersApplied, t, selectedAmenities // Add selectedAmenities to dependencies
+    filtersApplied, t, selectedAmenities
   ]);
 
   return { handleSearch };
