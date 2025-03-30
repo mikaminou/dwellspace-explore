@@ -60,7 +60,7 @@ export function SearchSuggestions({
       setSearchHistory(newHistory);
     } else {
       // If the item exists, update its timestamp and move it to the top
-      const updatedHistory = [
+      const updatedHistory: SearchSuggestion[] = [
         { text: suggestion, type: "history", timestamp: Date.now() },
         ...searchHistory.filter(item => item.text.toLowerCase() !== suggestion.toLowerCase()),
       ];
