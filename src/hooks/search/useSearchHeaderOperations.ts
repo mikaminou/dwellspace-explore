@@ -1,7 +1,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { parseNaturalLanguageQuery, applyNaturalLanguageFilters } from "@/utils/naturalLanguageSearch";
+import { parseNaturalLanguageQuery, applyNaturalLanguageFilters, validateExtractedFilters } from "@/utils/naturalLanguageSearch";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 
 export function useSearchHeaderOperations({
@@ -31,6 +31,15 @@ export function useSearchHeaderOperations({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchHeaderRef = useRef<HTMLDivElement>(null);
   const [searchHeaderSticky, setSearchHeaderSticky] = useState(false);
+
+  // Define available property types and listing types
+  const availablePropertyTypes = ['House', 'Apartment', 'Villa', 'Condo', 'Studio', 'Duplex', 'Penthouse'];
+  const availableListingTypes = ['Rent', 'Sale', 'Construction'];
+  const availableAmenities = [
+    'Pool', 'Garden', 'Garage', 'Balcony', 'Terrace', 'Parking', 'Furnished', 
+    'Air Conditioning', 'Wifi', 'Elevator', 'Security', 'Gym', 'Modern', 
+    'Fireplace', 'Basement', 'Storage', 'View', 'Waterfront', 'Mountain View'
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,10 +77,20 @@ export function useSearchHeaderOperations({
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(suggestion);
     
-    // Apply filters if we found any
-    if (Object.keys(extractedFilters).length > 0) {
+    // Validate extracted filters against available options
+    const validatedFilters = validateExtractedFilters(extractedFilters, {
+      cities,
+      propertyTypes: availablePropertyTypes,
+      listingTypes: availableListingTypes,
+      amenities: availableAmenities,
+      maxPrice: maxPriceLimit,
+      maxLivingArea: maxLivingAreaLimit
+    });
+    
+    // Apply filters if we found any valid ones
+    if (Object.keys(validatedFilters).length > 0) {
       applyNaturalLanguageFilters(
-        extractedFilters, 
+        validatedFilters, 
         { 
           setPropertyType, 
           setMinBeds,
@@ -107,10 +126,20 @@ export function useSearchHeaderOperations({
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(searchTerm);
     
-    // Apply filters if we found any
-    if (Object.keys(extractedFilters).length > 0) {
+    // Validate extracted filters against available options
+    const validatedFilters = validateExtractedFilters(extractedFilters, {
+      cities,
+      propertyTypes: availablePropertyTypes,
+      listingTypes: availableListingTypes,
+      amenities: availableAmenities,
+      maxPrice: maxPriceLimit,
+      maxLivingArea: maxLivingAreaLimit
+    });
+    
+    // Apply filters if we found any valid ones
+    if (Object.keys(validatedFilters).length > 0) {
       applyNaturalLanguageFilters(
-        extractedFilters, 
+        validatedFilters, 
         { 
           setPropertyType, 
           setMinBeds,

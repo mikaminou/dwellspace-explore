@@ -23,6 +23,13 @@ export function useSearchOperations(
 ) {
   const { t } = useLanguage();
 
+  // Define available amenities for validation
+  const availableAmenities = [
+    'pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 'furnished', 
+    'air conditioning', 'wifi', 'elevator', 'security', 'gym', 'modern', 
+    'fireplace', 'basement', 'storage', 'view', 'waterfront', 'mountain view'
+  ];
+
   const handleSearch = useCallback(async () => {
     if (selectedCities.length === 0) {
       console.log("No cities selected, cannot search");
@@ -48,16 +55,14 @@ export function useSearchOperations(
       if (searchTerm) {
         const lowerQuery = searchTerm.toLowerCase();
         
-        const amenities = ['pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 
-          'furnished', 'air conditioning', 'modern', 'elevator', 'security', 'gym', 
-          'fireplace', 'basement', 'storage', 'view', 'waterfront', 'mountain view'];
-          
-        amenities.forEach(amenity => {
-          if (lowerQuery.includes(amenity) && !features.includes(amenity)) {
+        // Extract and validate amenities from search term
+        availableAmenities.forEach(amenity => {
+          if (lowerQuery.includes(amenity.toLowerCase()) && !features.includes(amenity)) {
             features.push(amenity);
           }
         });
         
+        // Extract "near" locations
         const nearMatch = lowerQuery.match(/near\s+(.+?)(?:\s+in|$|\s+with|\s+under|\s+between)/i);
         if (nearMatch && nearMatch[1]) {
           features.push(`near ${nearMatch[1].trim()}`);
@@ -102,7 +107,7 @@ export function useSearchOperations(
   }, [
     searchTerm, selectedCities, propertyType, listingType, minPrice, maxPrice, 
     minBeds, minBaths, minLivingArea, maxLivingArea, setProperties, setLoading, 
-    filtersApplied, t, selectedAmenities
+    filtersApplied, t, selectedAmenities, availableAmenities
   ]);
 
   return { handleSearch };
