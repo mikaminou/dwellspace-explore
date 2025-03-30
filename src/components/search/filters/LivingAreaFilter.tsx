@@ -44,10 +44,14 @@ export function LivingAreaFilter({
     }
   };
 
+  // Determine if filters are active
+  const isAreaFilterActive = minLivingArea > 0 || maxLivingArea < maxLivingAreaLimit;
+
   return (
-    <div>
-      <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-        <Ruler size={16} className="text-primary" /> {t('search.livingArea')}
+    <div className={`transition-all duration-200 ${isAreaFilterActive ? 'bg-primary/5 rounded-lg p-3 -m-3' : ''}`}>
+      <h4 className={`text-sm font-medium mb-2 flex items-center gap-1 ${isAreaFilterActive ? 'text-primary font-semibold' : ''}`}>
+        <Ruler size={16} className={`${isAreaFilterActive ? 'text-primary' : 'text-primary/70'}`} /> 
+        {t('search.livingArea')}
       </h4>
       <div className="space-y-4">
         <div className="flex gap-2">
@@ -55,14 +59,14 @@ export function LivingAreaFilter({
             type="number"
             value={minLivingArea}
             onChange={handleMinAreaChange}
-            className="w-full"
+            className={`w-full ${isAreaFilterActive ? 'border-primary/30 focus-visible:border-primary/50' : ''}`}
             placeholder="Min"
           />
           <Input
             type="number"
             value={maxLivingArea}
             onChange={handleMaxAreaChange}
-            className="w-full"
+            className={`w-full ${isAreaFilterActive ? 'border-primary/30 focus-visible:border-primary/50' : ''}`}
             placeholder="Max"
           />
         </div>

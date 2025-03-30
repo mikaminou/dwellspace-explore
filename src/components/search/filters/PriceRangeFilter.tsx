@@ -49,10 +49,14 @@ export function PriceRangeFilter({
     }
   };
 
+  // Determine if filters are active
+  const isPriceFilterActive = minPrice > 0 || maxPrice < maxPriceLimit;
+
   return (
-    <div>
-      <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-        <DollarSign size={16} className="text-primary" /> {t('search.priceRange')}
+    <div className={`transition-all duration-200 ${isPriceFilterActive ? 'bg-primary/5 rounded-lg p-3 -m-3' : ''}`}>
+      <h4 className={`text-sm font-medium mb-2 flex items-center gap-1 ${isPriceFilterActive ? 'text-primary font-semibold' : ''}`}>
+        <DollarSign size={16} className={`${isPriceFilterActive ? 'text-primary' : 'text-primary/70'}`} /> 
+        {t('search.priceRange')}
       </h4>
       <div className="space-y-4">
         <div className="flex gap-2">
@@ -60,14 +64,14 @@ export function PriceRangeFilter({
             type="text"
             value={formatPrice(minPrice)}
             onChange={handleMinPriceChange}
-            className="w-full"
+            className={`w-full ${isPriceFilterActive ? 'border-primary/30 focus-visible:border-primary/50' : ''}`}
             placeholder="Min"
           />
           <Input
             type="text"
             value={formatPrice(maxPrice)}
             onChange={handleMaxPriceChange}
-            className="w-full"
+            className={`w-full ${isPriceFilterActive ? 'border-primary/30 focus-visible:border-primary/50' : ''}`}
             placeholder="Max"
           />
         </div>

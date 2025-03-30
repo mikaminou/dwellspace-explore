@@ -42,50 +42,64 @@ export function DesktopFilters() {
 
   return (
     <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-6">
-        <LocationFilter 
-          selectedCity={selectedCity}
-          setSelectedCity={setSelectedCity}
-          cities={cities}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6">
+        <div className="p-3">
+          <LocationFilter 
+            selectedCity={selectedCity}
+            setSelectedCity={setSelectedCity}
+            cities={cities}
+          />
+        </div>
 
-        <PropertyTypeFilter
-          propertyType={propertyType}
-          setPropertyType={setPropertyType}
-        />
+        <div className="p-3">
+          <PropertyTypeFilter
+            propertyType={propertyType}
+            setPropertyType={setPropertyType}
+          />
+        </div>
 
-        <ListingTypeFilter
-          listingType={listingType}
-          setListingType={setListingType}
-        />
+        <div className="p-3">
+          <ListingTypeFilter
+            listingType={listingType}
+            setListingType={setListingType}
+          />
+        </div>
 
-        <PriceRangeFilter
-          minPrice={minPrice}
-          setMinPrice={setMinPrice}
-          maxPrice={maxPrice}
-          setMaxPrice={setMaxPrice}
-          maxPriceLimit={maxPriceLimit}
-        />
+        <div className="p-3">
+          <PriceRangeFilter
+            minPrice={minPrice}
+            setMinPrice={setMinPrice}
+            maxPrice={maxPrice}
+            setMaxPrice={setMaxPrice}
+            maxPriceLimit={maxPriceLimit}
+          />
+        </div>
 
-        <BedsBathsFilter
-          minBeds={minBeds}
-          setMinBeds={setMinBeds}
-          minBaths={minBaths}
-          setMinBaths={setMinBaths}
-        />
+        <div className="p-3">
+          <BedsBathsFilter
+            minBeds={minBeds}
+            setMinBeds={setMinBeds}
+            minBaths={minBaths}
+            setMinBaths={setMinBaths}
+          />
+        </div>
 
-        <LivingAreaFilter
-          minLivingArea={minLivingArea}
-          setMinLivingArea={setMinLivingArea}
-          maxLivingArea={maxLivingArea}
-          setMaxLivingArea={setMaxLivingArea}
-          maxLivingAreaLimit={maxLivingAreaLimit}
-        />
+        <div className="p-3">
+          <LivingAreaFilter
+            minLivingArea={minLivingArea}
+            setMinLivingArea={setMinLivingArea}
+            maxLivingArea={maxLivingArea}
+            setMaxLivingArea={setMaxLivingArea}
+            maxLivingAreaLimit={maxLivingAreaLimit}
+          />
+        </div>
 
-        <AmenitiesFilter
-          selectedAmenities={selectedAmenities}
-          setSelectedAmenities={setSelectedAmenities}
-        />
+        <div className="p-3">
+          <AmenitiesFilter
+            selectedAmenities={selectedAmenities}
+            setSelectedAmenities={setSelectedAmenities}
+          />
+        </div>
       </div>
       
       <Separator className="my-4" />
