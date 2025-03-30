@@ -112,7 +112,8 @@ export function useSearchHeaderOperations({
           setMinBeds, 
           setMinPrice, 
           setMaxPrice, 
-          setSelectedCities 
+          setSelectedCities,
+          setSelectedAmenities
         }
       );
       
@@ -149,16 +150,10 @@ export function useSearchHeaderOperations({
     // Make sure filters are still considered applied (to show results)
     filtersApplied.current = true;
     
-    // Focus the input field after clearing
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    // Removed the focus logic as requested
     
     // Trigger a new search with the city selection intact
-    // We need to ensure we're not losing the search results by adding a slight delay
-    setTimeout(() => {
-      handleSearch();
-    }, 50);
+    handleSearch();
   };
 
   return {
