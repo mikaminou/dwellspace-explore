@@ -74,11 +74,12 @@ export function useSearchOperations(
       console.log(`Found ${results.length} properties for cities:`, selectedCities);
       
       // Ensure we're still in the current search call before updating state
-      // (prevents race conditions)
       setProperties(results);
     } catch (error: any) {
       toast.error(t('search.searchFailed'));
       console.error("Search failed:", error.message);
+      // Clear properties on error to prevent showing stale results
+      setProperties([]);
     } finally {
       setLoading(false);
     }
