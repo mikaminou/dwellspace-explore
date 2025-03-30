@@ -1,4 +1,3 @@
-
 import { useCallback } from "react";
 import { SearchFilters } from "./types";
 
@@ -27,9 +26,8 @@ export function useFilterManagement(
   handleSearch: () => void
 ) {
   const handleReset = useCallback(() => {
-    // When resetting filters, instead of setting to 'any', keep the current city
-    // or set to the first available city if none is selected
-    // This ensures we don't use the 'any' option anymore
+    // When resetting filters, keep the current city selection
+    // Do not touch selectedCities
     setPropertyType([]);
     setListingType([]);
     setMinPrice(0);

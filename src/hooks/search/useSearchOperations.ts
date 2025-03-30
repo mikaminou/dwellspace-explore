@@ -22,11 +22,18 @@ export function useSearchOperations(
   const { t } = useLanguage();
 
   const handleSearch = useCallback(async () => {
-    if (selectedCities.length === 0) return;
+    if (selectedCities.length === 0) {
+      console.log("No cities selected, cannot search");
+      setProperties([]);
+      return;
+    }
     
     setLoading(true);
     filtersApplied.current = true;
+    
     try {
+      console.log("Searching with cities:", selectedCities);
+      
       let features: string[] = [...selectedAmenities];
       
       if (searchTerm) {
@@ -59,6 +66,7 @@ export function useSearchOperations(
         features: features.length > 0 ? features : undefined,
       });
       
+      console.log(`Found ${results.length} properties for cities:`, selectedCities);
       setProperties(results);
     } catch (error: any) {
       toast.error(t('search.searchFailed'));

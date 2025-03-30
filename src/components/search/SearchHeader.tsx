@@ -27,7 +27,8 @@ export function SearchHeader() {
     setMaxPrice,
     setSelectedCities,
     filtersApplied,
-    handleReset
+    handleReset,
+    selectedCities
   } = useSearch();
 
   useEffect(() => {
@@ -103,7 +104,23 @@ export function SearchHeader() {
 
   const handleClearSearch = () => {
     setSearchTerm('');
-    handleReset();
+    
+    // Instead of a full reset that might clear cities as well,
+    // we'll selectively reset only what's related to the search term
+    // while keeping the selected city intact
+    filtersApplied.current = true; // Keep this true so we still show results
+    
+    // Only reset filters affected by search term, not city selection
+    setPropertyType([]);
+    setMinBeds(0);
+    setMinPrice(0);
+    
+    // Re-run search with current city selection
+    setTimeout(() => {
+      handleSearch();
+    }, 0);
+    
+    // Focus the input field after clearing
     if (inputRef.current) {
       inputRef.current.focus();
     }
