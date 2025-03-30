@@ -1,3 +1,4 @@
+
 import React from "react";
 import { MapPin, Home, DollarSign, Clock, Bed, Bath, Ruler, X, Package } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
@@ -34,7 +35,8 @@ export function FilterChips() {
     maxLivingAreaLimit,
     selectedAmenities,
     filtersApplied,
-    handleFilterRemoval
+    handleFilterRemoval,
+    loading
   } = useSearch();
 
   if (!filtersApplied.current) return null;
@@ -53,8 +55,9 @@ export function FilterChips() {
             <button 
               onClick={() => handleFilterRemoval('city', city)} 
               className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
+              disabled={loading}
             >
-              <X size={12} />
+              <X size={12} className={loading ? "animate-spin" : ""} />
             </button>
           )}
         </Badge>
@@ -71,8 +74,9 @@ export function FilterChips() {
           <button 
             onClick={() => handleFilterRemoval('propertyType', type)} 
             className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
+            disabled={loading}
           >
-            <X size={12} />
+            <X size={12} className={loading ? "animate-spin" : ""} />
           </button>
         </Badge>
       ))}
@@ -90,8 +94,9 @@ export function FilterChips() {
           <button 
             onClick={() => handleFilterRemoval('listingType', type)} 
             className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
+            disabled={loading}
           >
-            <X size={12} />
+            <X size={12} className={loading ? "animate-spin" : ""} />
           </button>
         </Badge>
       ))}
@@ -106,8 +111,9 @@ export function FilterChips() {
           <button 
             onClick={() => handleFilterRemoval('beds')} 
             className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
+            disabled={loading}
           >
-            <X size={12} />
+            <X size={12} className={loading ? "animate-spin" : ""} />
           </button>
         </Badge>
       )}
@@ -122,8 +128,9 @@ export function FilterChips() {
           <button 
             onClick={() => handleFilterRemoval('baths')} 
             className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
+            disabled={loading}
           >
-            <X size={12} />
+            <X size={12} className={loading ? "animate-spin" : ""} />
           </button>
         </Badge>
       )}
@@ -138,8 +145,9 @@ export function FilterChips() {
           <button 
             onClick={() => handleFilterRemoval('livingArea')} 
             className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
+            disabled={loading}
           >
-            <X size={12} />
+            <X size={12} className={loading ? "animate-spin" : ""} />
           </button>
         </Badge>
       )}
@@ -155,8 +163,9 @@ export function FilterChips() {
           <button 
             onClick={() => handleFilterRemoval('amenities', amenity)} 
             className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
+            disabled={loading}
           >
-            <X size={12} />
+            <X size={12} className={loading ? "animate-spin" : ""} />
           </button>
         </Badge>
       ))}

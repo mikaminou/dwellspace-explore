@@ -1,3 +1,4 @@
+
 import { useCallback } from "react";
 // Removing the incorrect import of SearchFilters
 
@@ -119,10 +120,9 @@ export function useFilterManagement(
       document.activeElement.blur();
     }
     
-    // Force a new search with the updated filter values
-    setTimeout(() => {
-      handleSearch();
-    }, 50);
+    // Automatically apply the search after removing the filter
+    // No need for a delay here, we want to immediately show the updated results
+    handleSearch();
   }, [
     selectedCities, propertyType, listingType, maxLivingAreaLimit, handleSearch,
     setSelectedCities, setPropertyType, setListingType, setMinBeds,
