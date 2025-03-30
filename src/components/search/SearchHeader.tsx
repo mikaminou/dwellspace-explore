@@ -26,7 +26,7 @@ export function SearchHeader() {
     setMinBeds,
     setMinPrice,
     setMaxPrice,
-    setSelectedCity,
+    setSelectedCities,
     filtersApplied
   } = useSearch();
 
@@ -56,7 +56,7 @@ export function SearchHeader() {
     if (Object.keys(extractedFilters).length > 0) {
       applyNaturalLanguageFilters(
         extractedFilters, 
-        { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCity }
+        { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCities }
       );
       
       // Mark filters as applied
@@ -85,7 +85,7 @@ export function SearchHeader() {
     if (Object.keys(extractedFilters).length > 0) {
       applyNaturalLanguageFilters(
         extractedFilters, 
-        { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCity }
+        { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCities }
       );
       
       // Mark filters as applied

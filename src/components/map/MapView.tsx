@@ -12,7 +12,7 @@ import { useCityUpdate } from './useCityUpdate';
 
 export function MapView() {
   const { mapContainer, map, markersRef, mapLoaded } = useMapSetup();
-  const { properties, loading, selectedCity } = useSearch();
+  const { properties, loading, selectedCities } = useSearch();
   const { t } = useLanguage();
   
   // Use our hooks in the correct order to avoid circular references
@@ -34,8 +34,8 @@ export function MapView() {
     showPropertyPopup
   );
   
-  // Handle city updates
-  useCityUpdate(map, mapLoaded, selectedCity);
+  // Handle city updates - pass the first city from selectedCities array
+  useCityUpdate(map, mapLoaded, selectedCities.length > 0 ? selectedCities[0] : null);
 
   return (
     <div className="relative flex-1 w-full">
