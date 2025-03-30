@@ -1,10 +1,18 @@
 
 import React from "react";
-import { CommandDialog, CommandInput, CommandList, CommandGroup } from "@/components/ui/command";
+import { 
+  CommandDialog, 
+  CommandInput, 
+  CommandList, 
+  CommandGroup,
+  CommandSeparator 
+} from "@/components/ui/command";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { RecentSearchesGroup } from "./suggestions/RecentSearchesGroup";
 import { SearchQueryItem } from "./suggestions/SearchQueryItem";
 import { useSearchHistory } from "./suggestions/useSearchHistory";
+import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@/components/ui/visually-hidden";
 
 export interface SearchSuggestion {
   text: string;
@@ -41,6 +49,14 @@ export function SearchSuggestions({
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
+      {/* Add required DialogTitle and DialogDescription for accessibility */}
+      <DialogTitle>
+        <VisuallyHidden>{t('search.search')}</VisuallyHidden>
+      </DialogTitle>
+      <DialogDescription>
+        <VisuallyHidden>{t('search.suggestionsPlaceholder')}</VisuallyHidden>
+      </DialogDescription>
+      
       <CommandInput 
         placeholder={t('search.suggestionsPlaceholder') || "Type to search..."} 
         value={searchTerm}

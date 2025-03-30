@@ -134,7 +134,8 @@ export const en = {
     searchingFor: "Searching for",
     aiActivated: "AI Search Activated",
     aiDescription: "We're analyzing your natural language query to find the perfect properties.",
-    amenities: "Amenities"
+    amenities: "Amenities",
+    selectSortOption: "Select sort option"
   },
   
   // Property details
