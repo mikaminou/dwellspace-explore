@@ -25,15 +25,20 @@ export function useFilterReset(
     // Do not modify selectedCities
     console.log("Resetting filters, keeping cities:", selectedCities);
     
-    // Reset all other filters
+    // Reset all other filters with null checks
     setPropertyType([]);
     setListingType([]);
+    
+    // Use sensible defaults if limits are undefined
+    const defaultMaxPrice = maxPriceLimit || 50000000;
+    const defaultMaxLivingArea = maxLivingAreaLimit || 500;
+    
     setMinPrice(0);
-    setMaxPrice(maxPriceLimit || 50000000);
+    setMaxPrice(defaultMaxPrice);
     setMinBeds(0);
     setMinBaths(0);
     setMinLivingArea(0);
-    setMaxLivingArea(maxLivingAreaLimit || 500);
+    setMaxLivingArea(defaultMaxLivingArea);
     setSelectedAmenities([]);
     setSortOption('relevance');
     

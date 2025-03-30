@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
@@ -18,43 +18,36 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
   const { t } = useLanguage();
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   
-  // Handle smooth transitions between loading states
-  React.useEffect(() => {
+  // Improved transition logic between loading states
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
     if (loading) {
       setIsTransitioning(true);
     } else {
-      // Delay removing the transition state slightly for smoother UI
-      const timeout = setTimeout(() => {
+      // Give a slight delay before removing skeleton for smoother transition
+      timeoutId = setTimeout(() => {
         setIsTransitioning(false);
       }, 300);
-      return () => clearTimeout(timeout);
     }
+    
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [loading]);
 
+  // Show skeletons when loading
   if (loading || isTransitioning) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
         {Array.from({ length: 6 }).map((_, index) => (
-          <div 
-            key={index} 
-            className="bg-card border rounded-lg overflow-hidden"
-          >
-            <Skeleton className="h-64 w-full" />
-            <div className="p-4 space-y-3">
-              <div className="flex justify-between">
-                <Skeleton className="h-6 w-2/3" />
-                <Skeleton className="h-6 w-1/4" />
-              </div>
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-2/3" />
-            </div>
-          </div>
+          <PropertyCardSkeleton key={index} />
         ))}
       </div>
     );
   }
 
+  // Show empty state if no properties were found
   if (properties.length === 0) {
     if (selectedCities.length === 0) {
       return (
@@ -80,11 +73,30 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
     );
   }
 
+  // Render property cards
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
       {properties.map((property) => (
         <PropertyCard key={property.id} property={property} />
       ))}
+    </div>
+  );
+}
+
+// Extract the skeleton into a separate component for reuse
+function PropertyCardSkeleton() {
+  return (
+    <div className="bg-card border rounded-lg overflow-hidden">
+      <Skeleton className="h-64 w-full" />
+      <div className="p-4 space-y-3">
+        <div className="flex justify-between">
+          <Skeleton className="h-6 w-2/3" />
+          <Skeleton className="h-6 w-1/4" />
+        </div>
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-4 w-2/3" />
+      </div>
     </div>
   );
 }

@@ -15,8 +15,11 @@ export function SearchResults() {
       <div className="mb-6 animate-fade-in">
         <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl font-medium">
-            {selectedCities.length > 0 && 
+            {selectedCities.length > 0 && !loading && 
               `${t('search.results') || 'Results'} (${properties.length})`
+            }
+            {selectedCities.length > 0 && loading && 
+              `${t('search.searching') || 'Searching...'}`
             }
           </h1>
           <SortByControl />

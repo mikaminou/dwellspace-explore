@@ -31,7 +31,7 @@ export function useSearchOperations(
   ];
 
   const handleSearch = useCallback(async () => {
-    if (selectedCities.length === 0) {
+    if (!selectedCities || selectedCities.length === 0) {
       console.log("No cities selected, cannot search");
       setProperties([]);
       setLoading(false);
@@ -78,16 +78,17 @@ export function useSearchOperations(
         }
       }
       
+      // Build search parameters with null checks
       const searchParams = {
         city: selectedCities,
-        propertyType: propertyType.length > 0 ? propertyType : undefined,
-        minPrice: minPrice > 0 ? minPrice : undefined,
-        maxPrice: maxPrice,
-        minBeds: minBeds > 0 ? minBeds : undefined,
-        minBaths: minBaths > 0 ? minBaths : undefined,
-        minLivingArea: minLivingArea > 0 ? minLivingArea : undefined,
-        maxLivingArea: maxLivingArea,
-        listingType: listingType.length > 0 ? listingType : undefined,
+        propertyType: Array.isArray(propertyType) && propertyType.length > 0 ? propertyType : undefined,
+        minPrice: typeof minPrice === 'number' && minPrice > 0 ? minPrice : undefined,
+        maxPrice: typeof maxPrice === 'number' ? maxPrice : undefined,
+        minBeds: typeof minBeds === 'number' && minBeds > 0 ? minBeds : undefined,
+        minBaths: typeof minBaths === 'number' && minBaths > 0 ? minBaths : undefined,
+        minLivingArea: typeof minLivingArea === 'number' && minLivingArea > 0 ? minLivingArea : undefined,
+        maxLivingArea: typeof maxLivingArea === 'number' ? maxLivingArea : undefined,
+        listingType: Array.isArray(listingType) && listingType.length > 0 ? listingType : undefined,
         features: features.length > 0 ? features : undefined,
       };
       
@@ -111,6 +112,7 @@ export function useSearchOperations(
       // Clear properties on error to prevent showing stale results
       setProperties([]);
     } finally {
+      // Ensure loading is set to false regardless of success or failure
       setLoading(false);
     }
   }, [
