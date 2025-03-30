@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MapPin, Home, DollarSign, Clock, Bed, Bath, Ruler, X, Package } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
@@ -25,7 +24,7 @@ const amenityEmojis: Record<string, string> = {
 export function FilterChips() {
   const { t } = useLanguage();
   const {
-    selectedCity,
+    selectedCities,
     propertyType,
     listingType,
     minBeds,
@@ -42,21 +41,24 @@ export function FilterChips() {
 
   return (
     <div className="flex flex-wrap gap-2">
-      {selectedCity !== 'any' && (
+      {selectedCities.map(city => (
         <Badge 
+          key={city}
           variant="outline" 
           className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md hover:border-primary/40 transition-all border-primary/30"
         >
           <MapPin size={12} className="text-primary" /> 
-          {selectedCity}
-          <button 
-            onClick={() => handleFilterRemoval('city')} 
-            className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
-          >
-            <X size={12} />
-          </button>
+          {city}
+          {selectedCities.length > 1 && (
+            <button 
+              onClick={() => handleFilterRemoval('city', city)} 
+              className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
+            >
+              <X size={12} />
+            </button>
+          )}
         </Badge>
-      )}
+      ))}
       
       {propertyType.map(type => (
         <Badge 

@@ -1,3 +1,4 @@
+
 export interface SearchFilters {
   city?: string[];
   propertyType?: string[];
@@ -17,7 +18,7 @@ export interface SearchState {
   properties: any[];
   loading: boolean;
   showFilters: boolean;
-  selectedCity: string;
+  selectedCities: string[];
   propertyType: string[];
   listingType: string[];
   minPrice: number;
@@ -38,7 +39,7 @@ export interface SearchState {
 export interface SearchActions {
   setSearchTerm: (term: string) => void;
   setShowFilters: (show: boolean) => void;
-  setSelectedCity: (city: string) => void;
+  setSelectedCities: (cities: string[]) => void;
   setPropertyType: (types: string[]) => void;
   setListingType: (types: string[]) => void;
   setMinPrice: (price: number) => void;

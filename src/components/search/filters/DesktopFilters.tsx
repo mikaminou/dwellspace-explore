@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { LocationFilter } from "./LocationFilter";
@@ -13,8 +12,8 @@ import { useSearch } from "@/contexts/search/SearchContext";
 
 export function DesktopFilters() {
   const {
-    selectedCity,
-    setSelectedCity,
+    selectedCities,
+    setSelectedCities,
     propertyType,
     setPropertyType,
     listingType,
@@ -45,8 +44,8 @@ export function DesktopFilters() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6">
         <div className="p-3">
           <LocationFilter 
-            selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
+            selectedCities={selectedCities}
+            setSelectedCities={setSelectedCities}
             cities={cities}
           />
         </div>

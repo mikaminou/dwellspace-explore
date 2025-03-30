@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MobileFilterSection } from "../MobileFilterSection";
 import { LocationFilter } from "./LocationFilter";
@@ -7,14 +6,14 @@ import { ListingTypeFilter } from "./ListingTypeFilter";
 import { PriceRangeFilter } from "./PriceRangeFilter";
 import { BedsBathsFilter } from "./BedsBathsFilter";
 import { LivingAreaFilter } from "./LivingAreaFilter";
-import { AmenitiesFilter } from "./AmenitiesFilter"; // Import the new component
+import { AmenitiesFilter } from "./AmenitiesFilter";
 import { FilterActions } from "./FilterActions";
 import { useSearch } from "@/contexts/search/SearchContext";
 
 export function MobileFilters() {
   const {
-    selectedCity,
-    setSelectedCity,
+    selectedCities,
+    setSelectedCities,
     propertyType,
     setPropertyType,
     listingType,
@@ -34,8 +33,8 @@ export function MobileFilters() {
     maxPriceLimit,
     maxLivingAreaLimit,
     cities,
-    selectedAmenities, // Add selectedAmenities
-    setSelectedAmenities, // Add setter
+    selectedAmenities,
+    setSelectedAmenities,
     handleReset,
     handleSearch,
     activeFilterSection,
@@ -55,8 +54,8 @@ export function MobileFilters() {
           onToggle={toggleFilterSection}
         >
           <LocationFilter 
-            selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
+            selectedCities={selectedCities}
+            setSelectedCities={setSelectedCities}
             cities={cities}
           />
         </MobileFilterSection>
@@ -124,7 +123,6 @@ export function MobileFilters() {
           />
         </MobileFilterSection>
 
-        {/* Add the Amenities filter section */}
         <MobileFilterSection 
           section="amenities" 
           activeSection={activeFilterSection} 

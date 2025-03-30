@@ -15,7 +15,7 @@ export function useSearchInitialData(
   setMaxLivingAreaLimit: (area: number) => void,
   setMaxLivingArea: (area: number) => void,
   setCities: (cities: string[]) => void,
-  setSelectedCity: (city: string) => void,
+  setSelectedCities: (cities: string[]) => void,
   setInitialLoadDone: (done: boolean) => void
 ) {
   const { t } = useLanguage();
@@ -41,7 +41,7 @@ export function useSearchInitialData(
         const defaultCity = await getCityWithLowestPropertyCount();
         
         // 4. Set the default city
-        setSelectedCity(defaultCity);
+        setSelectedCities([defaultCity]);
         
         // 5. Set initial load done flag
         setInitialLoadDone(true);
@@ -53,5 +53,5 @@ export function useSearchInitialData(
     };
 
     fetchInitialData();
-  }, [t, setMaxPriceLimit, setMaxPrice, setMaxLivingAreaLimit, setMaxLivingArea, setCities, setSelectedCity, setInitialLoadDone]);
+  }, [t, setMaxPriceLimit, setMaxPrice, setMaxLivingAreaLimit, setMaxLivingArea, setCities, setSelectedCities, setInitialLoadDone]);
 }

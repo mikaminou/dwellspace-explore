@@ -6,7 +6,7 @@ import { useLanguage } from "@/contexts/language/LanguageContext";
 
 export function useSearchOperations(
   searchTerm: string,
-  selectedCity: string,
+  selectedCities: string[],
   propertyType: string[],
   listingType: string[],
   minPrice: number,
@@ -22,7 +22,7 @@ export function useSearchOperations(
   const { t } = useLanguage();
 
   const handleSearch = useCallback(async () => {
-    if (!selectedCity) return;
+    if (selectedCities.length === 0) return;
     
     setLoading(true);
     filtersApplied.current = true;
@@ -48,7 +48,7 @@ export function useSearchOperations(
       }
       
       const results = await searchProperties(searchTerm, {
-        city: [selectedCity], // Still passing as array, but with single value
+        city: selectedCities,
         propertyType: propertyType.length > 0 ? propertyType : undefined,
         minPrice: minPrice,
         maxPrice: maxPrice,
@@ -67,7 +67,7 @@ export function useSearchOperations(
       setLoading(false);
     }
   }, [
-    searchTerm, selectedCity, propertyType, listingType, minPrice, maxPrice, 
+    searchTerm, selectedCities, propertyType, listingType, minPrice, maxPrice, 
     minBeds, minLivingArea, maxLivingArea, setProperties, setLoading, 
     filtersApplied, t, selectedAmenities
   ]);

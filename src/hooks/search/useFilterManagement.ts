@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { SearchFilters } from "./types";
 
 export function useFilterManagement(
-  selectedCity: string,
+  selectedCities: string[],
   propertyType: string[],
   listingType: string[],
   minBeds: number,
@@ -12,8 +12,8 @@ export function useFilterManagement(
   maxLivingArea: number,
   maxLivingAreaLimit: number,
   maxPriceLimit: number,
-  selectedAmenities: string[], // Add amenities parameter
-  setSelectedCity: (city: string) => void,
+  selectedAmenities: string[],
+  setSelectedCities: (cities: string[]) => void,
   setPropertyType: (types: string[]) => void,
   setListingType: (types: string[]) => void,
   setMinPrice: (price: number) => void,
@@ -22,7 +22,7 @@ export function useFilterManagement(
   setMinBaths: (baths: number) => void,
   setMinLivingArea: (area: number) => void,
   setMaxLivingArea: (area: number) => void,
-  setSelectedAmenities: (amenities: string[]) => void, // Add amenities setter
+  setSelectedAmenities: (amenities: string[]) => void,
   setSortOption: (option: string) => void,
   handleSearch: () => void
 ) {
@@ -38,7 +38,7 @@ export function useFilterManagement(
     setMinBaths(0);
     setMinLivingArea(0);
     setMaxLivingArea(maxLivingAreaLimit);
-    setSelectedAmenities([]); // Reset amenities
+    setSelectedAmenities([]);
     setSortOption('relevance');
     
     // Force a new search with the reset values after a short delay to ensure state updates
@@ -48,31 +48,33 @@ export function useFilterManagement(
   }, [
     maxPriceLimit, maxLivingAreaLimit, handleSearch, setPropertyType, 
     setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 
-    setMinLivingArea, setMaxLivingArea, setSortOption, setSelectedAmenities // Add setSelectedAmenities
+    setMinLivingArea, setMaxLivingArea, setSortOption, setSelectedAmenities
   ]);
 
   const getActiveFiltersCount = useCallback(() => {
     let count = 0;
-    // Remove selectedCity check since we no longer have an "any" option
+    // We don't count cities as filters since they're required
     if (propertyType.length > 0) count++;
     if (listingType.length > 0) count++;
     if (minBeds > 0) count++;
     if (minBaths > 0) count++;
     if (minLivingArea > 0) count++;
     if (maxLivingArea < maxLivingAreaLimit) count++;
-    if (selectedAmenities.length > 0) count++; // Count amenities as a filter
+    if (selectedAmenities.length > 0) count++;
     return count;
   }, [
     propertyType, listingType, minBeds, 
     minBaths, minLivingArea, maxLivingArea, maxLivingAreaLimit,
-    selectedAmenities // Add selectedAmenities to dependencies
+    selectedAmenities
   ]);
 
   const handleFilterRemoval = useCallback((filterType: string, value?: string) => {
     switch (filterType) {
       case 'city':
-        // Don't reset city to 'any' since we no longer have that option
-        // Instead, do nothing when trying to remove city filter
+        if (value) {
+          // Remove specific city if value is provided
+          setSelectedCities(selectedCities.filter(city => city !== value));
+        }
         break;
       case 'propertyType':
         if (value) {
@@ -110,10 +112,10 @@ export function useFilterManagement(
       handleSearch();
     }, 50);
   }, [
-    propertyType, listingType, maxLivingAreaLimit, handleSearch,
-    setPropertyType, setListingType, setMinBeds,
+    selectedCities, propertyType, listingType, maxLivingAreaLimit, handleSearch,
+    setSelectedCities, setPropertyType, setListingType, setMinBeds,
     setMinBaths, setMinLivingArea, setMaxLivingArea,
-    selectedAmenities, setSelectedAmenities // Add amenities
+    selectedAmenities, setSelectedAmenities
   ]);
 
   return {
