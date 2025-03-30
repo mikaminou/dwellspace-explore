@@ -22,25 +22,14 @@ export function useSearchOperations(
   setLoading: (loading: boolean) => void
 ) {
   const { t } = useLanguage();
-  // Add a reference to track if a search is already in progress
-  let searchInProgress = false;
 
   const handleSearch = useCallback(async () => {
-    // Prevent duplicate search requests
-    if (searchInProgress) {
-      console.log("Search already in progress, ignoring duplicate request");
-      return;
-    }
-
     if (selectedCities.length === 0) {
       console.log("No cities selected, cannot search");
       setProperties([]);
       setLoading(false);
       return;
     }
-    
-    // Set the flag to indicate a search is in progress
-    searchInProgress = true;
     
     // Set loading state first
     setLoading(true);
@@ -81,19 +70,10 @@ export function useSearchOperations(
         }
       }
       
-      // Normalize the property types to match the database values
-      let normalizedPropertyTypes: string[] = [];
-      if (propertyType.length > 0) {
-        normalizedPropertyTypes = propertyType.filter(type => {
-          // Ensure only our standardized property types are used
-          return ['House', 'Apartment', 'Villa', 'Land'].includes(type);
-        });
-      }
-      
       // Build search parameters with validated values
       const searchParams = {
         city: selectedCities,
-        propertyType: normalizedPropertyTypes.length > 0 ? normalizedPropertyTypes : undefined,
+        propertyType: propertyType.length > 0 ? propertyType : undefined,
         minPrice: minPrice,
         maxPrice: maxPrice,
         minBeds: minBeds,
@@ -125,8 +105,6 @@ export function useSearchOperations(
       setProperties([]);
     } finally {
       setLoading(false);
-      // Reset the flag to indicate search is no longer in progress
-      searchInProgress = false;
     }
   }, [
     searchTerm, selectedCities, propertyType, listingType, minPrice, maxPrice, 

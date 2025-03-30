@@ -11,10 +11,10 @@ interface PropertyTypeFilterProps {
 
 // Maps property types to their emoji icons
 const propertyTypeEmojis: Record<string, string> = {
-  'House': '🏠',
-  'Apartment': '🏢',
-  'Villa': '🏛️',
-  'Land': '🏞️',
+  'house': '🏠',
+  'apartment': '🏢',
+  'villa': '🏛️',
+  'land': '🏞️',
 };
 
 export function PropertyTypeFilter({ 
@@ -23,7 +23,7 @@ export function PropertyTypeFilter({
 }: PropertyTypeFilterProps) {
   const { t } = useLanguage();
 
-  const propertyTypes = ['House', 'Apartment', 'Villa', 'Land'];
+  const propertyTypes = ['house', 'apartment', 'villa', 'land'];
 
   const handlePropertyTypeChange = (type: string) => {
     if (propertyType.includes(type)) {
@@ -57,7 +57,7 @@ export function PropertyTypeFilter({
               className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize cursor-pointer flex items-center gap-1.5"
             >
               <span>{propertyTypeEmojis[type]}</span>
-              <span>{t(`search.${type.toLowerCase()}`)}</span>
+              <span>{t(`search.${type}`)}</span>
             </label>
           </div>
         ))}
