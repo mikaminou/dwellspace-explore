@@ -1,7 +1,10 @@
-
 import { useRef, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { parseNaturalLanguageQuery, applyNaturalLanguageFilters, validateExtractedFilters } from "@/utils/naturalLanguageSearch";
+import { 
+  parseNaturalLanguageQuery, 
+  applyNaturalLanguageFilters, 
+  validateExtractedFilters 
+} from "@/utils/naturalLanguageSearch";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 
 export function useSearchHeaderOperations({

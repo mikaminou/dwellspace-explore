@@ -1,4 +1,3 @@
-
 import { useCallback } from "react";
 import { searchProperties } from "@/api";
 import { toast } from "sonner";
