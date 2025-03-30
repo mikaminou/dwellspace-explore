@@ -76,6 +76,7 @@ export function useSearchHeaderOperations({
     
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(suggestion);
+    console.log("Extracted filters before validation:", extractedFilters);
     
     // Validate extracted filters against available options
     const validatedFilters = validateExtractedFilters(extractedFilters, {
@@ -86,6 +87,8 @@ export function useSearchHeaderOperations({
       maxPrice: maxPriceLimit,
       maxLivingArea: maxLivingAreaLimit
     });
+    
+    console.log("Filters after validation:", validatedFilters);
     
     // Apply filters if we found any valid ones
     if (Object.keys(validatedFilters).length > 0) {
@@ -125,6 +128,7 @@ export function useSearchHeaderOperations({
   const handleSearchClick = () => {
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(searchTerm);
+    console.log("Extracted filters before validation:", extractedFilters);
     
     // Validate extracted filters against available options
     const validatedFilters = validateExtractedFilters(extractedFilters, {
@@ -135,6 +139,8 @@ export function useSearchHeaderOperations({
       maxPrice: maxPriceLimit,
       maxLivingArea: maxLivingAreaLimit
     });
+    
+    console.log("Filters after validation:", validatedFilters);
     
     // Apply filters if we found any valid ones
     if (Object.keys(validatedFilters).length > 0) {

@@ -44,12 +44,21 @@ export function useSearchOperations(
     
     try {
       console.log("Searching with cities:", selectedCities);
+      console.log("Property types:", propertyType);
       
       let features: string[] = [];
       
       // Only include valid amenities if they exist
       if (selectedAmenities && selectedAmenities.length > 0) {
-        features = [...selectedAmenities];
+        // Validate amenities against available options
+        features = selectedAmenities.filter(amenity => 
+          availableAmenities.includes(amenity.toLowerCase())
+        );
+        
+        if (features.length !== selectedAmenities.length) {
+          console.log("Some amenities were filtered out because they were invalid:", 
+            selectedAmenities.filter(a => !availableAmenities.includes(a.toLowerCase())));
+        }
       }
       
       if (searchTerm) {

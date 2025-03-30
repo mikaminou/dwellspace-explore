@@ -1,4 +1,3 @@
-
 interface ExtractedFilters {
   propertyType?: string[];
   beds?: number;
@@ -151,38 +150,50 @@ export function validateExtractedFilters(
     }
   }
   
-  // Validate property types
+  // Validate property types - process EACH property type independently
   if (validatedFilters.propertyType && validatedFilters.propertyType.length > 0 && availableOptions.propertyTypes) {
     const availableTypesLower = availableOptions.propertyTypes.map(type => type.toLowerCase());
-    validatedFilters.propertyType = validatedFilters.propertyType.filter(type => 
+    
+    // Filter out invalid property types while keeping valid ones
+    const validPropertyTypes = validatedFilters.propertyType.filter(type => 
       availableTypesLower.includes(type.toLowerCase())
     );
     
-    if (validatedFilters.propertyType.length === 0) {
+    if (validPropertyTypes.length > 0) {
+      validatedFilters.propertyType = validPropertyTypes;
+    } else {
       delete validatedFilters.propertyType;
     }
   }
   
-  // Validate listing types
+  // Validate listing types - process EACH listing type independently
   if (validatedFilters.listingType && validatedFilters.listingType.length > 0 && availableOptions.listingTypes) {
     const availableListingTypesLower = availableOptions.listingTypes.map(type => type.toLowerCase());
-    validatedFilters.listingType = validatedFilters.listingType.filter(type => 
+    
+    // Filter out invalid listing types while keeping valid ones
+    const validListingTypes = validatedFilters.listingType.filter(type => 
       availableListingTypesLower.includes(type.toLowerCase())
     );
     
-    if (validatedFilters.listingType.length === 0) {
+    if (validListingTypes.length > 0) {
+      validatedFilters.listingType = validListingTypes;
+    } else {
       delete validatedFilters.listingType;
     }
   }
   
-  // Validate amenities
+  // Validate amenities - process EACH amenity independently
   if (validatedFilters.amenities && validatedFilters.amenities.length > 0 && availableOptions.amenities) {
     const availableAmenitiesLower = availableOptions.amenities.map(amenity => amenity.toLowerCase());
-    validatedFilters.amenities = validatedFilters.amenities.filter(amenity => 
+    
+    // Filter out invalid amenities while keeping valid ones
+    const validAmenities = validatedFilters.amenities.filter(amenity => 
       availableAmenitiesLower.includes(amenity.toLowerCase())
     );
     
-    if (validatedFilters.amenities.length === 0) {
+    if (validAmenities.length > 0) {
+      validatedFilters.amenities = validAmenities;
+    } else {
       delete validatedFilters.amenities;
     }
   }
