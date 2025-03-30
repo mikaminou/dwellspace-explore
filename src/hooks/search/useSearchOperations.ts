@@ -45,25 +45,32 @@ export function useSearchOperations(
         features = [...selectedAmenities];
       }
       
+      // Process recognized features/amenities from natural language query
       if (searchTerm) {
         const lowerQuery = searchTerm.toLowerCase();
         
-        const amenities = ['pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 
+        // List of valid amenities to extract from query
+        const validAmenities = [
+          'pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 
           'furnished', 'air conditioning', 'modern', 'elevator', 'security', 'gym', 
-          'fireplace', 'basement', 'storage', 'view', 'waterfront', 'mountain view'];
-          
-        amenities.forEach(amenity => {
+          'fireplace', 'basement', 'storage', 'view', 'waterfront', 'mountain view'
+        ];
+        
+        // Only extract amenities that are actually in our valid list
+        validAmenities.forEach(amenity => {
           if (lowerQuery.includes(amenity) && !features.includes(amenity)) {
             features.push(amenity);
           }
         });
         
+        // Extract "near location" phrases
         const nearMatch = lowerQuery.match(/near\s+(.+?)(?:\s+in|$|\s+with|\s+under|\s+between)/i);
         if (nearMatch && nearMatch[1]) {
           features.push(`near ${nearMatch[1].trim()}`);
         }
       }
       
+      // Build search parameters with validated values
       const searchParams = {
         city: selectedCities,
         propertyType: propertyType.length > 0 ? propertyType : undefined,
@@ -77,7 +84,7 @@ export function useSearchOperations(
         features: features.length > 0 ? features : undefined,
       };
       
-      console.log("Search params:", searchParams);
+      console.log("Search params after validation:", searchParams);
       
       // Empty search term when it's just whitespace or nonsense
       let effectiveSearchTerm = "";
@@ -89,7 +96,7 @@ export function useSearchOperations(
       
       console.log(`Found ${results.length} properties for cities:`, selectedCities);
       
-      // Ensure we're still in the current search call before updating state
+      // Update the properties with the search results
       setProperties(results);
     } catch (error: any) {
       toast.error(t('search.searchFailed'));

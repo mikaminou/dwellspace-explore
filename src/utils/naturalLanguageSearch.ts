@@ -98,7 +98,7 @@ export function parseNaturalLanguageQuery(query: string): ExtractedFilters {
     filters.livingArea.max = parseInt(maxLivingAreaMatch[1], 10);
   }
 
-  // Extract location
+  // Extract location - but don't set it yet, we'll validate in applyNaturalLanguageFilters
   const cities = ['algiers', 'oran', 'constantine', 'annaba', 'blida', 'batna', 'djelfa', 'sétif', 'sidi bel abbès', 'biskra'];
   
   // Find all city mentions, not just the first one
@@ -127,7 +127,7 @@ export function parseNaturalLanguageQuery(query: string): ExtractedFilters {
 }
 
 /**
- * Applies extracted filters to the search state
+ * Applies extracted filters to the search state after validating them against available options
  */
 export function applyNaturalLanguageFilters(
   filters: ExtractedFilters,
@@ -142,6 +142,12 @@ export function applyNaturalLanguageFilters(
     setMinLivingArea?: (area: number) => void;
     setMaxLivingArea?: (area: number) => void;
     setListingType?: (types: string[]) => void;
+  },
+  validOptions?: {
+    cities?: string[];
+    propertyTypes?: string[];
+    listingTypes?: string[];
+    amenities?: string[];
   }
 ) {
   const { 
@@ -149,9 +155,23 @@ export function applyNaturalLanguageFilters(
     setSelectedCities, setSelectedAmenities, setMinLivingArea, setMaxLivingArea, setListingType 
   } = setters;
 
-  // Apply property type
+  const {
+    cities: validCities = [],
+    propertyTypes: validPropertyTypes = ['house', 'apartment', 'villa', 'land'],
+    listingTypes: validListingTypes = ['rent', 'sale'],
+    amenities: validAmenities = []
+  } = validOptions || {};
+
+  // Apply property type after validation
   if (filters.propertyType && filters.propertyType.length > 0) {
-    setPropertyType(filters.propertyType);
+    // Only apply valid property types
+    const validatedPropertyTypes = filters.propertyType.filter(type => 
+      validPropertyTypes.includes(type)
+    );
+    
+    if (validatedPropertyTypes.length > 0) {
+      setPropertyType(validatedPropertyTypes);
+    }
   }
 
   // Apply bedrooms
@@ -175,12 +195,26 @@ export function applyNaturalLanguageFilters(
 
   // Apply city - now we handle it as an array
   if (filters.city) {
-    setSelectedCities([filters.city]);
+    // Only set city if it's in our valid cities list (case insensitive comparison)
+    const cityToApply = validCities.find(
+      validCity => validCity.toLowerCase() === filters.city?.toLowerCase()
+    );
+    
+    if (cityToApply) {
+      setSelectedCities([cityToApply]);
+    }
   }
 
   // Apply amenities if we have a setter and amenities to set
   if (setSelectedAmenities && filters.amenities && filters.amenities.length > 0) {
-    setSelectedAmenities(filters.amenities);
+    // Only apply valid amenities
+    const validatedAmenities = filters.amenities.filter(amenity => 
+      validAmenities.length === 0 || validAmenities.includes(amenity)
+    );
+    
+    if (validatedAmenities.length > 0) {
+      setSelectedAmenities(validatedAmenities);
+    }
   }
 
   // Apply living area if we have setters and values
@@ -195,6 +229,18 @@ export function applyNaturalLanguageFilters(
 
   // Apply listing type if we have a setter and values
   if (setListingType && filters.listingType && filters.listingType.length > 0) {
-    setListingType(filters.listingType);
+    // Only apply valid listing types
+    const validatedListingTypes = filters.listingType.filter(type => {
+      // Map the natural language types to the actual types used in the app
+      const mappedType = type === 'rent' ? 'rent' : 
+                         type === 'sale' ? 'sale' : 
+                         type === 'construction' ? 'construction' : null;
+      
+      return mappedType && validListingTypes.includes(mappedType);
+    });
+    
+    if (validatedListingTypes.length > 0) {
+      setListingType(validatedListingTypes);
+    }
   }
 }

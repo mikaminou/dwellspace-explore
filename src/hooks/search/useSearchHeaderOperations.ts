@@ -68,7 +68,21 @@ export function useSearchHeaderOperations({
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(suggestion);
     
-    // Apply filters if we found any
+    // Get valid property types
+    const validPropertyTypes = ['house', 'apartment', 'villa', 'land'];
+    
+    // Get valid listing types
+    const validListingTypes = ['rent', 'sale', 'construction'];
+    
+    // Get valid amenities
+    const validAmenities = [
+      'pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 
+      'furnished', 'air conditioning', 'wifi', 'elevator', 'security', 
+      'gym', 'modern', 'fireplace', 'basement', 'storage', 'view', 
+      'waterfront', 'mountain view'
+    ];
+    
+    // Apply filters if we found any, with validation
     if (Object.keys(extractedFilters).length > 0) {
       applyNaturalLanguageFilters(
         extractedFilters, 
@@ -83,6 +97,12 @@ export function useSearchHeaderOperations({
           setMinLivingArea,
           setMaxLivingArea,
           setListingType
+        },
+        {
+          cities: cities, // Pass available cities for validation
+          propertyTypes: validPropertyTypes,
+          listingTypes: validListingTypes,
+          amenities: validAmenities
         }
       );
       
@@ -107,7 +127,21 @@ export function useSearchHeaderOperations({
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(searchTerm);
     
-    // Apply filters if we found any
+    // Get valid property types
+    const validPropertyTypes = ['house', 'apartment', 'villa', 'land'];
+    
+    // Get valid listing types
+    const validListingTypes = ['rent', 'sale', 'construction'];
+    
+    // Get valid amenities
+    const validAmenities = [
+      'pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 
+      'furnished', 'air conditioning', 'wifi', 'elevator', 'security', 
+      'gym', 'modern', 'fireplace', 'basement', 'storage', 'view', 
+      'waterfront', 'mountain view'
+    ];
+    
+    // Apply filters if we found any, with validation
     if (Object.keys(extractedFilters).length > 0) {
       applyNaturalLanguageFilters(
         extractedFilters, 
@@ -122,6 +156,12 @@ export function useSearchHeaderOperations({
           setMinLivingArea,
           setMaxLivingArea,
           setListingType
+        },
+        {
+          cities: cities, // Pass available cities for validation
+          propertyTypes: validPropertyTypes,
+          listingTypes: validListingTypes,
+          amenities: validAmenities
         }
       );
       
