@@ -1,9 +1,8 @@
 
 import { useRef, useState, useEffect } from 'react';
-import { Libraries } from '@react-google-maps/api';
 
 // Default Google Maps API key - users should replace this with their own
-const GOOGLE_MAPS_API_KEY = localStorage.getItem('google_maps_api_key') || 'AIzaSyBtCGretTv8O2Fzf_Oh0Er9H27-EaO-itM';
+const GOOGLE_MAPS_API_KEY = localStorage.getItem('google_maps_api_key') || '';
 
 // Define type for Google Maps markers
 type MarkerRef = google.maps.Marker;
@@ -30,8 +29,8 @@ export function useMapSetup() {
     tilt: 45, // Similar to pitch in Mapbox
   };
 
-  // Google Maps libraries to load - using mutable array instead of readonly
-  const libraries: Libraries = ['places', 'geometry', 'visualization'] as Libraries;
+  // Google Maps libraries to load - using mutable array to fix the readonly error
+  const libraries = ['places', 'geometry', 'visualization'];
 
   return {
     mapContainer,

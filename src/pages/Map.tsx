@@ -8,6 +8,7 @@ import { Filters } from "@/components/search/Filters";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { ExternalLink } from "lucide-react";
 
 export default function Map() {
   const [apiKey, setApiKey] = useState<string>(() => {
@@ -53,6 +54,27 @@ export default function Map() {
                   Google Cloud Console
                 </a>.
               </p>
+              
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                <h3 className="font-medium text-blue-700 mb-2">Important API Key Settings</h3>
+                <ul className="list-disc ml-5 text-sm text-blue-600 space-y-1.5">
+                  <li>Enable the <strong>Maps JavaScript API</strong> in your Google Cloud project</li>
+                  <li>Set up proper billing information</li>
+                  <li>For development, add <strong>localhost</strong> to your allowed domains</li>
+                  <li>For production, add your website domain to allowed domains</li>
+                  <li>Remove any API key restrictions if you're seeing "For development purposes only"</li>
+                </ul>
+                <a 
+                  href="https://developers.google.com/maps/documentation/javascript/get-api-key" 
+                  target="_blank"
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center mt-3 text-blue-700 hover:text-blue-800"
+                >
+                  Learn more 
+                  <ExternalLink className="ml-1 h-3 w-3" />
+                </a>
+              </div>
+              
               <form onSubmit={handleApiKeySubmit} className="space-y-4">
                 <Input 
                   type="text"
