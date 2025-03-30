@@ -54,11 +54,6 @@ export function useSearchOperations(
         features = selectedAmenities.filter(amenity => 
           availableAmenities.includes(amenity.toLowerCase())
         );
-        
-        if (features.length !== selectedAmenities.length) {
-          console.log("Some amenities were filtered out because they were invalid:", 
-            selectedAmenities.filter(a => !availableAmenities.includes(a.toLowerCase())));
-        }
       }
       
       if (searchTerm) {
@@ -81,14 +76,14 @@ export function useSearchOperations(
       // Build search parameters with null checks
       const searchParams = {
         city: selectedCities,
-        propertyType: Array.isArray(propertyType) && propertyType.length > 0 ? propertyType : undefined,
-        minPrice: typeof minPrice === 'number' && minPrice > 0 ? minPrice : undefined,
-        maxPrice: typeof maxPrice === 'number' ? maxPrice : undefined,
-        minBeds: typeof minBeds === 'number' && minBeds > 0 ? minBeds : undefined,
-        minBaths: typeof minBaths === 'number' && minBaths > 0 ? minBaths : undefined,
-        minLivingArea: typeof minLivingArea === 'number' && minLivingArea > 0 ? minLivingArea : undefined,
-        maxLivingArea: typeof maxLivingArea === 'number' ? maxLivingArea : undefined,
-        listingType: Array.isArray(listingType) && listingType.length > 0 ? listingType : undefined,
+        propertyType: propertyType && propertyType.length > 0 ? propertyType : undefined,
+        minPrice: minPrice > 0 ? minPrice : undefined,
+        maxPrice: maxPrice,
+        minBeds: minBeds > 0 ? minBeds : undefined,
+        minBaths: minBaths > 0 ? minBaths : undefined,
+        minLivingArea: minLivingArea > 0 ? minLivingArea : undefined,
+        maxLivingArea: maxLivingArea,
+        listingType: listingType && listingType.length > 0 ? listingType : undefined,
         features: features.length > 0 ? features : undefined,
       };
       
@@ -106,9 +101,9 @@ export function useSearchOperations(
       
       // Ensure we're still in the current search call before updating state
       setProperties(results);
-    } catch (error: any) {
-      toast.error(t('search.searchFailed'));
-      console.error("Search failed:", error.message);
+    } catch (error) {
+      toast.error(t('search.searchFailed') || 'Search failed');
+      console.error("Search failed:", error);
       // Clear properties on error to prevent showing stale results
       setProperties([]);
     } finally {

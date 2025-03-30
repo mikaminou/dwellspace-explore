@@ -12,7 +12,7 @@ export function SearchResults() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6 animate-fade-in">
+      <div className="mb-6">
         <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl font-medium">
             {selectedCities.length > 0 && !loading && 

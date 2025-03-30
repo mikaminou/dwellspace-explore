@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
@@ -16,30 +16,11 @@ interface PropertyGridProps {
 
 export function PropertyGrid({ properties, loading, handleReset, selectedCities }: PropertyGridProps) {
   const { t } = useLanguage();
-  const [isTransitioning, setIsTransitioning] = React.useState(false);
   
-  // Improved transition logic between loading states
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    
-    if (loading) {
-      setIsTransitioning(true);
-    } else {
-      // Give a slight delay before removing skeleton for smoother transition
-      timeoutId = setTimeout(() => {
-        setIsTransitioning(false);
-      }, 300);
-    }
-    
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-    };
-  }, [loading]);
-
   // Show skeletons when loading
-  if (loading || isTransitioning) {
+  if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 6 }).map((_, index) => (
           <PropertyCardSkeleton key={index} />
         ))}
@@ -51,7 +32,7 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
   if (properties.length === 0) {
     if (selectedCities.length === 0) {
       return (
-        <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-12 text-center animate-fade-in">
+        <div className="flex flex-col items-center justify-center py-12 text-center">
           <SearchIcon className="h-16 w-16 text-gray-300 mb-4" />
           <h3 className="text-xl font-medium mb-2">{t('search.selectCity') || 'Please select a city'}</h3>
           <p className="text-muted-foreground mb-4">{t('search.noPropertiesWithoutCity') || 'You need to select at least one city to view properties'}</p>
@@ -60,14 +41,14 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
     }
     
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center animate-fade-in">
+      <div className="flex flex-col items-center justify-center py-12 text-center">
         <SearchIcon className="h-16 w-16 text-gray-300 mb-4" />
-        <h3 className="text-xl font-medium mb-2">{t('search.noPropertiesFound')}</h3>
+        <h3 className="text-xl font-medium mb-2">{t('search.noPropertiesFound') || 'No properties found'}</h3>
         <p className="text-muted-foreground mb-4">
-          {t('search.tryAdjustingFilters')}
+          {t('search.tryAdjustingFilters') || 'Try adjusting your filters to find more properties'}
         </p>
         <Button onClick={handleReset} variant="outline">
-          {t('search.resetFilters')}
+          {t('search.resetFilters') || 'Reset Filters'}
         </Button>
       </div>
     );
@@ -75,7 +56,7 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
 
   // Render property cards
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {properties.map((property) => (
         <PropertyCard key={property.id} property={property} />
       ))}
