@@ -56,30 +56,20 @@ export function PriceRangeFilter({
       </h4>
       <div className="space-y-4">
         <div className="flex gap-2">
-          <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">$</span>
-            </div>
-            <Input
-              type="text"
-              value={formatPrice(minPrice)}
-              onChange={handleMinPriceChange}
-              className="pl-7 pr-2 w-full"
-              placeholder="Min"
-            />
-          </div>
-          <div className="relative rounded-md shadow-sm">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-gray-500 sm:text-sm">$</span>
-            </div>
-            <Input
-              type="text"
-              value={formatPrice(maxPrice)}
-              onChange={handleMaxPriceChange}
-              className="pl-7 pr-2 w-full"
-              placeholder="Max"
-            />
-          </div>
+          <Input
+            type="text"
+            value={formatPrice(minPrice)}
+            onChange={handleMinPriceChange}
+            className="w-full"
+            placeholder="Min"
+          />
+          <Input
+            type="text"
+            value={formatPrice(maxPrice)}
+            onChange={handleMaxPriceChange}
+            className="w-full"
+            placeholder="Max"
+          />
         </div>
         
         <Slider
