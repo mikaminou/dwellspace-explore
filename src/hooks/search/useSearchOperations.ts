@@ -16,7 +16,8 @@ export function useSearchOperations(
   maxLivingArea: number,
   setProperties: (properties: any[]) => void,
   setLoading: (loading: boolean) => void,
-  filtersApplied: React.MutableRefObject<boolean>
+  filtersApplied: React.MutableRefObject<boolean>,
+  selectedAmenities: string[] = [] // Add amenities parameter with default empty array
 ) {
   const { t } = useLanguage();
 
@@ -27,7 +28,7 @@ export function useSearchOperations(
     filtersApplied.current = true;
     try {
       // Get features from natural language query if it contains certain keywords
-      const features: string[] = [];
+      let features: string[] = [...selectedAmenities]; // Start with selected amenities
       
       if (searchTerm) {
         const lowerQuery = searchTerm.toLowerCase();
@@ -37,7 +38,7 @@ export function useSearchOperations(
           'furnished', 'air conditioning', 'modern', 'elevator', 'security'];
           
         amenities.forEach(amenity => {
-          if (lowerQuery.includes(amenity)) {
+          if (lowerQuery.includes(amenity) && !features.includes(amenity)) {
             features.push(amenity);
           }
         });
@@ -71,7 +72,7 @@ export function useSearchOperations(
   }, [
     searchTerm, selectedCity, propertyType, listingType, minPrice, maxPrice, 
     minBeds, minLivingArea, maxLivingArea, setProperties, setLoading, 
-    filtersApplied, t
+    filtersApplied, t, selectedAmenities // Add selectedAmenities to dependencies
   ]);
 
   return { handleSearch };

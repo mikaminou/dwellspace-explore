@@ -23,7 +23,11 @@ export default function Search() {
       searchQuery.includes("with") || 
       searchQuery.includes("near") ||
       searchQuery.includes("under") ||
-      searchQuery.toLowerCase().includes("modern")
+      searchQuery.toLowerCase().includes("modern") ||
+      searchQuery.toLowerCase().includes("pool") ||
+      searchQuery.toLowerCase().includes("garden") ||
+      searchQuery.toLowerCase().includes("garage") ||
+      searchQuery.toLowerCase().includes("furnished")
     )) {
       // Parse the natural language query to identify what we can extract
       const extractedFilters = parseNaturalLanguageQuery(searchQuery);

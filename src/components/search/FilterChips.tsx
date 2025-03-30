@@ -1,6 +1,6 @@
 
 import React from "react";
-import { MapPin, Home, DollarSign, Clock, Bed, Bath, Ruler, X } from "lucide-react";
+import { MapPin, Home, DollarSign, Clock, Bed, Bath, Ruler, X, Package } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Badge } from "@/components/ui/badge";
 import { useSearch } from "@/contexts/search/SearchContext";
@@ -16,6 +16,7 @@ export function FilterChips() {
     minLivingArea,
     maxLivingArea,
     maxLivingAreaLimit,
+    selectedAmenities, // Add amenities
     filtersApplied,
     handleFilterRemoval
   } = useSearch();
@@ -121,6 +122,24 @@ export function FilterChips() {
           </button>
         </Badge>
       )}
+
+      {/* Add amenities chips */}
+      {selectedAmenities.map(amenity => (
+        <Badge 
+          key={amenity}
+          variant="outline" 
+          className="bg-white rounded-full px-3 py-1.5 text-sm flex items-center gap-1 shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+        >
+          <Package size={12} />
+          <span className="capitalize">{amenity}</span>
+          <button 
+            onClick={() => handleFilterRemoval('amenities', amenity)} 
+            className="ml-1 p-0.5 rounded-full hover:bg-gray-100"
+          >
+            <X size={12} />
+          </button>
+        </Badge>
+      ))}
     </div>
   );
 }

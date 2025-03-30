@@ -9,7 +9,8 @@ export interface SearchFilters {
   minLivingArea?: number;
   maxLivingArea?: number;
   listingType?: string;
-  naturalLanguageQuery?: string; // Add support for natural language queries
+  naturalLanguageQuery?: string;
+  amenities?: string[]; // Add support for amenities filtering
 }
 
 export interface SearchState {
@@ -32,6 +33,7 @@ export interface SearchState {
   maxLivingAreaLimit: number;
   activeFilterSection: string | null;
   initialLoadDone: boolean;
+  selectedAmenities: string[]; // Add selected amenities to state
 }
 
 export interface SearchActions {
@@ -48,6 +50,7 @@ export interface SearchActions {
   setMaxLivingArea: (area: number) => void;
   setSortOption: (option: string) => void;
   setActiveFilterSection: (section: string | null) => void;
+  setSelectedAmenities: (amenities: string[]) => void; // Add action to set amenities
   handleSearch: () => void;
   handleReset: () => void;
   getActiveFiltersCount: () => number;

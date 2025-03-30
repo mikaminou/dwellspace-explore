@@ -1,4 +1,3 @@
-
 interface ExtractedFilters {
   propertyType?: string[];
   beds?: number;
@@ -6,6 +5,7 @@ interface ExtractedFilters {
   maxPrice?: number;
   minPrice?: number;
   city?: string;
+  amenities?: string[];
 }
 
 /**
@@ -26,10 +26,15 @@ export function parseNaturalLanguageQuery(query: string): ExtractedFilters {
   }
 
   // Extract features/amenities
-  const features = ['pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 'furnished', 
+  const amenities = ['pool', 'garden', 'garage', 'balcony', 'terrace', 'parking', 'furnished', 
     'air conditioning', 'wifi', 'elevator', 'security', 'gym', 'modern'];
-  filters.features = features.filter(feature => lowerQuery.includes(feature));
-
+  
+  // Split amenities from features for better filtering
+  filters.amenities = amenities.filter(amenity => lowerQuery.includes(amenity));
+  
+  // Keep other features that are not specific amenities
+  filters.features = [];
+  
   // Extract price range
   const underPriceMatch = lowerQuery.match(/under\s*\$?(\d+)k?/i);
   if (underPriceMatch) {
@@ -82,9 +87,10 @@ export function applyNaturalLanguageFilters(
     setMinPrice: (price: number) => void;
     setMaxPrice: (price: number) => void;
     setSelectedCity: (city: string) => void;
+    setSelectedAmenities?: (amenities: string[]) => void;
   }
 ) {
-  const { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCity } = setters;
+  const { setPropertyType, setMinBeds, setMinPrice, setMaxPrice, setSelectedCity, setSelectedAmenities } = setters;
 
   // Apply property type
   if (filters.propertyType && filters.propertyType.length > 0) {
@@ -108,5 +114,10 @@ export function applyNaturalLanguageFilters(
   // Apply city
   if (filters.city) {
     setSelectedCity(filters.city);
+  }
+
+  // Apply amenities if we have a setter and amenities to set
+  if (setSelectedAmenities && filters.amenities && filters.amenities.length > 0) {
+    setSelectedAmenities(filters.amenities);
   }
 }

@@ -1,3 +1,4 @@
+
 import { useCallback } from "react";
 import { SearchFilters } from "./types";
 
@@ -11,6 +12,7 @@ export function useFilterManagement(
   maxLivingArea: number,
   maxLivingAreaLimit: number,
   maxPriceLimit: number,
+  selectedAmenities: string[], // Add amenities parameter
   setSelectedCity: (city: string) => void,
   setPropertyType: (types: string[]) => void,
   setListingType: (types: string[]) => void,
@@ -20,6 +22,7 @@ export function useFilterManagement(
   setMinBaths: (baths: number) => void,
   setMinLivingArea: (area: number) => void,
   setMaxLivingArea: (area: number) => void,
+  setSelectedAmenities: (amenities: string[]) => void, // Add amenities setter
   setSortOption: (option: string) => void,
   handleSearch: () => void
 ) {
@@ -35,6 +38,7 @@ export function useFilterManagement(
     setMinBaths(0);
     setMinLivingArea(0);
     setMaxLivingArea(maxLivingAreaLimit);
+    setSelectedAmenities([]); // Reset amenities
     setSortOption('relevance');
     
     // Force a new search with the reset values after a short delay to ensure state updates
@@ -44,7 +48,7 @@ export function useFilterManagement(
   }, [
     maxPriceLimit, maxLivingAreaLimit, handleSearch, setPropertyType, 
     setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 
-    setMinLivingArea, setMaxLivingArea, setSortOption
+    setMinLivingArea, setMaxLivingArea, setSortOption, setSelectedAmenities // Add setSelectedAmenities
   ]);
 
   const getActiveFiltersCount = useCallback(() => {
@@ -56,10 +60,12 @@ export function useFilterManagement(
     if (minBaths > 0) count++;
     if (minLivingArea > 0) count++;
     if (maxLivingArea < maxLivingAreaLimit) count++;
+    if (selectedAmenities.length > 0) count++; // Count amenities as a filter
     return count;
   }, [
     propertyType, listingType, minBeds, 
-    minBaths, minLivingArea, maxLivingArea, maxLivingAreaLimit
+    minBaths, minLivingArea, maxLivingArea, maxLivingAreaLimit,
+    selectedAmenities // Add selectedAmenities to dependencies
   ]);
 
   const handleFilterRemoval = useCallback((filterType: string, value?: string) => {
@@ -88,6 +94,13 @@ export function useFilterManagement(
         setMinLivingArea(0);
         setMaxLivingArea(maxLivingAreaLimit);
         break;
+      case 'amenities':
+        if (value) {
+          setSelectedAmenities(selectedAmenities.filter(amenity => amenity !== value));
+        } else {
+          setSelectedAmenities([]);
+        }
+        break;
       default:
         break;
     }
@@ -99,7 +112,8 @@ export function useFilterManagement(
   }, [
     propertyType, listingType, maxLivingAreaLimit, handleSearch,
     setPropertyType, setListingType, setMinBeds,
-    setMinBaths, setMinLivingArea, setMaxLivingArea
+    setMinBaths, setMinLivingArea, setMaxLivingArea,
+    selectedAmenities, setSelectedAmenities // Add amenities
   ]);
 
   return {

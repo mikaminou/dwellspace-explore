@@ -7,6 +7,7 @@ import { ListingTypeFilter } from "./ListingTypeFilter";
 import { PriceRangeFilter } from "./PriceRangeFilter";
 import { BedsBathsFilter } from "./BedsBathsFilter";
 import { LivingAreaFilter } from "./LivingAreaFilter";
+import { AmenitiesFilter } from "./AmenitiesFilter"; // Import the new component
 import { FilterActions } from "./FilterActions";
 import { useSearch } from "@/contexts/search/SearchContext";
 
@@ -33,6 +34,8 @@ export function MobileFilters() {
     maxPriceLimit,
     maxLivingAreaLimit,
     cities,
+    selectedAmenities, // Add selectedAmenities
+    setSelectedAmenities, // Add setter
     handleReset,
     handleSearch,
     activeFilterSection,
@@ -118,6 +121,18 @@ export function MobileFilters() {
             maxLivingArea={maxLivingArea}
             setMaxLivingArea={setMaxLivingArea}
             maxLivingAreaLimit={maxLivingAreaLimit}
+          />
+        </MobileFilterSection>
+
+        {/* Add the Amenities filter section */}
+        <MobileFilterSection 
+          section="amenities" 
+          activeSection={activeFilterSection} 
+          onToggle={toggleFilterSection}
+        >
+          <AmenitiesFilter
+            selectedAmenities={selectedAmenities}
+            setSelectedAmenities={setSelectedAmenities}
           />
         </MobileFilterSection>
       </div>

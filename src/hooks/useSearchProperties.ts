@@ -27,6 +27,7 @@ export function useSearchProperties(): SearchHookResult {
   const [maxLivingAreaLimit, setMaxLivingAreaLimit] = useState(500);
   const [activeFilterSection, setActiveFilterSection] = useState<string | null>(null);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]); // Add amenities state
   
   const filtersApplied = useRef(false);
 
@@ -54,7 +55,8 @@ export function useSearchProperties(): SearchHookResult {
     maxLivingArea,
     setProperties,
     setLoading,
-    filtersApplied
+    filtersApplied,
+    selectedAmenities // Pass amenities to search operations
   );
 
   // Filter management
@@ -68,6 +70,7 @@ export function useSearchProperties(): SearchHookResult {
     maxLivingArea,
     maxLivingAreaLimit,
     maxPriceLimit,
+    selectedAmenities, // Pass amenities to filter management
     setSelectedCity,
     setPropertyType,
     setListingType,
@@ -77,6 +80,7 @@ export function useSearchProperties(): SearchHookResult {
     setMinBaths,
     setMinLivingArea,
     setMaxLivingArea,
+    setSelectedAmenities, // Pass setter to filter management
     setSortOption,
     handleSearch
   );
@@ -120,6 +124,8 @@ export function useSearchProperties(): SearchHookResult {
     maxLivingAreaLimit,
     activeFilterSection,
     setActiveFilterSection,
+    selectedAmenities, // Return amenities state
+    setSelectedAmenities, // Return amenities setter
     filtersApplied,
     handleSearch,
     handleReset,
