@@ -1,3 +1,4 @@
+
 // Helper function to get city coordinates
 // In a real app, you would have this data in your database
 export function getCityCoordinates(city: string): { lat: number, lng: number } | null {
@@ -60,44 +61,4 @@ export function getListingTypeButtonClass(type: string = 'sale'): string {
     case 'sale':
     default: return 'bg-green-500 hover:bg-green-600';
   }
-}
-
-// New function to help troubleshoot Google Maps API key issues
-export function troubleshootGoogleMapsApiKey(apiKey: string): string[] {
-  const issues = [];
-  
-  if (!apiKey) {
-    issues.push('API key is missing. Please provide a valid Google Maps API key.');
-    return issues;
-  }
-  
-  if (apiKey.includes('AIzaSyBtCGretTv8O2Fzf_Oh0Er9H27-EaO-itM')) {
-    issues.push('You are using the demo API key which has strict limitations. Please replace with your own API key.');
-  }
-  
-  if (apiKey.length < 30) {
-    issues.push('API key appears to be too short. Google Maps API keys are typically longer.');
-  }
-  
-  if (!/^[A-Za-z0-9_-]+$/.test(apiKey)) {
-    issues.push('API key contains invalid characters. Google Maps API keys only contain letters, numbers, underscores, and hyphens.');
-  }
-  
-  return issues;
-}
-
-// Function to check if an API key has the right format and pattern
-export function isValidGoogleMapsApiKeyFormat(apiKey: string): boolean {
-  // Google Maps API keys usually start with "AIza"
-  if (!apiKey.startsWith('AIza')) {
-    return false;
-  }
-  
-  // They should be at least 30 characters long
-  if (apiKey.length < 30) {
-    return false;
-  }
-  
-  // They should only contain letters, numbers, underscores, and hyphens
-  return /^[A-Za-z0-9_-]+$/.test(apiKey);
 }
