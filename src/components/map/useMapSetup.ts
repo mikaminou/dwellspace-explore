@@ -31,7 +31,7 @@ export function useMapSetup() {
   };
 
   // Google Maps libraries to load - using mutable array instead of readonly
-  const libraries: Libraries = ['places', 'geometry', 'visualization'];
+  const libraries: Libraries = ['places', 'geometry', 'visualization'] as Libraries;
 
   return {
     mapContainer,

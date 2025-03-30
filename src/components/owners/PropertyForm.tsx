@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/auth";
@@ -549,8 +550,8 @@ export function PropertyForm({ id }: PropertyFormProps) {
           <FormLabel>Amenities</FormLabel>
           <FormControl>
             <Select
-              onValueChange={(value) => field.onChange(value)}
-              defaultValue={field.value as string}
+              onValueChange={(value) => field.onChange([value])}
+              defaultValue={field.value?.[0] || ""}
             >
               <FormControl>
                 <SelectTrigger>
@@ -579,8 +580,8 @@ export function PropertyForm({ id }: PropertyFormProps) {
           <FormLabel>Features</FormLabel>
           <FormControl>
             <Select
-              onValueChange={(value) => field.onChange(value)}
-              defaultValue={field.value as string}
+              onValueChange={(value) => field.onChange([value])}
+              defaultValue={field.value?.[0] || ""}
             >
               <FormControl>
                 <SelectTrigger>
@@ -969,3 +970,274 @@ export function PropertyForm({ id }: PropertyFormProps) {
                     />
                     
                     <FormField
+                      control={form.control}
+                      name="baths"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Bath className="h-4 w-4" /> Bathrooms
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="0"
+                              {...field}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="living_area"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Ruler className="h-4 w-4" /> Living Area (m²)
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="0"
+                              {...field}
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="plot_area"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-2">
+                            <Ruler className="h-4 w-4" /> Plot Area (m²)
+                          </FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="0"
+                              placeholder="Optional"
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="floor"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Floor</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="0"
+                              placeholder="Optional"
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="total_floors"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Total Floors</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              min="0"
+                              placeholder="Optional"
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="parking"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <Checkbox 
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Parking Available
+                          </FormLabel>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="furnished"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center space-x-2 space-y-0">
+                          <FormControl>
+                            <Checkbox 
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            Furnished
+                          </FormLabel>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <Separator className="my-4" />
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Additional Features</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {renderAmenitiesField()}
+                      {renderFeaturesField()}
+                    </div>
+                    
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              placeholder="Describe your property..."
+                              {...field}
+                              rows={6}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="media" className="space-y-6">
+                <div className="space-y-6">
+                  <h3 className="text-lg font-medium">Upload Media</h3>
+                  <ImageUploadDropzone
+                    onChange={handleMainImageChange}
+                    value={imageFile ? [imageFile] : []}
+                    maxFiles={10}
+                    imageUrls={imageUrl ? [imageUrl] : []}
+                    onRemoveExisting={removeAdditionalImage}
+                  />
+                  
+                  {additionalImageUrls.length > 0 && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Additional Images</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {additionalImageUrls.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={url}
+                              alt={`Additional ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-md"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeAdditionalImage(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
+            
+            <div className="flex justify-between mt-8">
+              {currentStep !== formSteps[0].id && (
+                <Button
+                  type="button"
+                  onClick={goToPreviousStep}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" /> Previous
+                </Button>
+              )}
+              
+              <div className="flex gap-2 ml-auto">
+                {!isEditing && (
+                  <Button
+                    type="button"
+                    onClick={handleSaveAsDraft}
+                    variant="outline"
+                    disabled={isSaving}
+                  >
+                    Save as Draft
+                  </Button>
+                )}
+                
+                {currentStep === formSteps[formSteps.length - 1].id ? (
+                  <Button
+                    type="submit"
+                    disabled={isSaving}
+                    className="flex items-center gap-2"
+                  >
+                    {isSaving ? 'Saving...' : (
+                      <>
+                        <Save className="h-4 w-4" /> {isEditing ? 'Update' : 'Create'} Property
+                      </>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={goToNextStep}
+                    disabled={!isCurrentStepValid()}
+                    className="flex items-center gap-2"
+                  >
+                    Next <ArrowRight className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+}
