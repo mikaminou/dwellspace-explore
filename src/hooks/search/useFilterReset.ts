@@ -1,3 +1,4 @@
+
 import { useCallback, useRef } from "react";
 
 /**
@@ -63,9 +64,19 @@ export function useFilterReset(
       resetInProgress.current = false;
     }, 300); // Increased timeout to ensure all state updates complete
   }, [
-    maxPriceLimit, maxLivingAreaLimit, handleSearch, setPropertyType, 
-    setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 
-    setMinLivingArea, setMaxLivingArea, setSortOption, setSelectedAmenities,
+    maxPriceLimit, 
+    maxLivingAreaLimit, 
+    handleSearch, 
+    setPropertyType, 
+    setListingType, 
+    setMinPrice, 
+    setMaxPrice, 
+    setMinBeds, 
+    setMinBaths, 
+    setMinLivingArea, 
+    setMaxLivingArea, 
+    setSortOption, 
+    setSelectedAmenities,
     selectedCities
   ]);
 

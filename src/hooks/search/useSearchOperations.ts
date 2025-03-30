@@ -85,14 +85,14 @@ export function useSearchOperations(
       // Build search parameters with proper checks
       const searchParams = {
         city: selectedCities,
-        propertyType: Array.isArray(propertyType) && propertyType.length > 0 ? propertyType : undefined,
+        propertyType: propertyType && propertyType.length > 0 ? propertyType : undefined,
         minPrice: minPrice > 0 ? minPrice : undefined,
-        maxPrice: maxPrice,
+        maxPrice,
         minBeds: minBeds > 0 ? minBeds : undefined,
         minBaths: minBaths > 0 ? minBaths : undefined,
         minLivingArea: minLivingArea > 0 ? minLivingArea : undefined,
-        maxLivingArea: maxLivingArea,
-        listingType: Array.isArray(listingType) && listingType.length > 0 ? listingType : undefined,
+        maxLivingArea,
+        listingType: listingType && listingType.length > 0 ? listingType : undefined,
         features: features.length > 0 ? features : undefined,
       };
       
@@ -113,8 +113,8 @@ export function useSearchOperations(
       // Only update the UI once we have the final results
       setProperties(results);
     } catch (error) {
-      toast.error(t('search.searchFailed') || 'Search failed');
       console.error("Search failed:", error);
+      toast.error(t('search.searchFailed') || 'Search failed');
       // Don't clear properties on error to prevent UI flickering
     } finally {
       // Reset request in progress flag and loading state

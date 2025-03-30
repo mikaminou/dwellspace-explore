@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from "react";
+
+import React, { useEffect, useRef, useState } from "react";
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
@@ -15,17 +16,19 @@ interface PropertyGridProps {
 
 export function PropertyGrid({ properties, loading, handleReset, selectedCities }: PropertyGridProps) {
   const { t } = useLanguage();
-  const prevPropertiesRef = useRef<Property[]>([]);
-  const hasLoadedBefore = useRef(false);
+  const [cachedProperties, setCachedProperties] = useState<Property[]>([]);
+  const isFirstLoad = useRef(true);
   
+  // Update cached properties when new properties arrive and they're not loading
   useEffect(() => {
-    if (!loading && properties.length > 0) {
-      prevPropertiesRef.current = properties;
-      hasLoadedBefore.current = true;
+    if (!loading && properties && properties.length > 0) {
+      setCachedProperties(properties);
+      isFirstLoad.current = false;
     }
   }, [properties, loading]);
   
-  if (loading && !hasLoadedBefore.current) {
+  // Handle initial loading state with skeletons
+  if (loading && isFirstLoad.current) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 6 }).map((_, index) => (
@@ -35,18 +38,20 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
     );
   }
 
-  if (loading && hasLoadedBefore.current && prevPropertiesRef.current.length > 0) {
+  // Use cached properties during subsequent loading states
+  if (loading && cachedProperties.length > 0) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {prevPropertiesRef.current.map((property) => (
+        {cachedProperties.map((property) => (
           <PropertyCard key={property.id} property={property} />
         ))}
       </div>
     );
   }
 
-  if (properties.length === 0) {
-    if (selectedCities.length === 0) {
+  // Handle case with no properties
+  if ((!loading && properties.length === 0) || (!loading && !properties)) {
+    if (!selectedCities || selectedCities.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <SearchIcon className="h-16 w-16 text-gray-300 mb-4" />
@@ -70,6 +75,7 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
     );
   }
 
+  // Normal display of properties
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {properties.map((property) => (

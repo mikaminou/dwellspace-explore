@@ -20,11 +20,12 @@ export function useFilterRemoval(
   setSelectedAmenities: (amenities: string[]) => void,
   handleSearch: () => void
 ) {
+  // Move the callback creation outside of any conditional logic to ensure
+  // hook call order remains consistent
   const handleFilterRemoval = useCallback((filterType: string, value?: string) => {
     switch (filterType) {
       case 'city':
         if (value) {
-          // Remove specific city if value is provided
           setSelectedCities(selectedCities.filter(city => city !== value));
         }
         break;
@@ -64,15 +65,23 @@ export function useFilterRemoval(
       document.activeElement.blur();
     }
     
-    // Force a new search with the updated filter values
-    setTimeout(() => {
-      handleSearch();
-    }, 50);
+    // Trigger a new search with the updated filter values using a fixed timeout
+    setTimeout(handleSearch, 50);
   }, [
-    selectedCities, propertyType, listingType, maxLivingAreaLimit, handleSearch,
-    setSelectedCities, setPropertyType, setListingType, setMinBeds,
-    setMinBaths, setMinLivingArea, setMaxLivingArea,
-    selectedAmenities, setSelectedAmenities
+    selectedCities, 
+    propertyType, 
+    listingType, 
+    maxLivingAreaLimit, 
+    selectedAmenities, 
+    setSelectedCities, 
+    setPropertyType, 
+    setListingType, 
+    setMinBeds,
+    setMinBaths, 
+    setMinLivingArea, 
+    setMaxLivingArea,
+    setSelectedAmenities, 
+    handleSearch
   ]);
 
   return handleFilterRemoval;
