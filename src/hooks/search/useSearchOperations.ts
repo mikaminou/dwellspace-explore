@@ -48,14 +48,14 @@ export function useSearchOperations(
       }
       
       const results = await searchProperties(searchTerm, {
-        city: [selectedCity],
-        propertyType: propertyType.length > 0 ? propertyType : undefined,
+        city: [selectedCity], // Pass as array
+        propertyType: propertyType.length > 0 ? propertyType : undefined, // Already an array
         minPrice: minPrice,
         maxPrice: maxPrice,
         minBeds: minBeds,
         minLivingArea: minLivingArea,
         maxLivingArea: maxLivingArea,
-        listingType: listingType.length > 0 ? listingType : undefined,
+        listingType: listingType.length > 0 ? listingType : undefined, // Already an array
         features: features.length > 0 ? features : undefined,
       });
       
