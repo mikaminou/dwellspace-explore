@@ -6,6 +6,8 @@ import { SearchInputField } from "./SearchInputField";
 import { FilterToggleButton } from "./FilterToggleButton";
 import { SearchButton } from "./SearchButton";
 import { useSearchHeaderOperations } from "@/hooks/search/useSearchHeaderOperations";
+import { Map } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function SearchHeader() {
   const { 
@@ -65,6 +67,9 @@ export function SearchHeader() {
     cities
   });
 
+  // State for toggling map view
+  const [showMap, setShowMap] = React.useState(false);
+
   return (
     <div 
       ref={searchHeaderRef}
@@ -90,6 +95,16 @@ export function SearchHeader() {
           />
 
           <SearchButton onClick={handleSearchClick} />
+          
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-12 w-12 md:w-12 shrink-0"
+            onClick={() => setShowMap(!showMap)}
+            title={showMap ? "Hide Map" : "Show Map"}
+          >
+            <Map className={`h-5 w-5 ${showMap ? 'text-primary' : 'text-muted-foreground'}`} />
+          </Button>
         </div>
       </div>
 

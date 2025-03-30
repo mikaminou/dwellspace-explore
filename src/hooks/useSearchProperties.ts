@@ -42,7 +42,7 @@ export function useSearchProperties(): SearchHookResult {
     setInitialLoadDone
   );
 
-  // Search operations - fixed the parameter order
+  // Search operations - make sure parameters are in the correct order
   const { handleSearch } = useSearchOperations(
     searchTerm,
     selectedCities,
