@@ -1,4 +1,5 @@
-import { useCallback } from "react";
+
+import { useCallback, useRef } from "react";
 import { searchProperties } from "@/api";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/language/LanguageContext";
@@ -21,6 +22,8 @@ export function useSearchOperations(
   setLoading: (loading: boolean) => void
 ) {
   const { t } = useLanguage();
+  // Add a request in progress ref to prevent duplicate requests
+  const requestInProgress = useRef(false);
 
   // Define available amenities for validation
   const availableAmenities = [
@@ -30,6 +33,12 @@ export function useSearchOperations(
   ];
 
   const handleSearch = useCallback(async () => {
+    // If there's already a request in progress, don't start another one
+    if (requestInProgress.current) {
+      console.log("Search already in progress, skipping");
+      return;
+    }
+    
     if (!selectedCities || selectedCities.length === 0) {
       console.log("No cities selected, cannot search");
       setProperties([]);
@@ -37,8 +46,9 @@ export function useSearchOperations(
       return;
     }
     
-    // Set loading state first before any async operations
+    // Set loading state and mark request as in progress
     setLoading(true);
+    requestInProgress.current = true;
     filtersApplied.current = true;
     
     try {
@@ -94,21 +104,21 @@ export function useSearchOperations(
         effectiveSearchTerm = searchTerm;
       }
       
+      console.log("Starting API request with term:", effectiveSearchTerm);
       const results = await searchProperties(effectiveSearchTerm, searchParams);
+      console.log("API request completed");
       
       console.log(`Found ${results.length} properties for cities:`, selectedCities);
       
-      // Only update state if we have results or if there were no properties found
-      // This prevents flickering during scrolling
+      // Only update the UI once we have the final results
       setProperties(results);
     } catch (error) {
       toast.error(t('search.searchFailed') || 'Search failed');
       console.error("Search failed:", error);
-      // Keep the previous properties on error to prevent UI flickering
-      // Only clear if explicitly needed
-      setProperties([]);
+      // Don't clear properties on error to prevent UI flickering
     } finally {
-      // Always set loading to false when done
+      // Reset request in progress flag and loading state
+      requestInProgress.current = false;
       setLoading(false);
     }
   }, [

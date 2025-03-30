@@ -1,5 +1,4 @@
-
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 
 /**
  * Hook to handle filter reset functionality
@@ -20,7 +19,18 @@ export function useFilterReset(
   setSortOption: (option: string) => void,
   handleSearch: () => void
 ) {
+  // Add a flag to prevent multiple reset operations from running at once
+  const resetInProgress = useRef(false);
+  
   const handleReset = useCallback(() => {
+    // If reset is already in progress, skip
+    if (resetInProgress.current) {
+      console.log("Reset already in progress, skipping");
+      return;
+    }
+    
+    resetInProgress.current = true;
+    
     // When resetting filters, keep the current city selection
     // Do not modify selectedCities
     console.log("Resetting filters, keeping cities:", selectedCities);
@@ -50,7 +60,8 @@ export function useFilterReset(
       }
       
       handleSearch();
-    }, 200); // Increased timeout to ensure all state updates complete
+      resetInProgress.current = false;
+    }, 300); // Increased timeout to ensure all state updates complete
   }, [
     maxPriceLimit, maxLivingAreaLimit, handleSearch, setPropertyType, 
     setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 

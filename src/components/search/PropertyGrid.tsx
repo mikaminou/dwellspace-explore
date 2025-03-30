@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
@@ -16,9 +15,17 @@ interface PropertyGridProps {
 
 export function PropertyGrid({ properties, loading, handleReset, selectedCities }: PropertyGridProps) {
   const { t } = useLanguage();
+  const prevPropertiesRef = useRef<Property[]>([]);
+  const hasLoadedBefore = useRef(false);
   
-  // Show skeletons when loading
-  if (loading) {
+  useEffect(() => {
+    if (!loading && properties.length > 0) {
+      prevPropertiesRef.current = properties;
+      hasLoadedBefore.current = true;
+    }
+  }, [properties, loading]);
+  
+  if (loading && !hasLoadedBefore.current) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 6 }).map((_, index) => (
@@ -28,7 +35,16 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
     );
   }
 
-  // Show empty state if no properties were found
+  if (loading && hasLoadedBefore.current && prevPropertiesRef.current.length > 0) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {prevPropertiesRef.current.map((property) => (
+          <PropertyCard key={property.id} property={property} />
+        ))}
+      </div>
+    );
+  }
+
   if (properties.length === 0) {
     if (selectedCities.length === 0) {
       return (
@@ -54,7 +70,6 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
     );
   }
 
-  // Render property cards
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {properties.map((property) => (
@@ -64,7 +79,6 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
   );
 }
 
-// Extract the skeleton into a separate component for reuse
 function PropertyCardSkeleton() {
   return (
     <div className="bg-card border rounded-lg overflow-hidden">

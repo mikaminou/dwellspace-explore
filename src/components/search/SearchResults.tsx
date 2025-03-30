@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { FilterChips } from "./FilterChips";
 import { PropertyGrid } from "./PropertyGrid";
@@ -9,6 +9,13 @@ import { useSearch } from "@/contexts/search/SearchContext";
 export function SearchResults() {
   const { t } = useLanguage();
   const { properties, loading, handleReset, selectedCities } = useSearch();
+  // Add ref to track previous loading state
+  const loadingRef = useRef(loading);
+  
+  // Use effect to prevent unnecessary re-renders during scroll
+  useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
 
   return (
     <div className="container mx-auto px-4 py-8">
