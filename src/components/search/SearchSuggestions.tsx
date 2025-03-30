@@ -3,12 +3,11 @@ import React from "react";
 import { CommandDialog, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Building, Clock, Search, Sparkles, TrendingUp } from "lucide-react";
-import { parseNaturalLanguageQuery } from "@/utils/naturalLanguageSearch";
+import { Clock, Search, TrendingUp } from "lucide-react";
 
 export interface SearchSuggestion {
   text: string;
-  type: "history" | "ai" | "trending";
+  type: "history" | "trending";
   timestamp?: number;
 }
 
@@ -29,40 +28,6 @@ export function SearchSuggestions({
 }: SearchSuggestionsProps) {
   const { t, dir } = useLanguage();
   const [searchHistory, setSearchHistory] = useLocalStorage<SearchSuggestion[]>("search_history", []);
-  
-  // Filter AI suggestions based on the search term
-  const getAiSuggestions = (): SearchSuggestion[] => {
-    if (!searchTerm || searchTerm.length < 2) return [];
-    
-    // Create common property-related natural language suggestions
-    const aiSuggestions: SearchSuggestion[] = [
-      { text: `${searchTerm} with pool`, type: "ai" },
-      { text: `${searchTerm} near city center`, type: "ai" },
-      { text: `modern ${searchTerm}`, type: "ai" },
-      { text: `3 bedroom ${searchTerm}`, type: "ai" },
-      { text: `${searchTerm} under $500,000`, type: "ai" },
-    ];
-    
-    // If the search term already has natural language elements,
-    // generate more specific suggestions based on what's already there
-    const extractedFilters = parseNaturalLanguageQuery(searchTerm);
-    if (Object.keys(extractedFilters).length > 0) {
-      // Add more contextually relevant suggestions
-      if (!extractedFilters.beds) {
-        aiSuggestions.push({ text: `${searchTerm} with 2 bedrooms`, type: "ai" });
-      }
-      
-      if (!extractedFilters.maxPrice) {
-        aiSuggestions.push({ text: `${searchTerm} under $300,000`, type: "ai" });
-      }
-      
-      if (!extractedFilters.city && !searchTerm.includes("near")) {
-        aiSuggestions.push({ text: `${searchTerm} in Algiers`, type: "ai" });
-      }
-    }
-    
-    return aiSuggestions.slice(0, 3); // Limit to 3 suggestions
-  };
   
   // Get trending searches
   const getTrendingSearches = (): SearchSuggestion[] => {
@@ -106,12 +71,6 @@ export function SearchSuggestions({
     setOpen(false);
   };
 
-  // Check if search term appears to be a natural language query
-  const isNaturalLanguageQuery = (query: string): boolean => {
-    const nlpTriggers = ['bedroom', 'with', 'near', 'under', 'between', 'modern', 'in'];
-    return nlpTriggers.some(trigger => query.toLowerCase().includes(trigger));
-  };
-
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <CommandInput 
@@ -121,21 +80,6 @@ export function SearchSuggestions({
         className={dir === "rtl" ? "arabic-text text-right" : ""}
       />
       <CommandList>
-        {searchTerm && getAiSuggestions().length > 0 && (
-          <CommandGroup heading={t('search.aiSuggestions') || "AI Suggestions"}>
-            {getAiSuggestions().map((suggestion, index) => (
-              <CommandItem
-                key={`ai-${index}`}
-                onSelect={() => handleSelect(suggestion.text)}
-                className={dir === "rtl" ? "flex-row-reverse arabic-text text-right" : ""}
-              >
-                <Sparkles className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"} text-cta`} />
-                {suggestion.text}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        )}
-
         {getFilteredHistory().length > 0 && (
           <CommandGroup heading={t('search.recentSearches') || "Recent Searches"}>
             {getFilteredHistory().map((item, index) => (
@@ -172,11 +116,7 @@ export function SearchSuggestions({
               onSelect={() => handleSelect(searchTerm)}
               className={dir === "rtl" ? "flex-row-reverse arabic-text text-right" : ""}
             >
-              {isNaturalLanguageQuery(searchTerm) ? (
-                <Sparkles className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"} text-cta`} />
-              ) : (
-                <Search className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"}`} />
-              )}
+              <Search className={`h-4 w-4 ${dir === "rtl" ? "ml-2" : "mr-2"}`} />
               {t('search.searchFor') || "Search for"} "{searchTerm}"
             </CommandItem>
           </CommandGroup>

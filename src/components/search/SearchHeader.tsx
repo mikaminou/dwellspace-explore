@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search as SearchIcon, Filter as FilterIcon, Sparkles } from "lucide-react";
+import { Search as SearchIcon, Filter as FilterIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { useSearch } from "@/contexts/search/SearchContext";
 import { SearchSuggestions } from "./SearchSuggestions";
