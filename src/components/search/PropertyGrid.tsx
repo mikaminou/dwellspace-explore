@@ -61,7 +61,8 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
       return (
         <div className="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-12 text-center animate-fade-in">
           <SearchIcon className="h-16 w-16 text-gray-300 mb-4" />
-          <h3 className="text-xl font-medium mb-2">{t('search.selectCity') || 'Please select a city'}</h3>
+          <h3 className="text-xl font-medium mb-2">{t('search.selectCity') || 'Please select a city'}
+          </h3>
           <p className="text-muted-foreground mb-4">{t('search.noPropertiesWithoutCity') || 'You need to select at least one city to view properties'}</p>
         </div>
       );

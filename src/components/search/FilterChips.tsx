@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MapPin, Home, DollarSign, Clock, Bed, Bath, Ruler, X, Package } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";

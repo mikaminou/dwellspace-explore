@@ -1,6 +1,4 @@
-
 import { useCallback } from "react";
-// Removing the incorrect import of SearchFilters
 
 export function useFilterManagement(
   selectedCities: string[],
@@ -127,7 +125,7 @@ export function useFilterManagement(
     setTimeout(() => {
       console.log("Executing search after filter removal");
       handleSearch();
-    }, 10);
+    }, 50);
   }, [
     selectedCities, propertyType, listingType, maxLivingAreaLimit, handleSearch,
     setSelectedCities, setPropertyType, setListingType, setMinBeds,
