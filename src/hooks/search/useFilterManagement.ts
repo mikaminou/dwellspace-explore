@@ -1,7 +1,5 @@
-
-import { useFilterCounter } from "./useFilterCounter";
-import { useFilterReset } from "./useFilterReset";
-import { useFilterRemoval } from "./useFilterRemoval";
+import { useCallback } from "react";
+// Removing the incorrect import of SearchFilters
 
 export function useFilterManagement(
   selectedCities: string[],
@@ -27,53 +25,110 @@ export function useFilterManagement(
   setSortOption: (option: string) => void,
   handleSearch: () => void
 ) {
-  // Get the count of active filters
-  const getActiveFiltersCount = useFilterCounter(
-    propertyType,
-    listingType,
-    minBeds,
-    minBaths,
-    minLivingArea,
-    maxLivingArea,
-    maxLivingAreaLimit,
+  const handleReset = useCallback(() => {
+    // When resetting filters, keep the current city selection
+    // Do not modify selectedCities
+    console.log("Resetting filters, keeping cities:", selectedCities);
+    
+    // Reset all other filters
+    setPropertyType([]);
+    setListingType([]);
+    setMinPrice(0);
+    setMaxPrice(maxPriceLimit);
+    setMinBeds(0);
+    setMinBaths(0);
+    setMinLivingArea(0);
+    setMaxLivingArea(maxLivingAreaLimit);
+    setSelectedAmenities([]);
+    setSortOption('relevance');
+    
+    // Force a new search with the reset values after a short delay to ensure state updates
+    setTimeout(() => {
+      // Ensure we're blurring any focused element
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+      
+      handleSearch();
+    }, 100);
+  }, [
+    maxPriceLimit, maxLivingAreaLimit, handleSearch, setPropertyType, 
+    setListingType, setMinPrice, setMaxPrice, setMinBeds, setMinBaths, 
+    setMinLivingArea, setMaxLivingArea, setSortOption, setSelectedAmenities,
+    selectedCities
+  ]);
+
+  const getActiveFiltersCount = useCallback(() => {
+    let count = 0;
+    // We don't count cities as filters since they're required
+    if (propertyType.length > 0) count++;
+    if (listingType.length > 0) count++;
+    if (minBeds > 0) count++;
+    if (minBaths > 0) count++;
+    if (minLivingArea > 0) count++;
+    if (maxLivingArea < maxLivingAreaLimit) count++;
+    if (selectedAmenities.length > 0) count++;
+    return count;
+  }, [
+    propertyType, listingType, minBeds, 
+    minBaths, minLivingArea, maxLivingArea, maxLivingAreaLimit,
     selectedAmenities
-  );
+  ]);
 
-  // Handle resetting all filters
-  const handleReset = useFilterReset(
-    selectedCities,
-    maxPriceLimit,
-    maxLivingAreaLimit,
-    setPropertyType,
-    setListingType,
-    setMinPrice,
-    setMaxPrice,
-    setMinBeds,
-    setMinBaths,
-    setMinLivingArea,
-    setMaxLivingArea,
-    setSelectedAmenities,
-    setSortOption,
-    handleSearch
-  );
-
-  // Handle removing individual filters
-  const handleFilterRemoval = useFilterRemoval(
-    selectedCities,
-    propertyType,
-    listingType,
-    maxLivingAreaLimit,
-    selectedAmenities,
-    setSelectedCities,
-    setPropertyType,
-    setListingType,
-    setMinBeds,
-    setMinBaths,
-    setMinLivingArea,
-    setMaxLivingArea,
-    setSelectedAmenities,
-    handleSearch
-  );
+  const handleFilterRemoval = useCallback((filterType: string, value?: string) => {
+    switch (filterType) {
+      case 'city':
+        if (value) {
+          // Remove specific city if value is provided
+          setSelectedCities(selectedCities.filter(city => city !== value));
+        }
+        break;
+      case 'propertyType':
+        if (value) {
+          setPropertyType(propertyType.filter(type => type !== value));
+        }
+        break;
+      case 'listingType':
+        if (value) {
+          setListingType(listingType.filter(type => type !== value));
+        }
+        break;
+      case 'beds':
+        setMinBeds(0);
+        break;
+      case 'baths':
+        setMinBaths(0);
+        break;
+      case 'livingArea':
+        setMinLivingArea(0);
+        setMaxLivingArea(maxLivingAreaLimit);
+        break;
+      case 'amenities':
+        if (value) {
+          setSelectedAmenities(selectedAmenities.filter(amenity => amenity !== value));
+        } else {
+          setSelectedAmenities([]);
+        }
+        break;
+      default:
+        break;
+    }
+    
+    // Ensure any focused element is blurred
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    
+    // Force a new search with the updated filter values
+    setTimeout(() => {
+      handleSearch();
+    }, 50);
+  }, [
+    selectedCities, propertyType, listingType, maxLivingAreaLimit, handleSearch,
+    setSelectedCities, setPropertyType, setListingType, setMinBeds,
+    setMinBaths, setMinLivingArea, setMaxLivingArea,
+    selectedAmenities, setSelectedAmenities
+  ]);
 
   return {
     handleReset,
