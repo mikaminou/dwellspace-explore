@@ -1,3 +1,4 @@
+
 import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
@@ -21,6 +22,7 @@ export function usePropertyMarkers(
   showPropertyPopup: (property: Property, marker: mapboxgl.Marker) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  const [hoveredMarkerId, setHoveredMarkerId] = useState<number | null>(null);
   const processedPropertiesRef = useRef<Set<number>>(new Set());
   const [initialBoundsSet, setInitialBoundsSet] = useState(false);
 
@@ -46,6 +48,25 @@ export function usePropertyMarkers(
       const selectedMarker = markersRef.current[propertyId];
       const element = selectedMarker.getElement();
       element.style.zIndex = '2';
+    }
+  };
+
+  const updateHoveredMarker = (propertyId: number | null) => {
+    if (markersRef.current) {
+      Object.entries(markersRef.current).forEach(([id, marker]) => {
+        const element = marker.getElement();
+        if (Number(id) === propertyId) {
+          element.classList.add('marker-hovered');
+          element.style.zIndex = '3'; // Higher than active
+        } else {
+          element.classList.remove('marker-hovered');
+          if (Number(id) === activeMarkerId) {
+            element.style.zIndex = '2'; // Active but not hovered
+          } else {
+            element.style.zIndex = '1'; // Normal
+          }
+        }
+      });
     }
   };
 
@@ -175,9 +196,15 @@ export function usePropertyMarkers(
     }
   }, [activeMarkerId]);
 
+  useEffect(() => {
+    updateHoveredMarker(hoveredMarkerId);
+  }, [hoveredMarkerId]);
+
   return {
     activeMarkerId,
     setActiveMarkerId,
+    hoveredMarkerId,
+    setHoveredMarkerId,
     updateMarkerZIndex
   };
 }

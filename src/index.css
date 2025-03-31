@@ -282,6 +282,7 @@ html[dir="rtl"] .text-right {
 .mapboxgl-marker {
   cursor: pointer !important;
   z-index: 1;
+  transition: transform 0.3s ease;
 }
 
 .mapboxgl-marker:hover {
@@ -332,6 +333,24 @@ html[dir="rtl"] .text-right {
 .marker-bubble:hover {
   transform: translateY(-55%) scale(1.05);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Hovered marker effect */
+.marker-hovered .marker-bubble {
+  transform: translateY(-60%) scale(1.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  background-color: #f8f8f8;
+  border: 2px solid #27AE60;
+  z-index: 10;
+}
+
+.marker-hovered .marker-pointer {
+  background-color: #f8f8f8;
+  box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.1);
+}
+
+.marker-hovered {
+  z-index: 3 !important;
 }
 
 /* Property badge styles for PropertyDetails */

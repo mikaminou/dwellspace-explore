@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -5,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MapPinIcon, BedDoubleIcon, HomeIcon, BookmarkIcon, SquareIcon, TreesIcon, Building, Construction, Castle } from "lucide-react";
 import { Property } from "@/api/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { useSearch } from "@/contexts/search/SearchContext";
 
 interface PropertyCardProps {
   property: Property;
@@ -12,6 +14,7 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ property }: PropertyCardProps) {
   const { t, dir } = useLanguage();
+  const { setHoveredPropertyId } = useSearch();
   
   const getPropertyImage = (property: Property): string => {
     if (property.featured_image_url) return property.featured_image_url;
@@ -71,12 +74,22 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     return t('property.forSale'); // default for sale
   };
 
+  const handleMouseEnter = () => {
+    setHoveredPropertyId(property.id);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredPropertyId(null);
+  };
+
   const isPremiumProperty = property.isPremium || (property.agent?.role === 'seller') || (property.owner?.role === 'seller');
 
   return (
     <Link 
       to={`/property/${property.id}`} 
       className={`property-card group hover:scale-[1.02] transition-all bg-white dark:bg-card ${isPremiumProperty ? 'premium-property' : ''}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="relative">
         {isPremiumProperty && (

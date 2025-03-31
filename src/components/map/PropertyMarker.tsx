@@ -8,9 +8,16 @@ interface PropertyMarkerProps {
   isPremium?: boolean;
   listingType?: string;
   onClick: () => void;
+  isHovered?: boolean;
 }
 
-export function PropertyMarker({ price, isPremium = false, listingType = 'sale', onClick }: PropertyMarkerProps) {
+export function PropertyMarker({ 
+  price, 
+  isPremium = false, 
+  listingType = 'sale', 
+  onClick,
+  isHovered = false
+}: PropertyMarkerProps) {
   // Handle click event properly with stopPropagation to prevent map interactions
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent the click from being passed to the map
@@ -38,10 +45,10 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
 
   return (
     <div 
-      className="custom-marker flex items-center justify-center cursor-pointer z-10 transition-transform hover:scale-110"
+      className={`custom-marker flex items-center justify-center cursor-pointer z-10 transition-transform ${isHovered ? 'scale-125' : 'hover:scale-110'}`}
       onClick={handleClick}
     >
-      <div className="marker-bubble">
+      <div className={`marker-bubble ${isHovered ? 'marker-hovered' : ''}`}>
         <span className="marker-price">{formatPrice(price)}</span>
         <div className="marker-pointer"></div>
       </div>
