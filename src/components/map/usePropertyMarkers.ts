@@ -15,17 +15,21 @@ export function usePropertyMarkers(
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
   const [initialBoundsSet, setInitialBoundsSet] = useState(false);
   const markerElementsRef = useRef<{ [key: number]: HTMLDivElement }>({});
+  const markerPositionsRef = useRef<{ [key: number]: google.maps.LatLng }>({});
 
+  // This function only updates Z-index, not position
   const updateMarkerZIndex = (propertyId: number | null) => {
     // Safety check to ensure Google Maps is loaded
     if (!window.google || !mapLoaded) return;
     
+    // Update z-index for all markers (lower value)
     Object.entries(markersRef.current).forEach(([id, marker]) => {
       if (marker instanceof google.maps.Marker) {
         marker.setZIndex(1);
       }
     });
 
+    // Update z-index for the active marker (higher value)
     if (propertyId !== null && markersRef.current[propertyId]) {
       const marker = markersRef.current[propertyId];
       if (marker instanceof google.maps.Marker) {
@@ -51,6 +55,7 @@ export function usePropertyMarkers(
             marker.map = null;
           }
           delete markersRef.current[numericId];
+          delete markerPositionsRef.current[numericId];
         }
       }
     });
@@ -215,20 +220,15 @@ export function usePropertyMarkers(
       // Create LatLng coordinates for Google Maps
       const position = new window.google.maps.LatLng(property.latitude, property.longitude);
       
+      // Store position in our reference object to maintain fixed positions
+      markerPositionsRef.current[property.id] = position;
+      
       // Extend map bounds to include this property
       bounds.extend(position);
       propertiesWithCoords++;
       
-      // If marker already exists, update its position
+      // If marker already exists, DO NOT update its position - this prevents position jumping on zoom
       if (markersRef.current[property.id]) {
-        const marker = markersRef.current[property.id];
-        // Handle different marker types for position update
-        if (marker instanceof google.maps.Marker) {
-          marker.setPosition(position);
-        } else if ('position' in marker) {
-          // For AdvancedMarkerElement, update the position property
-          marker.position = position;
-        }
         return;
       }
       
@@ -266,9 +266,10 @@ export function usePropertyMarkers(
             map: map.current,
             title: property.title,
             content: markerElement,
-            // Fix zoom issue by setting these critical properties
-            gmpDraggable: false,  // Prevent dragging which can cause position issues
-            collisionBehavior: window.google.maps.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
+            // Ensure marker stays in fixed position
+            gmpDraggable: false,
+            // Prevent position adjustment by collision behavior
+            collisionBehavior: window.google.maps.CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL
           });
           
           // Store the marker reference
@@ -284,6 +285,8 @@ export function usePropertyMarkers(
           position,
           map: map.current,
           title: property.title,
+          // Fixed position for standard markers as well
+          optimized: false, // Helps with positioning consistency
           icon: {
             url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
               <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
