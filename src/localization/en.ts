@@ -135,7 +135,10 @@ export const en = {
     aiActivated: "AI Search Activated",
     aiDescription: "We're analyzing your natural language query to find the perfect properties.",
     amenities: "Amenities",
-    selectSortOption: "Select sort option"
+    selectSortOption: "Select sort option",
+    cityPlaceholder: "Search in {cities}...",
+    emptyPlaceholder: "Search for properties...",
+    placeholder: "Try 'modern 3 bedroom house with pool in Algiers'"
   },
   
   // Property details

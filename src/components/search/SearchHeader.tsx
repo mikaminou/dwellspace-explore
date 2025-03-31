@@ -86,7 +86,9 @@ export function SearchHeader() {
     }
     
     if (selectedCities.length > 0) {
-      return t('search.cityPlaceholder') || `Search in ${selectedCities.join(', ')}...`;
+      // Format the cities string to be interpolated in the translation
+      const citiesStr = selectedCities.join(', ');
+      return t('search.cityPlaceholder', { cities: citiesStr }) || `Search in ${citiesStr}...`;
     }
     
     return t('search.placeholder') || "Try 'modern 3 bedroom house with pool in Algiers'";
