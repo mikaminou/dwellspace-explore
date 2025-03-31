@@ -12,7 +12,7 @@ type Libraries = Library[];
 const libraries: Libraries = ["places", "geometry"];
 
 // Your Google Maps API key - in production, this should be in environment variables
-const GOOGLE_MAPS_API_KEY = 'AIzaSyBtCGretTv8O2Fzf_Oh0Er9H27-EaO-itM'; // Replace with your actual API key
+const GOOGLE_MAPS_API_KEY = 'AIzaSyC3Csmx98gaGxSFzZ2aimsRIqalt4SuTMs'; // Replace with your actual API key
 
 // Add a warning about Google Maps billing
 console.warn('⚠️ Important: The Google Maps API key requires billing to be enabled and proper API restrictions in the Google Cloud Console. Without billing enabled and proper restrictions, the map may display errors, watermarks, or "For development purposes only" messages.');
