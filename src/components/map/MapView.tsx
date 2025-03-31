@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearch } from '@/contexts/search/SearchContext';
 import { useLanguage } from '@/contexts/language/LanguageContext';
 import { MapLoadingState, MapEmptyState } from './MapStates';
@@ -8,13 +8,15 @@ import { usePropertyOwners } from './usePropertyOwners';
 import { usePropertyPopup } from './usePropertyPopup';
 import { usePropertyMarkers } from './usePropertyMarkers';
 import { useCityUpdate } from './useCityUpdate';
-import { ShieldAlert, Info, Layers, MapPin, Map as MapIcon } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { ShieldAlert, Info, Layers, MapPin, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function MapView() {
   const { mapContainer, map, markersRef, mapLoaded, isLoaded, loadError, mapError } = useMapSetup();
   const { properties, loading, selectedCities } = useSearch();
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [mapType, setMapType] = useState<string>('roadmap');
   
   // Use our hooks in the correct order to avoid circular references
@@ -52,6 +54,14 @@ export function MapView() {
       setMapType(nextType);
     }
   };
+
+  // Apply theme changes to map
+  useEffect(() => {
+    if (!map.current || !mapLoaded || !isLoaded || !window.google) return;
+    
+    // This will be called whenever the theme changes
+    // We could update map styles here if needed
+  }, [theme, mapLoaded, isLoaded]);
 
   // Show loading error if Google Maps failed to load
   if (loadError) {
@@ -125,7 +135,7 @@ export function MapView() {
       
       {/* Map controls - Only render if Google Maps is loaded */}
       {isLoaded && (
-        <div className="absolute top-4 right-4 z-10">
+        <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
           <Button
             variant="secondary"
             size="sm"
@@ -135,7 +145,7 @@ export function MapView() {
             {mapType === 'roadmap' ? (
               <Layers className="h-4 w-4 mr-2" />
             ) : (
-              <MapIcon className="h-4 w-4 mr-2" />
+              <MapPin className="h-4 w-4 mr-2" />
             )}
             {mapType === 'roadmap' ? 'Satellite' : 'Map'}
           </Button>

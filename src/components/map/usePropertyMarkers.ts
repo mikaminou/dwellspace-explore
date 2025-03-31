@@ -49,45 +49,65 @@ export function usePropertyMarkers(
     const bounds = new window.google.maps.LatLngBounds();
     let propertiesWithCoords = 0;
     
-    // Add custom map styling for a cleaner look
+    // Add custom map styling for a cleaner look that matches app theme
     if (map.current) {
       try {
         map.current.setOptions({
           styles: [
             {
+              featureType: "all",
+              elementType: "labels.text.fill",
+              stylers: [{ color: "#2C3E50" }]  // Using the secondary color
+            },
+            {
+              featureType: "all",
+              elementType: "labels.text.stroke",
+              stylers: [{ color: "#FFFFFF" }, { weight: 2 }]
+            },
+            {
               featureType: "administrative",
-              elementType: "labels",
+              elementType: "geometry.fill",
               stylers: [{ visibility: "on" }]
             },
             {
-              featureType: "poi",
+              featureType: "administrative",
               elementType: "labels",
-              stylers: [{ visibility: "off" }]
-            },
-            {
-              featureType: "transit",
-              elementType: "labels",
-              stylers: [{ visibility: "off" }]
-            },
-            {
-              featureType: "water",
-              elementType: "geometry",
-              stylers: [{ color: "#e9f1f7" }]
+              stylers: [{ visibility: "simplified" }]
             },
             {
               featureType: "landscape",
-              elementType: "geometry",
-              stylers: [{ color: "#f5f7fa" }]
+              elementType: "geometry.fill",
+              stylers: [{ color: "#F8F9FA" }]  // Using the background color
+            },
+            {
+              featureType: "poi",
+              elementType: "all",
+              stylers: [{ visibility: "off" }]
             },
             {
               featureType: "road",
               elementType: "geometry.fill",
-              stylers: [{ color: "#ffffff" }]
+              stylers: [{ color: "#FFFFFF" }]  // White roads
             },
             {
               featureType: "road",
               elementType: "geometry.stroke",
-              stylers: [{ color: "#e6e6e6" }]
+              stylers: [{ color: "#E6E6E6" }]  // Light gray for road borders
+            },
+            {
+              featureType: "road",
+              elementType: "labels",
+              stylers: [{ visibility: "simplified" }]
+            },
+            {
+              featureType: "transit",
+              elementType: "all",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "water",
+              elementType: "geometry.fill",
+              stylers: [{ color: "#E9F1F7" }]  // Light blue for water
             }
           ]
         });
@@ -130,13 +150,13 @@ export function usePropertyMarkers(
         map: map.current,
         title: property.title,
         animation: window.google.maps.Animation.DROP,
-        // Use a custom SVG marker for a cleaner look
+        // Use a custom SVG marker matching the app's color scheme
         icon: {
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
-              <circle cx="18" cy="18" r="18" fill="${property.isPremium ? '#CDA434' : property.listing_type === 'rent' ? '#3B82F6' : '#10B981'}" opacity="0.9"/>
+              <circle cx="18" cy="18" r="18" fill="${property.isPremium ? '#CDA434' : property.listing_type === 'rent' ? '#3498DB' : '#27AE60'}" opacity="0.9"/>
               <circle cx="18" cy="18" r="8" fill="white" opacity="0.85"/>
-              <circle cx="18" cy="18" r="6" fill="${property.isPremium ? '#CDA434' : property.listing_type === 'rent' ? '#3B82F6' : '#10B981'}"/>
+              <circle cx="18" cy="18" r="6" fill="${property.isPremium ? '#CDA434' : property.listing_type === 'rent' ? '#3498DB' : '#27AE60'}"/>
             </svg>
           `),
           size: new window.google.maps.Size(36, 36),
@@ -157,8 +177,6 @@ export function usePropertyMarkers(
 
     // Only fit bounds if we haven't done it yet and we have properties with coordinates
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
-      // Fix: Use the correct type for the padding parameter in fitBounds
-      // The padding is applied internally as a margin around the bounds
       map.current.fitBounds(bounds);
       
       // Set a reasonable zoom level to not be too zoomed in

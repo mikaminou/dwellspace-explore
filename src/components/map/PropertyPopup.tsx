@@ -25,7 +25,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
         return 'bg-teal-500';
       case 'sale':
       default:
-        return 'bg-green-500';
+        return 'bg-primary';
     }
   };
 
@@ -63,7 +63,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
         return 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-500';
       case 'sale':
       default:
-        return 'bg-green-500/10 hover:bg-green-500/20 text-green-500';
+        return 'bg-primary/10 hover:bg-primary/20 text-primary';
     }
   };
 
@@ -82,7 +82,7 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
         return 'bg-teal-500 text-white';
       case 'sale':
       default:
-        return 'bg-green-500 text-white';
+        return 'bg-primary text-white';
     }
   };
 
