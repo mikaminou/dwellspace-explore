@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { GoogleMap } from '@react-google-maps/api';
 import { useSearch } from '@/contexts/search/SearchContext';
 import { useLanguage } from '@/contexts/language/LanguageContext';
 import { MapLoadingState, MapEmptyState } from './MapStates';
@@ -9,7 +8,6 @@ import { usePropertyOwners } from './usePropertyOwners';
 import { usePropertyPopup } from './usePropertyPopup';
 import { usePropertyMarkers } from './usePropertyMarkers';
 import { useCityUpdate } from './useCityUpdate';
-import { defaultMapOptions } from './mapUtils';
 
 export function MapView() {
   const { mapContainer, map, markersRef, mapLoaded, isLoaded, loadError } = useMapSetup();
@@ -45,6 +43,10 @@ export function MapView() {
         <div className="text-center">
           <p className="text-red-500 font-medium mb-2">Failed to load Google Maps</p>
           <p className="text-muted-foreground">{loadError.message}</p>
+          <p className="text-xs mt-2 text-gray-500">
+            This may be due to an issue with the API key or billing settings.
+            Please check the Google Cloud Console to ensure billing is enabled for this API key.
+          </p>
         </div>
       </div>
     );

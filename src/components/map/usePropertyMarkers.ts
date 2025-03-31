@@ -76,36 +76,28 @@ export function usePropertyMarkers(
         return;
       }
       
-      // Create new marker element
-      if (!markerElementsRef.current[property.id]) {
-        markerElementsRef.current[property.id] = document.createElement('div');
-        markerElementsRef.current[property.id].className = 'custom-marker-container';
-        
-        const root = createRoot(markerElementsRef.current[property.id]);
-        root.render(
-          PropertyMarker({
-            price: property.price,
-            isPremium: property.isPremium,
-            listingType: property.listing_type || 'sale',
-            onClick: () => {
-              setActiveMarkerId(property.id);
-              showPropertyPopup(property, position);
-            }
-          })
-        );
-      }
-      
-      console.log(`Creating new marker for property ${property.id} at position [${position.lat()}, ${position.lng()}]`);
-      
-      // Create and add the marker to the map
-      const marker = new google.maps.marker.AdvancedMarkerElement({
+      // Create a standard marker instead of advanced marker
+      const marker = new google.maps.Marker({
         position,
-        content: markerElementsRef.current[property.id],
-        map: map.current
+        map: map.current,
+        title: property.title,
+        animation: google.maps.Animation.DROP,
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+              <rect x="2" y="2" width="20" height="20" rx="10" fill="${property.isPremium ? '#FFD700' : property.listing_type === 'rent' ? '#3B82F6' : '#10B981'}" />
+              <text x="12" y="16" font-family="Arial" font-size="10" text-anchor="middle" fill="white" font-weight="bold">
+                ${property.price ? (parseInt(property.price) / 1000000).toFixed(1) + 'M' : ''}
+              </text>
+            </svg>
+          `),
+          scaledSize: new google.maps.Size(32, 32),
+          anchor: new google.maps.Point(16, 16)
+        }
       });
       
       // Store the marker reference
-      markersRef.current[property.id] = marker as unknown as google.maps.Marker;
+      markersRef.current[property.id] = marker;
       
       // Add click event
       marker.addListener('click', () => {
@@ -117,7 +109,7 @@ export function usePropertyMarkers(
     // Only fit bounds if we haven't done it yet and we have properties with coordinates
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
-      // Fix the padding issue by correctly using the fitBounds method without a padding option
+      // Fix the padding issue by correctly using the fitBounds method
       map.current.fitBounds(bounds);
       map.current.setZoom(Math.min(15, map.current.getZoom() || 15));
       setInitialBoundsSet(true);

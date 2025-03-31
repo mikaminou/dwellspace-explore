@@ -4,10 +4,13 @@ import { useJsApiLoader } from '@react-google-maps/api';
 import { defaultMapOptions } from './mapUtils';
 
 // List of libraries to load with Google Maps
-const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places", "geometry"];
+const libraries = ["places", "geometry"];
 
 // Your Google Maps API key - in production, this should be in environment variables
 const GOOGLE_MAPS_API_KEY = 'AIzaSyBtCGretTv8O2Fzf_Oh0Er9H27-EaO-itM'; // Replace with your actual API key
+
+// Add a warning about Google Maps billing
+console.warn('⚠️ Important: The Google Maps API key requires billing to be enabled in the Google Cloud Console. Without billing enabled, the map may display errors or watermarks.');
 
 export function useMapSetup() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -28,25 +31,28 @@ export function useMapSetup() {
 
     console.log('Initializing Google Maps...');
 
-    // Create the map instance
-    map.current = new google.maps.Map(mapContainer.current, {
-      center: { lat: 36.752887, lng: 3.042048 }, // Default center (Algiers)
-      zoom: 12,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      ...defaultMapOptions
-    });
+    try {
+      // Create the map instance
+      map.current = new google.maps.Map(mapContainer.current, {
+        center: { lat: 36.752887, lng: 3.042048 }, // Default center (Algiers)
+        zoom: 12,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        ...defaultMapOptions
+      });
 
-    // Set map loaded state when the map is ready
-    google.maps.event.addListenerOnce(map.current, 'idle', () => {
-      console.log('Google Maps loaded successfully');
-      setMapLoaded(true);
-    });
+      // Set map loaded state when the map is ready
+      google.maps.event.addListenerOnce(map.current, 'idle', () => {
+        console.log('Google Maps loaded successfully');
+        setMapLoaded(true);
+      });
 
-    // Add error handler
-    google.maps.event.addListener(map.current, 'error', (e) => {
-      console.error('Map error:', e);
-    });
-
+      // Add error handler
+      google.maps.event.addListener(map.current, 'error', (e) => {
+        console.error('Map error:', e);
+      });
+    } catch (error) {
+      console.error('Error initializing Google Maps:', error);
+    }
   }, []);
 
   // Initialize the map when the Google Maps API is loaded
