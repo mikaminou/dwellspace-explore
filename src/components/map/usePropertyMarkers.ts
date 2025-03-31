@@ -1,30 +1,28 @@
 
-import { useEffect, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
+import { useEffect, useState, useRef } from 'react';
 import { Property } from '@/api/properties';
 import { createRoot } from 'react-dom/client';
 import { PropertyMarker } from './PropertyMarker';
 
 export function usePropertyMarkers(
-  map: React.MutableRefObject<mapboxgl.Map | null>,
-  markersRef: React.MutableRefObject<{ [key: number]: mapboxgl.Marker }>,
+  map: React.MutableRefObject<google.maps.Map | null>,
+  markersRef: React.MutableRefObject<{ [key: number]: google.maps.Marker }>,
   propertiesWithOwners: Property[],
   mapLoaded: boolean,
   loading: boolean,
-  showPropertyPopup: (property: Property, coordinates: [number, number]) => void
+  showPropertyPopup: (property: Property, position: google.maps.LatLng) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
   const [initialBoundsSet, setInitialBoundsSet] = useState(false);
+  const markerElementsRef = useRef<{ [key: number]: HTMLDivElement }>({});
 
   const updateMarkerZIndex = (propertyId: number | null) => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
-      const markerEl = marker.getElement();
-      markerEl.style.zIndex = '1';
+      marker.setZIndex(1);
     });
 
     if (propertyId !== null && markersRef.current[propertyId]) {
-      const activeMarkerEl = markersRef.current[propertyId].getElement();
-      activeMarkerEl.style.zIndex = '3';
+      markersRef.current[propertyId].setZIndex(3);
     }
   };
 
@@ -35,14 +33,16 @@ export function usePropertyMarkers(
     Object.keys(markersRef.current).forEach(id => {
       const numericId = parseInt(id);
       if (!propertiesWithOwners.some(p => p.id === numericId)) {
-        markersRef.current[numericId].remove();
-        delete markersRef.current[numericId];
+        if (markersRef.current[numericId]) {
+          markersRef.current[numericId].setMap(null);
+          delete markersRef.current[numericId];
+        }
       }
     });
     
     if (propertiesWithOwners.length === 0) return;
 
-    const bounds = new mapboxgl.LngLatBounds();
+    const bounds = new google.maps.LatLngBounds();
     let propertiesWithCoords = 0;
     
     console.log('Properties to display on map:', propertiesWithOwners.map(p => ({
@@ -62,66 +62,65 @@ export function usePropertyMarkers(
         return;
       }
       
-      // Create LngLat coordinates for mapbox (longitude first, then latitude)
-      const lngLat: [number, number] = [property.longitude, property.latitude];
+      // Create LatLng coordinates for Google Maps
+      const position = new google.maps.LatLng(property.latitude, property.longitude);
       
       // Extend map bounds to include this property
-      bounds.extend(lngLat);
+      bounds.extend(position);
       propertiesWithCoords++;
       
       // If marker already exists, update its position
       if (markersRef.current[property.id]) {
-        console.log(`Updating existing marker for property ${property.id} to position:`, lngLat);
-        markersRef.current[property.id].setLngLat(lngLat);
+        console.log(`Updating existing marker for property ${property.id} to position:`, position.toString());
+        markersRef.current[property.id].setPosition(position);
         return;
       }
       
       // Create new marker element
-      const markerEl = document.createElement('div');
-      markerEl.className = 'custom-marker-container';
+      if (!markerElementsRef.current[property.id]) {
+        markerElementsRef.current[property.id] = document.createElement('div');
+        markerElementsRef.current[property.id].className = 'custom-marker-container';
+        
+        const root = createRoot(markerElementsRef.current[property.id]);
+        root.render(
+          PropertyMarker({
+            price: property.price,
+            isPremium: property.isPremium,
+            listingType: property.listing_type || 'sale',
+            onClick: () => {
+              setActiveMarkerId(property.id);
+              showPropertyPopup(property, position);
+            }
+          })
+        );
+      }
       
-      const handleMarkerClick = () => {
-        setActiveMarkerId(property.id);
-        showPropertyPopup(property, lngLat);
-      };
-
-      const root = createRoot(markerEl);
-      root.render(
-        PropertyMarker({
-          price: property.price,
-          isPremium: property.isPremium,
-          listingType: property.listing_type || 'sale',
-          onClick: handleMarkerClick
-        })
-      );
-      
-      console.log(`Creating new marker for property ${property.id} at position [${lngLat[0]}, ${lngLat[1]}]`);
+      console.log(`Creating new marker for property ${property.id} at position [${position.lat()}, ${position.lng()}]`);
       
       // Create and add the marker to the map
-      const marker = new mapboxgl.Marker({
-        element: markerEl,
-        anchor: 'bottom',
-        offset: [0, 0],
-        clickTolerance: 10
-      })
-        .setLngLat(lngLat)
-        .addTo(map.current!);
-
-      markersRef.current[property.id] = marker;
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        position,
+        content: markerElementsRef.current[property.id],
+        map: map.current
+      });
+      
+      // Store the marker reference
+      markersRef.current[property.id] = marker as unknown as google.maps.Marker;
+      
+      // Add click event
+      marker.addListener('click', () => {
+        setActiveMarkerId(property.id);
+        showPropertyPopup(property, position);
+      });
     });
 
     // Only fit bounds if we haven't done it yet and we have properties with coordinates
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
       map.current.fitBounds(bounds, {
-        padding: 50,
-        maxZoom: 15,
-        pitch: 45, // Maintain consistent pitch for visual style
-        bearing: 0,
-        duration: 1500, // Smooth animation
-        essential: true,
-        linear: false // Use easing for smoother transitions
+        padding: 50
       });
+      map.current.setZoom(Math.min(15, map.current.getZoom() || 15));
       setInitialBoundsSet(true);
     }
   }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup, initialBoundsSet]);

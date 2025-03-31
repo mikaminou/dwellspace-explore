@@ -1,13 +1,13 @@
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import { useJsApiLoader } from '@react-google-maps/api';
 
-// Set your Mapbox access token here
-mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
+// Define your Google Maps API key here
+const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with your actual API key
+const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places", "geometry"];
 
 interface LocationData {
   city: string;
@@ -33,102 +33,113 @@ interface LocationPickerProps {
 }
 
 interface SearchResult {
-  place_name: string;
-  center: [number, number];
-  text: string;
-  context?: Array<{
-    id: string;
-    text: string;
-  }>;
+  description: string;
+  place_id: string;
 }
 
 export function LocationPicker({ onLocationSelect, initialLocation }: LocationPickerProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const marker = useRef<mapboxgl.Marker | null>(null);
+  const map = useRef<google.maps.Map | null>(null);
+  const marker = useRef<google.maps.Marker | null>(null);
+  const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesService = useRef<google.maps.places.PlacesService | null>(null);
+  const geocoder = useRef<google.maps.Geocoder | null>(null);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Load Google Maps API
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries
+  });
+
+  // Initialize Google services
+  const initializeServices = useCallback(() => {
+    if (!isLoaded) return;
+    
+    if (!autocompleteService.current) {
+      autocompleteService.current = new google.maps.places.AutocompleteService();
+    }
+    
+    if (!geocoder.current) {
+      geocoder.current = new google.maps.Geocoder();
+    }
+  }, [isLoaded]);
+
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!isLoaded || !mapContainer.current) return;
+    
+    initializeServices();
 
     const initialCoordinates = initialLocation?.longitude && initialLocation?.latitude
-      ? [initialLocation.longitude, initialLocation.latitude]
-      : [3.0588, 36.7538]; // Default: Algiers
+      ? { lat: initialLocation.latitude, lng: initialLocation.longitude }
+      : { lat: 36.7538, lng: 3.0588 }; // Default: Algiers
       
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: initialCoordinates as [number, number],
-      zoom: 13
+    map.current = new google.maps.Map(mapContainer.current, {
+      center: initialCoordinates,
+      zoom: 13,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      zoomControl: true,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true
     });
 
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    placesService.current = new google.maps.places.PlacesService(map.current);
 
     // Add initial marker if coordinates exist
-    if (initialLocation?.longitude && initialLocation?.latitude) {
-      marker.current = new mapboxgl.Marker({ draggable: true })
-        .setLngLat([initialLocation.longitude, initialLocation.latitude])
-        .addTo(map.current);
+    marker.current = new google.maps.Marker({
+      position: initialCoordinates,
+      map: map.current,
+      draggable: true,
+      animation: google.maps.Animation.DROP
+    });
         
-      marker.current.on('dragend', handleMarkerDragEnd);
-    } else {
-      // Create a draggable marker
-      marker.current = new mapboxgl.Marker({ draggable: true })
-        .setLngLat(initialCoordinates as [number, number])
-        .addTo(map.current);
-        
-      marker.current.on('dragend', handleMarkerDragEnd);
+    // Enable marker drag
+    if (marker.current) {
+      marker.current.addListener('dragend', () => {
+        if (marker.current) {
+          const position = marker.current.getPosition();
+          if (position) {
+            getLocationDetails(position.lng(), position.lat());
+          }
+        }
+      });
     }
 
     // Enable map click to set marker
-    map.current.on('click', (e) => {
-      if (marker.current) {
-        marker.current.setLngLat(e.lngLat);
-      } else {
-        marker.current = new mapboxgl.Marker({ draggable: true })
-          .setLngLat(e.lngLat)
-          .addTo(map.current!);
-          
-        marker.current.on('dragend', handleMarkerDragEnd);
+    map.current.addListener('click', (e: google.maps.MapMouseEvent) => {
+      const latLng = e.latLng;
+      if (latLng && marker.current) {
+        marker.current.setPosition(latLng);
+        getLocationDetails(latLng.lng(), latLng.lat());
       }
-      
-      getLocationDetails(e.lngLat.lng, e.lngLat.lat);
     });
 
-    map.current.on('load', () => {
+    map.current.addListener('idle', () => {
       setIsMapLoaded(true);
     });
 
     return () => {
-      if (map.current) {
-        map.current.remove();
-      }
+      // Clean up
     };
-  }, []);
+  }, [isLoaded, initialLocation]);
 
-  // Handle marker drag end
-  const handleMarkerDragEnd = () => {
-    if (!marker.current) return;
-    
-    const lngLat = marker.current.getLngLat();
-    getLocationDetails(lngLat.lng, lngLat.lat);
-  };
-
-  // Get location details from coordinates using Mapbox Geocoding API
+  // Get location details from coordinates using Google Geocoding API
   const getLocationDetails = async (lng: number, lat: number) => {
+    if (!geocoder.current) return;
+    
     try {
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${mapboxgl.accessToken}&types=address,neighborhood,locality,place,district,region,country`
-      );
+      const response = await geocoder.current.geocode({
+        location: { lat, lng }
+      });
       
-      const data = await response.json();
-      
-      if (data.features && data.features.length > 0) {
-        console.log('Geocoding response:', data);
+      if (response.results && response.results.length > 0) {
+        console.log('Geocoding response:', response);
         
         // Extract location details from the response
         let city = '';
@@ -137,24 +148,24 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
         let streetName = '';
         let neighborhood = '';
         
-        // Process each feature to extract relevant information
-        data.features.forEach((feature: any) => {
-          if (feature.place_type.includes('place') || feature.place_type.includes('locality')) {
-            city = feature.text;
-          } else if (feature.place_type.includes('region')) {
-            state = feature.text;
-          } else if (feature.place_type.includes('country')) {
-            country = feature.text;
-          } else if (feature.place_type.includes('address')) {
-            streetName = feature.text;
-          } else if (feature.place_type.includes('neighborhood') || feature.place_type.includes('district')) {
-            neighborhood = feature.text;
+        // Process each address component to extract relevant information
+        response.results[0].address_components.forEach((component) => {
+          if (component.types.includes('locality')) {
+            city = component.long_name;
+          } else if (component.types.includes('administrative_area_level_1')) {
+            state = component.long_name;
+          } else if (component.types.includes('country')) {
+            country = component.long_name;
+          } else if (component.types.includes('route')) {
+            streetName = component.long_name;
+          } else if (component.types.includes('neighborhood') || component.types.includes('sublocality')) {
+            neighborhood = component.long_name;
           }
         });
         
         // Use full address as fallback for street name
-        if (!streetName && data.features[0].place_name) {
-          const addressParts = data.features[0].place_name.split(',');
+        if (!streetName && response.results[0].formatted_address) {
+          const addressParts = response.results[0].formatted_address.split(',');
           if (addressParts.length > 0) {
             streetName = addressParts[0].trim();
           }
@@ -181,16 +192,15 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     const query = e.target.value;
     setSearchQuery(query);
     
-    if (query.trim().length > 2) {
+    if (query.trim().length > 2 && autocompleteService.current) {
       try {
-        const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&limit=5`
-        );
+        const predictions = await autocompleteService.current.getPlacePredictions({
+          input: query,
+          types: ['geocode', 'establishment', 'address']
+        });
         
-        const data = await response.json();
-        
-        if (data.features && data.features.length > 0) {
-          setSearchResults(data.features);
+        if (predictions && predictions.predictions.length > 0) {
+          setSearchResults(predictions.predictions as unknown as SearchResult[]);
           setShowDropdown(true);
         } else {
           setSearchResults([]);
@@ -209,33 +219,49 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
 
   // Handle selection of a search result
   const handleSelectLocation = (result: SearchResult) => {
-    setSearchQuery(result.place_name);
+    setSearchQuery(result.description);
     setShowDropdown(false);
     
-    const [lng, lat] = result.center;
+    if (!placesService.current || !map.current) return;
     
-    // Update map view
-    if (map.current) {
-      map.current.flyTo({
-        center: [lng, lat],
-        zoom: 14,
-        essential: true
-      });
-    }
-    
-    // Update marker position
-    if (marker.current) {
-      marker.current.setLngLat([lng, lat]);
-    } else if (map.current) {
-      marker.current = new mapboxgl.Marker({ draggable: true })
-        .setLngLat([lng, lat])
-        .addTo(map.current);
+    placesService.current.getDetails({
+      placeId: result.place_id,
+      fields: ['geometry', 'formatted_address', 'address_components']
+    }, (place, status) => {
+      if (status === google.maps.places.PlacesServiceStatus.OK && place && place.geometry && place.geometry.location) {
+        // Update map view
+        if (map.current) {
+          map.current.setCenter(place.geometry.location);
+          map.current.setZoom(15);
+        }
         
-      marker.current.on('dragend', handleMarkerDragEnd);
-    }
-    
-    // Get location details for the selected result
-    getLocationDetails(lng, lat);
+        // Update marker position
+        if (marker.current) {
+          marker.current.setPosition(place.geometry.location);
+        } else if (map.current) {
+          marker.current = new google.maps.Marker({
+            position: place.geometry.location,
+            map: map.current,
+            draggable: true
+          });
+          
+          marker.current.addListener('dragend', () => {
+            if (marker.current) {
+              const position = marker.current.getPosition();
+              if (position) {
+                getLocationDetails(position.lng(), position.lat());
+              }
+            }
+          });
+        }
+        
+        // Get location details for the selected result
+        getLocationDetails(
+          place.geometry.location.lng(), 
+          place.geometry.location.lat()
+        );
+      }
+    });
   };
 
   // Search for a location (for the search button)
@@ -249,6 +275,28 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
       handleSelectLocation(searchResults[0]);
     }
   };
+
+  // Show loading state
+  if (!isLoaded) {
+    return (
+      <div className="space-y-4">
+        <div className="w-full h-[300px] rounded-md border flex items-center justify-center bg-gray-100">
+          <p>Loading map...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (loadError) {
+    return (
+      <div className="space-y-4">
+        <div className="w-full h-[300px] rounded-md border flex items-center justify-center bg-gray-100">
+          <p className="text-red-500">Error loading Google Maps: {loadError.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -275,7 +323,7 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
                   onClick={() => handleSelectLocation(result)}
                 >
-                  {result.place_name}
+                  {result.description}
                 </li>
               ))}
             </ul>

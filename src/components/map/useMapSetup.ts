@@ -1,86 +1,72 @@
 
-import { useRef, useState, useEffect } from 'react';
-import mapboxgl from 'mapbox-gl';
+import { useRef, useState, useCallback, useEffect } from 'react';
+import { useJsApiLoader } from '@react-google-maps/api';
+import { defaultMapOptions } from './mapUtils';
 
-// Default Mapbox token - users should replace this with their own
-mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
+// List of libraries to load with Google Maps
+const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places", "geometry"];
+
+// Your Google Maps API key - in production, this should be in environment variables
+const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with your actual API key
 
 export function useMapSetup() {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
-  const popupRef = useRef<mapboxgl.Popup | null>(null);
+  const map = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<{ [key: number]: google.maps.Marker }>({});
+  const popupRef = useRef<google.maps.InfoWindow | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  // Initialize map
-  useEffect(() => {
+  // Load the Google Maps JavaScript API
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+    libraries
+  });
+
+  // Initialize map when the API is loaded
+  const initializeMap = useCallback(() => {
     if (!mapContainer.current || map.current) return;
 
+    console.log('Initializing Google Maps...');
+
     // Create the map instance
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12', // Updated to latest style
-      center: [3.042048, 36.752887], // Default center (Algiers)
+    map.current = new google.maps.Map(mapContainer.current, {
+      center: { lat: 36.752887, lng: 3.042048 }, // Default center (Algiers)
       zoom: 12,
-      attributionControl: false,
-      pitchWithRotate: true, // Enable pitch with rotate
-      antialias: true, // Enable antialiasing for smoother rendering
-      projection: { name: 'mercator' }, // Use mercator projection for consistency
-      minZoom: 2, // Prevent zooming out too far to maintain visual consistency
-      maxZoom: 18 // Limit maximum zoom to maintain performance
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      ...defaultMapOptions
     });
-
-    // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    map.current.addControl(new mapboxgl.FullscreenControl());
-    map.current.addControl(new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true,
-      showAccuracyCircle: true // Show accuracy circle
-    }));
-
-    // Add attribution control in the bottom-right
-    map.current.addControl(new mapboxgl.AttributionControl({
-      customAttribution: 'Property Listings'
-    }), 'bottom-right');
 
     // Set map loaded state when the map is ready
-    map.current.on('load', () => {
-      console.log('Map loaded successfully with Mapbox GL version:', mapboxgl.version);
+    google.maps.event.addListenerOnce(map.current, 'idle', () => {
+      console.log('Google Maps loaded successfully');
       setMapLoaded(true);
-      
-      // Add consistent fog effect to maintain visual style at all zoom levels
-      map.current?.setFog({
-        'color': 'rgb(220, 230, 240)', // Light blue fog color
-        'high-color': 'rgb(36, 92, 223)', // Darker blue for higher areas
-        'horizon-blend': 0.1, // Subtle horizon blend
-        'space-color': 'rgb(11, 11, 25)', // Dark space color
-        'star-intensity': 0.15 // Subtle stars in the background
-      });
     });
 
-    // Handle map error
-    map.current.on('error', (e) => {
+    // Add error handler
+    google.maps.event.addListener(map.current, 'error', (e) => {
       console.error('Map error:', e);
     });
 
-    // Clean up on unmount
-    return () => {
-      if (map.current) {
-        console.log('Cleaning up map instance');
-        map.current.remove();
-        map.current = null;
-      }
-    };
   }, []);
+
+  // Initialize the map when the Google Maps API is loaded
+  useEffect(() => {
+    if (isLoaded && !map.current) {
+      initializeMap();
+    }
+    
+    if (loadError) {
+      console.error('Error loading Google Maps:', loadError);
+    }
+  }, [isLoaded, loadError, initializeMap]);
 
   return {
     mapContainer,
     map,
     markersRef,
     popupRef,
-    mapLoaded
+    mapLoaded,
+    isLoaded,
+    loadError
   };
 }
