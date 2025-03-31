@@ -5,7 +5,7 @@ import { t as translate, defaultLocale } from '@/localization';
 type LanguageContextType = {
   language: string;
   setLanguage: (lang: string) => void;
-  t: (key: string, defaultText?: string) => string;
+  t: (key: string, valuesOrDefaultText?: string | Record<string, string | number>, defaultText?: string) => string;
   dir: 'rtl' | 'ltr';
   translateUserInput: (text: string) => string;
   translateData: <T>(data: T) => Promise<T>;
@@ -14,7 +14,8 @@ type LanguageContextType = {
 const LanguageContext = createContext<LanguageContextType>({
   language: 'en',
   setLanguage: () => {},
-  t: (key: string, defaultText?: string) => defaultText || key,
+  t: (key: string, valuesOrDefaultText?: string | Record<string, string | number>, defaultText?: string) => 
+    typeof valuesOrDefaultText === 'string' ? valuesOrDefaultText : defaultText || key,
   dir: 'ltr',
   translateUserInput: (text: string) => text,
   translateData: async (data) => data,
@@ -23,14 +24,33 @@ const LanguageContext = createContext<LanguageContextType>({
 export const useLanguage = () => useContext(LanguageContext);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Use our translation utility
-  const t = (key: string, defaultText?: string): string => {
-    const translated = translate(key);
-    // If the key was not found and defaultText is provided, return defaultText
-    if (translated === key && defaultText) {
-      return defaultText;
+  // Use our translation utility with support for interpolation values
+  const t = (key: string, valuesOrDefaultText?: string | Record<string, string | number>, defaultText?: string): string => {
+    // Check if the second parameter is a string (default text) or an object (values)
+    if (typeof valuesOrDefaultText === 'object') {
+      // It's a values object for interpolation
+      const translated = translate(key);
+      
+      // If the key was not found and defaultText is provided, use defaultText
+      let result = translated === key && defaultText ? defaultText : translated;
+      
+      // Simple interpolation for values
+      if (valuesOrDefaultText && typeof result === 'string') {
+        Object.entries(valuesOrDefaultText).forEach(([valueKey, value]) => {
+          result = result.replace(new RegExp(`\\{${valueKey}\\}`, 'g'), String(value));
+        });
+      }
+      
+      return result;
+    } else {
+      // It's just the default text
+      const translated = translate(key);
+      // If the key was not found and valuesOrDefaultText is provided as default text, return it
+      if (translated === key && valuesOrDefaultText) {
+        return valuesOrDefaultText;
+      }
+      return translated;
     }
-    return translated;
   };
 
   const translateUserInput = (text: string): string => {

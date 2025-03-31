@@ -88,7 +88,7 @@ export function SearchHeader() {
     if (selectedCities.length > 0) {
       // Format the cities string for display
       const citiesStr = selectedCities.join(', ');
-      // Use regular string interpolation for the translation key
+      // Fix: Pass the citiesStr as a string value, not an object
       return t('search.cityPlaceholder', { cities: citiesStr }) || `Search in ${citiesStr}...`;
     }
     
