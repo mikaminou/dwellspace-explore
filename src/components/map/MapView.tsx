@@ -18,7 +18,7 @@ export function MapView() {
   // Use our hooks in the correct order to avoid circular references
   const { propertiesWithOwners } = usePropertyOwners(properties);
   
-  // First initialize the popup functionality
+  // First initialize the popup functionality with marker-based implementation
   const { popupRef, showPropertyPopup } = usePropertyPopup(map, 
     (propertyId) => updateMarkerZIndex(propertyId),
     (id) => setActiveMarkerId(id)
@@ -52,7 +52,7 @@ export function MapView() {
     <div className="relative flex-1 w-full h-full">
       <MapLoadingState show={loading} />
       <MapEmptyState show={propertiesWithOwners.length === 0 && !loading} />
-      <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
+      <div ref={mapContainer} className="absolute inset-0 w-full h-full rounded-xl shadow-lg overflow-hidden" />
     </div>
   );
 }

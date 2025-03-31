@@ -23,7 +23,7 @@ export function SearchResults() {
   }, [showMap]);
 
   return (
-    <div className={`container mx-auto px-4 py-6 transition-all duration-300 ${showMap ? 'lg:pr-6' : ''}`}>
+    <div className={`container mx-auto py-6 transition-all duration-300 ${showMap ? 'pr-2' : 'px-2'}`}>
       <div className="mb-5 animate-fade-in">
         <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl font-medium">
@@ -42,6 +42,7 @@ export function SearchResults() {
         loading={loading}
         handleReset={handleReset}
         selectedCities={selectedCities}
+        showMap={showMap}
       />
     </div>
   );

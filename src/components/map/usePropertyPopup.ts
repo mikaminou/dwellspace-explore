@@ -26,8 +26,8 @@ export function usePropertyPopup(
     toast.success('Message panel opened');
   }, []);
 
-  // Show property popup
-  const showPropertyPopup = useCallback((property: Property, coordinates: [number, number]) => {
+  // Show property popup - accepting a marker instead of coordinates
+  const showPropertyPopup = useCallback((property: Property, marker: mapboxgl.Marker) => {
     if (!map.current) return;
     
     if (popupRef.current) {
@@ -39,6 +39,9 @@ export function usePropertyPopup(
     setActiveMarkerId(property.id);
     updateMarkerZIndex(property.id);
 
+    // Get marker position from the marker object
+    const markerLngLat = marker.getLngLat();
+
     popupRef.current = new mapboxgl.Popup({ 
       closeOnClick: false,
       closeButton: false,
@@ -48,7 +51,7 @@ export function usePropertyPopup(
       anchor: 'bottom', // Position the popup below the point
       offset: [0, -10] // Slight offset to position it better
     })
-      .setLngLat(coordinates)
+      .setLngLat(markerLngLat)
       .setHTML(`<div id="property-popup-${property.id}" class="property-popup"></div>`)
       .addTo(map.current);
 
@@ -96,8 +99,6 @@ export function usePropertyPopup(
         }
       });
     });
-    
-    // Removed the custom close button code that was here
   }, [map, navigate, updateMarkerZIndex, setActiveMarkerId, handleSaveProperty, handleMessageOwner]);
 
   return { popupRef, showPropertyPopup };

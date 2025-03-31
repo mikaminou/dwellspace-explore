@@ -1,3 +1,4 @@
+
 import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
@@ -29,7 +30,16 @@ export function usePropertyMarkers(
   };
 
   // Function to update the z-index of a marker
-  const updateMarkerZIndex = (propertyId: number) => {
+  const updateMarkerZIndex = (propertyId: number | null) => {
+    if (!propertyId) {
+      // Reset all markers to default z-index
+      Object.values(markersRef.current).forEach(marker => {
+        const element = marker.getElement();
+        element.style.zIndex = '1';
+      });
+      return;
+    }
+    
     if (markersRef.current && markersRef.current[propertyId]) {
       // Reset all markers to default z-index
       Object.values(markersRef.current).forEach(marker => {
@@ -59,10 +69,10 @@ export function usePropertyMarkers(
   // Function to create a marker for a property
   const createMarkerForProperty = (property: Property, bounds: mapboxgl.LngLatBounds) => {
     if (
-      !property.location?.longitude ||
-      !property.location?.latitude ||
-      isNaN(property.location.longitude) ||
-      isNaN(property.location.latitude)
+      !property.longitude ||
+      !property.latitude ||
+      isNaN(property.longitude) ||
+      isNaN(property.latitude)
     ) {
       return;
     }
@@ -80,7 +90,7 @@ export function usePropertyMarkers(
 
     // Add specific class based on listing type
     let markerTypeClass = 'default-marker';
-    switch (property.listingType) {
+    switch (property.listingType || property.listing_type) {
       case 'sale':
         markerTypeClass = 'sale-marker';
         break;
@@ -108,14 +118,14 @@ export function usePropertyMarkers(
     el.className = `marker-container ${markerTypeClass}`;
 
     const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-      .setLngLat([property.location.longitude, property.location.latitude])
+      .setLngLat([property.longitude, property.latitude])
       .addTo(map.current!);
 
     // Store the marker in the markersRef
     markersRef.current[property.id] = marker;
 
     // Extend bounds to include this marker's coordinates
-    bounds.extend([property.location.longitude, property.location.latitude]);
+    bounds.extend([property.longitude, property.latitude]);
 
     // Add click event to show popup
     el.addEventListener('click', () => {
@@ -149,13 +159,13 @@ export function usePropertyMarkers(
       if (processedPropertiesRef.current.has(property.id)) {
         // This property already has a marker
         if (
-          property.location?.longitude && 
-          property.location?.latitude && 
-          !isNaN(property.location.longitude) && 
-          !isNaN(property.location.latitude)
+          property.longitude && 
+          property.latitude && 
+          !isNaN(property.longitude) && 
+          !isNaN(property.latitude)
         ) {
           // Add to bounds calculation for existing markers too
-          bounds.extend([property.location.longitude, property.location.latitude]);
+          bounds.extend([property.longitude, property.latitude]);
           propertiesWithCoords++;
         }
         return;
@@ -188,7 +198,7 @@ export function usePropertyMarkers(
     if (activeMarkerId) {
       updateMarkerZIndex(activeMarkerId);
     }
-  }, [activeMarkerId, updateMarkerZIndex]);
+  }, [activeMarkerId]);
 
   return {
     activeMarkerId,
