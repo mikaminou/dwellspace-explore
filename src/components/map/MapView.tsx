@@ -15,7 +15,7 @@ export function MapView() {
   const { mapContainer, map, markersRef, mapLoaded, isLoaded, loadError, mapError } = useMapSetup();
   const { properties, loading, selectedCities } = useSearch();
   const { t } = useLanguage();
-  const [mapType, setMapType] = useState<google.maps.MapTypeId>(google.maps.MapTypeId.ROADMAP);
+  const [mapType, setMapType] = useState<string>('roadmap');
   
   // Use our hooks in the correct order to avoid circular references
   const { propertiesWithOwners } = usePropertyOwners(properties);
@@ -40,14 +40,17 @@ export function MapView() {
   useCityUpdate(map, mapLoaded, selectedCities.length > 0 ? selectedCities[0] : null);
 
   const toggleMapType = () => {
-    if (!map.current) return;
+    if (!map.current || !isLoaded) return;
     
-    const nextType = mapType === google.maps.MapTypeId.ROADMAP 
-      ? google.maps.MapTypeId.SATELLITE 
-      : google.maps.MapTypeId.ROADMAP;
-    
-    map.current.setMapTypeId(nextType);
-    setMapType(nextType);
+    // Only access google when we're sure it's loaded
+    if (isLoaded && window.google) {
+      const nextType = mapType === 'roadmap' 
+        ? 'satellite'
+        : 'roadmap';
+      
+      map.current.setMapTypeId(nextType);
+      setMapType(nextType);
+    }
   };
 
   // Show loading error if Google Maps failed to load
@@ -120,25 +123,27 @@ export function MapView() {
       {/* Map container */}
       <div ref={mapContainer} className="absolute inset-0 w-full h-full rounded-md overflow-hidden shadow-sm" />
       
-      {/* Map controls */}
-      <div className="absolute top-4 right-4 z-10">
-        <Button
-          variant="secondary"
-          size="sm"
-          className="bg-white hover:bg-gray-100 text-gray-700 shadow-md"
-          onClick={toggleMapType}
-        >
-          {mapType === google.maps.MapTypeId.ROADMAP ? (
-            <Layers className="h-4 w-4 mr-2" />
-          ) : (
-            <MapIcon className="h-4 w-4 mr-2" />
-          )}
-          {mapType === google.maps.MapTypeId.ROADMAP ? 'Satellite' : 'Map'}
-        </Button>
-      </div>
+      {/* Map controls - Only render if Google Maps is loaded */}
+      {isLoaded && (
+        <div className="absolute top-4 right-4 z-10">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="bg-white hover:bg-gray-100 text-gray-700 shadow-md"
+            onClick={toggleMapType}
+          >
+            {mapType === 'roadmap' ? (
+              <Layers className="h-4 w-4 mr-2" />
+            ) : (
+              <MapIcon className="h-4 w-4 mr-2" />
+            )}
+            {mapType === 'roadmap' ? 'Satellite' : 'Map'}
+          </Button>
+        </div>
+      )}
       
-      {/* Properties counter */}
-      {propertiesWithOwners.length > 0 && (
+      {/* Properties counter - Only render if Google Maps is loaded and we have properties */}
+      {isLoaded && propertiesWithOwners.length > 0 && (
         <div className="absolute bottom-4 left-4 z-10">
           <div className="bg-white px-3 py-2 rounded-md shadow-md text-xs font-medium text-gray-600 flex items-center">
             <MapPin className="h-3 w-3 mr-1 text-primary" />

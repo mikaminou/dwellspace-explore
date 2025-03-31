@@ -17,6 +17,9 @@ export function usePropertyMarkers(
   const markerElementsRef = useRef<{ [key: number]: HTMLDivElement }>({});
 
   const updateMarkerZIndex = (propertyId: number | null) => {
+    // Safety check to ensure Google Maps is loaded
+    if (!window.google || !mapLoaded) return;
+    
     Object.entries(markersRef.current).forEach(([id, marker]) => {
       marker.setZIndex(1);
     });
@@ -27,7 +30,8 @@ export function usePropertyMarkers(
   };
 
   useEffect(() => {
-    if (!map.current || !mapLoaded || loading) return;
+    // Safety check to ensure Google Maps is loaded
+    if (!map.current || !mapLoaded || loading || !window.google) return;
     
     // Clear any markers that are no longer in the properties list
     Object.keys(markersRef.current).forEach(id => {
@@ -42,7 +46,7 @@ export function usePropertyMarkers(
     
     if (propertiesWithOwners.length === 0) return;
 
-    const bounds = new google.maps.LatLngBounds();
+    const bounds = new window.google.maps.LatLngBounds();
     let propertiesWithCoords = 0;
     
     // Add custom map styling for a cleaner look
@@ -108,7 +112,7 @@ export function usePropertyMarkers(
       }
       
       // Create LatLng coordinates for Google Maps
-      const position = new google.maps.LatLng(property.latitude, property.longitude);
+      const position = new window.google.maps.LatLng(property.latitude, property.longitude);
       
       // Extend map bounds to include this property
       bounds.extend(position);
@@ -121,11 +125,11 @@ export function usePropertyMarkers(
       }
       
       // Create a clean, modern marker instead of the default
-      const marker = new google.maps.Marker({
+      const marker = new window.google.maps.Marker({
         position,
         map: map.current,
         title: property.title,
-        animation: google.maps.Animation.DROP,
+        animation: window.google.maps.Animation.DROP,
         // Use a custom SVG marker for a cleaner look
         icon: {
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
@@ -135,9 +139,9 @@ export function usePropertyMarkers(
               <circle cx="18" cy="18" r="6" fill="${property.isPremium ? '#CDA434' : property.listing_type === 'rent' ? '#3B82F6' : '#10B981'}"/>
             </svg>
           `),
-          size: new google.maps.Size(36, 36),
-          anchor: new google.maps.Point(18, 18),
-          scaledSize: new google.maps.Size(36, 36)
+          size: new window.google.maps.Size(36, 36),
+          anchor: new window.google.maps.Point(18, 18),
+          scaledSize: new window.google.maps.Size(36, 36)
         }
       });
       

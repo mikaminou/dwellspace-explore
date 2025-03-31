@@ -28,7 +28,8 @@ export function usePropertyPopup(
 
   // Show property popup
   const showPropertyPopup = useCallback((property: Property, position: google.maps.LatLng) => {
-    if (!map.current) return;
+    // Safety check to ensure Google Maps is loaded
+    if (!map.current || !window.google) return;
     
     // Close any existing popup
     if (popupRef.current) {
@@ -59,9 +60,9 @@ export function usePropertyPopup(
 
       // Create info window if it doesn't exist
       if (!popupRef.current) {
-        popupRef.current = new google.maps.InfoWindow({
+        popupRef.current = new window.google.maps.InfoWindow({
           disableAutoPan: false,
-          pixelOffset: new google.maps.Size(0, -10)
+          pixelOffset: new window.google.maps.Size(0, -10)
         });
 
         // Close popup on map click

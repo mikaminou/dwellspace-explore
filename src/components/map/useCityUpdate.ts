@@ -11,7 +11,8 @@ export function useCityUpdate(
 
   // Update map center when selected city changes
   useEffect(() => {
-    if (!map.current || !mapLoaded || !selectedCity) return;
+    // Safety check to ensure Google Maps is loaded
+    if (!map.current || !mapLoaded || !selectedCity || !window.google) return;
     
     // Skip if it's the same city as before
     if (selectedCity === prevCityRef.current) {
@@ -22,7 +23,7 @@ export function useCityUpdate(
     if (cityCoords) {
       console.log(`Flying to ${selectedCity}: [${cityCoords.lng}, ${cityCoords.lat}]`);
       
-      map.current.panTo(new google.maps.LatLng(cityCoords.lat, cityCoords.lng));
+      map.current.panTo(new window.google.maps.LatLng(cityCoords.lat, cityCoords.lng));
       map.current.setZoom(12);
       
       // Update the previous city reference
