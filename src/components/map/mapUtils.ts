@@ -1,3 +1,4 @@
+
 // Helper function to get city coordinates
 // In a real app, you would have this data in your database
 export function getCityCoordinates(city: string): { lat: number, lng: number } | null {
@@ -16,16 +17,18 @@ function getCitiesCoordinates(): {[key: string]: { lat: number, lng: number }} {
   };
 }
 
-// Helper function to format price in DZD (Algerian Dinar)
+// Updated helper function to format price in DZD (Algerian Dinar)
 export function formatPrice(price: string): string {
   try {
     const numericPrice = parseInt(price.replace(/[^0-9]/g, ''));
     if (isNaN(numericPrice)) return price;
     
-    if (numericPrice < 1000000) {
+    if (numericPrice >= 1000000) {
+      return `${(numericPrice / 1000000).toFixed(1)}M DZD`;
+    } else if (numericPrice >= 1000) {
       return `${Math.round(numericPrice / 1000)}K DZD`;
     } else {
-      return `${(numericPrice / 1000000).toFixed(1)}M DZD`;
+      return `${numericPrice} DZD`;
     }
   } catch (e) {
     return price;

@@ -278,7 +278,7 @@ html[dir="rtl"] .text-right {
   left: auto;
 }
 
-/* Custom marker styles */
+/* Custom marker styles - UPDATED */
 .mapboxgl-marker {
   cursor: pointer !important;
   z-index: 1;
@@ -288,61 +288,55 @@ html[dir="rtl"] .text-right {
   z-index: 2;
 }
 
-.custom-marker-container {
-  transform: translateY(-50%);
+.custom-marker {
   cursor: pointer !important;
-  display: inline-block;
-  width: auto;
-}
-
-/* Updated marker styling to match the circular design */
-.marker-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  transition: all 0.2s ease;
+  transform-origin: center;
 }
 
-.marker-price {
-  background-color: #000000e6;
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  width: 85px;
-  height: 85px;
+/* Modern circular marker design */
+.marker-circle-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(8px);
+  border: 3px solid;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.marker-circle-inner {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background-color: black;
   border: 2px solid rgba(255, 255, 255, 0.15);
-  text-align: center;
-  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-/* Different colors for each listing type - simplified to match the design */
-.sale-marker .marker-price,
-.rent-marker .marker-price,
-.construction-marker .marker-price,
-.commercial-marker .marker-price,
-.vacation-marker .marker-price,
-.premium-marker .marker-price {
-  background-color: #000000e6;
-}
-
-.marker-container:hover {
-  transform: scale(1.1);
-}
-
-.marker-container:hover .marker-price {
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
-}
-
-/* Simpler price format for markers */
-.marker-price {
-  font-size: 12px;
+.marker-price-text {
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
   line-height: 1.2;
+  padding: 2px;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.marker-circle-container:hover {
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 /* Property badge styles for PropertyDetails */

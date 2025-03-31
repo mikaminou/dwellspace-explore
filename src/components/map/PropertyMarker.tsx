@@ -18,21 +18,21 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
   };
 
   // Get the appropriate marker class based on listing type
-  const getMarkerClass = () => {
-    if (isPremium) return 'premium-marker';
+  const getMarkerRingColor = () => {
+    if (isPremium) return 'border-amber-400';
     
     switch (listingType.toLowerCase()) {
       case 'rent':
-        return 'rent-marker';
+        return 'border-blue-500';
       case 'construction':
-        return 'construction-marker';
+        return 'border-amber-500';
       case 'commercial':
-        return 'commercial-marker';
+        return 'border-purple-500';
       case 'vacation':
-        return 'vacation-marker';
+        return 'border-teal-500';
       case 'sale':
       default:
-        return 'sale-marker';
+        return 'border-green-500';
     }
   };
 
@@ -41,9 +41,11 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
       className="custom-marker flex items-center justify-center cursor-pointer z-10 transition-transform hover:scale-110"
       onClick={handleClick}
     >
-      <div className={`marker-container ${getMarkerClass()}`}>
-        <div className="marker-price">
-          {formatPrice(price)}
+      <div className={`marker-circle-container ${getMarkerRingColor()}`}>
+        <div className="marker-circle-inner">
+          <div className="marker-price-text">
+            {formatPrice(price)}
+          </div>
         </div>
       </div>
     </div>
