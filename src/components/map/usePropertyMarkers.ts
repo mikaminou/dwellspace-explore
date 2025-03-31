@@ -253,16 +253,50 @@ export function usePropertyMarkers(
         })
       );
       
-      // Create an AdvancedMarkerElement
-      const marker = new window.google.maps.marker.AdvancedMarkerElement({
-        position,
-        map: map.current,
-        title: property.title,
-        content: markerElement
-      });
-      
-      // Store the marker reference
-      markersRef.current[property.id] = marker;
+      // Attempt to create a standard marker if AdvancedMarkerElement is not available
+      try {
+        // First try to create an AdvancedMarkerElement
+        if (window.google.maps.marker && window.google.maps.marker.AdvancedMarkerElement) {
+          const marker = new window.google.maps.marker.AdvancedMarkerElement({
+            position,
+            map: map.current,
+            title: property.title,
+            content: markerElement
+          });
+          
+          // Store the marker reference
+          markersRef.current[property.id] = marker;
+        } else {
+          throw new Error('AdvancedMarkerElement not available');
+        }
+      } catch (error) {
+        console.warn('Failed to create AdvancedMarkerElement, falling back to standard Marker:', error);
+        
+        // Fallback to a standard marker
+        const marker = new window.google.maps.Marker({
+          position,
+          map: map.current,
+          title: property.title,
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="20" fill="#3b82f6"/>
+                <text x="20" y="25" font-family="Arial" font-size="14" fill="white" text-anchor="middle">
+                  $${property.price ? parseInt(property.price.toString()).toLocaleString() : '0'}
+                </text>
+              </svg>
+            `),
+            scaledSize: new google.maps.Size(40, 40),
+            anchor: new google.maps.Point(20, 20)
+          }
+        });
+        
+        // Add click listener
+        marker.addListener('click', handleMarkerClick);
+        
+        // Store the marker reference
+        markersRef.current[property.id] = marker;
+      }
     });
 
     // Only fit bounds if we haven't done it yet and we have properties with coordinates

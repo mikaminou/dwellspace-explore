@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSearch } from '@/contexts/search/SearchContext';
 import { useLanguage } from '@/contexts/language/LanguageContext';
@@ -86,6 +85,7 @@ export function MapView() {
               <li>Valid API key with proper restrictions</li>
               <li>Billing enabled in Google Cloud Console</li>
               <li>Maps JavaScript API enabled</li>
+              <li>For advanced markers: Maps ID configured</li>
             </ul>
           </div>
           <Button 
@@ -116,7 +116,10 @@ export function MapView() {
             <ul className="list-disc ml-5 mt-1 text-xs">
               <li>"For development purposes only" watermark: Billing not enabled</li>
               <li>"This page can't load Google Maps correctly": API key restrictions may be too strict</li>
-              <li>Ensure Maps JavaScript API, Places API, and Geocoding API are enabled</li>
+              <li>Ensure the following APIs are enabled in Google Cloud Console:</li>
+              <li className="ml-3">- Maps JavaScript API</li>
+              <li className="ml-3">- Places API</li>
+              <li className="ml-3">- Geocoding API</li>
             </ul>
           </div>
           <Button 
