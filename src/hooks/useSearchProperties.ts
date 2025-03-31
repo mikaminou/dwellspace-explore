@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Property } from "@/api/properties";
 import { useSearchInitialData } from "./search/useSearchInitialData";
@@ -40,6 +41,8 @@ export function useSearchProperties(): SearchHookResult {
   // Add a flag to track if filters were applied
   const filtersApplied = useRef(false);
   const [filtersAppliedState, setFiltersAppliedState] = useLocalStorage('filtersApplied', false);
+  // Add a flag to track if filters have been changed since last search
+  const [filtersChanged, setFiltersChanged] = useLocalStorage('filtersChanged', false);
 
   // Load initial data
   useSearchInitialData(
@@ -71,6 +74,21 @@ export function useSearchProperties(): SearchHookResult {
     setLoading
   );
 
+  // Monitor filter changes
+  useEffect(() => {
+    setFiltersChanged(true);
+  }, [
+    propertyType, listingType, minPrice, maxPrice, minBeds, 
+    minBaths, minLivingArea, maxLivingArea, selectedAmenities,
+    setFiltersChanged
+  ]);
+  
+  // Reset filtersChanged when search is performed
+  const handleSearchWithReset = () => {
+    setFiltersChanged(false);
+    handleSearch();
+  };
+
   // Filter management
   const { handleReset, getActiveFiltersCount, handleFilterRemoval } = useFilterManagement(
     selectedCities,
@@ -94,7 +112,7 @@ export function useSearchProperties(): SearchHookResult {
     setMaxLivingArea,
     setSelectedAmenities,
     setSortOption,
-    handleSearch
+    handleSearchWithReset
   );
 
   // Parse search parameters from URL
@@ -146,6 +164,9 @@ export function useSearchProperties(): SearchHookResult {
             (listingTypeParam && listingTypeParam !== 'any')) {
           setShowFilters(true);
         }
+        
+        // Mark filters as not changed since we're about to perform a search
+        setFiltersChanged(false);
       }
     } else if (location.pathname === '/search' && !location.search) {
       // User navigated directly to /search without parameters
@@ -158,7 +179,7 @@ export function useSearchProperties(): SearchHookResult {
     location, setSearchTerm, setPropertyType, setListingType, setIsNewSearch, 
     setMinLivingArea, setMaxLivingArea, maxLivingAreaLimit, setMinBeds, 
     setMinBaths, setSelectedAmenities, setFiltersAppliedState, setMinPrice,
-    setMaxPrice, maxPriceLimit, setShowFilters, filtersAppliedState
+    setMaxPrice, maxPriceLimit, setShowFilters, filtersAppliedState, setFiltersChanged
   ]);
 
   // Effect to trigger search after initial data is loaded
@@ -167,11 +188,11 @@ export function useSearchProperties(): SearchHookResult {
       if (location.search) {
         // If we have URL params, run search
         filtersApplied.current = true;
-        handleSearch();
+        handleSearchWithReset();
       } else if (filtersAppliedState && selectedCities.length > 0) {
         // If filters were applied and we have cities, run search
         filtersApplied.current = true;
-        handleSearch();
+        handleSearchWithReset();
       } else if (isNewSearch && selectedCities.length > 0 && !location.search) {
         // First time with default city and no filters - don't auto search,
         // let the user initiate the search
@@ -179,7 +200,7 @@ export function useSearchProperties(): SearchHookResult {
       }
     }
   }, [
-    initialLoadDone, selectedCities, handleSearch, isNewSearch, 
+    initialLoadDone, selectedCities, handleSearchWithReset, isNewSearch, 
     filtersAppliedState, location.search, setIsNewSearch
   ]);
 
@@ -220,7 +241,7 @@ export function useSearchProperties(): SearchHookResult {
     selectedAmenities,
     setSelectedAmenities,
     filtersApplied,
-    handleSearch,
+    handleSearch: handleSearchWithReset,
     handleReset,
     getActiveFiltersCount,
     handleFilterRemoval,
@@ -232,6 +253,8 @@ export function useSearchProperties(): SearchHookResult {
     isNewSearch,
     setIsNewSearch,
     filtersAppliedState,
-    setFiltersAppliedState
+    setFiltersAppliedState,
+    filtersChanged,
+    setFiltersChanged
   };
 }
