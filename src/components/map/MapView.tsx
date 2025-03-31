@@ -12,7 +12,7 @@ import { useCityUpdate } from './useCityUpdate';
 
 export function MapView() {
   const { mapContainer, map, markersRef, mapLoaded } = useMapSetup();
-  const { properties, loading, selectedCities } = useSearch();
+  const { properties, loading, selectedCities, hoveredPropertyId } = useSearch();
   const { t } = useLanguage();
   
   // Use our hooks in the correct order to avoid circular references
@@ -25,12 +25,7 @@ export function MapView() {
   );
   
   // Then use the showPropertyPopup in the markers hook
-  const { 
-    activeMarkerId, 
-    setActiveMarkerId, 
-    updateMarkerZIndex,
-    highlightMarker 
-  } = usePropertyMarkers(
+  const { activeMarkerId, setActiveMarkerId, updateMarkerZIndex, setHoveredMarkerId } = usePropertyMarkers(
     map, 
     markersRef, 
     propertiesWithOwners, 
@@ -53,21 +48,10 @@ export function MapView() {
     }
   }, [mapLoaded]);
 
-  // Export the highlightMarker function to window for use by Property Cards
+  // Update the hovered marker when property card is hovered
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // @ts-ignore - Adding to window object
-      window.highlightMapMarker = highlightMarker;
-    }
-    
-    return () => {
-      // Clean up when component unmounts
-      if (typeof window !== 'undefined') {
-        // @ts-ignore - Removing from window object
-        delete window.highlightMapMarker;
-      }
-    };
-  }, [highlightMarker]);
+    setHoveredMarkerId(hoveredPropertyId);
+  }, [hoveredPropertyId, setHoveredMarkerId]);
 
   return (
     <div className="relative flex-1 w-full h-full">

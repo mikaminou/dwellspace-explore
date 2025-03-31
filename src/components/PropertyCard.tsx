@@ -14,7 +14,7 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ property }: PropertyCardProps) {
   const { t, dir } = useLanguage();
-  const { showMap } = useSearch();
+  const { setHoveredPropertyId } = useSearch();
   
   const getPropertyImage = (property: Property): string => {
     if (property.featured_image_url) return property.featured_image_url;
@@ -74,24 +74,15 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     return t('property.forSale'); // default for sale
   };
 
-  const isPremiumProperty = property.isPremium || (property.agent?.role === 'seller') || (property.owner?.role === 'seller');
-
-  // Define the highlighting handlers
   const handleMouseEnter = () => {
-    // Only highlight if map is showing
-    if (showMap && window.highlightMapMarker) {
-      // @ts-ignore - Using the function we attached to window in MapView
-      window.highlightMapMarker(property.id);
-    }
+    setHoveredPropertyId(property.id);
   };
 
   const handleMouseLeave = () => {
-    // Only clear highlight if map is showing
-    if (showMap && window.highlightMapMarker) {
-      // @ts-ignore - Using the function we attached to window in MapView
-      window.highlightMapMarker(null);
-    }
+    setHoveredPropertyId(null);
   };
+
+  const isPremiumProperty = property.isPremium || (property.agent?.role === 'seller') || (property.owner?.role === 'seller');
 
   return (
     <Link 

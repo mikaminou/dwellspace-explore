@@ -30,6 +30,8 @@ export function useSearchProperties(): SearchHookResult {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   // Add map toggle state
   const [showMap, setShowMap] = useState(false);
+  // Add hovered property ID state
+  const [hoveredPropertyId, setHoveredPropertyId] = useState<number | null>(null);
   
   const filtersApplied = useRef(false);
 
@@ -139,6 +141,9 @@ export function useSearchProperties(): SearchHookResult {
     initialLoadDone,
     // Add map toggle state
     showMap,
-    setShowMap
+    setShowMap,
+    // Add hovered property ID state
+    hoveredPropertyId,
+    setHoveredPropertyId
   };
 }
