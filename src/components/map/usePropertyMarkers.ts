@@ -40,7 +40,14 @@ export function usePropertyMarkers(
       const numericId = parseInt(id);
       if (!propertiesWithOwners.some(p => p.id === numericId)) {
         if (markersRef.current[numericId]) {
-          markersRef.current[numericId].setMap(null);
+          // Handle different marker types
+          const marker = markersRef.current[numericId];
+          if (marker instanceof google.maps.Marker) {
+            marker.setMap(null);
+          } else if ('map' in marker) {
+            // For AdvancedMarkerElement, set map to null
+            marker.map = null;
+          }
           delete markersRef.current[numericId];
         }
       }
@@ -212,8 +219,13 @@ export function usePropertyMarkers(
       
       // If marker already exists, update its position
       if (markersRef.current[property.id]) {
-        if ('setPosition' in markersRef.current[property.id]) {
-          markersRef.current[property.id].setPosition(position);
+        const marker = markersRef.current[property.id];
+        // Handle different marker types for position update
+        if (marker instanceof google.maps.Marker) {
+          marker.setPosition(position);
+        } else if ('position' in marker) {
+          // For AdvancedMarkerElement, update the position property
+          marker.position = position;
         }
         return;
       }
