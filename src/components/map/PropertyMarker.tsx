@@ -42,9 +42,6 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
       onClick={handleClick}
     >
       <div className={`marker-container ${getMarkerClass()}`}>
-        <div className="marker-icon">
-          <MapPin size={18} className="text-white" />
-        </div>
         <div className="marker-price">
           {formatPrice(price)}
         </div>

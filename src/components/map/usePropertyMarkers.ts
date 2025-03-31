@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
@@ -71,29 +70,25 @@ export function usePropertyMarkers(
     if (
       !property.longitude ||
       !property.latitude ||
-      isNaN(property.longitude) ||
-      isNaN(property.latitude)
+      isNaN(Number(property.longitude)) ||
+      isNaN(Number(property.latitude))
     ) {
       return;
     }
 
     const el = document.createElement('div');
     el.className = 'marker-container';
+    
+    // Use a simpler circle marker design with just the price inside
     el.innerHTML = `
-      <div class="marker-icon">
-        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="17" cy="17" r="17" fill="currentColor"/>
-        </svg>
+      <div class="marker-price">
+        ${property.price}
       </div>
-      <div class="marker-price">${property.price}</div>
     `;
 
     // Add specific class based on listing type
     let markerTypeClass = 'default-marker';
     switch (property.listingType || property.listing_type) {
-      case 'sale':
-        markerTypeClass = 'sale-marker';
-        break;
       case 'rent':
         markerTypeClass = 'rent-marker';
         break;
@@ -106,7 +101,9 @@ export function usePropertyMarkers(
       case 'vacation':
         markerTypeClass = 'vacation-marker';
         break;
+      case 'sale':
       default:
+        markerTypeClass = 'sale-marker';
         break;
     }
 
@@ -117,15 +114,15 @@ export function usePropertyMarkers(
 
     el.className = `marker-container ${markerTypeClass}`;
 
-    const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-      .setLngLat([property.longitude, property.latitude])
+    const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+      .setLngLat([Number(property.longitude), Number(property.latitude)])
       .addTo(map.current!);
 
     // Store the marker in the markersRef
     markersRef.current[property.id] = marker;
 
     // Extend bounds to include this marker's coordinates
-    bounds.extend([property.longitude, property.latitude]);
+    bounds.extend([Number(property.longitude), Number(property.latitude)]);
 
     // Add click event to show popup
     el.addEventListener('click', () => {
@@ -161,11 +158,11 @@ export function usePropertyMarkers(
         if (
           property.longitude && 
           property.latitude && 
-          !isNaN(property.longitude) && 
-          !isNaN(property.latitude)
+          !isNaN(Number(property.longitude)) && 
+          !isNaN(Number(property.latitude))
         ) {
           // Add to bounds calculation for existing markers too
-          bounds.extend([property.longitude, property.latitude]);
+          bounds.extend([Number(property.longitude), Number(property.latitude)]);
           propertiesWithCoords++;
         }
         return;

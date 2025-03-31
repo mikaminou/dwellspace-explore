@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
 
 @tailwind base;
@@ -296,115 +295,54 @@ html[dir="rtl"] .text-right {
   width: auto;
 }
 
-/* Improved marker styling */
+/* Updated marker styling to match the circular design */
 .marker-container {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  transform: translateY(-100%);
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   transition: all 0.2s ease;
 }
 
-.marker-icon {
-  width: 34px;
-  height: 34px;
+.marker-price {
+  background-color: #000000e6;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  width: 85px;
+  height: 85px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 2;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  text-align: center;
+  padding: 4px;
 }
 
-.marker-price {
-  background-color: white;
-  color: #2C3E50;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 12px;
-  margin-top: -6px;
-  z-index: 1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
-  letter-spacing: -0.3px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* Different colors for each listing type */
-.sale-marker .marker-icon {
-  background-color: #27AE60;
-  background: linear-gradient(145deg, #27AE60, #2ECC71);
-  border: 1px solid rgba(46, 204, 113, 0.2);
-}
-
-.sale-marker .marker-price {
-  border: 1px solid rgba(39, 174, 96, 0.3);
-}
-
-.rent-marker .marker-icon {
-  background-color: #3498DB;
-  background: linear-gradient(145deg, #3498DB, #2980B9);
-  border: 1px solid rgba(52, 152, 219, 0.2);
-}
-
-.rent-marker .marker-price {
-  border: 1px solid rgba(52, 152, 219, 0.3);
-}
-
-.construction-marker .marker-icon {
-  background-color: #E67E22;
-  background: linear-gradient(145deg, #E67E22, #D35400);
-  border: 1px solid rgba(230, 126, 34, 0.2);
-}
-
-.construction-marker .marker-price {
-  border: 1px solid rgba(230, 126, 34, 0.3);
-}
-
-.commercial-marker .marker-icon {
-  background-color: #9B59B6;
-  background: linear-gradient(145deg, #9B59B6, #8E44AD);
-  border: 1px solid rgba(155, 89, 182, 0.2);
-}
-
-.commercial-marker .marker-price {
-  border: 1px solid rgba(155, 89, 182, 0.3);
-}
-
-.vacation-marker .marker-icon {
-  background-color: #1ABC9C;
-  background: linear-gradient(145deg, #1ABC9C, #16A085);
-  border: 1px solid rgba(26, 188, 156, 0.2);
-}
-
-.vacation-marker .marker-price {
-  border: 1px solid rgba(26, 188, 156, 0.3);
-}
-
-.premium-marker .marker-icon {
-  background-color: #CDA434;
-  background: linear-gradient(145deg, #CDA434, #E5CB6F);
-  border: 1px solid rgba(205, 164, 52, 0.2);
-  box-shadow: 0 0 8px rgba(205, 164, 52, 0.3);
-}
-
+/* Different colors for each listing type - simplified to match the design */
+.sale-marker .marker-price,
+.rent-marker .marker-price,
+.construction-marker .marker-price,
+.commercial-marker .marker-price,
+.vacation-marker .marker-price,
 .premium-marker .marker-price {
-  border: 1px solid rgba(205, 164, 52, 0.4);
+  background-color: #000000e6;
 }
 
 .marker-container:hover {
-  transform: translateY(-100%) scale(1.1);
-}
-
-.marker-container:hover .marker-icon {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.1);
 }
 
 .marker-container:hover .marker-price {
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Simpler price format for markers */
+.marker-price {
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 /* Property badge styles for PropertyDetails */
