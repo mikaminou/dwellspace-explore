@@ -38,6 +38,11 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
     <div 
       className="modern-marker flex items-center justify-center cursor-pointer z-10 transition-all duration-200 hover:scale-110"
       onClick={handleClick}
+      style={{ 
+        transformOrigin: 'center bottom',
+        position: 'relative',
+        bottom: 0
+      }}
     >
       <div className="marker-bubble">
         <div className="marker-content">

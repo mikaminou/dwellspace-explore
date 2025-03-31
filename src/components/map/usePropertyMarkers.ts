@@ -21,13 +21,16 @@ export function usePropertyMarkers(
     if (!window.google || !mapLoaded) return;
     
     Object.entries(markersRef.current).forEach(([id, marker]) => {
-      if ('setZIndex' in marker) {
+      if (marker instanceof google.maps.Marker) {
         marker.setZIndex(1);
       }
     });
 
-    if (propertyId !== null && markersRef.current[propertyId] && 'setZIndex' in markersRef.current[propertyId]) {
-      markersRef.current[propertyId].setZIndex(3);
+    if (propertyId !== null && markersRef.current[propertyId]) {
+      const marker = markersRef.current[propertyId];
+      if (marker instanceof google.maps.Marker) {
+        marker.setZIndex(3);
+      }
     }
   };
 
@@ -39,9 +42,8 @@ export function usePropertyMarkers(
     Object.keys(markersRef.current).forEach(id => {
       const numericId = parseInt(id);
       if (!propertiesWithOwners.some(p => p.id === numericId)) {
-        if (markersRef.current[numericId]) {
-          // Handle different marker types
-          const marker = markersRef.current[numericId];
+        const marker = markersRef.current[numericId];
+        if (marker) {
           if (marker instanceof google.maps.Marker) {
             marker.setMap(null);
           } else if ('map' in marker) {
@@ -232,6 +234,7 @@ export function usePropertyMarkers(
       
       // Create a DOM element for the custom marker
       const markerElement = document.createElement('div');
+      markerElement.className = 'marker-container'; // Add a container class for styling
       markerElementsRef.current[property.id] = markerElement;
       
       // Create a function to handle the click event
@@ -253,15 +256,19 @@ export function usePropertyMarkers(
         })
       );
       
-      // Attempt to create a standard marker if AdvancedMarkerElement is not available
+      // Attempt to create an AdvancedMarkerElement if available, otherwise fallback to standard marker
       try {
         // First try to create an AdvancedMarkerElement
         if (window.google.maps.marker && window.google.maps.marker.AdvancedMarkerElement) {
+          // Create the advanced marker with proper positioning
           const marker = new window.google.maps.marker.AdvancedMarkerElement({
             position,
             map: map.current,
             title: property.title,
-            content: markerElement
+            content: markerElement,
+            // Fix zoom issue by setting these critical properties
+            gmpDraggable: false,  // Prevent dragging which can cause position issues
+            collisionBehavior: window.google.maps.CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
           });
           
           // Store the marker reference
