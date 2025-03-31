@@ -2,6 +2,7 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { defaultMapOptions } from './mapUtils';
+import { toast } from 'sonner';
 
 // Define the Libraries type correctly for Google Maps API
 type Library = "places" | "drawing" | "geometry" | "visualization";
@@ -14,7 +15,7 @@ const libraries: Libraries = ["places", "geometry"];
 const GOOGLE_MAPS_API_KEY = 'AIzaSyBtCGretTv8O2Fzf_Oh0Er9H27-EaO-itM'; // Replace with your actual API key
 
 // Add a warning about Google Maps billing
-console.warn('⚠️ Important: The Google Maps API key requires billing to be enabled in the Google Cloud Console. Without billing enabled, the map may display errors or watermarks.');
+console.warn('⚠️ Important: The Google Maps API key requires billing to be enabled and proper API restrictions in the Google Cloud Console. Without billing enabled and proper restrictions, the map may display errors, watermarks, or "For development purposes only" messages.');
 
 export function useMapSetup() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -22,11 +23,14 @@ export function useMapSetup() {
   const markersRef = useRef<{ [key: number]: google.maps.Marker }>({});
   const popupRef = useRef<google.maps.InfoWindow | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   // Load the Google Maps JavaScript API
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries
+    libraries,
+    // Add version to ensure compatibility
+    version: "weekly"
   });
 
   // Initialize map when the API is loaded
@@ -48,14 +52,25 @@ export function useMapSetup() {
       google.maps.event.addListenerOnce(map.current, 'idle', () => {
         console.log('Google Maps loaded successfully');
         setMapLoaded(true);
+        setMapError(null);
       });
 
-      // Add error handler
-      google.maps.event.addListener(map.current, 'error', (e) => {
-        console.error('Map error:', e);
+      // Add error handler for authentication errors
+      google.maps.event.addListener(map.current, 'authfailure', () => {
+        console.error('Google Maps authentication failed - check API key and restrictions');
+        setMapError('API key authentication failed. Please check your API key configuration and restrictions in Google Cloud Console.');
+        toast.error('Google Maps failed to load. Please check your API key configuration.');
       });
+
+      // Handle other map errors 
+      window.gm_authFailure = () => {
+        console.error('Google Maps authentication failed - global handler');
+        setMapError('API key authentication failed. Please check your API key configuration and restrictions in Google Cloud Console.');
+        toast.error('Google Maps failed to load. Please check your API key configuration.');
+      };
     } catch (error) {
       console.error('Error initializing Google Maps:', error);
+      setMapError(`Failed to initialize Google Maps: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }, []);
 
@@ -67,6 +82,8 @@ export function useMapSetup() {
     
     if (loadError) {
       console.error('Error loading Google Maps:', loadError);
+      setMapError(`Failed to load Google Maps API: ${loadError.message}`);
+      toast.error('Failed to load Google Maps. Please try again later.');
     }
   }, [isLoaded, loadError, initializeMap]);
 
@@ -77,6 +94,7 @@ export function useMapSetup() {
     popupRef,
     mapLoaded,
     isLoaded,
-    loadError
+    loadError,
+    mapError
   };
 }

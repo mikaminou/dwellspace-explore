@@ -2,8 +2,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, ShieldAlert, Info } from "lucide-react";
 import { useJsApiLoader } from '@react-google-maps/api';
+import { toast } from 'sonner';
 
 // Define the Libraries type correctly for Google Maps API
 type Library = "places" | "drawing" | "geometry" | "visualization";
@@ -51,23 +52,35 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries
+    libraries,
+    version: "weekly"
   });
 
   const initializeServices = useCallback(() => {
     if (!isLoaded) return;
     
     if (!autocompleteService.current) {
-      autocompleteService.current = new google.maps.places.AutocompleteService();
+      try {
+        autocompleteService.current = new google.maps.places.AutocompleteService();
+      } catch (error) {
+        console.error('Failed to initialize AutocompleteService:', error);
+        setMapError('Failed to initialize Places service. Please check API key restrictions.');
+      }
     }
     
     if (!geocoder.current) {
-      geocoder.current = new google.maps.Geocoder();
+      try {
+        geocoder.current = new google.maps.Geocoder();
+      } catch (error) {
+        console.error('Failed to initialize Geocoder:', error);
+        setMapError('Failed to initialize Geocoding service. Please check API key restrictions.');
+      }
     }
   }, [isLoaded]);
 
@@ -80,55 +93,103 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
       ? { lat: initialLocation.latitude, lng: initialLocation.longitude }
       : { lat: 36.7538, lng: 3.0588 }; // Default: Algiers
       
-    map.current = new google.maps.Map(mapContainer.current, {
-      center: initialCoordinates,
-      zoom: 13,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      zoomControl: true,
-      mapTypeControl: false,
-      streetViewControl: false,
-      fullscreenControl: true
-    });
-
-    placesService.current = new google.maps.places.PlacesService(map.current);
-
-    marker.current = new google.maps.Marker({
-      position: initialCoordinates,
-      map: map.current,
-      draggable: true,
-      animation: google.maps.Animation.DROP
-    });
-        
-    if (marker.current) {
-      marker.current.addListener('dragend', () => {
-        if (marker.current) {
-          const position = marker.current.getPosition();
-          if (position) {
-            getLocationDetails(position.lng(), position.lat());
-          }
-        }
+    try {
+      map.current = new google.maps.Map(mapContainer.current, {
+        center: initialCoordinates,
+        zoom: 13,
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        zoomControl: true,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true
       });
+
+      // Add error handler for authentication errors
+      google.maps.event.addListener(map.current, 'authfailure', () => {
+        console.error('Google Maps authentication failed - check API key and restrictions');
+        setMapError('API key authentication failed. Please check your API key configuration.');
+        toast.error('Google Maps failed to load. Please check your API key configuration.');
+      });
+
+      // Set up places service after map is initialized
+      if (map.current) {
+        try {
+          placesService.current = new google.maps.places.PlacesService(map.current);
+        } catch (error) {
+          console.error('Failed to initialize PlacesService:', error);
+          setMapError('Failed to initialize Places service. Please check API key restrictions.');
+        }
+      }
+
+      // Create marker
+      try {
+        marker.current = new google.maps.Marker({
+          position: initialCoordinates,
+          map: map.current,
+          draggable: true,
+          animation: google.maps.Animation.DROP
+        });
+      } catch (error) {
+        console.error('Failed to create marker:', error);
+      }
+      
+      if (marker.current) {
+        marker.current.addListener('dragend', () => {
+          if (marker.current) {
+            const position = marker.current.getPosition();
+            if (position) {
+              getLocationDetails(position.lng(), position.lat());
+            }
+          }
+        });
+      }
+
+      if (map.current) {
+        map.current.addListener('click', (e: google.maps.MapMouseEvent) => {
+          const latLng = e.latLng;
+          if (latLng && marker.current) {
+            marker.current.setPosition(latLng);
+            getLocationDetails(latLng.lng(), latLng.lat());
+          }
+        });
+
+        map.current.addListener('idle', () => {
+          setIsMapLoaded(true);
+          setMapError(null);
+        });
+      }
+    } catch (error) {
+      console.error('Error initializing map:', error);
+      setMapError(`Failed to initialize map: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error('Failed to initialize map. Please check API key restrictions.');
     }
 
-    map.current.addListener('click', (e: google.maps.MapMouseEvent) => {
-      const latLng = e.latLng;
-      if (latLng && marker.current) {
-        marker.current.setPosition(latLng);
-        getLocationDetails(latLng.lng(), latLng.lat());
-      }
-    });
-
-    map.current.addListener('idle', () => {
-      setIsMapLoaded(true);
-    });
+    // Set up global authentication failure handler
+    window.gm_authFailure = () => {
+      console.error('Google Maps authentication failed - global handler');
+      setMapError('API key authentication failed. Please check your API key configuration.');
+      toast.error('Google Maps failed to load. Please check your API key configuration.');
+    };
 
     return () => {
-      // Clean up
+      // Cleanup
+      if (window.google && window.google.maps) {
+        if (marker.current) {
+          google.maps.event.clearInstanceListeners(marker.current);
+        }
+        if (map.current) {
+          google.maps.event.clearInstanceListeners(map.current);
+        }
+      }
+      window.gm_authFailure = null;
     };
   }, [isLoaded, initialLocation]);
 
   const getLocationDetails = async (lng: number, lat: number) => {
-    if (!geocoder.current) return;
+    if (!geocoder.current) {
+      console.error('Geocoder not initialized');
+      return;
+    }
     
     try {
       const response = await geocoder.current.geocode({
@@ -177,6 +238,7 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
       }
     } catch (error) {
       console.error('Error fetching location details:', error);
+      toast.error('Failed to fetch location details. Please try again.');
     }
   };
 
@@ -213,7 +275,10 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     setSearchQuery(result.description);
     setShowDropdown(false);
     
-    if (!placesService.current || !map.current) return;
+    if (!placesService.current || !map.current) {
+      console.error('Places service or map not initialized');
+      return;
+    }
     
     placesService.current.getDetails({
       placeId: result.place_id,
@@ -228,26 +293,33 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
         if (marker.current) {
           marker.current.setPosition(place.geometry.location);
         } else if (map.current) {
-          marker.current = new google.maps.Marker({
-            position: place.geometry.location,
-            map: map.current,
-            draggable: true
-          });
-          
-          marker.current.addListener('dragend', () => {
-            if (marker.current) {
-              const position = marker.current.getPosition();
-              if (position) {
-                getLocationDetails(position.lng(), position.lat());
+          try {
+            marker.current = new google.maps.Marker({
+              position: place.geometry.location,
+              map: map.current,
+              draggable: true
+            });
+            
+            marker.current.addListener('dragend', () => {
+              if (marker.current) {
+                const position = marker.current.getPosition();
+                if (position) {
+                  getLocationDetails(position.lng(), position.lat());
+                }
               }
-            }
-          });
+            });
+          } catch (error) {
+            console.error('Failed to create marker after location selection:', error);
+          }
         }
         
         getLocationDetails(
           place.geometry.location.lng(), 
           place.geometry.location.lat()
         );
+      } else {
+        console.error('Error fetching place details:', status);
+        toast.error('Failed to fetch location details. Please try a different location.');
       }
     });
   };
@@ -262,21 +334,49 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     }
   };
 
-  if (!isLoaded) {
+  // Show error state if there was a problem loading the map
+  if (loadError || mapError) {
     return (
       <div className="space-y-4">
-        <div className="w-full h-[300px] rounded-md border flex items-center justify-center bg-gray-100">
-          <p>Loading map...</p>
+        <form onSubmit={handleSearch} className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Search for a location..."
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+            className="flex-1"
+          />
+          <Button type="submit" variant="secondary" size="icon">
+            <Search className="h-4 w-4" />
+          </Button>
+        </form>
+        
+        <div className="w-full h-[300px] rounded-md border flex flex-col items-center justify-center bg-gray-50 p-4 text-center">
+          <ShieldAlert className="h-10 w-10 text-red-500 mb-2" />
+          <p className="text-red-500 font-medium mb-2">
+            {loadError ? loadError.message : mapError}
+          </p>
+          <div className="bg-amber-50 border border-amber-200 rounded p-3 text-amber-800 text-sm mt-2 max-w-md">
+            <p className="font-medium flex items-center gap-2">
+              <Info className="h-4 w-4" />
+              Google Maps API requires:
+            </p>
+            <ul className="list-disc ml-5 mt-1 text-xs text-left">
+              <li>Valid API key with proper restrictions</li>
+              <li>Billing enabled in Google Cloud Console</li>
+              <li>Maps JavaScript API, Places API, and Geocoding API enabled</li>
+            </ul>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (loadError) {
+  if (!isLoaded) {
     return (
       <div className="space-y-4">
         <div className="w-full h-[300px] rounded-md border flex items-center justify-center bg-gray-100">
-          <p className="text-red-500">Error loading Google Maps: {loadError.message}</p>
+          <p>Loading map...</p>
         </div>
       </div>
     );
@@ -320,7 +420,7 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
         className="w-full h-[300px] rounded-md border relative mb-4"
       />
       
-      {!isMapLoaded && (
+      {!isMapLoaded && !mapError && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/50">
           <p>Loading map...</p>
         </div>
