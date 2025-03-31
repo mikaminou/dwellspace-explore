@@ -40,22 +40,22 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
   const Icon = () => {
     switch (listingType.toLowerCase()) {
       case 'rent':
-        return <Building size={16} className="text-white" />;
+        return <Building className="h-3.5 w-3.5 text-white" />;
       case 'construction':
-        return <Construction size={16} className="text-white" />;
+        return <Construction className="h-3.5 w-3.5 text-white" />;
       case 'commercial':
-        return <Building size={16} className="text-white" />;
+        return <Building className="h-3.5 w-3.5 text-white" />;
       case 'vacation':
-        return <Castle size={16} className="text-white" />;
+        return <Castle className="h-3.5 w-3.5 text-white" />;
       case 'sale':
       default:
-        return <Home size={16} className="text-white" />;
+        return <Home className="h-3.5 w-3.5 text-white" />;
     }
   };
 
   return (
     <div 
-      className="custom-marker flex items-center justify-center cursor-pointer z-10 transition-transform hover:scale-110"
+      className="custom-marker flex items-center justify-center cursor-pointer z-10 transition-all duration-200 hover:scale-110"
       onClick={handleClick}
     >
       <div className={`marker-container ${getMarkerClass()}`}>
