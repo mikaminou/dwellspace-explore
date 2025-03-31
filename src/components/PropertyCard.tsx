@@ -14,7 +14,17 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ property }: PropertyCardProps) {
   const { t, dir } = useLanguage();
-  const { setHoveredPropertyId } = useSearch();
+  // Try to use the context, but provide fallbacks if not available
+  let setHoveredPropertyId: ((id: number | null) => void) | undefined;
+  
+  try {
+    // This will throw an error if not in a SearchProvider
+    const searchContext = useSearch();
+    setHoveredPropertyId = searchContext.setHoveredPropertyId;
+  } catch (error) {
+    // If not in a SearchProvider, we'll use a no-op function
+    setHoveredPropertyId = () => {};
+  }
   
   const getPropertyImage = (property: Property): string => {
     if (property.featured_image_url) return property.featured_image_url;
@@ -75,11 +85,15 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   };
 
   const handleMouseEnter = () => {
-    setHoveredPropertyId(property.id);
+    if (setHoveredPropertyId) {
+      setHoveredPropertyId(property.id);
+    }
   };
 
   const handleMouseLeave = () => {
-    setHoveredPropertyId(null);
+    if (setHoveredPropertyId) {
+      setHoveredPropertyId(null);
+    }
   };
 
   const isPremiumProperty = property.isPremium || (property.agent?.role === 'seller') || (property.owner?.role === 'seller');

@@ -43,11 +43,32 @@ export function PropertyMarker({
     }
   };
 
+  // Get the CSS for the listing-type-specific glow effect
+  const getHoverEffect = () => {
+    const color = getIconColor();
+    if (!isHovered) return '';
+    
+    return `
+      .marker-bubble.marker-hovered {
+        box-shadow: 0 0 15px ${color}, 0 0 5px ${color};
+        border-color: ${color};
+      }
+      .marker-bubble.marker-hovered .marker-pointer {
+        background-color: ${color};
+      }
+    `;
+  };
+
   return (
     <div 
       className={`custom-marker flex items-center justify-center cursor-pointer z-10 transition-transform ${isHovered ? 'scale-125' : 'hover:scale-110'}`}
       onClick={handleClick}
     >
+      {isHovered && (
+        <style>
+          {getHoverEffect()}
+        </style>
+      )}
       <div className={`marker-bubble ${isHovered ? 'marker-hovered' : ''}`}>
         <span className="marker-price">{formatPrice(price)}</span>
         <div className="marker-pointer"></div>
