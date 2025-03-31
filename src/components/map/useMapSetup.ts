@@ -3,12 +3,11 @@ import { useRef, useState, useCallback, useEffect } from 'react';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { defaultMapOptions } from './mapUtils';
 
-// Define the valid libraries type for Google Maps
-// @react-google-maps/api accepts only these specific libraries
-const libraries = ['places', 'geometry'] as ('places' | 'geometry' | 'drawing' | 'visualization')[];
+// List of libraries to load with Google Maps
+const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places", "geometry"];
 
 // Your Google Maps API key - in production, this should be in environment variables
-const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with your actual API key
+const GOOGLE_MAPS_API_KEY = 'AIzaSyBtCGretTv8O2Fzf_Oh0Er9H27-EaO-itM'; // Replace with your actual API key
 
 export function useMapSetup() {
   const mapContainer = useRef<HTMLDivElement>(null);
