@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { useJsApiLoader } from '@react-google-maps/api';
 
 // Define your Google Maps API key here
 const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with your actual API key
-const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places", "geometry"];
+const libraries = ['places', 'geometry'] as ('places' | 'geometry' | 'drawing' | 'visualization')[];
 
 interface LocationData {
   city: string;
@@ -50,13 +49,11 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Load Google Maps API
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries
   });
 
-  // Initialize Google services
   const initializeServices = useCallback(() => {
     if (!isLoaded) return;
     
@@ -69,7 +66,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     }
   }, [isLoaded]);
 
-  // Initialize map
   useEffect(() => {
     if (!isLoaded || !mapContainer.current) return;
     
@@ -91,7 +87,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
 
     placesService.current = new google.maps.places.PlacesService(map.current);
 
-    // Add initial marker if coordinates exist
     marker.current = new google.maps.Marker({
       position: initialCoordinates,
       map: map.current,
@@ -99,7 +94,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
       animation: google.maps.Animation.DROP
     });
         
-    // Enable marker drag
     if (marker.current) {
       marker.current.addListener('dragend', () => {
         if (marker.current) {
@@ -111,7 +105,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
       });
     }
 
-    // Enable map click to set marker
     map.current.addListener('click', (e: google.maps.MapMouseEvent) => {
       const latLng = e.latLng;
       if (latLng && marker.current) {
@@ -129,7 +122,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     };
   }, [isLoaded, initialLocation]);
 
-  // Get location details from coordinates using Google Geocoding API
   const getLocationDetails = async (lng: number, lat: number) => {
     if (!geocoder.current) return;
     
@@ -141,14 +133,12 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
       if (response.results && response.results.length > 0) {
         console.log('Geocoding response:', response);
         
-        // Extract location details from the response
         let city = '';
         let state = '';
         let country = '';
         let streetName = '';
         let neighborhood = '';
         
-        // Process each address component to extract relevant information
         response.results[0].address_components.forEach((component) => {
           if (component.types.includes('locality')) {
             city = component.long_name;
@@ -163,7 +153,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
           }
         });
         
-        // Use full address as fallback for street name
         if (!streetName && response.results[0].formatted_address) {
           const addressParts = response.results[0].formatted_address.split(',');
           if (addressParts.length > 0) {
@@ -171,7 +160,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
           }
         }
         
-        // Pass the location data to the parent component
         onLocationSelect({
           city,
           state,
@@ -187,7 +175,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     }
   };
 
-  // Handle search input changes
   const handleSearchInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -217,7 +204,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     }
   };
 
-  // Handle selection of a search result
   const handleSelectLocation = (result: SearchResult) => {
     setSearchQuery(result.description);
     setShowDropdown(false);
@@ -229,13 +215,11 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
       fields: ['geometry', 'formatted_address', 'address_components']
     }, (place, status) => {
       if (status === google.maps.places.PlacesServiceStatus.OK && place && place.geometry && place.geometry.location) {
-        // Update map view
         if (map.current) {
           map.current.setCenter(place.geometry.location);
           map.current.setZoom(15);
         }
         
-        // Update marker position
         if (marker.current) {
           marker.current.setPosition(place.geometry.location);
         } else if (map.current) {
@@ -255,7 +239,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
           });
         }
         
-        // Get location details for the selected result
         getLocationDetails(
           place.geometry.location.lng(), 
           place.geometry.location.lat()
@@ -264,19 +247,16 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     });
   };
 
-  // Search for a location (for the search button)
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!searchQuery.trim() || !map.current) return;
     
-    // If there are search results, use the first one
     if (searchResults.length > 0) {
       handleSelectLocation(searchResults[0]);
     }
   };
 
-  // Show loading state
   if (!isLoaded) {
     return (
       <div className="space-y-4">
@@ -287,7 +267,6 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
     );
   }
 
-  // Show error state
   if (loadError) {
     return (
       <div className="space-y-4">

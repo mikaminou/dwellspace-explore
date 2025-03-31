@@ -117,9 +117,8 @@ export function usePropertyMarkers(
     // Only fit bounds if we haven't done it yet and we have properties with coordinates
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
-      map.current.fitBounds(bounds, {
-        padding: 50
-      });
+      // Fix the padding issue by correctly using the fitBounds method without a padding option
+      map.current.fitBounds(bounds);
       map.current.setZoom(Math.min(15, map.current.getZoom() || 15));
       setInitialBoundsSet(true);
     }
