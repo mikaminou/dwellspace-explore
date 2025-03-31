@@ -9,7 +9,16 @@ import { MapView } from "@/components/map/MapView";
 import { useSearch } from "@/contexts/search/SearchContext";
 import { useLocation } from "react-router-dom";
 
-// Create a SearchContent component to use context
+// Main Search component that provides the context first
+export default function Search() {
+  return (
+    <SearchProvider>
+      <SearchContent />
+    </SearchProvider>
+  );
+}
+
+// Create a SearchContent component that uses context AFTER it's provided
 function SearchContent() {
   const { showMap, searchTerm, setFiltersAppliedState } = useSearch();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -52,7 +61,7 @@ function SearchContent() {
   }, [showMap]);
 
   return (
-    <>
+    <div className="min-h-screen bg-background">
       <MainNav />
       <SearchHeader key={`search-header-${refreshKey}`} />
       <Filters />
@@ -68,17 +77,6 @@ function SearchContent() {
           </div>
         )}
       </div>
-    </>
-  );
-}
-
-// Main Search component that provides the context
-export default function Search() {
-  return (
-    <SearchProvider>
-      <div className="min-h-screen bg-background">
-        <SearchContent />
-      </div>
-    </SearchProvider>
+    </div>
   );
 }
