@@ -114,6 +114,13 @@ export function useSearchProperties(): SearchHookResult {
         filtersApplied.current = true;
         setFiltersAppliedState(true);
         
+        // Reset existing filters when coming from hero section
+        setMinLivingArea(0);
+        setMaxLivingArea(maxLivingAreaLimit);
+        setMinBeds(0);
+        setMinBaths(0);
+        setSelectedAmenities([]);
+        
         // Reset existing search and set new parameters
         if (queryParam) {
           setSearchTerm(queryParam);
@@ -134,7 +141,9 @@ export function useSearchProperties(): SearchHookResult {
         // We'll automatically search after the initialLoadDone effect runs
       }
     }
-  }, [location, setSearchTerm, setPropertyType, setListingType, setIsNewSearch]);
+  }, [location, setSearchTerm, setPropertyType, setListingType, setIsNewSearch, 
+      setMinLivingArea, setMaxLivingArea, maxLivingAreaLimit, setMinBeds, 
+      setMinBaths, setSelectedAmenities, setFiltersAppliedState]);
 
   // Effect to trigger search after initial data is loaded
   useEffect(() => {
