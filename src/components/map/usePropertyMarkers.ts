@@ -1,152 +1,169 @@
-
-import { useEffect, useState, useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
-import { createRoot } from 'react-dom/client';
-import { PropertyMarker } from './PropertyMarker';
+
+interface UsePropertyMarkersProps {
+  map: React.MutableRefObject<mapboxgl.Map | null>;
+  markersRef: React.MutableRefObject<{ [key: number]: mapboxgl.Marker }>;
+  properties: Property[];
+  mapLoaded: boolean;
+  loading: boolean;
+  showPropertyPopup: (property: Property, marker: mapboxgl.Marker) => void;
+}
 
 export function usePropertyMarkers(
   map: React.MutableRefObject<mapboxgl.Map | null>,
   markersRef: React.MutableRefObject<{ [key: number]: mapboxgl.Marker }>,
-  propertiesWithOwners: Property[],
+  properties: Property[],
   mapLoaded: boolean,
   loading: boolean,
-  showPropertyPopup: (property: Property, coordinates: [number, number]) => void
+  showPropertyPopup: (property: Property, marker: mapboxgl.Marker) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
-  const [initialBoundsSet, setInitialBoundsSet] = useState(false);
   const processedPropertiesRef = useRef<Set<number>>(new Set());
-  const previousPropertiesRef = useRef<Property[]>([]);
-  const markersProcessedRef = useRef(false);
-  
-  // Update marker z-index when active marker changes
-  const updateMarkerZIndex = (propertyId: number | null) => {
-    Object.entries(markersRef.current).forEach(([id, marker]) => {
-      const markerEl = marker.getElement();
-      markerEl.style.zIndex = '1';
-    });
+  const [initialBoundsSet, setInitialBoundsSet] = useState(false);
 
-    if (propertyId !== null && markersRef.current[propertyId]) {
-      const activeMarkerEl = markersRef.current[propertyId].getElement();
-      activeMarkerEl.style.zIndex = '3';
+  // Function to check if all properties have been processed
+  const hasProcessedAllProperties = () => {
+    return properties.every(property => processedPropertiesRef.current.has(property.id));
+  };
+
+  // Function to update the z-index of a marker
+  const updateMarkerZIndex = (propertyId: number) => {
+    if (markersRef.current && markersRef.current[propertyId]) {
+      // Reset all markers to default z-index
+      Object.values(markersRef.current).forEach(marker => {
+        const element = marker.getElement();
+        element.style.zIndex = '1';
+      });
+
+      // Bring the selected marker to the front
+      const selectedMarker = markersRef.current[propertyId];
+      const element = selectedMarker.getElement();
+      element.style.zIndex = '2';
     }
   };
 
-  // Clear and reset markers when properties list changes
-  useEffect(() => {
-    // Only process if properties list has meaningfully changed
-    const currentPropertyIds = new Set(propertiesWithOwners.map(p => p.id));
-    const previousPropertyIds = new Set(previousPropertiesRef.current.map(p => p.id));
-    
-    // Check if property sets are different by comparing IDs
-    let isDifferentSet = false;
-    
-    // Check if the length is different
-    if (currentPropertyIds.size !== previousPropertyIds.size) {
-      isDifferentSet = true;
-    } else {
-      // Check if any property IDs are different
-      for (const id of currentPropertyIds) {
-        if (!previousPropertyIds.has(id)) {
-          isDifferentSet = true;
-          break;
-        }
+  // Function to clear unused markers
+  const clearUnusedMarkers = () => {
+    Object.keys(markersRef.current).forEach(key => {
+      const propertyId = parseInt(key);
+      if (!properties.find(property => property.id === propertyId)) {
+        markersRef.current[propertyId].remove();
+        delete markersRef.current[propertyId];
+        processedPropertiesRef.current.delete(propertyId);
       }
-    }
-    
-    // Only reset if we have a new search result
-    if (isDifferentSet) {
-      console.log('Property set changed, resetting markers');
-      
-      // Clean up existing markers
-      Object.keys(markersRef.current).forEach(id => {
-        markersRef.current[parseInt(id)].remove();
-        delete markersRef.current[parseInt(id)];
-      });
-      
-      // Clear all marker tracking
-      processedPropertiesRef.current = new Set();
-      markersProcessedRef.current = false;
-      
-      // Store current properties for next comparison
-      previousPropertiesRef.current = [...propertiesWithOwners];
-      
-      // Reset bounds flag to allow fitting to new property set
-      setInitialBoundsSet(false);
-    }
-  }, [propertiesWithOwners]);
+    });
+  };
 
-  // Only create markers once when properties and map are ready
+  // Function to create a marker for a property
+  const createMarkerForProperty = (property: Property, bounds: mapboxgl.LngLatBounds) => {
+    if (
+      !property.location?.longitude ||
+      !property.location?.latitude ||
+      isNaN(property.location.longitude) ||
+      isNaN(property.location.latitude)
+    ) {
+      return;
+    }
+
+    const el = document.createElement('div');
+    el.className = 'marker-container';
+    el.innerHTML = `
+      <div class="marker-icon">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="17" cy="17" r="17" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="marker-price">${property.price}</div>
+    `;
+
+    // Add specific class based on listing type
+    let markerTypeClass = 'default-marker';
+    switch (property.listingType) {
+      case 'sale':
+        markerTypeClass = 'sale-marker';
+        break;
+      case 'rent':
+        markerTypeClass = 'rent-marker';
+        break;
+      case 'construction':
+        markerTypeClass = 'construction-marker';
+        break;
+      case 'commercial':
+        markerTypeClass = 'commercial-marker';
+        break;
+      case 'vacation':
+        markerTypeClass = 'vacation-marker';
+        break;
+      default:
+        break;
+    }
+
+    // Add premium class if isPremium is true
+    if (property.isPremium) {
+      markerTypeClass = 'premium-marker';
+    }
+
+    el.className = `marker-container ${markerTypeClass}`;
+
+    const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+      .setLngLat([property.location.longitude, property.location.latitude])
+      .addTo(map.current!);
+
+    // Store the marker in the markersRef
+    markersRef.current[property.id] = marker;
+
+    // Extend bounds to include this marker's coordinates
+    bounds.extend([property.location.longitude, property.location.latitude]);
+
+    // Add click event to show popup
+    el.addEventListener('click', () => {
+      showPropertyPopup(property, marker);
+      setActiveMarkerId(property.id);
+      updateMarkerZIndex(property.id);
+    });
+  };
+
+  // Process properties and create markers
   useEffect(() => {
-    if (!map.current || !mapLoaded || loading) return;
-    if (propertiesWithOwners.length === 0) return;
-    if (markersProcessedRef.current) return; // Skip if markers already processed
+    if (!map.current || !mapLoaded || loading || !properties.length) return;
+
+    // Don't recreate markers if they've already been processed for these properties
+    if (hasProcessedAllProperties()) {
+      console.log("All properties already have markers, skipping");
+      return;
+    }
+
+    console.log(`Creating markers for ${properties.length} properties`);
     
-    console.log('Creating markers for properties:', propertiesWithOwners.length);
-    
+    // Clear any existing markers if we've received a new properties array
+    clearUnusedMarkers();
+
+    // Track the bounds of all markers to fit the map view
     const bounds = new mapboxgl.LngLatBounds();
     let propertiesWithCoords = 0;
-    
-    // Process each property and create markers (only once)
-    propertiesWithOwners.forEach(property => {
-      // Skip properties without proper coordinates
-      if (typeof property.latitude !== 'number' || typeof property.longitude !== 'number') {
-        console.warn(`No valid coordinates for property ${property.id}`);
-        return;
-      }
-      
-      // Check if this property is already processed
+
+    // Create markers for properties that don't already have them
+    properties.forEach(property => {
       if (processedPropertiesRef.current.has(property.id)) {
-        // Still include in bounds calculation
-        bounds.extend([property.longitude, property.latitude]);
-        propertiesWithCoords++;
+        // This property already has a marker
+        if (
+          property.location?.longitude && 
+          property.location?.latitude && 
+          !isNaN(property.location.longitude) && 
+          !isNaN(property.location.latitude)
+        ) {
+          // Add to bounds calculation for existing markers too
+          bounds.extend([property.location.longitude, property.location.latitude]);
+          propertiesWithCoords++;
+        }
         return;
       }
-      
-      // Create marker coordinates (longitude first, then latitude for mapbox)
-      const lngLat: [number, number] = [property.longitude, property.latitude];
-      
-      // Include in bounds calculation
-      bounds.extend(lngLat);
-      propertiesWithCoords++;
-      
-      // Create the marker element
-      const markerEl = document.createElement('div');
-      markerEl.className = 'custom-marker-container';
-      
-      // Set up click handler
-      const handleMarkerClick = () => {
-        setActiveMarkerId(property.id);
-        showPropertyPopup(property, lngLat);
-      };
 
-      // Render React component into marker element
-      const root = createRoot(markerEl);
-      root.render(
-        PropertyMarker({
-          price: property.price,
-          isPremium: property.isPremium,
-          listingType: property.listing_type || 'sale',
-          onClick: handleMarkerClick
-        })
-      );
+      createMarkerForProperty(property, bounds);
       
-      console.log(`Creating marker for property ${property.id} at [${lngLat[0]}, ${lngLat[1]}]`);
-      
-      // Create and add marker to map
-      const marker = new mapboxgl.Marker({
-        element: markerEl,
-        anchor: 'bottom',
-        offset: [0, 0],
-        clickTolerance: 10
-      })
-        .setLngLat(lngLat)
-        .addTo(map.current!);
-
-      // Store reference to marker
-      markersRef.current[property.id] = marker;
-      
-      // Mark as processed
+      // Mark this property as processed
       processedPropertiesRef.current.add(property.id);
     });
 
@@ -155,7 +172,7 @@ export function usePropertyMarkers(
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
       // Use a consistent padding to ensure all markers are visible
       map.current.fitBounds(bounds, {
-        padding: { top: 70, bottom: 70, left: 70, right: 70 },
+        padding: { top: 80, bottom: 80, left: 80, right: 80 },
         maxZoom: 14, // Lower max zoom to show more context
         bearing: 0,
         pitch: 0, 
@@ -164,11 +181,18 @@ export function usePropertyMarkers(
       });
       setInitialBoundsSet(true);
     }
-    
-    // Mark all markers as processed to prevent recreation
-    markersProcessedRef.current = true;
-    
-  }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup]);
+  }, [properties, mapLoaded, loading, map, markersRef, showPropertyPopup]);
 
-  return { activeMarkerId, setActiveMarkerId, updateMarkerZIndex };
+  // Effect to handle active marker changes
+  useEffect(() => {
+    if (activeMarkerId) {
+      updateMarkerZIndex(activeMarkerId);
+    }
+  }, [activeMarkerId, updateMarkerZIndex]);
+
+  return {
+    activeMarkerId,
+    setActiveMarkerId,
+    updateMarkerZIndex
+  };
 }

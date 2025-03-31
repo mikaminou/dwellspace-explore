@@ -23,8 +23,8 @@ export function SearchResults() {
   }, [showMap]);
 
   return (
-    <div className={`container mx-auto px-4 py-8 transition-all duration-300 ${showMap ? 'lg:pr-4' : ''}`}>
-      <div className="mb-6 animate-fade-in">
+    <div className={`container mx-auto px-4 py-6 transition-all duration-300 ${showMap ? 'lg:pr-6' : ''}`}>
+      <div className="mb-5 animate-fade-in">
         <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl font-medium">
             {selectedCities.length > 0 && 
