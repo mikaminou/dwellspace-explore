@@ -14,6 +14,9 @@ const libraries: Libraries = ["places", "geometry", "marker"];
 // Your Google Maps API key - in production, this should be in environment variables
 const GOOGLE_MAPS_API_KEY = 'AIzaSyC3Csmx98gaGxSFzZ2aimsRIqalt4SuTMs'; // Replace with your actual API key
 
+// The Map ID required for Advanced Markers
+const MAP_ID = '8f799b9ef9c87a62'; // This is a placeholder Map ID - replace with your actual Map ID
+
 // Add a warning about Google Maps billing
 console.warn('⚠️ Important: The Google Maps API key requires billing to be enabled and proper API restrictions in the Google Cloud Console. Without billing enabled and proper restrictions, the map may display errors, watermarks, or "For development purposes only" messages.');
 
@@ -32,7 +35,7 @@ export function useMapSetup() {
     // Add version to ensure compatibility
     version: "weekly",
     // Add the Map ID parameter for advanced markers - this is important
-    mapIds: ['YOUR_MAP_ID_HERE'] 
+    mapIds: [MAP_ID]
   });
 
   // Initialize map when the API is loaded
@@ -48,6 +51,8 @@ export function useMapSetup() {
         zoom: 12,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         ...defaultMapOptions,
+        // Add the map ID here as well to ensure it's properly used
+        mapId: MAP_ID,
         // Additional map settings for a more polished look
         tilt: 0,
         mapTypeControlOptions: {

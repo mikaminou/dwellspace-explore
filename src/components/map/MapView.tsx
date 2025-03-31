@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSearch } from '@/contexts/search/SearchContext';
 import { useLanguage } from '@/contexts/language/LanguageContext';
@@ -8,7 +9,7 @@ import { usePropertyPopup } from './usePropertyPopup';
 import { usePropertyMarkers } from './usePropertyMarkers';
 import { useCityUpdate } from './useCityUpdate';
 import { useTheme } from 'next-themes';
-import { ShieldAlert, Info, Layers, MapPin, Map } from 'lucide-react';
+import { ShieldAlert, Info, Layers, MapPin, Map, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Tooltip, 
@@ -16,6 +17,7 @@ import {
   TooltipProvider, 
   TooltipTrigger 
 } from '@/components/ui/tooltip';
+import { toast } from 'sonner';
 
 export function MapView() {
   const { mapContainer, map, markersRef, mapLoaded, isLoaded, loadError, mapError } = useMapSetup();
@@ -23,6 +25,31 @@ export function MapView() {
   const { t } = useLanguage();
   const { theme } = useTheme();
   const [mapType, setMapType] = useState<string>('roadmap');
+  const [advancedMarkersSupported, setAdvancedMarkersSupported] = useState<boolean | null>(null);
+  
+  // Check if Advanced Markers are supported
+  useEffect(() => {
+    if (isLoaded && window.google) {
+      const isAdvancedMarkersSupported = 
+        window.google.maps.marker && 
+        window.google.maps.marker.AdvancedMarkerElement;
+      
+      setAdvancedMarkersSupported(!!isAdvancedMarkersSupported);
+      
+      if (!isAdvancedMarkersSupported) {
+        console.warn('Advanced Markers are not supported. This could be due to a missing Map ID or browser compatibility issues.');
+        toast.warning(
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium">Advanced Markers not available</p>
+              <p className="text-sm text-muted-foreground">Using fallback markers instead. For the best experience, ensure your Map ID is configured correctly.</p>
+            </div>
+          </div>
+        );
+      }
+    }
+  }, [isLoaded]);
   
   // Use our hooks in the correct order to avoid circular references
   const { propertiesWithOwners } = usePropertyOwners(properties);
@@ -85,7 +112,7 @@ export function MapView() {
               <li>Valid API key with proper restrictions</li>
               <li>Billing enabled in Google Cloud Console</li>
               <li>Maps JavaScript API enabled</li>
-              <li>For advanced markers: Maps ID configured</li>
+              <li>For advanced markers: <strong>Maps ID configured</strong> in Google Cloud Console</li>
             </ul>
           </div>
           <Button 
@@ -116,6 +143,7 @@ export function MapView() {
             <ul className="list-disc ml-5 mt-1 text-xs">
               <li>"For development purposes only" watermark: Billing not enabled</li>
               <li>"This page can't load Google Maps correctly": API key restrictions may be too strict</li>
+              <li>"The map is initialized without a valid Map ID": Create a Map ID in Google Cloud Console</li>
               <li>Ensure the following APIs are enabled in Google Cloud Console:</li>
               <li className="ml-3">- Maps JavaScript API</li>
               <li className="ml-3">- Places API</li>
@@ -145,6 +173,15 @@ export function MapView() {
       {/* Map controls - Only render if Google Maps is loaded */}
       {isLoaded && (
         <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
+          {advancedMarkersSupported === false && (
+            <div className="bg-amber-50 text-amber-800 text-xs p-2 rounded-md shadow-sm border border-amber-200 mb-2">
+              <div className="flex items-center gap-1.5">
+                <AlertTriangle className="h-3 w-3 text-amber-500" />
+                <span>Using basic markers</span>
+              </div>
+            </div>
+          )}
+          
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
