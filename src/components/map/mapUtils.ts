@@ -63,7 +63,7 @@ export function getListingTypeButtonClass(type: string = 'sale'): string {
   }
 }
 
-// Google Maps specific utility functions
+// Google Maps specific utility functions - updated for a more realistic look
 export const defaultMapOptions = {
   disableDefaultUI: false,
   zoomControl: true,
@@ -73,59 +73,112 @@ export const defaultMapOptions = {
   clickableIcons: false,
   styles: [
     {
-      featureType: "water",
-      elementType: "geometry",
-      stylers: [{ color: "#e9e9e9" }, { lightness: 17 }]
-    },
-    {
+      // Landscape - more natural colors
       featureType: "landscape",
       elementType: "geometry",
-      stylers: [{ color: "#f5f5f5" }, { lightness: 20 }]
+      stylers: [
+        { color: "#f2f2f0" }  // Slight off-white for land
+      ]
     },
     {
+      // Water with more natural blue
+      featureType: "water",
+      elementType: "geometry",
+      stylers: [
+        { color: "#c8d7e3" }  // Light blue-gray for water
+      ]
+    },
+    {
+      // Roads with better visibility
+      featureType: "road",
+      elementType: "geometry.fill",
+      stylers: [
+        { color: "#ffffff" }  // White roads
+      ]
+    },
+    {
+      // Road outlines for better definition
+      featureType: "road",
+      elementType: "geometry.stroke",
+      stylers: [
+        { color: "#d9d9d9" }  // Light gray for road borders
+      ]
+    },
+    {
+      // Major highways
       featureType: "road.highway",
       elementType: "geometry.fill",
-      stylers: [{ color: "#ffffff" }, { lightness: 17 }]
+      stylers: [
+        { color: "#f5cc88" }  // Light amber for highways
+      ]
     },
     {
+      // Highway strokes
       featureType: "road.highway",
       elementType: "geometry.stroke",
-      stylers: [{ color: "#ffffff" }, { lightness: 29 }, { weight: 0.2 }]
+      stylers: [
+        { color: "#e6b366" }  // Darker amber for highway borders
+      ]
     },
     {
-      featureType: "road.arterial",
-      elementType: "geometry",
-      stylers: [{ color: "#ffffff" }, { lightness: 18 }]
-    },
-    {
-      featureType: "road.local",
-      elementType: "geometry",
-      stylers: [{ color: "#ffffff" }, { lightness: 16 }]
-    },
-    {
-      featureType: "poi",
-      elementType: "geometry",
-      stylers: [{ color: "#f5f5f5" }, { lightness: 21 }]
-    },
-    {
+      // Parks and green areas
       featureType: "poi.park",
       elementType: "geometry",
-      stylers: [{ color: "#dedede" }, { lightness: 21 }]
+      stylers: [
+        { color: "#cde6c2" }  // Light green for parks
+      ]
     },
     {
-      featureType: "administrative",
-      elementType: "labels.text.stroke",
-      stylers: [{ color: "#ffffff" }, { lightness: 16 }]
-    },
-    {
-      featureType: "administrative",
+      // All text labels 
+      featureType: "all",
       elementType: "labels.text.fill",
-      stylers: [{ color: "#797979" }]
+      stylers: [
+        { color: "#403E43" }  // Darker text for better readability
+      ]
     },
     {
-      featureType: "transit",
+      // Transit lines
+      featureType: "transit.line",
+      stylers: [
+        { color: "#9F9EA1" }  // Medium gray for transit lines
+      ]
+    },
+    {
+      // POI (Points of Interest) styling
+      featureType: "poi",
       elementType: "all",
-      stylers: [{ visibility: "simplified" }]
+      stylers: [
+        { visibility: "simplified" },
+        { saturation: -30 }
+      ]
+    },
+    {
+      // Administrative borders
+      featureType: "administrative.province",
+      elementType: "geometry.stroke",
+      stylers: [
+        { color: "#8A898C" },  // Medium gray for borders
+        { weight: 1 }
+      ]
+    },
+    {
+      // Country borders
+      featureType: "administrative.country",
+      elementType: "geometry.stroke",
+      stylers: [
+        { color: "#555555" },  // Darker gray for country borders
+        { weight: 1.2 }
+      ]
+    },
+    {
+      // Terrain/topography hints
+      featureType: "landscape.natural",
+      elementType: "geometry",
+      stylers: [
+        { color: "#eae8e4" },  // Natural terrain color
+        { saturation: -15 },
+        { lightness: 0 }
+      ]
     }
   ]
 };

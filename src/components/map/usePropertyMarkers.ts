@@ -49,65 +49,135 @@ export function usePropertyMarkers(
     const bounds = new window.google.maps.LatLngBounds();
     let propertiesWithCoords = 0;
     
-    // Add custom map styling for a cleaner look that matches app theme
+    // Add more realistic map styling with terrain features and natural colors
     if (map.current) {
       try {
         map.current.setOptions({
           styles: [
             {
-              featureType: "all",
-              elementType: "labels.text.fill",
-              stylers: [{ color: "#2C3E50" }]  // Using the secondary color
-            },
-            {
-              featureType: "all",
-              elementType: "labels.text.stroke",
-              stylers: [{ color: "#FFFFFF" }, { weight: 2 }]
-            },
-            {
-              featureType: "administrative",
-              elementType: "geometry.fill",
-              stylers: [{ visibility: "on" }]
-            },
-            {
-              featureType: "administrative",
-              elementType: "labels",
-              stylers: [{ visibility: "simplified" }]
-            },
-            {
+              // Land coloring - softer than pure white
               featureType: "landscape",
-              elementType: "geometry.fill",
-              stylers: [{ color: "#F8F9FA" }]  // Using the background color
+              elementType: "geometry",
+              stylers: [
+                { color: "#f2f2f0" }  // Slight off-white for land
+              ]
             },
             {
-              featureType: "poi",
-              elementType: "all",
-              stylers: [{ visibility: "off" }]
+              // Water features with a more realistic blue
+              featureType: "water",
+              elementType: "geometry",
+              stylers: [
+                { color: "#c8d7e3" }  // Light blue-gray for water
+              ]
             },
             {
+              // Roads with better visibility
               featureType: "road",
               elementType: "geometry.fill",
-              stylers: [{ color: "#FFFFFF" }]  // White roads
+              stylers: [
+                { color: "#ffffff" }  // White roads
+              ]
             },
             {
+              // Road outlines for better definition
               featureType: "road",
               elementType: "geometry.stroke",
-              stylers: [{ color: "#E6E6E6" }]  // Light gray for road borders
+              stylers: [
+                { color: "#d9d9d9" }  // Light gray for road borders
+              ]
             },
             {
-              featureType: "road",
-              elementType: "labels",
-              stylers: [{ visibility: "simplified" }]
-            },
-            {
-              featureType: "transit",
-              elementType: "all",
-              stylers: [{ visibility: "off" }]
-            },
-            {
-              featureType: "water",
+              // Major highways
+              featureType: "road.highway",
               elementType: "geometry.fill",
-              stylers: [{ color: "#E9F1F7" }]  // Light blue for water
+              stylers: [
+                { color: "#f5cc88" }  // Light amber for highways
+              ]
+            },
+            {
+              // Highway strokes
+              featureType: "road.highway",
+              elementType: "geometry.stroke",
+              stylers: [
+                { color: "#e6b366" }  // Darker amber for highway borders
+              ]
+            },
+            {
+              // Parks and green areas
+              featureType: "poi.park",
+              elementType: "geometry",
+              stylers: [
+                { color: "#cde6c2" }  // Light green for parks
+              ]
+            },
+            {
+              // Building footprints
+              featureType: "administrative.locality",
+              elementType: "all",
+              stylers: [
+                { saturation: 7 },
+                { lightness: 19 },
+                { visibility: "on" }
+              ]
+            },
+            {
+              // Text labels for cities and locations
+              featureType: "all",
+              elementType: "labels.text.fill",
+              stylers: [
+                { color: "#403E43" }  // Darker text for better readability
+              ]
+            },
+            {
+              // Transit lines
+              featureType: "transit.line",
+              stylers: [
+                { color: "#9F9EA1" }  // Medium gray for transit lines
+              ]
+            },
+            {
+              // Transit stations
+              featureType: "transit.station",
+              stylers: [
+                { saturation: -22 }
+              ]
+            },
+            {
+              // POI (Points of Interest) styling
+              featureType: "poi",
+              elementType: "all",
+              stylers: [
+                { visibility: "simplified" },
+                { saturation: -30 }
+              ]
+            },
+            {
+              // Administrative borders
+              featureType: "administrative.province",
+              elementType: "geometry.stroke",
+              stylers: [
+                { color: "#8A898C" },  // Medium gray for borders
+                { weight: 1 }
+              ]
+            },
+            {
+              // Country borders
+              featureType: "administrative.country",
+              elementType: "geometry.stroke",
+              stylers: [
+                { color: "#555555" },  // Darker gray for country borders
+                { weight: 1.2 }
+              ]
+            },
+            {
+              // Terrain/topography hints
+              featureType: "landscape.natural",
+              elementType: "geometry",
+              stylers: [
+                { color: "#eae8e4" },  // Natural terrain color
+                { saturation: -15 },
+                { lightness: 0 }
+              ]
             }
           ]
         });

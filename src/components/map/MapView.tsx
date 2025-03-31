@@ -9,8 +9,9 @@ import { usePropertyPopup } from './usePropertyPopup';
 import { usePropertyMarkers } from './usePropertyMarkers';
 import { useCityUpdate } from './useCityUpdate';
 import { useTheme } from 'next-themes';
-import { ShieldAlert, Info, Layers, MapPin, Sun, Moon } from 'lucide-react';
+import { ShieldAlert, Info, Layers, MapPin, Sun, Moon, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
 
 export function MapView() {
   const { mapContainer, map, markersRef, mapLoaded, isLoaded, loadError, mapError } = useMapSetup();
@@ -136,26 +137,43 @@ export function MapView() {
       {/* Map controls - Only render if Google Maps is loaded */}
       {isLoaded && (
         <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            className="bg-white hover:bg-gray-100 text-gray-700 shadow-md"
-            onClick={toggleMapType}
-          >
-            {mapType === 'roadmap' ? (
-              <Layers className="h-4 w-4 mr-2" />
-            ) : (
-              <MapPin className="h-4 w-4 mr-2" />
-            )}
-            {mapType === 'roadmap' ? 'Satellite' : 'Map'}
-          </Button>
+          <Tooltip content={mapType === 'roadmap' ? 'Switch to satellite view' : 'Switch to map view'}>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="bg-white/90 hover:bg-white text-gray-700 shadow-md backdrop-blur-sm"
+              onClick={toggleMapType}
+            >
+              {mapType === 'roadmap' ? (
+                <Layers className="h-4 w-4 mr-2" />
+              ) : (
+                <Map className="h-4 w-4 mr-2" />
+              )}
+              {mapType === 'roadmap' ? 'Satellite' : 'Map'}
+            </Button>
+          </Tooltip>
+          
+          <Tooltip content={`${theme === 'dark' ? 'Light' : 'Dark'} theme`}>
+            <Button
+              variant="outline"
+              size="icon"
+              className="bg-white/90 hover:bg-white text-gray-700 shadow-md backdrop-blur-sm h-9 w-9"
+              onClick={() => {}}
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
+          </Tooltip>
         </div>
       )}
       
       {/* Properties counter - Only render if Google Maps is loaded and we have properties */}
       {isLoaded && propertiesWithOwners.length > 0 && (
         <div className="absolute bottom-4 left-4 z-10">
-          <div className="bg-white px-3 py-2 rounded-md shadow-md text-xs font-medium text-gray-600 flex items-center">
+          <div className="bg-white/90 backdrop-blur-sm px-3 py-2 rounded-md shadow-md text-xs font-medium text-gray-600 flex items-center">
             <MapPin className="h-3 w-3 mr-1 text-primary" />
             {propertiesWithOwners.length} {propertiesWithOwners.length === 1 ? 'Property' : 'Properties'}
           </div>

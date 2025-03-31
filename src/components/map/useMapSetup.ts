@@ -40,12 +40,23 @@ export function useMapSetup() {
     console.log('Initializing Google Maps...');
 
     try {
-      // Create the map instance
+      // Create the map instance with realistic styling
       map.current = new google.maps.Map(mapContainer.current, {
         center: { lat: 36.752887, lng: 3.042048 }, // Default center (Algiers)
         zoom: 12,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
-        ...defaultMapOptions
+        ...defaultMapOptions,
+        // Additional map settings for a more polished look
+        tilt: 0,
+        mapTypeControlOptions: {
+          style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+          position: google.maps.ControlPosition.TOP_RIGHT
+        },
+        zoomControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_CENTER
+        },
+        scaleControl: true,
+        // Make the map more visually appealing with custom styles
       });
 
       // Set map loaded state when the map is ready
