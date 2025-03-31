@@ -1,4 +1,3 @@
-
 import { Property } from "@/api/properties";
 import { formatPrice } from './mapUtils';
 import { Home, Building, Construction, Castle } from 'lucide-react';
