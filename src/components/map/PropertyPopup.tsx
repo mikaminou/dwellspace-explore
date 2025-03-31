@@ -160,8 +160,8 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
                 aria-label="Get directions"
                 data-action="route"
                 data-property-id="${property.id}"
-                data-lat="${property.latitude || property.lat || ''}"
-                data-lng="${property.longitude || property.lng || ''}"
+                data-lat="${property.latitude || ''}"
+                data-lng="${property.longitude || ''}"
               >
                 ${getRouteIcon()}
               </button>
