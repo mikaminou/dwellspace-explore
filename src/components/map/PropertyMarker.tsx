@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { formatPrice } from './mapUtils';
-import { MapPin, Home, Building, Construction, Castle } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 
 interface PropertyMarkerProps {
   price: string;
@@ -36,11 +36,6 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
     }
   };
 
-  // Get the appropriate icon based on listing type
-  const Icon = () => {
-    return <MapPin size={18} className="text-white" />;
-  };
-
   return (
     <div 
       className="custom-marker flex items-center justify-center cursor-pointer z-10 transition-transform hover:scale-110"
@@ -48,7 +43,7 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
     >
       <div className={`marker-container ${getMarkerClass()}`}>
         <div className="marker-icon">
-          <Icon />
+          <MapPin size={18} className="text-white" />
         </div>
         <div className="marker-price">
           {formatPrice(price)}
