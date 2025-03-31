@@ -12,11 +12,11 @@ interface PropertyGridProps {
   loading: boolean;
   handleReset: () => void;
   selectedCities: string[];
+  showMap: boolean; // Add this prop to fix the type error
 }
 
-export function PropertyGrid({ properties, loading, handleReset, selectedCities }: PropertyGridProps) {
+export function PropertyGrid({ properties, loading, handleReset, selectedCities, showMap }: PropertyGridProps) {
   const { t } = useLanguage();
-  const { showMap } = useSearch();
   const [isTransitioning, setIsTransitioning] = useState(false);
   // Add a local state to track the current properties for rendering
   const [displayedProperties, setDisplayedProperties] = useState<Property[]>(properties);
