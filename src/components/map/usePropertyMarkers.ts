@@ -3,6 +3,9 @@ import { useRef, useState, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 import { formatPrice } from './mapUtils';
+import ReactDOM from 'react-dom';
+import { PropertyMarker } from './PropertyMarker';
+import React from 'react';
 
 interface UsePropertyMarkersProps {
   map: React.MutableRefObject<mapboxgl.Map | null>;
@@ -22,7 +25,6 @@ export function usePropertyMarkers(
   showPropertyPopup: (property: Property, marker: mapboxgl.Marker) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
-  const [hoveredMarkerId, setHoveredMarkerId] = useState<number | null>(null);
   const processedPropertiesRef = useRef<Set<number>>(new Set());
   const [initialBoundsSet, setInitialBoundsSet] = useState(false);
 
@@ -51,25 +53,6 @@ export function usePropertyMarkers(
     }
   };
 
-  const updateHoveredMarker = (propertyId: number | null) => {
-    if (markersRef.current) {
-      Object.entries(markersRef.current).forEach(([id, marker]) => {
-        const element = marker.getElement();
-        if (Number(id) === propertyId) {
-          element.classList.add('marker-hovered');
-          element.style.zIndex = '3'; // Higher than active
-        } else {
-          element.classList.remove('marker-hovered');
-          if (Number(id) === activeMarkerId) {
-            element.style.zIndex = '2'; // Active but not hovered
-          } else {
-            element.style.zIndex = '1'; // Normal
-          }
-        }
-      });
-    }
-  };
-
   const clearUnusedMarkers = () => {
     Object.keys(markersRef.current).forEach(key => {
       const propertyId = parseInt(key);
@@ -92,54 +75,32 @@ export function usePropertyMarkers(
     }
 
     const el = document.createElement('div');
-    el.className = 'marker-container';
-    
-    el.innerHTML = `
-      <div class="marker-bubble">
-        <span class="marker-price">${formatPrice(property.price)}</span>
-        <div class="marker-pointer"></div>
-      </div>
-    `;
-
-    let markerTypeClass = 'default-marker';
-    switch (property.listingType || property.listing_type) {
-      case 'rent':
-        markerTypeClass = 'rent-marker';
-        break;
-      case 'construction':
-        markerTypeClass = 'construction-marker';
-        break;
-      case 'commercial':
-        markerTypeClass = 'commercial-marker';
-        break;
-      case 'vacation':
-        markerTypeClass = 'vacation-marker';
-        break;
-      case 'sale':
-      default:
-        markerTypeClass = 'sale-marker';
-        break;
-    }
-
-    if (property.isPremium) {
-      markerTypeClass = 'premium-marker';
-    }
-
-    el.className = `marker-container ${markerTypeClass}`;
+    el.className = 'mapbox-marker-container';
 
     const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
       .setLngLat([Number(property.longitude), Number(property.latitude)])
       .addTo(map.current!);
 
+    // Render React component into the marker element
+    const markerNode = document.createElement('div');
+    el.appendChild(markerNode);
+
+    ReactDOM.render(
+      React.createElement(PropertyMarker, {
+        price: property.price,
+        isPremium: property.isPremium,
+        listingType: property.listingType || property.listing_type,
+        onClick: () => {
+          showPropertyPopup(property, marker);
+          setActiveMarkerId(property.id);
+          updateMarkerZIndex(property.id);
+        }
+      }),
+      markerNode
+    );
+
     markersRef.current[property.id] = marker;
-
     bounds.extend([Number(property.longitude), Number(property.latitude)]);
-
-    el.addEventListener('click', () => {
-      showPropertyPopup(property, marker);
-      setActiveMarkerId(property.id);
-      updateMarkerZIndex(property.id);
-    });
   };
 
   useEffect(() => {
@@ -196,15 +157,9 @@ export function usePropertyMarkers(
     }
   }, [activeMarkerId]);
 
-  useEffect(() => {
-    updateHoveredMarker(hoveredMarkerId);
-  }, [hoveredMarkerId]);
-
   return {
     activeMarkerId,
     setActiveMarkerId,
-    hoveredMarkerId,
-    setHoveredMarkerId,
     updateMarkerZIndex
   };
 }

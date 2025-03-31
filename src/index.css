@@ -278,20 +278,25 @@ html[dir="rtl"] .text-right {
   left: auto;
 }
 
-/* Custom marker styles - FIXED marker design */
+/* Custom marker styles */
 .mapboxgl-marker {
   cursor: pointer !important;
   z-index: 1;
-  transition: transform 0.3s ease;
 }
 
 .mapboxgl-marker:hover {
   z-index: 2;
 }
 
-.custom-marker {
+.mapboxgl-marker .custom-marker {
   cursor: pointer !important;
+  z-index: 1;
   transform-origin: center;
+  position: relative;
+}
+
+.mapboxgl-marker:hover .custom-marker {
+  z-index: 2;
 }
 
 /* Modern tooltip-style marker design */
@@ -299,16 +304,15 @@ html[dir="rtl"] .text-right {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   background-color: white;
   border-radius: 8px;
   padding: 6px 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
-  font-size: 12px;
   font-weight: 600;
   transition: all 0.3s ease;
   min-width: 80px;
-  justify-content: center;
   transform: translateY(-50%);
 }
 
@@ -335,22 +339,21 @@ html[dir="rtl"] .text-right {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Hovered marker effect */
-.marker-hovered .marker-bubble {
-  transform: translateY(-60%) scale(1.2);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  background-color: #f8f8f8;
-  border: 2px solid #27AE60;
-  z-index: 10;
-}
-
-.marker-hovered .marker-pointer {
-  background-color: #f8f8f8;
-  box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.1);
-}
-
-.marker-hovered {
-  z-index: 3 !important;
+.marker-icon {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid white;
+  z-index: 2;
 }
 
 /* Property badge styles for PropertyDetails */
