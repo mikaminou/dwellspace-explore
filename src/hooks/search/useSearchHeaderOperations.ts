@@ -24,7 +24,8 @@ export function useSearchHeaderOperations({
   setShowFilters,
   maxPriceLimit,
   maxLivingAreaLimit,
-  cities
+  cities,
+  setFiltersAppliedState, // Add this parameter
 }) {
   const { t } = useLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -109,6 +110,7 @@ export function useSearchHeaderOperations({
       
       // Mark filters as applied
       filtersApplied.current = true;
+      setFiltersAppliedState(true);
       
       // Show filters if we've applied any
       if (!showFilters) {
@@ -171,11 +173,16 @@ export function useSearchHeaderOperations({
       
       // Mark filters as applied
       filtersApplied.current = true;
+      setFiltersAppliedState(true);
       
       // Show filters if we've applied any
       if (!showFilters) {
         setShowFilters(true);
       }
+    } else if (searchTerm.trim()) {
+      // If there's a search term but no extracted filters, still mark as applied
+      filtersApplied.current = true;
+      setFiltersAppliedState(true);
     }
     
     handleSearch();
@@ -205,6 +212,7 @@ export function useSearchHeaderOperations({
     
     // Make sure filters are still considered applied (to show results)
     filtersApplied.current = true;
+    setFiltersAppliedState(true);
     
     // Close the suggestions if they're open
     setShowSuggestions(false);

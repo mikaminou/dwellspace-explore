@@ -8,7 +8,6 @@ import { SearchButton } from "./SearchButton";
 import { useSearchHeaderOperations } from "@/hooks/search/useSearchHeaderOperations";
 import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function SearchHeader() {
   const { 
@@ -35,7 +34,9 @@ export function SearchHeader() {
     cities,
     // Add map state from context
     showMap,
-    setShowMap
+    setShowMap,
+    // Add filters applied state
+    setFiltersAppliedState
   } = useSearch();
 
   const {
@@ -68,7 +69,8 @@ export function SearchHeader() {
     setShowFilters,
     maxPriceLimit,
     maxLivingAreaLimit,
-    cities
+    cities,
+    setFiltersAppliedState
   });
 
   return (

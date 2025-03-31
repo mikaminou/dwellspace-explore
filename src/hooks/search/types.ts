@@ -1,6 +1,6 @@
 
-import { MutableRefObject } from "react";
 import { Property } from "@/api/properties";
+import { MutableRefObject } from "react";
 
 export interface SearchHookResult {
   searchTerm: string;
@@ -39,13 +39,18 @@ export interface SearchHookResult {
   selectedAmenities: string[];
   setSelectedAmenities: (amenities: string[]) => void;
   filtersApplied: MutableRefObject<boolean>;
-  handleSearch: () => void;
+  handleSearch: () => Promise<void>;
   handleReset: () => void;
   getActiveFiltersCount: () => number;
-  handleFilterRemoval: (type: string, value?: string | number) => void;
+  handleFilterRemoval: (type: string, value: string | number) => void;
   initialLoadDone: boolean;
   showMap: boolean;
   setShowMap: (show: boolean) => void;
   hoveredPropertyId: number | null;
   setHoveredPropertyId: (id: number | null) => void;
+  // Add new properties
+  isNewSearch: boolean;
+  setIsNewSearch: (isNew: boolean) => void;
+  filtersAppliedState: boolean;
+  setFiltersAppliedState: (applied: boolean) => void;
 }

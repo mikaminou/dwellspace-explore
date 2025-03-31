@@ -7,11 +7,13 @@ import { SearchResults } from "@/components/search/SearchResults";
 import { SearchProvider } from "@/contexts/search/SearchContext";
 import { MapView } from "@/components/map/MapView";
 import { useSearch } from "@/contexts/search/SearchContext";
+import { useLocation } from "react-router-dom";
 
 // Create a SearchContent component to use context
 function SearchContent() {
-  const { showMap } = useSearch();
+  const { showMap, searchTerm, setFiltersAppliedState } = useSearch();
   const [refreshKey, setRefreshKey] = useState(0);
+  const location = useLocation();
   
   // Force re-layout on route changes to prevent stale UI
   useEffect(() => {
@@ -27,6 +29,17 @@ function SearchContent() {
     
     return () => clearTimeout(timeout);
   }, []);
+
+  // Check for query parameters when the page loads
+  useEffect(() => {
+    if (location.search) {
+      const params = new URLSearchParams(location.search);
+      if (params.get('q') || params.get('propertyType') || params.get('listingType')) {
+        // If we have query parameters, set the filters as applied
+        setFiltersAppliedState(true);
+      }
+    }
+  }, [location.search, setFiltersAppliedState]);
 
   // Force resize when map visibility changes
   useEffect(() => {
