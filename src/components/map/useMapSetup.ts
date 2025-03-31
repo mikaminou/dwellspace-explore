@@ -1,124 +1,86 @@
 
-import { useRef, useState, useCallback, useEffect } from 'react';
-import { useJsApiLoader } from '@react-google-maps/api';
-import { defaultMapOptions } from './mapUtils';
-import { toast } from 'sonner';
+import { useRef, useState, useEffect } from 'react';
+import mapboxgl from 'mapbox-gl';
 
-// Define the Libraries type correctly for Google Maps API
-type Library = "places" | "drawing" | "geometry" | "visualization" | "marker";
-type Libraries = Library[];
-
-// List of libraries to load with Google Maps
-const libraries: Libraries = ["places", "geometry", "marker"];
-
-// Your Google Maps API key - in production, this should be in environment variables
-const GOOGLE_MAPS_API_KEY = 'AIzaSyC3Csmx98gaGxSFzZ2aimsRIqalt4SuTMs'; // Replace with your actual API key
-
-// The Map ID required for Advanced Markers
-const MAP_ID = '7068f1c775679a62'; // This is a placeholder Map ID - replace with your actual Map ID
-
-// Add a warning about Google Maps billing
-console.warn('⚠️ Important: The Google Maps API key requires billing to be enabled and proper API restrictions in the Google Cloud Console. Without billing enabled and proper restrictions, the map may display errors, watermarks, or "For development purposes only" messages.');
+// Default Mapbox token - users should replace this with their own
+mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzdWRtY2UifQ.B_Yp40YHJP7UQeaPdBofaQ';
 
 export function useMapSetup() {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<{ [key: number]: google.maps.marker.AdvancedMarkerElement | google.maps.Marker }>({});
-  const popupRef = useRef<google.maps.InfoWindow | null>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<{ [key: number]: mapboxgl.Marker }>({});
+  const popupRef = useRef<mapboxgl.Popup | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [mapError, setMapError] = useState<string | null>(null);
 
-  // Load the Google Maps JavaScript API
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-    libraries,
-    // Add version to ensure compatibility
-    version: "weekly",
-    // Add the Map ID parameter for advanced markers - this is important
-    mapIds: [MAP_ID]
-  });
-
-  // Initialize map when the API is loaded
-  const initializeMap = useCallback(() => {
+  // Initialize map
+  useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    console.log('Initializing Google Maps...');
+    // Create the map instance
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12', // Updated to latest style
+      center: [3.042048, 36.752887], // Default center (Algiers)
+      zoom: 12,
+      attributionControl: false,
+      pitchWithRotate: true, // Enable pitch with rotate
+      antialias: true, // Enable antialiasing for smoother rendering
+      projection: { name: 'mercator' }, // Use mercator projection for consistency
+      minZoom: 2, // Prevent zooming out too far to maintain visual consistency
+      maxZoom: 18 // Limit maximum zoom to maintain performance
+    });
 
-    try {
-      // Create the map instance with realistic styling
-      map.current = new google.maps.Map(mapContainer.current, {
-        center: { lat: 36.752887, lng: 3.042048 }, // Default center (Algiers)
-        zoom: 12,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        ...defaultMapOptions,
-        // Add the map ID here as well to ensure it's properly used
-        mapId: MAP_ID,
-        // Additional map settings for a more polished look
-        tilt: 0,
-        mapTypeControlOptions: {
-          style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
-          position: google.maps.ControlPosition.TOP_RIGHT
-        },
-        zoomControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_CENTER
-        },
-        scaleControl: true,
-      });
+    // Add navigation controls
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.current.addControl(new mapboxgl.FullscreenControl());
+    map.current.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+      trackUserLocation: true,
+      showAccuracyCircle: true // Show accuracy circle
+    }));
 
-      // Set map loaded state when the map is ready
-      google.maps.event.addListenerOnce(map.current, 'idle', () => {
-        console.log('Google Maps loaded successfully');
-        setMapLoaded(true);
-        setMapError(null);
-      });
+    // Add attribution control in the bottom-right
+    map.current.addControl(new mapboxgl.AttributionControl({
+      customAttribution: 'Property Listings'
+    }), 'bottom-right');
 
-      // Add error handler for authentication errors
-      google.maps.event.addListener(map.current, 'authfailure', () => {
-        console.error('Google Maps authentication failed - check API key and restrictions');
-        setMapError('API key authentication failed. Please check your API key configuration and restrictions in Google Cloud Console.');
-        toast.error('Google Maps failed to load. Please check your API key configuration.');
+    // Set map loaded state when the map is ready
+    map.current.on('load', () => {
+      console.log('Map loaded successfully with Mapbox GL version:', mapboxgl.version);
+      setMapLoaded(true);
+      
+      // Add consistent fog effect to maintain visual style at all zoom levels
+      map.current?.setFog({
+        'color': 'rgb(220, 230, 240)', // Light blue fog color
+        'high-color': 'rgb(36, 92, 223)', // Darker blue for higher areas
+        'horizon-blend': 0.1, // Subtle horizon blend
+        'space-color': 'rgb(11, 11, 25)', // Dark space color
+        'star-intensity': 0.15 // Subtle stars in the background
       });
+    });
 
-      // Handle other map errors 
-      window.addEventListener('error', function(e) {
-        // Check if the error is related to Google Maps
-        if (e.message && (
-          e.message.includes('Google Maps JavaScript API') || 
-          e.message.includes('google is not defined') ||
-          e.message.includes('maps is not defined')
-        )) {
-          console.error('Google Maps error:', e.message);
-          setMapError(`Google Maps error: ${e.message}`);
-          toast.error('Google Maps failed to load properly. Please check your console for details.');
-        }
-      });
-    } catch (error) {
-      console.error('Error initializing Google Maps:', error);
-      setMapError(`Failed to initialize Google Maps: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
+    // Handle map error
+    map.current.on('error', (e) => {
+      console.error('Map error:', e);
+    });
+
+    // Clean up on unmount
+    return () => {
+      if (map.current) {
+        console.log('Cleaning up map instance');
+        map.current.remove();
+        map.current = null;
+      }
+    };
   }, []);
-
-  // Initialize the map when the Google Maps API is loaded
-  useEffect(() => {
-    if (isLoaded && !map.current) {
-      initializeMap();
-    }
-    
-    if (loadError) {
-      console.error('Error loading Google Maps:', loadError);
-      setMapError(`Failed to load Google Maps API: ${loadError.message}`);
-      toast.error('Failed to load Google Maps. Please try again later.');
-    }
-  }, [isLoaded, loadError, initializeMap]);
 
   return {
     mapContainer,
     map,
     markersRef,
     popupRef,
-    mapLoaded,
-    isLoaded,
-    loadError,
-    mapError
+    mapLoaded
   };
 }

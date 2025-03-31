@@ -1,337 +1,127 @@
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import mapboxgl from 'mapbox-gl';
 import { Property } from '@/api/properties';
 import { createRoot } from 'react-dom/client';
 import { PropertyMarker } from './PropertyMarker';
 
 export function usePropertyMarkers(
-  map: React.MutableRefObject<google.maps.Map | null>,
-  markersRef: React.MutableRefObject<{ [key: number]: google.maps.Marker | google.maps.marker.AdvancedMarkerElement }>,
+  map: React.MutableRefObject<mapboxgl.Map | null>,
+  markersRef: React.MutableRefObject<{ [key: number]: mapboxgl.Marker }>,
   propertiesWithOwners: Property[],
   mapLoaded: boolean,
   loading: boolean,
-  showPropertyPopup: (property: Property, position: google.maps.LatLng) => void
+  showPropertyPopup: (property: Property, coordinates: [number, number]) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
   const [initialBoundsSet, setInitialBoundsSet] = useState(false);
-  const markerElementsRef = useRef<{ [key: number]: HTMLDivElement }>({});
-  const markerPositionsRef = useRef<{ [key: number]: google.maps.LatLng }>({});
-  // Track when we've created markers to prevent recreation on zoom
-  const markersCreatedRef = useRef<boolean>(false);
 
-  // This function only updates Z-index, not position
   const updateMarkerZIndex = (propertyId: number | null) => {
-    // Safety check to ensure Google Maps is loaded
-    if (!window.google || !mapLoaded) return;
-    
-    // Update z-index for all markers (lower value)
     Object.entries(markersRef.current).forEach(([id, marker]) => {
-      if (marker instanceof google.maps.Marker) {
-        marker.setZIndex(1);
-      }
+      const markerEl = marker.getElement();
+      markerEl.style.zIndex = '1';
     });
 
-    // Update z-index for the active marker (higher value)
     if (propertyId !== null && markersRef.current[propertyId]) {
-      const marker = markersRef.current[propertyId];
-      if (marker instanceof google.maps.Marker) {
-        marker.setZIndex(3);
-      }
+      const activeMarkerEl = markersRef.current[propertyId].getElement();
+      activeMarkerEl.style.zIndex = '3';
     }
   };
 
-  // Effect to clear markers when property list changes completely
   useEffect(() => {
-    // Safety check to ensure Google Maps is loaded
-    if (!map.current || !mapLoaded || loading || !window.google) return;
+    if (!map.current || !mapLoaded || loading) return;
     
     // Clear any markers that are no longer in the properties list
     Object.keys(markersRef.current).forEach(id => {
       const numericId = parseInt(id);
       if (!propertiesWithOwners.some(p => p.id === numericId)) {
-        const marker = markersRef.current[numericId];
-        if (marker) {
-          if (marker instanceof google.maps.Marker) {
-            marker.setMap(null);
-          } else if ('map' in marker) {
-            // For AdvancedMarkerElement, set map to null
-            marker.map = null;
-          }
-          delete markersRef.current[numericId];
-          delete markerPositionsRef.current[numericId];
-        }
+        markersRef.current[numericId].remove();
+        delete markersRef.current[numericId];
       }
     });
     
-    // If there are no properties, reset the markers created flag so they'll be recreated next time
-    if (propertiesWithOwners.length === 0) {
-      markersCreatedRef.current = false;
-      return;
-    }
+    if (propertiesWithOwners.length === 0) return;
 
-    // If markers are already created, don't recreate them during zoom operations
-    if (markersCreatedRef.current && Object.keys(markersRef.current).length > 0) {
-      return;
-    }
-
-    const bounds = new window.google.maps.LatLngBounds();
+    const bounds = new mapboxgl.LngLatBounds();
     let propertiesWithCoords = 0;
     
-    // Apply map styling
-    if (map.current) {
-      try {
-        map.current.setOptions({
-          styles: [
-            {
-              // Land coloring - softer than pure white
-              featureType: "landscape",
-              elementType: "geometry",
-              stylers: [
-                { color: "#f2f2f0" }  // Slight off-white for land
-              ]
-            },
-            {
-              // Water features with a more realistic blue
-              featureType: "water",
-              elementType: "geometry",
-              stylers: [
-                { color: "#c8d7e3" }  // Light blue-gray for water
-              ]
-            },
-            {
-              // Roads with better visibility
-              featureType: "road",
-              elementType: "geometry.fill",
-              stylers: [
-                { color: "#ffffff" }  // White roads
-              ]
-            },
-            {
-              // Road outlines for better definition
-              featureType: "road",
-              elementType: "geometry.stroke",
-              stylers: [
-                { color: "#d9d9d9" }  // Light gray for road borders
-              ]
-            },
-            {
-              // Major highways
-              featureType: "road.highway",
-              elementType: "geometry.fill",
-              stylers: [
-                { color: "#f5cc88" }  // Light amber for highways
-              ]
-            },
-            {
-              // Highway strokes
-              featureType: "road.highway",
-              elementType: "geometry.stroke",
-              stylers: [
-                { color: "#e6b366" }  // Darker amber for highway borders
-              ]
-            },
-            {
-              // Parks and green areas
-              featureType: "poi.park",
-              elementType: "geometry",
-              stylers: [
-                { color: "#cde6c2" }  // Light green for parks
-              ]
-            },
-            {
-              // Building footprints
-              featureType: "administrative.locality",
-              elementType: "all",
-              stylers: [
-                { saturation: 7 },
-                { lightness: 19 },
-                { visibility: "on" }
-              ]
-            },
-            {
-              // Text labels for cities and locations
-              featureType: "all",
-              elementType: "labels.text.fill",
-              stylers: [
-                { color: "#403E43" }  // Darker text for better readability
-              ]
-            },
-            {
-              // Transit lines
-              featureType: "transit.line",
-              stylers: [
-                { color: "#9F9EA1" }  // Medium gray for transit lines
-              ]
-            },
-            {
-              // Transit stations
-              featureType: "transit.station",
-              stylers: [
-                { saturation: -22 }
-              ]
-            },
-            {
-              // POI (Points of Interest) styling
-              featureType: "poi",
-              elementType: "all",
-              stylers: [
-                { visibility: "simplified" },
-                { saturation: -30 }
-              ]
-            },
-            {
-              // Administrative borders
-              featureType: "administrative.province",
-              elementType: "geometry.stroke",
-              stylers: [
-                { color: "#8A898C" },  // Medium gray for borders
-                { weight: 1 }
-              ]
-            },
-            {
-              // Country borders
-              featureType: "administrative.country",
-              elementType: "geometry.stroke",
-              stylers: [
-                { color: "#555555" },  // Darker gray for country borders
-                { weight: 1.2 }
-              ]
-            },
-            {
-              // Terrain/topography hints
-              featureType: "landscape.natural",
-              elementType: "geometry",
-              stylers: [
-                { color: "#eae8e4" },  // Natural terrain color
-                { saturation: -15 },
-                { lightness: 0 }
-              ]
-            }
-          ]
-        });
-      } catch (error) {
-        console.warn("Could not apply map styles:", error);
-      }
-    }
+    console.log('Properties to display on map:', propertiesWithOwners.map(p => ({
+      id: p.id, 
+      title: p.title, 
+      street: p.street_name,
+      city: p.city,
+      lat: p.latitude, 
+      lng: p.longitude
+    })));
 
-    // Filter out properties that are too close to each other to avoid cluttering
-    const visibleProperties = propertiesWithOwners.filter(property => {
-      if (typeof property.latitude !== 'number' || typeof property.longitude !== 'number') {
-        return false;
-      }
-      return true;
-    });
-
-    // Process each property and create markers - only done once per data fetch
-    visibleProperties.forEach(property => {
+    // Process each property and create/update markers
+    propertiesWithOwners.forEach(property => {
       // Skip properties without proper coordinates
       if (typeof property.latitude !== 'number' || typeof property.longitude !== 'number') {
+        console.warn(`No valid coordinates for property ${property.id}`);
         return;
       }
       
-      // Create LatLng coordinates for Google Maps
-      const position = new window.google.maps.LatLng(property.latitude, property.longitude);
-      
-      // Store position in our reference object to maintain fixed positions
-      markerPositionsRef.current[property.id] = position;
+      // Create LngLat coordinates for mapbox (longitude first, then latitude)
+      const lngLat: [number, number] = [property.longitude, property.latitude];
       
       // Extend map bounds to include this property
-      bounds.extend(position);
+      bounds.extend(lngLat);
       propertiesWithCoords++;
       
-      // If marker already exists, don't recreate it - just return
+      // If marker already exists, update its position
       if (markersRef.current[property.id]) {
+        console.log(`Updating existing marker for property ${property.id} to position:`, lngLat);
+        markersRef.current[property.id].setLngLat(lngLat);
         return;
       }
       
-      // Create a DOM element for the custom marker
-      const markerElement = document.createElement('div');
-      markerElement.className = 'marker-container'; // Add a container class for styling
-      markerElementsRef.current[property.id] = markerElement;
+      // Create new marker element
+      const markerEl = document.createElement('div');
+      markerEl.className = 'custom-marker-container';
       
-      // Create a function to handle the click event
       const handleMarkerClick = () => {
         setActiveMarkerId(property.id);
-        showPropertyPopup(property, position);
+        showPropertyPopup(property, lngLat);
       };
-      
-      // Render our React component into the DOM element using createRoot
-      const root = createRoot(markerElement);
-      
-      // Use a more explicit approach to render the PropertyMarker component
+
+      const root = createRoot(markerEl);
       root.render(
         PropertyMarker({
-          price: property.price?.toString() || '0',
+          price: property.price,
           isPremium: property.isPremium,
           listingType: property.listing_type || 'sale',
           onClick: handleMarkerClick
         })
       );
       
-      // Attempt to create an AdvancedMarkerElement if available, otherwise fallback to standard marker
-      try {
-        // First try to create an AdvancedMarkerElement
-        if (window.google.maps.marker && window.google.maps.marker.AdvancedMarkerElement) {
-          // Create the advanced marker with proper positioning
-          const marker = new window.google.maps.marker.AdvancedMarkerElement({
-            position,
-            map: map.current,
-            title: property.title,
-            content: markerElement,
-            // Ensure marker stays in fixed position
-            gmpDraggable: false,
-            // Prevent position adjustment by collision behavior
-            collisionBehavior: window.google.maps.CollisionBehavior.REQUIRED_AND_HIDES_OPTIONAL
-          });
-          
-          // Store the marker reference
-          markersRef.current[property.id] = marker;
-        } else {
-          throw new Error('AdvancedMarkerElement not available');
-        }
-      } catch (error) {
-        console.warn('Failed to create AdvancedMarkerElement, falling back to standard Marker:', error);
-        
-        // Fallback to a standard marker
-        const marker = new window.google.maps.Marker({
-          position,
-          map: map.current,
-          title: property.title,
-          // Fixed position for standard markers as well
-          optimized: false, // Helps with positioning consistency
-          icon: {
-            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="20" cy="20" r="20" fill="#3b82f6"/>
-                <text x="20" y="25" font-family="Arial" font-size="14" fill="white" text-anchor="middle">
-                  $${property.price ? parseInt(property.price.toString()).toLocaleString() : '0'}
-                </text>
-              </svg>
-            `),
-            scaledSize: new google.maps.Size(40, 40),
-            anchor: new google.maps.Point(20, 20)
-          }
-        });
-        
-        // Add click listener
-        marker.addListener('click', handleMarkerClick);
-        
-        // Store the marker reference
-        markersRef.current[property.id] = marker;
-      }
-    });
+      console.log(`Creating new marker for property ${property.id} at position [${lngLat[0]}, ${lngLat[1]}]`);
+      
+      // Create and add the marker to the map
+      const marker = new mapboxgl.Marker({
+        element: markerEl,
+        anchor: 'bottom',
+        offset: [0, 0],
+        clickTolerance: 10
+      })
+        .setLngLat(lngLat)
+        .addTo(map.current!);
 
-    // Mark that we've created the markers, so we don't recreate them on zoom
-    markersCreatedRef.current = true;
+      markersRef.current[property.id] = marker;
+    });
 
     // Only fit bounds if we haven't done it yet and we have properties with coordinates
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
-      map.current.fitBounds(bounds);
-      
-      // Set a reasonable zoom level to not be too zoomed in
-      const currentZoom = map.current.getZoom() || 15;
-      map.current.setZoom(Math.min(15, currentZoom));
-      
+      console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
+      map.current.fitBounds(bounds, {
+        padding: 50,
+        maxZoom: 15,
+        pitch: 45, // Maintain consistent pitch for visual style
+        bearing: 0,
+        duration: 1500, // Smooth animation
+        essential: true,
+        linear: false // Use easing for smoother transitions
+      });
       setInitialBoundsSet(true);
     }
   }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup, initialBoundsSet]);
@@ -340,7 +130,6 @@ export function usePropertyMarkers(
   useEffect(() => {
     if (propertiesWithOwners.length === 0) {
       setInitialBoundsSet(false);
-      markersCreatedRef.current = false; // Reset the markers created flag
     }
   }, [propertiesWithOwners]);
 
