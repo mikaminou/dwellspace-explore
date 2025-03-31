@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 import { Property } from '@/api/properties';
 import { createRoot } from 'react-dom/client';
@@ -49,7 +48,7 @@ export function usePropertyMarkers(
     const bounds = new window.google.maps.LatLngBounds();
     let propertiesWithCoords = 0;
     
-    // Add more realistic map styling with terrain features and natural colors
+    // Apply map styling
     if (map.current) {
       try {
         map.current.setOptions({
@@ -214,35 +213,34 @@ export function usePropertyMarkers(
         return;
       }
       
-      // Create a clean, modern marker instead of the default
-      const marker = new window.google.maps.Marker({
+      // Create a DOM element for the custom marker
+      const markerElement = document.createElement('div');
+      markerElementsRef.current[property.id] = markerElement;
+      
+      // Render our React component into the DOM element
+      const root = createRoot(markerElement);
+      root.render(
+        <PropertyMarker 
+          price={property.price?.toString() || '0'} 
+          isPremium={property.isPremium}
+          listingType={property.listing_type || 'sale'}
+          onClick={() => {
+            setActiveMarkerId(property.id);
+            showPropertyPopup(property, position);
+          }}
+        />
+      );
+      
+      // Create an AdvancedMarkerElement
+      const marker = new window.google.maps.marker.AdvancedMarkerElement({
         position,
         map: map.current,
         title: property.title,
-        animation: window.google.maps.Animation.DROP,
-        // Use a custom SVG marker matching the app's color scheme
-        icon: {
-          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
-              <circle cx="18" cy="18" r="18" fill="${property.isPremium ? '#CDA434' : property.listing_type === 'rent' ? '#3498DB' : '#27AE60'}" opacity="0.9"/>
-              <circle cx="18" cy="18" r="8" fill="white" opacity="0.85"/>
-              <circle cx="18" cy="18" r="6" fill="${property.isPremium ? '#CDA434' : property.listing_type === 'rent' ? '#3498DB' : '#27AE60'}"/>
-            </svg>
-          `),
-          size: new window.google.maps.Size(36, 36),
-          anchor: new window.google.maps.Point(18, 18),
-          scaledSize: new window.google.maps.Size(36, 36)
-        }
+        content: markerElement
       });
       
       // Store the marker reference
       markersRef.current[property.id] = marker;
-      
-      // Add click event
-      marker.addListener('click', () => {
-        setActiveMarkerId(property.id);
-        showPropertyPopup(property, position);
-      });
     });
 
     // Only fit bounds if we haven't done it yet and we have properties with coordinates

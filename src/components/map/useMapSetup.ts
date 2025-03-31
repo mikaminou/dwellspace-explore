@@ -5,11 +5,11 @@ import { defaultMapOptions } from './mapUtils';
 import { toast } from 'sonner';
 
 // Define the Libraries type correctly for Google Maps API
-type Library = "places" | "drawing" | "geometry" | "visualization";
+type Library = "places" | "drawing" | "geometry" | "visualization" | "marker";
 type Libraries = Library[];
 
 // List of libraries to load with Google Maps
-const libraries: Libraries = ["places", "geometry"];
+const libraries: Libraries = ["places", "geometry", "marker"];
 
 // Your Google Maps API key - in production, this should be in environment variables
 const GOOGLE_MAPS_API_KEY = 'AIzaSyC3Csmx98gaGxSFzZ2aimsRIqalt4SuTMs'; // Replace with your actual API key
@@ -20,7 +20,7 @@ console.warn('⚠️ Important: The Google Maps API key requires billing to be e
 export function useMapSetup() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<{ [key: number]: google.maps.Marker }>({});
+  const markersRef = useRef<{ [key: number]: google.maps.marker.AdvancedMarkerElement | google.maps.Marker }>({});
   const popupRef = useRef<google.maps.InfoWindow | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
@@ -56,7 +56,6 @@ export function useMapSetup() {
           position: google.maps.ControlPosition.RIGHT_CENTER
         },
         scaleControl: true,
-        // Make the map more visually appealing with custom styles
       });
 
       // Set map loaded state when the map is ready
