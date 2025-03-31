@@ -25,7 +25,12 @@ export function MapView() {
   );
   
   // Then use the showPropertyPopup in the markers hook
-  const { activeMarkerId, setActiveMarkerId, updateMarkerZIndex } = usePropertyMarkers(
+  const { 
+    activeMarkerId, 
+    setActiveMarkerId, 
+    updateMarkerZIndex,
+    highlightMarker 
+  } = usePropertyMarkers(
     map, 
     markersRef, 
     propertiesWithOwners, 
@@ -47,6 +52,22 @@ export function MapView() {
       return () => clearTimeout(resizeTimeout);
     }
   }, [mapLoaded]);
+
+  // Export the highlightMarker function to window for use by Property Cards
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // @ts-ignore - Adding to window object
+      window.highlightMapMarker = highlightMarker;
+    }
+    
+    return () => {
+      // Clean up when component unmounts
+      if (typeof window !== 'undefined') {
+        // @ts-ignore - Removing from window object
+        delete window.highlightMapMarker;
+      }
+    };
+  }, [highlightMarker]);
 
   return (
     <div className="relative flex-1 w-full h-full">

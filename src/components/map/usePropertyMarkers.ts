@@ -25,6 +25,7 @@ export function usePropertyMarkers(
   showPropertyPopup: (property: Property, marker: mapboxgl.Marker) => void
 ) {
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
+  const [hoveredMarkerId, setHoveredMarkerId] = useState<number | null>(null);
   const processedPropertiesRef = useRef<Set<number>>(new Set());
   const [initialBoundsSet, setInitialBoundsSet] = useState(false);
 
@@ -50,6 +51,46 @@ export function usePropertyMarkers(
       const selectedMarker = markersRef.current[propertyId];
       const element = selectedMarker.getElement();
       element.style.zIndex = '2';
+    }
+  };
+
+  // New function to highlight a marker on property card hover
+  const highlightMarker = (propertyId: number | null) => {
+    // First reset all markers to normal state
+    Object.entries(markersRef.current).forEach(([id, marker]) => {
+      const element = marker.getElement();
+      // Remove any highlight class
+      element.classList.remove('marker-highlighted');
+      // Reset transform scale
+      element.style.transform = element.style.transform.replace(/scale\([^)]+\)/, '');
+    });
+    
+    // If no property ID provided, we're just resetting all markers
+    if (!propertyId) {
+      setHoveredMarkerId(null);
+      return;
+    }
+    
+    // Set the hovered marker ID
+    setHoveredMarkerId(propertyId);
+    
+    // Find and highlight the specific marker
+    if (markersRef.current && markersRef.current[propertyId]) {
+      const hoveredMarker = markersRef.current[propertyId];
+      const element = hoveredMarker.getElement();
+      
+      // Apply highlight
+      element.classList.add('marker-highlighted');
+      
+      // Make it slightly larger with transform scale
+      // Get current transform and add scale
+      const currentTransform = element.style.transform;
+      if (!currentTransform.includes('scale')) {
+        element.style.transform = `${currentTransform} scale(1.15)`;
+      }
+      
+      // Ensure it's on top
+      element.style.zIndex = '3';
     }
   };
 
@@ -157,9 +198,28 @@ export function usePropertyMarkers(
     }
   }, [activeMarkerId]);
 
+  // Add effect to handle hoveredMarkerId changes
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .marker-highlighted .marker-bubble {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+        transition: all 0.2s ease-in-out !important;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   return {
     activeMarkerId,
     setActiveMarkerId,
-    updateMarkerZIndex
+    updateMarkerZIndex,
+    hoveredMarkerId,
+    setHoveredMarkerId,
+    highlightMarker
   };
 }
