@@ -23,15 +23,25 @@ export function useMapSetup() {
       center: [3.042048, 36.752887], // Default center (Algiers)
       zoom: 12,
       attributionControl: false,
-      pitchWithRotate: true, // Enable pitch with rotate
+      pitch: 0, // Set to 0 for top-down view
+      bearing: 0, // Set to 0 for north-up orientation
       antialias: true, // Enable antialiasing for smoother rendering
       projection: { name: 'mercator' }, // Use mercator projection for consistency
       minZoom: 2, // Prevent zooming out too far to maintain visual consistency
-      maxZoom: 18 // Limit maximum zoom to maintain performance
+      maxZoom: 18, // Limit maximum zoom to maintain performance
+      dragRotate: false, // Disable drag rotate
+      touchPitch: false, // Disable touch pitch
+      touchZoomRotate: {
+        around: 'center',
+        pinchRotate: false // Disable pinch rotation
+      }
     });
 
-    // Add navigation controls
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    // Add navigation controls without rotation
+    const navControl = new mapboxgl.NavigationControl({
+      showCompass: false // Hide compass to prevent rotation
+    });
+    map.current.addControl(navControl, 'top-right');
     map.current.addControl(new mapboxgl.FullscreenControl());
     map.current.addControl(new mapboxgl.GeolocateControl({
       positionOptions: {
@@ -51,14 +61,10 @@ export function useMapSetup() {
       console.log('Map loaded successfully with Mapbox GL version:', mapboxgl.version);
       setMapLoaded(true);
       
-      // Add consistent fog effect to maintain visual style at all zoom levels
-      map.current?.setFog({
-        'color': 'rgb(220, 230, 240)', // Light blue fog color
-        'high-color': 'rgb(36, 92, 223)', // Darker blue for higher areas
-        'horizon-blend': 0.1, // Subtle horizon blend
-        'space-color': 'rgb(11, 11, 25)', // Dark space color
-        'star-intensity': 0.15 // Subtle stars in the background
-      });
+      // Remove fog effect to maintain clean top-down view
+      if (map.current) {
+        map.current.setFog(null);
+      }
     });
 
     // Handle map error

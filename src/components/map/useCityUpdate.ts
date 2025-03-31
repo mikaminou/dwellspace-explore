@@ -28,8 +28,8 @@ export function useCityUpdate(
         zoom: 12,
         essential: true,
         duration: 1500, // Smoother transition
-        bearing: 0,
-        pitch: 45, // Add some pitch for better 3D perspective
+        bearing: 0, // Always north-up
+        pitch: 0, // Always top-down view
         curve: 1.5, // Use a more natural easing curve
         speed: 0.8, // Slightly slower for more control
         minZoom: 5, // Maintain a minimum zoom level during transitions
