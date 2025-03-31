@@ -48,7 +48,7 @@ function SearchContent() {
           <SearchResults key={`search-results-${refreshKey}`} />
         </div>
         {showMap && (
-          <div className="lg:w-1/2 h-[calc(100vh-64px)] sticky top-16 transition-all duration-300 ease-in-out px-2 pb-6">
+          <div className="lg:w-1/2 h-[calc(100vh-216px)] lg:sticky lg:top-[216px] transition-all duration-300 ease-in-out px-2 pb-6">
             <div className="h-full rounded-xl overflow-hidden shadow-lg border border-gray-200">
               <MapView />
             </div>
