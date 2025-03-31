@@ -15,7 +15,7 @@ const libraries: Libraries = ["places", "geometry", "marker"];
 const GOOGLE_MAPS_API_KEY = 'AIzaSyC3Csmx98gaGxSFzZ2aimsRIqalt4SuTMs'; // Replace with your actual API key
 
 // The Map ID required for Advanced Markers
-const MAP_ID = '8f799b9ef9c87a62'; // This is a placeholder Map ID - replace with your actual Map ID
+const MAP_ID = '7068f1c775679a62'; // This is a placeholder Map ID - replace with your actual Map ID
 
 // Add a warning about Google Maps billing
 console.warn('⚠️ Important: The Google Maps API key requires billing to be enabled and proper API restrictions in the Google Cloud Console. Without billing enabled and proper restrictions, the map may display errors, watermarks, or "For development purposes only" messages.');
