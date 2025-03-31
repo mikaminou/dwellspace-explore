@@ -1,12 +1,17 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { useJsApiLoader } from '@react-google-maps/api';
 
+// Define the Libraries type correctly for Google Maps API
+type Library = "places" | "drawing" | "geometry" | "visualization";
+type Libraries = Library[];
+
 // Define your Google Maps API key here
-const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with your actual API key
-const libraries = ['places', 'geometry'] as ('places' | 'geometry' | 'drawing' | 'visualization')[];
+const GOOGLE_MAPS_API_KEY = 'AIzaSyBtCGretTv8O2Fzf_Oh0Er9H27-EaO-itM'; // Replace with your actual API key
+const libraries: Libraries = ['places', 'geometry'];
 
 interface LocationData {
   city: string;
