@@ -63,11 +63,13 @@ export function useMapSetup() {
       });
 
       // Handle other map errors 
-      window.gm_authFailure = () => {
-        console.error('Google Maps authentication failed - global handler');
-        setMapError('API key authentication failed. Please check your API key configuration and restrictions in Google Cloud Console.');
-        toast.error('Google Maps failed to load. Please check your API key configuration.');
-      };
+      if (window.google && window.google.maps) {
+        window.google.maps.event.addDomListener(window, 'authfailure', function() {
+          console.error('Google Maps authentication failed - global handler');
+          setMapError('API key authentication failed. Please check your API key configuration and restrictions in Google Cloud Console.');
+          toast.error('Google Maps failed to load. Please check your API key configuration.');
+        });
+      }
     } catch (error) {
       console.error('Error initializing Google Maps:', error);
       setMapError(`Failed to initialize Google Maps: ${error instanceof Error ? error.message : 'Unknown error'}`);
