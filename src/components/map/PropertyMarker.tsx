@@ -42,7 +42,6 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
       onClick={handleClick}
     >
       <div className="marker-bubble">
-        <Building size={16} color={getIconColor()} className="marker-icon" />
         <span className="marker-price">{formatPrice(price)}</span>
         <div className="marker-pointer"></div>
       </div>

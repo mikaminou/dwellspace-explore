@@ -278,7 +278,7 @@ html[dir="rtl"] .text-right {
   left: auto;
 }
 
-/* Custom marker styles - UPDATED to match the tooltip design */
+/* Custom marker styles - FIXED marker design */
 .mapboxgl-marker {
   cursor: pointer !important;
   z-index: 1;
@@ -311,12 +311,10 @@ html[dir="rtl"] .text-right {
   transform: translateY(-50%);
 }
 
-.marker-icon {
-  margin-right: 6px;
-}
-
 .marker-price {
   color: #333;
+  font-weight: 600;
+  font-size: 13px;
 }
 
 .marker-pointer {

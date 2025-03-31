@@ -24,7 +24,7 @@ export function SearchResults() {
 
   return (
     <div className={`container mx-auto py-6 transition-all duration-300 ${showMap ? 'pr-2' : 'px-2'}`}>
-      <div className="mb-5 animate-fade-in">
+      <div className="mb-5 animate-fade-in mt-10">
         <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl font-medium">
             {selectedCities.length > 0 && 
