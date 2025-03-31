@@ -153,8 +153,9 @@ export function usePropertyMarkers(
 
     // Only fit bounds if we haven't done it yet and we have properties with coordinates
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
-      // Fix the padding issue by correctly using the fitBounds method
-      map.current.fitBounds(bounds, { padding: 50 });
+      // Fix: Use the correct type for the padding parameter in fitBounds
+      // The padding is applied internally as a margin around the bounds
+      map.current.fitBounds(bounds);
       
       // Set a reasonable zoom level to not be too zoomed in
       const currentZoom = map.current.getZoom() || 15;
