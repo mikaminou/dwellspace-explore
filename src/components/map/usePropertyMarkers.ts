@@ -116,11 +116,10 @@ export function usePropertyMarkers(
       map.current.fitBounds(bounds, {
         padding: 50,
         maxZoom: 15,
-        pitch: 45, // Maintain consistent pitch for visual style
         bearing: 0,
+        pitch: 0, // Keep flat top-down view
         duration: 1500, // Smooth animation
-        essential: true,
-        linear: false // Use easing for smoother transitions
+        essential: true
       });
       setInitialBoundsSet(true);
     }

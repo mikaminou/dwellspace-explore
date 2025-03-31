@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { formatPrice } from './mapUtils';
-import { Home, Building, Construction, Castle } from 'lucide-react';
+import { MapPin, Home, Building, Construction, Castle } from 'lucide-react';
 
 interface PropertyMarkerProps {
   price: string;
@@ -38,19 +38,7 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
 
   // Get the appropriate icon based on listing type
   const Icon = () => {
-    switch (listingType.toLowerCase()) {
-      case 'rent':
-        return <Building size={16} className="text-white" />;
-      case 'construction':
-        return <Construction size={16} className="text-white" />;
-      case 'commercial':
-        return <Building size={16} className="text-white" />;
-      case 'vacation':
-        return <Castle size={16} className="text-white" />;
-      case 'sale':
-      default:
-        return <Home size={16} className="text-white" />;
-    }
+    return <MapPin size={18} className="text-white" />;
   };
 
   return (

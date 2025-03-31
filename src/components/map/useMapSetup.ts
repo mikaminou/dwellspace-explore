@@ -32,8 +32,7 @@ export function useMapSetup() {
       dragRotate: false, // Disable drag rotate
       touchPitch: false, // Disable touch pitch
       touchZoomRotate: {
-        around: 'center',
-        pinchRotate: false // Disable pinch rotation
+        around: 'center'
       }
     });
 
