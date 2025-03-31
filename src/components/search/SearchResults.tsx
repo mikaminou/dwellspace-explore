@@ -8,7 +8,7 @@ import { useSearch } from "@/contexts/search/SearchContext";
 
 export function SearchResults() {
   const { t } = useLanguage();
-  const { properties, loading, handleReset, selectedCities } = useSearch();
+  const { properties, loading, handleReset, selectedCities, showMap } = useSearch();
   // Add a local key to force re-renders when properties change
   const [renderKey, setRenderKey] = useState(0);
   
@@ -18,7 +18,7 @@ export function SearchResults() {
   }, [properties, loading]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className={`container mx-auto px-4 py-8 ${showMap ? 'lg:pr-2' : ''}`}>
       <div className="mb-6 animate-fade-in">
         <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl font-medium">

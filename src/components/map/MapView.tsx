@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useSearch } from '@/contexts/search/SearchContext';
 import { useLanguage } from '@/contexts/language/LanguageContext';
@@ -37,8 +37,19 @@ export function MapView() {
   // Handle city updates - pass the first city from selectedCities array
   useCityUpdate(map, mapLoaded, selectedCities.length > 0 ? selectedCities[0] : null);
 
+  // Force map resize when it becomes visible
+  useEffect(() => {
+    if (map.current && mapLoaded) {
+      // Small delay to ensure map container is properly sized
+      const resizeTimeout = setTimeout(() => {
+        map.current?.resize();
+      }, 100);
+      return () => clearTimeout(resizeTimeout);
+    }
+  }, [mapLoaded]);
+
   return (
-    <div className="relative flex-1 w-full">
+    <div className="relative flex-1 w-full h-full">
       <MapLoadingState show={loading} />
       <MapEmptyState show={propertiesWithOwners.length === 0 && !loading} />
       <div ref={mapContainer} className="absolute inset-0 w-full h-full" />

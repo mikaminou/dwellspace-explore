@@ -8,6 +8,7 @@ import { SearchButton } from "./SearchButton";
 import { useSearchHeaderOperations } from "@/hooks/search/useSearchHeaderOperations";
 import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function SearchHeader() {
   const { 

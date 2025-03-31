@@ -33,12 +33,12 @@ function SearchContent() {
       <MainNav />
       <SearchHeader key={`search-header-${refreshKey}`} />
       <Filters />
-      <div className="flex flex-col lg:flex-row">
-        <div className={`${showMap ? 'lg:w-1/2' : 'w-full'}`}>
+      <div className="flex flex-col lg:flex-row w-full">
+        <div className={`${showMap ? 'lg:w-1/2' : 'w-full'} transition-all duration-300`}>
           <SearchResults key={`search-results-${refreshKey}`} />
         </div>
         {showMap && (
-          <div className="lg:w-1/2 h-[calc(100vh-64px)] sticky top-16">
+          <div className="lg:w-1/2 h-[calc(100vh-64px)] sticky top-16 transition-all duration-300">
             <MapView />
           </div>
         )}
