@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from 'react';
 import { Property } from '@/api/properties';
 import { createRoot } from 'react-dom/client';
@@ -5,7 +6,7 @@ import { PropertyMarker } from './PropertyMarker';
 
 export function usePropertyMarkers(
   map: React.MutableRefObject<google.maps.Map | null>,
-  markersRef: React.MutableRefObject<{ [key: number]: google.maps.Marker }>,
+  markersRef: React.MutableRefObject<{ [key: number]: google.maps.Marker | google.maps.marker.AdvancedMarkerElement }>,
   propertiesWithOwners: Property[],
   mapLoaded: boolean,
   loading: boolean,
@@ -20,10 +21,12 @@ export function usePropertyMarkers(
     if (!window.google || !mapLoaded) return;
     
     Object.entries(markersRef.current).forEach(([id, marker]) => {
-      marker.setZIndex(1);
+      if ('setZIndex' in marker) {
+        marker.setZIndex(1);
+      }
     });
 
-    if (propertyId !== null && markersRef.current[propertyId]) {
+    if (propertyId !== null && markersRef.current[propertyId] && 'setZIndex' in markersRef.current[propertyId]) {
       markersRef.current[propertyId].setZIndex(3);
     }
   };
@@ -209,7 +212,9 @@ export function usePropertyMarkers(
       
       // If marker already exists, update its position
       if (markersRef.current[property.id]) {
-        markersRef.current[property.id].setPosition(position);
+        if ('setPosition' in markersRef.current[property.id]) {
+          markersRef.current[property.id].setPosition(position);
+        }
         return;
       }
       
@@ -217,18 +222,23 @@ export function usePropertyMarkers(
       const markerElement = document.createElement('div');
       markerElementsRef.current[property.id] = markerElement;
       
-      // Render our React component into the DOM element
+      // Create a function to handle the click event
+      const handleMarkerClick = () => {
+        setActiveMarkerId(property.id);
+        showPropertyPopup(property, position);
+      };
+      
+      // Render our React component into the DOM element using createRoot
       const root = createRoot(markerElement);
+      
+      // Use a more explicit approach to render the PropertyMarker component
       root.render(
-        <PropertyMarker 
-          price={property.price?.toString() || '0'} 
-          isPremium={property.isPremium}
-          listingType={property.listing_type || 'sale'}
-          onClick={() => {
-            setActiveMarkerId(property.id);
-            showPropertyPopup(property, position);
-          }}
-        />
+        PropertyMarker({
+          price: property.price?.toString() || '0',
+          isPremium: property.isPremium,
+          listingType: property.listing_type || 'sale',
+          onClick: handleMarkerClick
+        })
       );
       
       // Create an AdvancedMarkerElement
