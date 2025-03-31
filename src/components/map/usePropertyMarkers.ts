@@ -150,15 +150,16 @@ export function usePropertyMarkers(
       processedPropertiesRef.current.add(property.id);
     });
 
-    // Only fit map bounds once for this set of properties
+    // Only fit map bounds once for this set of properties and ensure all markers are visible
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
+      // Use a consistent padding to ensure all markers are visible
       map.current.fitBounds(bounds, {
-        padding: 50,
-        maxZoom: 15,
+        padding: { top: 70, bottom: 70, left: 70, right: 70 },
+        maxZoom: 14, // Lower max zoom to show more context
         bearing: 0,
         pitch: 0, 
-        duration: 1500,
+        duration: 1200,
         essential: true
       });
       setInitialBoundsSet(true);

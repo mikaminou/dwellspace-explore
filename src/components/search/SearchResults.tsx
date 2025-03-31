@@ -17,8 +17,13 @@ export function SearchResults() {
     setRenderKey(prev => prev + 1);
   }, [properties, loading]);
 
+  // Re-render when map is toggled
+  useEffect(() => {
+    setRenderKey(prev => prev + 1);
+  }, [showMap]);
+
   return (
-    <div className={`container mx-auto px-4 py-8 ${showMap ? 'lg:pr-2' : ''}`}>
+    <div className={`container mx-auto px-4 py-8 transition-all duration-300 ${showMap ? 'lg:pr-4' : ''}`}>
       <div className="mb-6 animate-fade-in">
         <div className="flex justify-between items-center mb-3">
           <h1 className="text-xl font-medium">

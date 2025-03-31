@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
 import { Property } from "@/api/properties";
 import { useLanguage } from "@/contexts/language/LanguageContext";
+import { useSearch } from "@/contexts/search/SearchContext";
 
 interface PropertyGridProps {
   properties: Property[];
@@ -15,6 +16,7 @@ interface PropertyGridProps {
 
 export function PropertyGrid({ properties, loading, handleReset, selectedCities }: PropertyGridProps) {
   const { t } = useLanguage();
+  const { showMap } = useSearch();
   const [isTransitioning, setIsTransitioning] = useState(false);
   // Add a local state to track the current properties for rendering
   const [displayedProperties, setDisplayedProperties] = useState<Property[]>(properties);
@@ -34,9 +36,14 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
     }
   }, [loading, properties]);
 
+  // Determine grid columns based on map visibility
+  const gridCols = showMap 
+    ? "grid-cols-1 md:grid-cols-2" 
+    : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+
   if (loading || isTransitioning) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+      <div className={`grid ${gridCols} gap-6 animate-fade-in`}>
         {Array.from({ length: 6 }).map((_, index) => (
           <div 
             key={index} 
@@ -75,7 +82,7 @@ export function PropertyGrid({ properties, loading, handleReset, selectedCities 
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+    <div className={`grid ${gridCols} gap-6 animate-fade-in`}>
       {displayedProperties.map((property) => (
         <PropertyCard key={property.id} property={property} />
       ))}

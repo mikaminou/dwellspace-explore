@@ -28,17 +28,27 @@ function SearchContent() {
     return () => clearTimeout(timeout);
   }, []);
 
+  // Force resize when map visibility changes
+  useEffect(() => {
+    // Small delay to allow DOM to update
+    const timeout = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 300);
+    
+    return () => clearTimeout(timeout);
+  }, [showMap]);
+
   return (
     <>
       <MainNav />
       <SearchHeader key={`search-header-${refreshKey}`} />
       <Filters />
       <div className="flex flex-col lg:flex-row w-full">
-        <div className={`${showMap ? 'lg:w-1/2' : 'w-full'} transition-all duration-300`}>
+        <div className={`${showMap ? 'lg:w-1/2' : 'w-full'} transition-all duration-300 ease-in-out`}>
           <SearchResults key={`search-results-${refreshKey}`} />
         </div>
         {showMap && (
-          <div className="lg:w-1/2 h-[calc(100vh-64px)] sticky top-16 transition-all duration-300">
+          <div className="lg:w-1/2 h-[calc(100vh-64px)] sticky top-16 transition-all duration-300 ease-in-out">
             <MapView />
           </div>
         )}
