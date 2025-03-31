@@ -11,7 +11,12 @@ import { useCityUpdate } from './useCityUpdate';
 import { useTheme } from 'next-themes';
 import { ShieldAlert, Info, Layers, MapPin, Sun, Moon, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tooltip } from '@/components/ui/tooltip';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
 
 export function MapView() {
   const { mapContainer, map, markersRef, mapLoaded, isLoaded, loadError, mapError } = useMapSetup();
@@ -137,36 +142,50 @@ export function MapView() {
       {/* Map controls - Only render if Google Maps is loaded */}
       {isLoaded && (
         <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
-          <Tooltip content={mapType === 'roadmap' ? 'Switch to satellite view' : 'Switch to map view'}>
-            <Button
-              variant="secondary"
-              size="sm"
-              className="bg-white/90 hover:bg-white text-gray-700 shadow-md backdrop-blur-sm"
-              onClick={toggleMapType}
-            >
-              {mapType === 'roadmap' ? (
-                <Layers className="h-4 w-4 mr-2" />
-              ) : (
-                <Map className="h-4 w-4 mr-2" />
-              )}
-              {mapType === 'roadmap' ? 'Satellite' : 'Map'}
-            </Button>
-          </Tooltip>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="bg-white/90 hover:bg-white text-gray-700 shadow-md backdrop-blur-sm"
+                  onClick={toggleMapType}
+                >
+                  {mapType === 'roadmap' ? (
+                    <Layers className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Map className="h-4 w-4 mr-2" />
+                  )}
+                  {mapType === 'roadmap' ? 'Satellite' : 'Map'}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {mapType === 'roadmap' ? 'Switch to satellite view' : 'Switch to map view'}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           
-          <Tooltip content={`${theme === 'dark' ? 'Light' : 'Dark'} theme`}>
-            <Button
-              variant="outline"
-              size="icon"
-              className="bg-white/90 hover:bg-white text-gray-700 shadow-md backdrop-blur-sm h-9 w-9"
-              onClick={() => {}}
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </Button>
-          </Tooltip>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-white/90 hover:bg-white text-gray-700 shadow-md backdrop-blur-sm h-9 w-9"
+                  onClick={() => {}}
+                >
+                  {theme === 'dark' ? (
+                    <Sun className="h-4 w-4" />
+                  ) : (
+                    <Moon className="h-4 w-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {`${theme === 'dark' ? 'Light' : 'Dark'} theme`}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       )}
       
