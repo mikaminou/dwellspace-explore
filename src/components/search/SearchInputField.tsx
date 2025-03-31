@@ -11,6 +11,7 @@ interface SearchInputFieldProps {
   handleClearSearch: () => void;
   onFocus: () => void;
   inputRef: React.RefObject<HTMLInputElement>;
+  placeholder?: string;
 }
 
 export function SearchInputField({
@@ -20,6 +21,7 @@ export function SearchInputField({
   handleClearSearch,
   onFocus,
   inputRef,
+  placeholder
 }: SearchInputFieldProps) {
   const { t, dir } = useLanguage();
 
@@ -39,7 +41,7 @@ export function SearchInputField({
       <Input 
         ref={inputRef}
         className={`pl-10 ${dir === 'rtl' ? 'arabic-text' : ''} h-12 border-2 focus:border-cta transition-colors`} 
-        placeholder={t('search.placeholder') || "Try 'modern 3 bedroom house with pool in Algiers'"}
+        placeholder={placeholder || t('search.placeholder') || "Try 'modern 3 bedroom house with pool in Algiers'"}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         onFocus={onFocus}

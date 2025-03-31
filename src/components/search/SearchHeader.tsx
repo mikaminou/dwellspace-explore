@@ -8,8 +8,10 @@ import { SearchButton } from "./SearchButton";
 import { useSearchHeaderOperations } from "@/hooks/search/useSearchHeaderOperations";
 import { Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/language/LanguageContext";
 
 export function SearchHeader() {
+  const { t } = useLanguage();
   const { 
     searchTerm, 
     setSearchTerm, 
@@ -36,7 +38,11 @@ export function SearchHeader() {
     showMap,
     setShowMap,
     // Add filters applied state
-    setFiltersAppliedState
+    setFiltersAppliedState,
+    // Check if we have active filters
+    filtersAppliedState,
+    // Get selected cities for placeholder text
+    selectedCities
   } = useSearch();
 
   const {
@@ -73,6 +79,19 @@ export function SearchHeader() {
     setFiltersAppliedState
   });
 
+  // Generate a dynamic placeholder based on whether search is active
+  const getPlaceholder = () => {
+    if (!filtersAppliedState) {
+      return t('search.emptyPlaceholder') || "Search for properties...";
+    }
+    
+    if (selectedCities.length > 0) {
+      return t('search.cityPlaceholder') || `Search in ${selectedCities.join(', ')}...`;
+    }
+    
+    return t('search.placeholder') || "Try 'modern 3 bedroom house with pool in Algiers'";
+  };
+
   return (
     <div 
       ref={searchHeaderRef}
@@ -89,6 +108,7 @@ export function SearchHeader() {
             handleClearSearch={handleClearSearch}
             onFocus={handleInputFocus}
             inputRef={inputRef}
+            placeholder={getPlaceholder()}
           />
           
           <FilterToggleButton 

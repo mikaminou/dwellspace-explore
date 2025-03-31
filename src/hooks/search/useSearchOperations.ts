@@ -1,9 +1,9 @@
-
-import { useCallback } from "react";
+import { useCallback, useRef, useEffect } from "react";
 import { searchProperties } from "@/api";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Property } from "@/api/properties";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export function useSearchOperations(
   searchTerm: string,
@@ -24,6 +24,48 @@ export function useSearchOperations(
   const { t } = useLanguage();
   // Add a flag to track if a search is already in progress
   let searchInProgress = false;
+  // Use localStorage to cache the last search results
+  const [cachedResults, setCachedResults] = useLocalStorage<{
+    results: Property[];
+    searchParams: any;
+    timestamp: number;
+  } | null>("cached_search_results", null);
+  
+  // Keep track of the current search parameters for caching
+  const currentSearchParams = useRef({
+    searchTerm,
+    selectedCities,
+    propertyType,
+    listingType,
+    minPrice,
+    maxPrice,
+    minBeds,
+    minBaths,
+    minLivingArea,
+    maxLivingArea,
+    selectedAmenities
+  });
+  
+  // Update the current search parameters ref when they change
+  useEffect(() => {
+    currentSearchParams.current = {
+      searchTerm,
+      selectedCities,
+      propertyType,
+      listingType,
+      minPrice,
+      maxPrice,
+      minBeds,
+      minBaths,
+      minLivingArea,
+      maxLivingArea,
+      selectedAmenities
+    };
+  }, [
+    searchTerm, selectedCities, propertyType, listingType, 
+    minPrice, maxPrice, minBeds, minBaths, minLivingArea, 
+    maxLivingArea, selectedAmenities
+  ]);
 
   const handleSearch = useCallback(async () => {
     // Prevent concurrent searches
@@ -35,6 +77,33 @@ export function useSearchOperations(
     if (selectedCities.length === 0) {
       console.log("No cities selected, cannot search");
       setProperties([]);
+      setLoading(false);
+      return;
+    }
+    
+    // Generate a cache key based on current search parameters
+    const searchParams = {
+      searchTerm,
+      cities: selectedCities,
+      propertyType,
+      listingType,
+      minPrice,
+      maxPrice,
+      minBeds,
+      minBaths,
+      minLivingArea,
+      maxLivingArea,
+      selectedAmenities
+    };
+    
+    // Check if we have cached results for these exact search parameters
+    if (cachedResults && 
+        JSON.stringify(cachedResults.searchParams) === JSON.stringify(searchParams) && 
+        cachedResults.results.length > 0 &&
+        // Cache is valid for 5 minutes (300000 ms)
+        Date.now() - cachedResults.timestamp < 300000) {
+      console.log("Using cached search results");
+      setProperties(cachedResults.results);
       setLoading(false);
       return;
     }
@@ -82,7 +151,7 @@ export function useSearchOperations(
       }
       
       // Build search parameters with validated values
-      const searchParams = {
+      const apiSearchParams = {
         city: selectedCities,
         propertyType: propertyType.length > 0 ? propertyType : undefined,
         minPrice: minPrice,
@@ -95,7 +164,7 @@ export function useSearchOperations(
         features: features.length > 0 ? features : undefined,
       };
       
-      console.log("Search params after validation:", searchParams);
+      console.log("Search params after validation:", apiSearchParams);
       
       // Empty search term when it's just whitespace or nonsense
       let effectiveSearchTerm = "";
@@ -103,12 +172,19 @@ export function useSearchOperations(
         effectiveSearchTerm = searchTerm;
       }
       
-      const results = await searchProperties(effectiveSearchTerm, searchParams);
+      const results = await searchProperties(effectiveSearchTerm, apiSearchParams);
       
       console.log(`Found ${results.length} properties for cities:`, selectedCities);
       
       // Update the properties with the search results
       setProperties(results);
+      
+      // Cache the results
+      setCachedResults({
+        results,
+        searchParams,
+        timestamp: Date.now()
+      });
     } catch (error: any) {
       toast.error(t('search.searchFailed'));
       console.error("Search failed:", error.message);
@@ -122,7 +198,7 @@ export function useSearchOperations(
   }, [
     searchTerm, selectedCities, propertyType, listingType, minPrice, maxPrice, 
     minBeds, minBaths, minLivingArea, maxLivingArea, setProperties, setLoading, 
-    filtersApplied, t, selectedAmenities
+    filtersApplied, t, selectedAmenities, cachedResults, setCachedResults
   ]);
 
   return { handleSearch };

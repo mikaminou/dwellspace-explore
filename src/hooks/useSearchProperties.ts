@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Property } from "@/api/properties";
 import { useSearchInitialData } from "./search/useSearchInitialData";
@@ -54,7 +53,7 @@ export function useSearchProperties(): SearchHookResult {
     isNewSearch
   );
 
-  // Search operations - make sure parameters are in the correct order
+  // Search operations
   const { handleSearch } = useSearchOperations(
     searchTerm,
     selectedCities,
@@ -114,16 +113,20 @@ export function useSearchProperties(): SearchHookResult {
         filtersApplied.current = true;
         setFiltersAppliedState(true);
         
-        // Reset existing filters when coming from hero section
+        // Reset all filters to ensure we start fresh
         setMinLivingArea(0);
         setMaxLivingArea(maxLivingAreaLimit);
         setMinBeds(0);
         setMinBaths(0);
+        setMinPrice(0);
+        setMaxPrice(maxPriceLimit);
         setSelectedAmenities([]);
         
         // Reset existing search and set new parameters
         if (queryParam) {
           setSearchTerm(queryParam);
+        } else {
+          setSearchTerm('');
         }
         
         if (propertyTypeParam && propertyTypeParam !== 'any') {
@@ -138,28 +141,47 @@ export function useSearchProperties(): SearchHookResult {
           setListingType([]);
         }
         
-        // We'll automatically search after the initialLoadDone effect runs
+        // Show filters if specific filters were applied
+        if ((propertyTypeParam && propertyTypeParam !== 'any') || 
+            (listingTypeParam && listingTypeParam !== 'any')) {
+          setShowFilters(true);
+        }
+      }
+    } else if (location.pathname === '/search' && !location.search) {
+      // User navigated directly to /search without parameters
+      // We'll show the empty state with a prompt to search
+      if (!filtersAppliedState) {
+        setIsNewSearch(true);
       }
     }
-  }, [location, setSearchTerm, setPropertyType, setListingType, setIsNewSearch, 
-      setMinLivingArea, setMaxLivingArea, maxLivingAreaLimit, setMinBeds, 
-      setMinBaths, setSelectedAmenities, setFiltersAppliedState]);
+  }, [
+    location, setSearchTerm, setPropertyType, setListingType, setIsNewSearch, 
+    setMinLivingArea, setMaxLivingArea, maxLivingAreaLimit, setMinBeds, 
+    setMinBaths, setSelectedAmenities, setFiltersAppliedState, setMinPrice,
+    setMaxPrice, maxPriceLimit, setShowFilters, filtersAppliedState
+  ]);
 
   // Effect to trigger search after initial data is loaded
   useEffect(() => {
     if (initialLoadDone) {
-      if (filtersAppliedState || location.search) {
-        // If filters were applied or we have URL params, run search
+      if (location.search) {
+        // If we have URL params, run search
         filtersApplied.current = true;
         handleSearch();
-      } else if (isNewSearch && selectedCities.length > 0) {
-        // First time, with default city and no filters
+      } else if (filtersAppliedState && selectedCities.length > 0) {
+        // If filters were applied and we have cities, run search
         filtersApplied.current = true;
         handleSearch();
+      } else if (isNewSearch && selectedCities.length > 0 && !location.search) {
+        // First time with default city and no filters - don't auto search,
+        // let the user initiate the search
         setIsNewSearch(false);
       }
     }
-  }, [initialLoadDone, selectedCities, handleSearch, isNewSearch, filtersAppliedState, location.search]);
+  }, [
+    initialLoadDone, selectedCities, handleSearch, isNewSearch, 
+    filtersAppliedState, location.search, setIsNewSearch
+  ]);
 
   return {
     searchTerm,
@@ -203,16 +225,12 @@ export function useSearchProperties(): SearchHookResult {
     getActiveFiltersCount,
     handleFilterRemoval,
     initialLoadDone,
-    // Add map toggle state
     showMap,
     setShowMap,
-    // Add hovered property ID state
     hoveredPropertyId,
     setHoveredPropertyId,
-    // Add isNewSearch flag
     isNewSearch,
     setIsNewSearch,
-    // Add filtersApplied flag
     filtersAppliedState,
     setFiltersAppliedState
   };
