@@ -49,7 +49,7 @@ export function FilterActions({
         variant="default" 
         size={isMobile ? "sm" : "default"}
         onClick={handleSearchClick}
-        className={`${isMobile ? 'text-sm' : ''} bg-primary hover:bg-primary-dark text-white transition-colors`}
+        className={`${isMobile ? 'text-sm' : ''} bg-primary hover:bg-primary-dark text-white transition-colors animate-pulse`}
       >
         <Search className="mr-2 h-4 w-4" />
         {t('search.applyFilters')}

@@ -9,6 +9,7 @@ import { MapView } from "@/components/map/MapView";
 import { useSearch } from "@/contexts/search/SearchContext";
 import { useLocation } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
+import { Trans } from "@/components/ui/trans";
 
 // Main Search component that provides the context first
 export default function Search() {
@@ -29,7 +30,8 @@ function SearchContent() {
     properties,
     loading,
     isNewSearch,
-    filtersAppliedState
+    filtersAppliedState,
+    showFilters
   } = useSearch();
   const [refreshKey, setRefreshKey] = useState(0);
   const location = useLocation();
@@ -83,6 +85,15 @@ function SearchContent() {
       <MainNav />
       <SearchHeader key={`search-header-${refreshKey}`} />
       <Filters />
+      
+      {showFilters && (
+        <div className="bg-blue-50 border-b border-blue-200 py-2 px-4 text-center text-sm text-blue-800">
+          <Trans id="search.applyFiltersHelp">
+            After adjusting your filters, click "Apply Filters" to see updated results
+          </Trans>
+        </div>
+      )}
+      
       <div className="flex flex-col lg:flex-row w-full max-w-[1920px] mx-auto">
         <div className={`${showMap ? 'lg:w-1/2' : 'w-full'} transition-all duration-300 ease-in-out`}>
           {manualNavigation && !loading ? (

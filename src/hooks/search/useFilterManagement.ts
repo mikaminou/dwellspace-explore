@@ -39,6 +39,7 @@ export function useFilterManagement(
     setSelectedAmenities([]);
     setSortOption('relevance');
     
+    // Still auto-search after reset since this is explicitly initiated by the user
     setTimeout(() => {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
@@ -111,6 +112,7 @@ export function useFilterManagement(
       document.activeElement.blur();
     }
     
+    // Filter removals should still trigger searches since they are explicit user actions
     setTimeout(() => {
       handleSearch();
     }, 50);

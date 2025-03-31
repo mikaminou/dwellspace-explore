@@ -16,7 +16,7 @@ export function SearchButton({ onClick }: SearchButtonProps) {
       onClick={onClick} 
       variant="cta" 
       size="lg"
-      className="w-full md:w-auto transition-all duration-200"
+      className="w-full md:w-auto transition-all duration-200 animate-pulse"
     >
       <SearchIcon className="h-4 w-4 mr-1" />
       {t('search.search')}
