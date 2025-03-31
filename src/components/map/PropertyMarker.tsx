@@ -51,7 +51,7 @@ export function PropertyMarker({
     return `
       .marker-bubble.marker-hovered {
         box-shadow: 0 0 15px ${color}, 0 0 5px ${color};
-        border-color: ${color};
+        border: 2px solid ${color};
       }
       .marker-bubble.marker-hovered .marker-pointer {
         background-color: ${color};
