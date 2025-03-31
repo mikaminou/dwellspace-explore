@@ -17,7 +17,9 @@ export function usePropertyMarkers(
   const [initialBoundsSet, setInitialBoundsSet] = useState(false);
   const processedPropertiesRef = useRef<Set<number>>(new Set());
   const previousPropertiesRef = useRef<Property[]>([]);
-
+  const markersProcessedRef = useRef(false);
+  
+  // Update marker z-index when active marker changes
   const updateMarkerZIndex = (propertyId: number | null) => {
     Object.entries(markersRef.current).forEach(([id, marker]) => {
       const markerEl = marker.getElement();
@@ -30,16 +32,16 @@ export function usePropertyMarkers(
     }
   };
 
-  // Reset processed properties when the properties list changes
+  // Clear and reset markers when properties list changes
   useEffect(() => {
-    // Compare with previous properties to check if it's a new set
+    // Only process if properties list has meaningfully changed
     const currentPropertyIds = new Set(propertiesWithOwners.map(p => p.id));
     const previousPropertyIds = new Set(previousPropertiesRef.current.map(p => p.id));
     
-    // Check if property sets are different
+    // Check if property sets are different by comparing IDs
     let isDifferentSet = false;
     
-    // If length is different, it's definitely a different set
+    // Check if the length is different
     if (currentPropertyIds.size !== previousPropertyIds.size) {
       isDifferentSet = true;
     } else {
@@ -52,41 +54,40 @@ export function usePropertyMarkers(
       }
     }
     
-    // Only reset if we have a different set of properties
+    // Only reset if we have a new search result
     if (isDifferentSet) {
-      console.log('Property set changed, resetting processed properties');
-      processedPropertiesRef.current = new Set();
-      previousPropertiesRef.current = [...propertiesWithOwners];
+      console.log('Property set changed, resetting markers');
       
-      // Clear all existing markers when property set changes
+      // Clean up existing markers
       Object.keys(markersRef.current).forEach(id => {
         markersRef.current[parseInt(id)].remove();
         delete markersRef.current[parseInt(id)];
       });
       
-      // Reset initial bounds
+      // Clear all marker tracking
+      processedPropertiesRef.current = new Set();
+      markersProcessedRef.current = false;
+      
+      // Store current properties for next comparison
+      previousPropertiesRef.current = [...propertiesWithOwners];
+      
+      // Reset bounds flag to allow fitting to new property set
       setInitialBoundsSet(false);
     }
   }, [propertiesWithOwners]);
 
+  // Only create markers once when properties and map are ready
   useEffect(() => {
     if (!map.current || !mapLoaded || loading) return;
-    
     if (propertiesWithOwners.length === 0) return;
-
+    if (markersProcessedRef.current) return; // Skip if markers already processed
+    
+    console.log('Creating markers for properties:', propertiesWithOwners.length);
+    
     const bounds = new mapboxgl.LngLatBounds();
     let propertiesWithCoords = 0;
     
-    console.log('Properties to display on map:', propertiesWithOwners.map(p => ({
-      id: p.id, 
-      title: p.title, 
-      street: p.street_name,
-      city: p.city,
-      lat: p.latitude, 
-      lng: p.longitude
-    })));
-
-    // Process each property and create/update markers
+    // Process each property and create markers (only once)
     propertiesWithOwners.forEach(property => {
       // Skip properties without proper coordinates
       if (typeof property.latitude !== 'number' || typeof property.longitude !== 'number') {
@@ -94,40 +95,32 @@ export function usePropertyMarkers(
         return;
       }
       
-      // Skip if we've already processed this property
+      // Check if this property is already processed
       if (processedPropertiesRef.current.has(property.id)) {
-        // Still extend bounds for this property
+        // Still include in bounds calculation
         bounds.extend([property.longitude, property.latitude]);
         propertiesWithCoords++;
         return;
       }
       
-      // Create LngLat coordinates for mapbox (longitude first, then latitude)
+      // Create marker coordinates (longitude first, then latitude for mapbox)
       const lngLat: [number, number] = [property.longitude, property.latitude];
       
-      // Extend map bounds to include this property
+      // Include in bounds calculation
       bounds.extend(lngLat);
       propertiesWithCoords++;
       
-      // If marker already exists, just update its position
-      if (markersRef.current[property.id]) {
-        console.log(`Updating existing marker for property ${property.id} to position:`, lngLat);
-        markersRef.current[property.id].setLngLat(lngLat);
-        
-        // Mark as processed
-        processedPropertiesRef.current.add(property.id);
-        return;
-      }
-      
-      // Create new marker element
+      // Create the marker element
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker-container';
       
+      // Set up click handler
       const handleMarkerClick = () => {
         setActiveMarkerId(property.id);
         showPropertyPopup(property, lngLat);
       };
 
+      // Render React component into marker element
       const root = createRoot(markerEl);
       root.render(
         PropertyMarker({
@@ -138,9 +131,9 @@ export function usePropertyMarkers(
         })
       );
       
-      console.log(`Creating new marker for property ${property.id} at position [${lngLat[0]}, ${lngLat[1]}]`);
+      console.log(`Creating marker for property ${property.id} at [${lngLat[0]}, ${lngLat[1]}]`);
       
-      // Create and add the marker to the map
+      // Create and add marker to map
       const marker = new mapboxgl.Marker({
         element: markerEl,
         anchor: 'bottom',
@@ -150,25 +143,30 @@ export function usePropertyMarkers(
         .setLngLat(lngLat)
         .addTo(map.current!);
 
+      // Store reference to marker
       markersRef.current[property.id] = marker;
       
       // Mark as processed
       processedPropertiesRef.current.add(property.id);
     });
 
-    // Only fit bounds if we haven't done it yet and we have properties with coordinates
+    // Only fit map bounds once for this set of properties
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
       console.log(`Fitting map to bounds with ${propertiesWithCoords} properties`);
       map.current.fitBounds(bounds, {
         padding: 50,
         maxZoom: 15,
         bearing: 0,
-        pitch: 0, // Keep flat top-down view
-        duration: 1500, // Smooth animation
+        pitch: 0, 
+        duration: 1500,
         essential: true
       });
       setInitialBoundsSet(true);
     }
+    
+    // Mark all markers as processed to prevent recreation
+    markersProcessedRef.current = true;
+    
   }, [propertiesWithOwners, mapLoaded, loading, showPropertyPopup]);
 
   return { activeMarkerId, setActiveMarkerId, updateMarkerZIndex };
