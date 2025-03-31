@@ -9,7 +9,7 @@ import { usePropertyPopup } from './usePropertyPopup';
 import { usePropertyMarkers } from './usePropertyMarkers';
 import { useCityUpdate } from './useCityUpdate';
 import { useTheme } from 'next-themes';
-import { ShieldAlert, Info, Layers, MapPin, Sun, Moon, Map } from 'lucide-react';
+import { ShieldAlert, Info, Layers, MapPin, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Tooltip, 
@@ -161,28 +161,6 @@ export function MapView() {
               </TooltipTrigger>
               <TooltipContent>
                 {mapType === 'roadmap' ? 'Switch to satellite view' : 'Switch to map view'}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="bg-white/90 hover:bg-white text-gray-700 shadow-md backdrop-blur-sm h-9 w-9"
-                  onClick={() => {}}
-                >
-                  {theme === 'dark' ? (
-                    <Sun className="h-4 w-4" />
-                  ) : (
-                    <Moon className="h-4 w-4" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {`${theme === 'dark' ? 'Light' : 'Dark'} theme`}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
