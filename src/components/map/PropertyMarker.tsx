@@ -24,8 +24,8 @@ export function PropertyMarker({
     onClick();
   };
 
-  // Get the appropriate border color based on listing type
-  const getBorderColor = () => {
+  // Get the appropriate icon color based on listing type
+  const getIconColor = () => {
     if (isPremium) return '#CDA434'; // Gold for premium
     
     switch (listingType.toLowerCase()) {
@@ -47,13 +47,6 @@ export function PropertyMarker({
     <div 
       className={`custom-marker flex items-center justify-center cursor-pointer z-10 transition-transform ${isHovered ? 'scale-125' : 'hover:scale-110'}`}
       onClick={handleClick}
-      style={{ 
-        borderColor: getBorderColor(),
-        borderWidth: '2px',
-        borderStyle: 'solid',
-        borderRadius: '8px',
-        padding: '2px'
-      }}
     >
       <div className={`marker-bubble ${isHovered ? 'marker-hovered' : ''}`}>
         <span className="marker-price">{formatPrice(price)}</span>
