@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { formatPrice } from './mapUtils';
-import { MapPin } from 'lucide-react';
+import { Building } from 'lucide-react';
 
 interface PropertyMarkerProps {
   price: string;
@@ -17,22 +17,22 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
     onClick();
   };
 
-  // Get the appropriate marker class based on listing type
-  const getMarkerRingColor = () => {
-    if (isPremium) return 'border-amber-400';
+  // Get the appropriate icon color based on listing type
+  const getIconColor = () => {
+    if (isPremium) return '#CDA434'; // Gold for premium
     
     switch (listingType.toLowerCase()) {
       case 'rent':
-        return 'border-blue-500';
+        return '#3498DB'; // Blue
       case 'construction':
-        return 'border-amber-500';
+        return '#E67E22'; // Orange
       case 'commercial':
-        return 'border-purple-500';
+        return '#9B59B6'; // Purple
       case 'vacation':
-        return 'border-teal-500';
+        return '#1ABC9C'; // Teal
       case 'sale':
       default:
-        return 'border-green-500';
+        return '#27AE60'; // Green
     }
   };
 
@@ -41,12 +41,10 @@ export function PropertyMarker({ price, isPremium = false, listingType = 'sale',
       className="custom-marker flex items-center justify-center cursor-pointer z-10 transition-transform hover:scale-110"
       onClick={handleClick}
     >
-      <div className={`marker-circle-container ${getMarkerRingColor()}`}>
-        <div className="marker-circle-inner">
-          <div className="marker-price-text">
-            {formatPrice(price)}
-          </div>
-        </div>
+      <div className="marker-bubble">
+        <Building size={16} color={getIconColor()} className="marker-icon" />
+        <span className="marker-price">{formatPrice(price)}</span>
+        <div className="marker-pointer"></div>
       </div>
     </div>
   );

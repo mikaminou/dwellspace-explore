@@ -17,16 +17,18 @@ function getCitiesCoordinates(): {[key: string]: { lat: number, lng: number }} {
   };
 }
 
-// Updated helper function to format price in DZD (Algerian Dinar)
+// Updated helper function to format price in DZD (Algerian Dinar) with more precise decimals
 export function formatPrice(price: string): string {
   try {
     const numericPrice = parseInt(price.replace(/[^0-9]/g, ''));
     if (isNaN(numericPrice)) return price;
     
     if (numericPrice >= 1000000) {
+      // Format as X.YM (with one decimal place)
       return `${(numericPrice / 1000000).toFixed(1)}M DZD`;
     } else if (numericPrice >= 1000) {
-      return `${Math.round(numericPrice / 1000)}K DZD`;
+      // Format as X.YK (with one decimal place for thousands)
+      return `${(numericPrice / 1000).toFixed(1)}K DZD`;
     } else {
       return `${numericPrice} DZD`;
     }
