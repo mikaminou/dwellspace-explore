@@ -16,8 +16,7 @@ export function useSearchInitialData(
   setMaxLivingArea: (area: number) => void,
   setCities: (cities: string[]) => void,
   setSelectedCities: (cities: string[]) => void,
-  setInitialLoadDone: (done: boolean) => void,
-  isNewSearch: boolean // Add this parameter
+  setInitialLoadDone: (done: boolean) => void
 ) {
   const { t } = useLanguage();
 
@@ -27,37 +26,22 @@ export function useSearchInitialData(
         // 1. Fetch limits
         const maxPrice = await getMaxPropertyPrice();
         setMaxPriceLimit(maxPrice);
-        
-        // Only set maxPrice if not already set
-        const storedMaxPrice = localStorage.getItem('maxPrice');
-        if (!storedMaxPrice || storedMaxPrice === "50000000") {
-          setMaxPrice(maxPrice);
-        }
+        setMaxPrice(maxPrice);
 
         const maxLiving = await getMaxLivingArea();
         setMaxLivingAreaLimit(maxLiving);
-        
-        // Only set maxLivingArea if not already set
-        const storedMaxLivingArea = localStorage.getItem('maxLivingArea');
-        if (!storedMaxLivingArea || storedMaxLivingArea === "500") {
-          setMaxLivingArea(maxLiving);
-        }
+        setMaxLivingArea(maxLiving);
 
         // 2. Fetch all cities
         const citiesList = await getAllCities();
         // Remove 'any' option from the city list
         setCities(citiesList);
         
-        // 3. Only set default city if this is a new search and no city is selected
-        const storedCities = localStorage.getItem('selectedCities');
-        const parsedCities = storedCities ? JSON.parse(storedCities) : [];
+        // 3. Get the city with the lowest property count
+        const defaultCity = await getCityWithLowestPropertyCount();
         
-        if (isNewSearch && parsedCities.length === 0) {
-          // Get the city with the lowest property count
-          const defaultCity = await getCityWithLowestPropertyCount();
-          // 4. Set the default city
-          setSelectedCities([defaultCity]);
-        }
+        // 4. Set the default city
+        setSelectedCities([defaultCity]);
         
         // 5. Set initial load done flag
         setInitialLoadDone(true);
@@ -69,5 +53,5 @@ export function useSearchInitialData(
     };
 
     fetchInitialData();
-  }, [t, setMaxPriceLimit, setMaxPrice, setMaxLivingAreaLimit, setMaxLivingArea, setCities, setSelectedCities, setInitialLoadDone, isNewSearch]);
+  }, [t, setMaxPriceLimit, setMaxPrice, setMaxLivingAreaLimit, setMaxLivingArea, setCities, setSelectedCities, setInitialLoadDone]);
 }

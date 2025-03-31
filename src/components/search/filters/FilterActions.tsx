@@ -3,7 +3,6 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { X, Search, FilterIcon } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
-import { useSearch } from "@/contexts/search/SearchContext";
 
 interface FilterActionsProps {
   handleReset: () => void;
@@ -17,7 +16,6 @@ export function FilterActions({
   isMobile = false
 }: FilterActionsProps) {
   const { t } = useLanguage();
-  const { filtersChanged } = useSearch();
 
   const handleResetClick = () => {
     // Blur any focused element
@@ -51,11 +49,7 @@ export function FilterActions({
         variant="default" 
         size={isMobile ? "sm" : "default"}
         onClick={handleSearchClick}
-        className={`
-          ${isMobile ? 'text-sm' : ''} 
-          bg-primary hover:bg-primary-dark text-white transition-colors
-          ${filtersChanged ? 'animate-pulse ring-2 ring-primary ring-offset-2' : ''}
-        `}
+        className={`${isMobile ? 'text-sm' : ''} bg-primary hover:bg-primary-dark text-white transition-colors`}
       >
         <Search className="mr-2 h-4 w-4" />
         {t('search.applyFilters')}

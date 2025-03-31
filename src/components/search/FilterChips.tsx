@@ -1,4 +1,3 @@
-
 import React from "react";
 import { MapPin, Home, DollarSign, Clock, Bed, Bath, Ruler, X, Package } from "lucide-react";
 import { useLanguage } from "@/contexts/language/LanguageContext";
@@ -105,7 +104,7 @@ export function FilterChips() {
           <Bed size={12} className="text-primary" /> 
           {minBeds}+ {t('search.beds')}
           <button 
-            onClick={() => handleFilterRemoval('beds', minBeds)} 
+            onClick={() => handleFilterRemoval('beds')} 
             className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
           >
             <X size={12} />
@@ -121,7 +120,7 @@ export function FilterChips() {
           <Bath size={12} className="text-primary" /> 
           {minBaths}+ {t('search.baths')}
           <button 
-            onClick={() => handleFilterRemoval('baths', minBaths)} 
+            onClick={() => handleFilterRemoval('baths')} 
             className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
           >
             <X size={12} />
@@ -137,7 +136,7 @@ export function FilterChips() {
           <Ruler size={12} className="text-primary" /> 
           {minLivingArea} - {maxLivingArea} m²
           <button 
-            onClick={() => handleFilterRemoval('livingArea', minLivingArea)} 
+            onClick={() => handleFilterRemoval('livingArea')} 
             className="ml-1 p-0.5 rounded-full hover:bg-primary/10 text-primary"
           >
             <X size={12} />

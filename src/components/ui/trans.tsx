@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { t } from '@/localization';
-import { useLanguage } from '@/contexts/language/LanguageContext';
 
 interface TransProps {
   id: string;
@@ -16,14 +15,8 @@ interface TransProps {
  * Translation component that uses the localization system
  */
 export function Trans({ id, children, values = {}, defaultText, className, userContent = false }: TransProps) {
-  const { t: translate } = useLanguage();
-  
-  // Get the translated text using the id and values for interpolation
-  const translatedText = translate(
-    id,
-    values,
-    defaultText || (typeof children === 'string' ? children : undefined)
-  );
+  // Get the translated text using the id
+  const translatedText = t(id, defaultText || (children as string));
   
   // Return the translated text
   return (
@@ -41,14 +34,8 @@ interface TransHeadingProps extends TransProps {
 }
 
 export function TransHeading({ as: Component = 'h2', id, children, values, defaultText, className, userContent = false }: TransHeadingProps) {
-  const { t: translate } = useLanguage();
-  
-  // Get the translated text using the id and values for interpolation
-  const translatedText = translate(
-    id,
-    values,
-    defaultText || (typeof children === 'string' ? children : undefined)
-  );
+  // Get the translated text using the id
+  const translatedText = t(id, defaultText || (children as string));
   
   // Render the component with the translated text
   return React.createElement(
