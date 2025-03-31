@@ -26,6 +26,19 @@ export function usePropertyPopup(
     toast.success('Message panel opened');
   }, []);
 
+  // Handle getting directions to property
+  const handleGetDirections = useCallback((lat: string, lng: string) => {
+    if (!lat || !lng) {
+      toast.error('Location coordinates not available for this property');
+      return;
+    }
+    
+    // Open Google Maps in a new tab with directions to this location
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, '_blank');
+    toast.success('Opening directions in Google Maps');
+  }, []);
+
   // Show property popup - accepting a marker instead of coordinates
   const showPropertyPopup = useCallback((property: Property, marker: mapboxgl.Marker) => {
     if (!map.current) return;
@@ -78,6 +91,11 @@ export function usePropertyPopup(
             e.stopPropagation();
             const ownerId = Number(clickedElement.getAttribute('data-owner-id'));
             handleMessageOwner(ownerId);
+          } else if (action === 'route') {
+            e.stopPropagation();
+            const lat = clickedElement.getAttribute('data-lat') || '';
+            const lng = clickedElement.getAttribute('data-lng') || '';
+            handleGetDirections(lat, lng);
           }
         } else {
           // Navigate to property details without removing the popup first
@@ -99,7 +117,7 @@ export function usePropertyPopup(
         }
       });
     });
-  }, [map, navigate, updateMarkerZIndex, setActiveMarkerId, handleSaveProperty, handleMessageOwner]);
+  }, [map, navigate, updateMarkerZIndex, setActiveMarkerId, handleSaveProperty, handleMessageOwner, handleGetDirections]);
 
   return { popupRef, showPropertyPopup };
 }

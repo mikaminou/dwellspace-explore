@@ -86,6 +86,11 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
     }
   };
 
+  // Route icon SVG
+  const getRouteIcon = () => {
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 14.5-3.95 3.95Q2.9 19.1 2.2 18.4q-.7-.7-.05-1.35L6.1 13.1q.3-.3.7-.3t.7.3l.7.7q.3.3.3.7t-.3.7z"/><path d="m9.5 12.5 2.85-2.85q.3-.3.7-.3t.7.3l1.1 1.1q.3.3.3.7t-.3.7L12 15"/><path d="M14 16.5 21 10l1-4-4 1-6.5 7"/><path d="m11 12 3-3"/></svg>`;
+  };
+
   // Create HTML string for the popup
   return `
     <div class="property-popup-content cursor-pointer p-0 overflow-hidden rounded-xl shadow-lg" data-property-id="${property.id}">
@@ -149,6 +154,16 @@ export function PropertyPopup({ property, onSave, onMessageOwner }: PropertyPopu
                 data-owner-id="${property.owner?.id || property.agent?.id || property.owner_id || 0}"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+              </button>
+              <button 
+                class="p-2 ${getListingTypeButtonBgClass(property.listing_type)} rounded-full transition-colors" 
+                aria-label="Get directions"
+                data-action="route"
+                data-property-id="${property.id}"
+                data-lat="${property.latitude || property.lat || ''}"
+                data-lng="${property.longitude || property.lng || ''}"
+              >
+                ${getRouteIcon()}
               </button>
               <button 
                 class="p-2 ${getListingTypeButtonBgClass(property.listing_type)} rounded-full transition-colors" 
