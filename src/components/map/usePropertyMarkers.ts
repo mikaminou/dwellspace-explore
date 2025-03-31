@@ -16,6 +16,8 @@ export function usePropertyMarkers(
   const [initialBoundsSet, setInitialBoundsSet] = useState(false);
   const markerElementsRef = useRef<{ [key: number]: HTMLDivElement }>({});
   const markerPositionsRef = useRef<{ [key: number]: google.maps.LatLng }>({});
+  // Track when we've created markers to prevent recreation on zoom
+  const markersCreatedRef = useRef<boolean>(false);
 
   // This function only updates Z-index, not position
   const updateMarkerZIndex = (propertyId: number | null) => {
@@ -38,6 +40,7 @@ export function usePropertyMarkers(
     }
   };
 
+  // Effect to clear markers when property list changes completely
   useEffect(() => {
     // Safety check to ensure Google Maps is loaded
     if (!map.current || !mapLoaded || loading || !window.google) return;
@@ -60,7 +63,16 @@ export function usePropertyMarkers(
       }
     });
     
-    if (propertiesWithOwners.length === 0) return;
+    // If there are no properties, reset the markers created flag so they'll be recreated next time
+    if (propertiesWithOwners.length === 0) {
+      markersCreatedRef.current = false;
+      return;
+    }
+
+    // If markers are already created, don't recreate them during zoom operations
+    if (markersCreatedRef.current && Object.keys(markersRef.current).length > 0) {
+      return;
+    }
 
     const bounds = new window.google.maps.LatLngBounds();
     let propertiesWithCoords = 0;
@@ -210,7 +222,7 @@ export function usePropertyMarkers(
       return true;
     });
 
-    // Process each property and create/update markers
+    // Process each property and create markers - only done once per data fetch
     visibleProperties.forEach(property => {
       // Skip properties without proper coordinates
       if (typeof property.latitude !== 'number' || typeof property.longitude !== 'number') {
@@ -227,7 +239,7 @@ export function usePropertyMarkers(
       bounds.extend(position);
       propertiesWithCoords++;
       
-      // If marker already exists, DO NOT update its position - this prevents position jumping on zoom
+      // If marker already exists, don't recreate it - just return
       if (markersRef.current[property.id]) {
         return;
       }
@@ -309,6 +321,9 @@ export function usePropertyMarkers(
       }
     });
 
+    // Mark that we've created the markers, so we don't recreate them on zoom
+    markersCreatedRef.current = true;
+
     // Only fit bounds if we haven't done it yet and we have properties with coordinates
     if (propertiesWithCoords > 0 && !initialBoundsSet) {
       map.current.fitBounds(bounds);
@@ -325,6 +340,7 @@ export function usePropertyMarkers(
   useEffect(() => {
     if (propertiesWithOwners.length === 0) {
       setInitialBoundsSet(false);
+      markersCreatedRef.current = false; // Reset the markers created flag
     }
   }, [propertiesWithOwners]);
 
