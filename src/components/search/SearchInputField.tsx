@@ -24,6 +24,18 @@ export function SearchInputField({
   placeholder
 }: SearchInputFieldProps) {
   const { t, dir } = useLanguage();
+  // Add debouncing for input changes
+  const inputTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Clear any existing timeout
+    if (inputTimeoutRef.current) {
+      clearTimeout(inputTimeoutRef.current);
+    }
+    
+    // Directly update the input value for immediate feedback
+    setSearchTerm(e.target.value);
+  };
 
   const onClearClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -43,7 +55,7 @@ export function SearchInputField({
         className={`pl-10 ${dir === 'rtl' ? 'arabic-text' : ''} h-12 border-2 focus:border-cta transition-colors`} 
         placeholder={placeholder || t('search.placeholder') || "Try 'modern 3 bedroom house with pool in Algiers'"}
         value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        onChange={handleInputChange}
         onFocus={onFocus}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {

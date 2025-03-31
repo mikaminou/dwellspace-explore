@@ -33,6 +33,10 @@ export function useSearchHeaderOperations({
   const searchHeaderRef = useRef<HTMLDivElement>(null);
   const [searchHeaderSticky, setSearchHeaderSticky] = useState(false);
   const clearOperationInProgress = useRef(false);
+  const searchOperationInProgress = useRef(false);
+
+  // Add debounce timeout for operations
+  const operationDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,7 +47,13 @@ export function useSearchHeaderOperations({
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      // Clean up any pending timeouts
+      if (operationDebounceRef.current) {
+        clearTimeout(operationDebounceRef.current);
+      }
+    };
   }, []);
 
   // Handle keyboard shortcut to open search
@@ -65,6 +75,13 @@ export function useSearchHeaderOperations({
   };
 
   const handleSelectSuggestion = (suggestion: string) => {
+    // Prevent duplicate operations
+    if (searchOperationInProgress.current) {
+      return;
+    }
+    
+    searchOperationInProgress.current = true;
+    
     setSearchTerm(suggestion);
     
     // Process natural language query
@@ -118,17 +135,25 @@ export function useSearchHeaderOperations({
       }
     }
     
-    handleSearch();
+    // Use a short timeout to ensure state updates have propagated
+    operationDebounceRef.current = setTimeout(() => {
+      handleSearch();
+      toast(t('search.searchingFor') || "Searching for", {
+        description: suggestion,
+        duration: 3000,
+      });
+      searchOperationInProgress.current = false;
+    }, 100);
     
-    toast(t('search.searchingFor') || "Searching for", {
-      description: suggestion,
-      duration: 3000,
-    });
+    // Close suggestions
+    setShowSuggestions(false);
   };
 
   const handleSearchClick = () => {
-    // Prevent execution if clear operation is in progress
-    if (clearOperationInProgress.current) return;
+    // Prevent execution if clear operation is in progress or a search is already running
+    if (clearOperationInProgress.current || searchOperationInProgress.current) return;
+    
+    searchOperationInProgress.current = true;
     
     // Process natural language query
     const extractedFilters = parseNaturalLanguageQuery(searchTerm);
@@ -185,12 +210,18 @@ export function useSearchHeaderOperations({
       setFiltersAppliedState(true);
     }
     
-    handleSearch();
-    setShowSuggestions(false);
+    // Use a short timeout to ensure state updates have propagated
+    operationDebounceRef.current = setTimeout(() => {
+      handleSearch();
+      setShowSuggestions(false);
+      searchOperationInProgress.current = false;
+    }, 100);
   };
 
   const handleClearSearch = () => {
     // Set a flag to prevent concurrent operations
+    if (clearOperationInProgress.current || searchOperationInProgress.current) return;
+    
     clearOperationInProgress.current = true;
     
     // First clear the search term
@@ -220,7 +251,7 @@ export function useSearchHeaderOperations({
     // Trigger a new search with the city selection intact
     // We need to trigger this outside the current event loop to ensure
     // the state updates have been processed
-    setTimeout(() => {
+    operationDebounceRef.current = setTimeout(() => {
       handleSearch();
       // Reset the flag after the operation completes
       clearOperationInProgress.current = false;

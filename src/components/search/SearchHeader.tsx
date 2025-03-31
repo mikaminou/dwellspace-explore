@@ -86,8 +86,9 @@ export function SearchHeader() {
     }
     
     if (selectedCities.length > 0) {
-      // Format the cities string to be interpolated in the translation
+      // Format the cities string for display
       const citiesStr = selectedCities.join(', ');
+      // Use regular string interpolation for the translation key
       return t('search.cityPlaceholder', { cities: citiesStr }) || `Search in ${citiesStr}...`;
     }
     

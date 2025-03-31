@@ -1,3 +1,4 @@
+
 export const en = {
   // Navigation
   nav: {
@@ -61,7 +62,7 @@ export const en = {
   
   // Search page
   search: {
-    placeholder: "Search for properties...",
+    placeholder: "Try 'modern 3 bedroom house with pool in Algiers'",
     search: "Search",
     showFilters: "Show Filters",
     hideFilters: "Hide Filters",
@@ -137,8 +138,7 @@ export const en = {
     amenities: "Amenities",
     selectSortOption: "Select sort option",
     cityPlaceholder: "Search in {cities}...",
-    emptyPlaceholder: "Search for properties...",
-    placeholder: "Try 'modern 3 bedroom house with pool in Algiers'"
+    emptyPlaceholder: "Search for properties..."
   },
   
   // Property details
