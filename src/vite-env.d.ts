@@ -100,6 +100,13 @@ declare namespace google {
     
     type GeocoderStatus = 'OK' | 'ZERO_RESULTS' | 'OVER_QUERY_LIMIT' | 'REQUEST_DENIED' | 'INVALID_REQUEST' | 'UNKNOWN_ERROR';
     
+    // Add MapMouseEvent interface
+    interface MapMouseEvent {
+      latLng: LatLng;
+      domEvent: MouseEvent;
+      stop(): void;
+    }
+    
     namespace places {
       class Autocomplete {
         constructor(inputField: HTMLInputElement, opts?: AutocompleteOptions);

@@ -585,8 +585,15 @@ export function PropertyForm({ id, useGoogleMaps = false }: PropertyFormProps) {
                   ) : (
                     <LocationPicker 
                       onLocationSelect={handleLocationSelect}
-                      initialLatitude={form.getValues("latitude")}
-                      initialLongitude={form.getValues("longitude")}
+                      initialLocation={{
+                        longitude: form.getValues("longitude"),
+                        latitude: form.getValues("latitude"),
+                        city: form.getValues("city"),
+                        state: form.getValues("state"),
+                        country: form.getValues("country"),
+                        streetName: form.getValues("street_name"),
+                        location: form.getValues("location")
+                      }}
                     />
                   )}
 
