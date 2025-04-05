@@ -36,6 +36,7 @@ import { YearPicker } from "@/components/owners/YearPicker";
 import { AmenityItem } from "@/components/owners/AmenityItem";
 import { ImageUploadDropzone } from "@/components/owners/ImageUploadDropzone";
 import { LocationPicker } from "@/components/map/LocationPicker";
+import { GoogleLocationPicker } from "@/components/map/GoogleLocationPicker";
 
 const formSteps = [
   { id: "location", label: "Location", icon: <MapPin className="h-4 w-4" /> },
@@ -567,7 +568,7 @@ export function PropertyForm({ id }: PropertyFormProps) {
               <TabsContent value="location" className="space-y-6">
                 <div className="space-y-6">
                   <h3 className="text-lg font-medium">Select Location on Map</h3>
-                  <LocationPicker 
+                  <GoogleLocationPicker 
                     onLocationSelect={handleLocationSelect}
                     initialLocation={{
                       longitude: form.getValues("longitude"),

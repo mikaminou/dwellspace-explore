@@ -41,7 +41,7 @@ export default function PropertyEdit() {
       <div className="min-h-screen bg-background">
         <MainNav />
         <main className="container mx-auto py-6 px-4">
-          {id && <PropertyForm id={id} />}
+          {id && <PropertyForm id={id} useGoogleMaps={true} />}
         </main>
       </div>
     </ProtectedRoute>

@@ -2,7 +2,6 @@
 import { useEffect } from "react";
 import { MainNav } from "@/components/MainNav";
 import { PropertyForm } from "@/components/owners/PropertyForm";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/auth";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
@@ -33,7 +32,7 @@ export default function PropertyCreate() {
       <div className="min-h-screen bg-background">
         <MainNav />
         <main className="container mx-auto py-6 px-4">
-          <PropertyForm />
+          <PropertyForm useGoogleMaps={true} />
         </main>
       </div>
   );

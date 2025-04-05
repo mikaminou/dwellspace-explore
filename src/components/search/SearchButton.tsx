@@ -6,9 +6,10 @@ import { useLanguage } from "@/contexts/language/LanguageContext";
 
 interface SearchButtonProps {
   onClick: () => void;
+  className?: string;
 }
 
-export function SearchButton({ onClick }: SearchButtonProps) {
+export function SearchButton({ onClick, className = "" }: SearchButtonProps) {
   const { t } = useLanguage();
 
   return (
@@ -16,7 +17,7 @@ export function SearchButton({ onClick }: SearchButtonProps) {
       onClick={onClick} 
       variant="cta" 
       size="lg"
-      className="w-full md:w-auto transition-all duration-200"
+      className={`w-full md:w-auto transition-all duration-200 ${className}`}
     >
       <SearchIcon className="h-4 w-4 mr-1" />
       {t('search.search')}
