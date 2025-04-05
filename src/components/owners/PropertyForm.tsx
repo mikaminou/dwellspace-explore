@@ -82,9 +82,10 @@ type PropertyFormValues = z.infer<typeof propertySchema>;
 
 interface PropertyFormProps {
   id?: string;
+  useGoogleMaps?: boolean;
 }
 
-export function PropertyForm({ id }: PropertyFormProps) {
+export function PropertyForm({ id, useGoogleMaps = false }: PropertyFormProps) {
   const params = useParams<{ id?: string }>();
   const propertyId = id || params.id;
   const isEditing = !!propertyId;
@@ -568,18 +569,26 @@ export function PropertyForm({ id }: PropertyFormProps) {
               <TabsContent value="location" className="space-y-6">
                 <div className="space-y-6">
                   <h3 className="text-lg font-medium">Select Location on Map</h3>
-                  <GoogleLocationPicker 
-                    onLocationSelect={handleLocationSelect}
-                    initialLocation={{
-                      longitude: form.getValues("longitude"),
-                      latitude: form.getValues("latitude"),
-                      city: form.getValues("city"),
-                      state: form.getValues("state"),
-                      country: form.getValues("country"),
-                      streetName: form.getValues("street_name"),
-                      location: form.getValues("location")
-                    }}
-                  />
+                  {useGoogleMaps ? (
+                    <GoogleLocationPicker 
+                      onLocationSelect={handleLocationSelect}
+                      initialLocation={{
+                        longitude: form.getValues("longitude"),
+                        latitude: form.getValues("latitude"),
+                        city: form.getValues("city"),
+                        state: form.getValues("state"),
+                        country: form.getValues("country"),
+                        streetName: form.getValues("street_name"),
+                        location: form.getValues("location")
+                      }}
+                    />
+                  ) : (
+                    <LocationPicker 
+                      onLocationSelect={handleLocationSelect}
+                      initialLatitude={form.getValues("latitude")}
+                      initialLongitude={form.getValues("longitude")}
+                    />
+                  )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     <FormField
