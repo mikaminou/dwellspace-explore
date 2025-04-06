@@ -41,6 +41,24 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
   
   // Initialize Google Maps
   useEffect(() => {
+    // Clean up function for when component unmounts
+    const cleanupFunc = () => {
+      // Remove any event listeners or markers if needed
+      if (marker) {
+        marker.setMap(null);
+      }
+      
+      // Check if script was added by this component and remove it
+      const scriptElement = document.querySelector('script[src*="maps.googleapis.com/maps/api"]');
+      if (scriptElement && scriptElement.parentNode) {
+        try {
+          scriptElement.parentNode.removeChild(scriptElement);
+        } catch (e) {
+          console.error("Error removing script element:", e);
+        }
+      }
+    };
+
     // Load Google Maps script if not already loaded
     if (!window.google) {
       const script = document.createElement('script');
@@ -48,7 +66,7 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
       
       if (!apiKey) {
         setMapLoadError("Google Maps API key is missing");
-        return;
+        return cleanupFunc;
       }
       
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
@@ -64,9 +82,7 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
       initMap();
     }
 
-    return () => {
-      // Clean up any listeners if needed
-    };
+    return cleanupFunc;
   }, []);
 
   // Initialize map
@@ -295,6 +311,9 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
     });
   };
 
+  const searchPlaceholder = t('property.searchLocation') || "Search for a location...";
+  const loadingMapText = t('property.loadingMap') || "Loading map...";
+
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -302,7 +321,7 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
           <Input
             ref={searchInputRef}
             type="text"
-            placeholder={t('property.searchLocation') || "Search for a location..."}
+            placeholder={searchPlaceholder}
             value={searchQuery}
             onChange={handleSearchInputChange}
             className="flex-1"
@@ -322,7 +341,7 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
             {mapLoadError ? (
               <p className="text-red-500">{mapLoadError}</p>
             ) : (
-              <p>{t('property.loadingMap') || "Loading map..."}</p>
+              <p>{loadingMapText}</p>
             )}
           </div>
         )}

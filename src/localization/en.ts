@@ -164,7 +164,9 @@ export const en = {
     underConstruction: "Under Construction",
     livingSpace: "Living Space",
     plotSpace: "Plot Space",
-    postalCode: "Postal Code"
+    postalCode: "Postal Code",
+    searchLocation: "Search for a location...",
+    loadingMap: "Loading map..."
   },
   
   // Authentication
