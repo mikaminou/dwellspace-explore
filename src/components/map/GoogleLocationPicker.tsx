@@ -36,6 +36,7 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [mapLoadError, setMapLoadError] = useState<string | null>(null);
   const { t } = useLanguage();
   
   // Initialize Google Maps
@@ -43,11 +44,21 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
     // Load Google Maps script if not already loaded
     if (!window.google) {
       const script = document.createElement('script');
-      // Use import.meta.env instead of process.env for Vite
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyDZQM1fllVXGC-BU2LvQFOG1gBt69VrYzs"}&libraries=places`;
+      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+      
+      if (!apiKey) {
+        setMapLoadError("Google Maps API key is missing");
+        return;
+      }
+      
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = initMap;
+      script.onerror = () => {
+        setMapLoadError("Failed to load Google Maps API");
+        console.error("Google Maps script failed to load");
+      };
       document.head.appendChild(script);
     } else {
       initMap();
@@ -61,75 +72,81 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
   // Initialize map
   const initMap = () => {
     if (!mapRef.current) return;
+    
+    try {
+      // Set default location or use the initial location if provided
+      const initialCoordinates = initialLocation?.latitude && initialLocation?.longitude
+        ? { lat: initialLocation.latitude, lng: initialLocation.longitude }
+        : { lat: 36.7538, lng: 3.0588 }; // Default: Algiers
 
-    // Set default location or use the initial location if provided
-    const initialCoordinates = initialLocation?.latitude && initialLocation?.longitude
-      ? { lat: initialLocation.latitude, lng: initialLocation.longitude }
-      : { lat: 36.7538, lng: 3.0588 }; // Default: Algiers
-
-    // Create the map
-    const mapInstance = new google.maps.Map(mapRef.current, {
-      center: initialCoordinates,
-      zoom: 13,
-      mapTypeControl: true,
-      streetViewControl: false
-    });
-
-    // Create marker
-    const markerInstance = new google.maps.Marker({
-      position: initialCoordinates,
-      map: mapInstance,
-      draggable: true,
-      animation: google.maps.Animation.DROP
-    });
-
-    // Set up search input with autocomplete
-    if (searchInputRef.current) {
-      const autocomplete = new google.maps.places.Autocomplete(searchInputRef.current);
-      autocomplete.bindTo('bounds', mapInstance);
-
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-
-        if (!place.geometry || !place.geometry.location) {
-          return;
-        }
-
-        // Update marker position
-        markerInstance.setPosition(place.geometry.location);
-        
-        // Center map on the selected place
-        mapInstance.setCenter(place.geometry.location);
-        mapInstance.setZoom(16);
-
-        // Extract location data from place result
-        getLocationDetailsFromPlace(place);
+      // Create the map
+      const mapInstance = new google.maps.Map(mapRef.current, {
+        center: initialCoordinates,
+        zoom: 13,
+        mapTypeControl: true,
+        streetViewControl: false
       });
-    }
 
-    // Set up click event on map to place marker
-    mapInstance.addListener('click', (e: google.maps.MapMouseEvent) => {
-      if (!e.latLng) return;
-      
-      markerInstance.setPosition(e.latLng);
-      getLocationDetailsFromCoordinates(e.latLng.lat(), e.latLng.lng());
-    });
+      // Create marker
+      const markerInstance = new google.maps.Marker({
+        position: initialCoordinates,
+        map: mapInstance,
+        draggable: true,
+        animation: google.maps.Animation.DROP
+      });
 
-    // Set up drag end event for marker
-    markerInstance.addListener('dragend', () => {
-      const position = markerInstance.getPosition();
-      if (position) {
-        getLocationDetailsFromCoordinates(position.lat(), position.lng());
+      // Set up search input with autocomplete
+      if (searchInputRef.current) {
+        const autocomplete = new google.maps.places.Autocomplete(searchInputRef.current);
+        autocomplete.bindTo('bounds', mapInstance);
+
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+
+          if (!place.geometry || !place.geometry.location) {
+            return;
+          }
+
+          // Update marker position
+          markerInstance.setPosition(place.geometry.location);
+          
+          // Center map on the selected place
+          mapInstance.setCenter(place.geometry.location);
+          mapInstance.setZoom(16);
+
+          // Extract location data from place result
+          getLocationDetailsFromPlace(place);
+        });
       }
-    });
 
-    setMap(mapInstance);
-    setMarker(markerInstance);
-    setIsMapLoaded(true);
+      // Set up click event on map to place marker
+      mapInstance.addListener('click', (e: google.maps.MapMouseEvent) => {
+        if (!e.latLng) return;
+        
+        markerInstance.setPosition(e.latLng);
+        getLocationDetailsFromCoordinates(e.latLng.lat(), e.latLng.lng());
+      });
 
-    // If initial location is provided, fetch its details
-    if (initialLocation?.latitude && initialLocation?.longitude) {
-      getLocationDetailsFromCoordinates(initialLocation.latitude, initialLocation.longitude);
+      // Set up drag end event for marker
+      markerInstance.addListener('dragend', () => {
+        const position = markerInstance.getPosition();
+        if (position) {
+          getLocationDetailsFromCoordinates(position.lat(), position.lng());
+        }
+      });
+
+      setMap(mapInstance);
+      setMarker(markerInstance);
+      setIsMapLoaded(true);
+      setMapLoadError(null);
+
+      // If initial location is provided, fetch its details
+      if (initialLocation?.latitude && initialLocation?.longitude) {
+        getLocationDetailsFromCoordinates(initialLocation.latitude, initialLocation.longitude);
+      }
+    } catch (error) {
+      console.error("Error initializing map:", error);
+      setMapLoadError("Failed to initialize map");
     }
   };
 
@@ -299,13 +316,17 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
       <div 
         ref={mapRef} 
         className="w-full h-[300px] rounded-md border relative mb-4"
-      />
-      
-      {!isMapLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/50">
-          <p>{t('property.loadingMap') || "Loading map..."}</p>
-        </div>
-      )}
+      >
+        {!isMapLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+            {mapLoadError ? (
+              <p className="text-red-500">{mapLoadError}</p>
+            ) : (
+              <p>{t('property.loadingMap') || "Loading map..."}</p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
