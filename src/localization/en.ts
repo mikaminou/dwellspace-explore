@@ -166,7 +166,10 @@ export const en = {
     plotSpace: "Plot Space",
     postalCode: "Postal Code",
     searchLocation: "Search for a location...",
-    loadingMap: "Loading map..."
+    loadingMap: "Loading map...",
+    mapError: "Error loading map",
+    geocodeError: "Could not find this location",
+    geocodingFailed: "Geocoding failed"
   },
   
   // Authentication

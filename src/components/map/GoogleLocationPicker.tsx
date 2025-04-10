@@ -32,6 +32,7 @@ interface GoogleLocationPickerProps {
 export function GoogleLocationPicker({ onLocationSelect, initialLocation }: GoogleLocationPickerProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [marker, setMarker] = useState<google.maps.Marker | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,11 +49,10 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
         marker.setMap(null);
       }
       
-      // Check if script was added by this component and remove it
-      const scriptElement = document.querySelector('script[src*="maps.googleapis.com/maps/api"]');
-      if (scriptElement && scriptElement.parentNode) {
+      // Only remove the script if we created it in this component instance
+      if (scriptRef.current && document.body.contains(scriptRef.current)) {
         try {
-          scriptElement.parentNode.removeChild(scriptElement);
+          document.body.removeChild(scriptRef.current);
         } catch (e) {
           console.error("Error removing script element:", e);
         }
@@ -61,23 +61,31 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
 
     // Load Google Maps script if not already loaded
     if (!window.google) {
-      const script = document.createElement('script');
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
-      
-      if (!apiKey) {
-        setMapLoadError("Google Maps API key is missing");
-        return cleanupFunc;
+      try {
+        const script = document.createElement('script');
+        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+        
+        if (!apiKey) {
+          setMapLoadError("Google Maps API key is missing");
+          return cleanupFunc;
+        }
+        
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        script.async = true;
+        script.defer = true;
+        script.onload = initMap;
+        script.onerror = () => {
+          setMapLoadError("Failed to load Google Maps API");
+          console.error("Google Maps script failed to load");
+        };
+        
+        // Store the script element reference
+        scriptRef.current = script;
+        document.body.appendChild(script);
+      } catch (error) {
+        console.error("Error adding Google Maps script:", error);
+        setMapLoadError("Failed to load Google Maps");
       }
-      
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-      script.onload = initMap;
-      script.onerror = () => {
-        setMapLoadError("Failed to load Google Maps API");
-        console.error("Google Maps script failed to load");
-      };
-      document.head.appendChild(script);
     } else {
       initMap();
     }
@@ -168,6 +176,11 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
 
   // Get location details from coordinates using Geocoding
   const getLocationDetailsFromCoordinates = (lat: number, lng: number) => {
+    if (!window.google) {
+      console.error("Google Maps not loaded");
+      return;
+    }
+    
     const geocoder = new google.maps.Geocoder();
     
     geocoder.geocode({ location: { lat, lng } }, (results, status) => {
@@ -290,7 +303,7 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim() || !window.google) return;
     
     // Use Places API for geocoding the search query
     const geocoder = new google.maps.Geocoder();
