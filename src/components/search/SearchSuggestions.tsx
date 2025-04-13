@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   CommandDialog, 
   CommandInput, 
@@ -21,35 +20,43 @@ export interface SearchSuggestion {
 }
 
 interface SearchSuggestionsProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
+  searchInput: string;
   onSelectSuggestion: (suggestion: string) => void;
+  onClose: () => void;
 }
 
 export function SearchSuggestions({
-  open,
-  setOpen,
-  searchTerm,
-  setSearchTerm,
+  searchInput,
   onSelectSuggestion,
+  onClose
 }: SearchSuggestionsProps) {
   const { t, dir } = useLanguage();
   const { getFilteredHistory, addToSearchHistory } = useSearchHistory();
+  const [isOpen, setIsOpen] = useState(true);
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchInput);
   
+  useEffect(() => {
+    setLocalSearchTerm(searchInput);
+  }, [searchInput]);
+
   const handleSelect = (suggestion: string) => {
-    setSearchTerm(suggestion);
     addToSearchHistory(suggestion);
     onSelectSuggestion(suggestion);
-    setOpen(false);
+    setIsOpen(false);
+    onClose();
   };
 
-  const filteredHistory = getFilteredHistory(searchTerm);
+  const filteredHistory = getFilteredHistory(localSearchTerm);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      onClose();
+    }
+  };
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
-      {/* Add required DialogTitle and DialogDescription for accessibility */}
+    <CommandDialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTitle>
         <VisuallyHidden>{t('search.search')}</VisuallyHidden>
       </DialogTitle>
@@ -59,8 +66,8 @@ export function SearchSuggestions({
       
       <CommandInput 
         placeholder={t('search.suggestionsPlaceholder') || "Type to search..."} 
-        value={searchTerm}
-        onValueChange={setSearchTerm}
+        value={localSearchTerm}
+        onValueChange={setLocalSearchTerm}
         className={dir === "rtl" ? "arabic-text text-right" : ""}
       />
       <CommandList>
@@ -69,10 +76,10 @@ export function SearchSuggestions({
           onSelectSuggestion={handleSelect} 
         />
         
-        {searchTerm && (
+        {localSearchTerm && (
           <CommandGroup>
             <SearchQueryItem
-              searchTerm={searchTerm}
+              searchTerm={localSearchTerm}
               onSelect={handleSelect}
             />
           </CommandGroup>
