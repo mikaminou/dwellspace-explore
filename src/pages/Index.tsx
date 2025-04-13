@@ -15,26 +15,11 @@ import { Property } from "@/api/properties";
 import PropertyCard from "@/components/PropertyCard";
 import { useProfile } from "@/hooks/useProfile";
 import { SearchSuggestions } from "@/components/search/SearchSuggestions";
+import { propertyTypeOptions, listingTypeOptions } from "@/config/propertyConfig";
 
 const VIDEO_BUCKET = "herosection";
 const VIDEO_PATH = "hero.mp4";
 const FALLBACK_SIGNED_URL = "https://kaebtzbmtozoqvsdojkl.supabase.co/storage/v1/object/sign/herosection/hero.mp4?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJoZXJvc2VjdGlvbi9oZXJvLm1wNCIsImlhdCI6MTc0MTg5MTQyMCwiZXhwIjoxNzczNDI3NDIwfQ.ocQCcfFXgHHMW8do_xssp2P5csUFT-efMRtqqw_L1_M";
-
-const propertyTypeOptions = [
-  { value: "any", label: "Any Type" },
-  { value: "apartment", label: "Apartment" },
-  { value: "house", label: "House" },
-  { value: "villa", label: "Villa" },
-  { value: "office", label: "Office" },
-  { value: "commercial", label: "Commercial" },
-];
-
-const listingTypeOptions = [
-  { value: "any", label: "Any Type" },
-  { value: "sale", label: "For Sale" },
-  { value: "rent", label: "For Rent" },
-  { value: "construction", label: "Under Construction" },
-];
 
 export default function Index() {
   const { t, dir } = useLanguage();
