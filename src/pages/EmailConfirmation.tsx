@@ -62,8 +62,8 @@ export default function EmailConfirmationPage() {
   }
 
   const validateRole = (role: string): UserRole => {
-    const validRoles: UserRole[] = ["buyer", "seller", "agent", "admin"];
-    return validRoles.includes(role as UserRole) ? role as UserRole : "buyer";
+    const validRoles: UserRole[] = ["individual", "agent", "admin"];
+    return validRoles.includes(role as UserRole) ? role as UserRole : "individual";
   };
 
   const verifyToken = async () => {

@@ -34,8 +34,7 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted, attempting sign up with email:", email);
-    
+        
     // Clear any existing errors
     setError("");
     
@@ -50,7 +49,6 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       
       // Create the account
       const result = await signUp(email, password, displayName);
-      console.log("Account created:", result);
       
       // Navigate to profile completion page if we have a session
       if (result && result.session) {
@@ -61,7 +59,6 @@ export function EmailSignUpForm({ onError }: EmailSignUpFormProps) {
       }
       
     } catch (err: any) {
-      console.error("Signup error:", err);
       handleLocalError(err.message || "Failed to create account");
     } finally {
       setLoading(false);

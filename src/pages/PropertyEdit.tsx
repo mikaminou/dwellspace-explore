@@ -13,28 +13,20 @@ export default function PropertyEdit() {
   const { profileData, isLoaded: isProfileLoaded } = useProfile();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  
-  // Get user role from profile data
-  const userRole = profileData?.role || "buyer"; // Default to buyer if no role found
-  const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
 
   useEffect(() => {
-    // Log the current auth and profile state for debugging
-    console.log("Edit page - Auth state:", { session, isLoaded });
-    console.log("Edit page - Profile state:", { profileData, isProfileLoaded, userRole });
-    
     if (isLoaded && !session) {
       toast.error("Please sign in to edit a property listing");
       navigate("/signin");
       return;
     }
     
-    if (isLoaded && isProfileLoaded && !isSellerOrAgent) {
+    if (isLoaded && isProfileLoaded) {
       toast.error("Only sellers and agents can edit property listings");
       navigate("/");
       return;
     }
-  }, [session, isLoaded, navigate, isProfileLoaded, userRole, isSellerOrAgent, profileData]);
+  }, [session, isLoaded, navigate, isProfileLoaded, profileData]);
 
   return (
     <ProtectedRoute>

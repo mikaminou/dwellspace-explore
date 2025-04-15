@@ -1,6 +1,6 @@
 
 import { useCallback } from "react";
-import { searchProperties } from "@/api";
+import { searchPropertiesFunction as searchProperties } from '@/api';
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/language/LanguageContext";
 import { Property } from "@/api/properties";

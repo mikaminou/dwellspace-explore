@@ -1,4 +1,3 @@
-
-// Export all API functions from this file
-export * from './properties';
-export * from './agents';
+export { propertyService } from './properties';
+export type { Property } from './properties';
+export { searchProperties as searchPropertiesFunction } from './properties';

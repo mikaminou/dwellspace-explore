@@ -9,7 +9,6 @@ interface ProfileSidebarProps {
   userName: string;
   userEmail?: string | null;
   userRole?: string;
-  userAgency?: string;
   userInitials: string;
 }
 
@@ -18,7 +17,6 @@ export function ProfileSidebar({
   userName, 
   userEmail, 
   userRole, 
-  userAgency,
   userInitials 
 }: ProfileSidebarProps) {
   const { t, dir } = useLanguage();
@@ -39,11 +37,6 @@ export function ProfileSidebar({
                 </Badge>
               </div>
             )}
-            
-            {userRole === 'agent' && userAgency && (
-              <p className="text-sm text-muted-foreground mt-1">{userAgency}</p>
-            )}
-            
             {userEmail && (
               <p className="text-sm text-muted-foreground mt-1">{userEmail}</p>
             )}

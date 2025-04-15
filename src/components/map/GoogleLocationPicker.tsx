@@ -27,6 +27,7 @@ interface GoogleLocationPickerProps {
     streetName?: string;
     location?: string;
   };
+  name: string;
 }
 
 export function GoogleLocationPicker({ onLocationSelect, initialLocation }: GoogleLocationPickerProps) {
@@ -300,10 +301,9 @@ export function GoogleLocationPicker({ onLocationSelect, initialLocation }: Goog
   };
 
   // Handle form submission
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!searchQuery.trim() || !window.google) return;
+  const handleSearch = () => {
+    const searchQuery = searchInputRef.current?.value;
+    if (!searchQuery?.trim() || !window.google) return;
     
     // Use Places API for geocoding the search query
     const geocoder = new google.maps.Geocoder();

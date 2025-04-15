@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { MainNav } from "@/components/MainNav";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/auth";
 import { PasswordField } from "@/components/auth/PasswordField";
 
 export default function AuthPage() {
+  const { session, isLoaded } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(() => {
     // Default to sign-in unless URL has 'signup' in it
@@ -40,6 +41,16 @@ export default function AuthPage() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
+
+  useEffect(() => {
+    if (isLoaded && session) {
+      navigate('/');
+    }
+  }, [isLoaded, session, navigate]);
+
+  if (session) {
+    return null;
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

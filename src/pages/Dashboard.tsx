@@ -12,24 +12,16 @@ export default function Dashboard() {
   const { profileData, isLoaded: isProfileLoaded } = useProfile();
   const navigate = useNavigate();
 
-  // Get user role from profile data
-  const userRole = profileData?.role || "buyer";
-  const isSellerOrAgent = ["seller", "agent", "admin"].includes(userRole);
 
   useEffect(() => {
     if (isLoaded && !session) {
       navigate("/signin");
       return;
     }
-  }, [session, isLoaded, navigate, isProfileLoaded, isSellerOrAgent]);
+  }, [session, isLoaded, navigate, isProfileLoaded]);
 
   if (!isLoaded || !isProfileLoaded) {
     return <div className="container mx-auto py-8">Loading...</div>;
-  }
-
-  // Only show dashboard for agents and sellers
-  if (!isSellerOrAgent) {
-    return null; // This will be caught by the redirect in useEffect
   }
 
   return (

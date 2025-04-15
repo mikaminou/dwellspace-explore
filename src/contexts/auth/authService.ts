@@ -1,34 +1,28 @@
-
-import { auth, requestNotificationPermission } from "@/lib/firebase";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 
 // Define valid role types - using string literals for now since the enum might not exist yet
-type UserRole = "buyer" | "seller" | "agent" | "admin";
-const validRoles: UserRole[] = ["buyer", "seller", "agent", "admin"];
+type UserRole = Database["public"]["Enums"]["user_role"];
+const validRoles: UserRole[] = ["individual", "agent", "admin"];
 
 // Function to validate roles
 const validateRole = (role: string): UserRole => {
   if (validRoles.includes(role as UserRole)) {
     return role as UserRole;
   }
-  return "buyer"; // Default to buyer if invalid role
+  return "individual"; // Default to buyer if invalid role
 };
 
 export const authService = {
   signUp: async (email: string, password: string, displayName: string) => {
-    try {
-      console.log("Starting Supabase signup process for:", email);
-      
+    try {      
       // Prepare user metadata without role
       const userMetadata: Record<string, any> = {
         first_name: displayName.split(' ')[0],
         last_name: displayName.split(' ').slice(1).join(' '),
       };
-      
-      console.log("User metadata being sent:", userMetadata);
-      
+            
       // Sign up and auto-confirm email (for development)
       const { data, error } = await supabase.auth.signUp({ 
         email, 
@@ -44,22 +38,16 @@ export const authService = {
         throw error;
       }
       
-      console.log("Supabase signup response:", data);
       
       // Check if user was created successfully
       if (data.user) {
-        console.log("User created successfully:", email);
         toast.success("Account created successfully. Please complete your profile.");
         return { user: data.user, session: data.session };
       } else {
-        console.log("Something went wrong with signup");
         toast.error("Something went wrong during signup. Please try again.");
         return { user: null, session: null };
       }
-      
-    } catch (error: any) {
-      console.error("Full signup error:", error);
-      
+    } catch (error: any) {      
       // Provide more specific error messages for common issues
       if (error.message && error.message.includes("Database error saving new user")) {
         toast.error("There was an issue with your information. Please try again.");
@@ -68,7 +56,6 @@ export const authService = {
       } else {
         toast.error(`Sign up failed: ${error.message}`);
       }
-      
       throw error;
     }
   },
@@ -77,10 +64,7 @@ export const authService = {
     first_name: string;
     last_name: string;
     role: string;
-    agency?: string;
-    license_number?: string;
     phone_number?: string;
-    bio?: string;
   }) => {
     try {
       console.log("Creating profile for user:", userId);
@@ -207,15 +191,6 @@ export const authService = {
       // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      
-      // Also sign out from Firebase if it's initialized
-      if (auth && typeof auth.signOut === 'function') {
-        try {
-          await auth.signOut();
-        } catch (error) {
-          console.warn("Firebase sign out failed:", error);
-        }
-      }
       
       toast.success("Signed out successfully");
     } catch (error: any) {

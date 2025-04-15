@@ -1,10 +1,10 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Property } from "@/api/properties";
 import { useSearchInitialData } from "./search/useSearchInitialData";
 import { useSearchOperations } from "./search/useSearchOperations";
 import { useFilterManagement } from "./search/useFilterManagement";
 import { SearchHookResult } from "./search/types";
+import { searchPropertiesFunction as searchProperties } from '@/api';
 
 export function useSearchProperties(): SearchHookResult {
   // State variables
@@ -28,14 +28,11 @@ export function useSearchProperties(): SearchHookResult {
   const [activeFilterSection, setActiveFilterSection] = useState<string | null>(null);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
-  // Add map toggle state
   const [showMap, setShowMap] = useState(false);
-  // Add hovered property ID state
   const [hoveredPropertyId, setHoveredPropertyId] = useState<number | null>(null);
   
   const filtersApplied = useRef(false);
 
-  // Load initial data
   useSearchInitialData(
     setMaxPriceLimit,
     setMaxPrice,
@@ -46,7 +43,6 @@ export function useSearchProperties(): SearchHookResult {
     setInitialLoadDone
   );
 
-  // Search operations - make sure parameters are in the correct order
   const { handleSearch } = useSearchOperations(
     searchTerm,
     selectedCities,
@@ -64,7 +60,6 @@ export function useSearchProperties(): SearchHookResult {
     setLoading
   );
 
-  // Filter management
   const { handleReset, getActiveFiltersCount, handleFilterRemoval } = useFilterManagement(
     selectedCities,
     propertyType,
@@ -90,7 +85,6 @@ export function useSearchProperties(): SearchHookResult {
     handleSearch
   );
 
-  // Effect to trigger search after initial data is loaded
   useEffect(() => {
     if (initialLoadDone && selectedCities.length > 0) {
       handleSearch();
@@ -139,10 +133,8 @@ export function useSearchProperties(): SearchHookResult {
     getActiveFiltersCount,
     handleFilterRemoval,
     initialLoadDone,
-    // Add map toggle state
     showMap,
     setShowMap,
-    // Add hovered property ID state
     hoveredPropertyId,
     setHoveredPropertyId
   };

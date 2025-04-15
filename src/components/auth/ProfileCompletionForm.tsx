@@ -4,19 +4,13 @@ import { useAuth } from "@/contexts/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { RoleSelector } from "@/components/auth/RoleSelector";
 import { Loader2 } from "lucide-react";
 
 interface ProfileCompletionFormProps {
   onComplete: (profileData: {
     first_name: string;
     last_name: string;
-    role: string;
-    agency?: string;
-    license_number?: string;
     phone_number?: string;
-    bio?: string;
   }) => Promise<void>;
 }
 
@@ -28,10 +22,7 @@ export function ProfileCompletionForm({ onComplete }: ProfileCompletionFormProps
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [role, setRole] = useState("buyer");
-  const [agency, setAgency] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [bio, setBio] = useState("");
+  const [role] = useState("individual");
   
   // Pre-fill form with data from user metadata if available
   useEffect(() => {
@@ -57,9 +48,6 @@ export function ProfileCompletionForm({ onComplete }: ProfileCompletionFormProps
         last_name: lastName,
         role,
         phone_number: phoneNumber,
-        bio,
-        agency,
-        license_number: licenseNumber,
       };
       
       // Call the onComplete callback
@@ -109,27 +97,6 @@ export function ProfileCompletionForm({ onComplete }: ProfileCompletionFormProps
           placeholder="+1 123 456 7890"
         />
       </div>
-      
-      <RoleSelector 
-        userRole={role}
-        setUserRole={setRole}
-        agency={agency}
-        setAgency={setAgency}
-        licenseNumber={licenseNumber}
-        setLicenseNumber={setLicenseNumber}
-      />
-      
-      <div className="space-y-2">
-        <Label htmlFor="bio">About Me</Label>
-        <Textarea
-          id="bio"
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
-          placeholder="Tell us a little about yourself"
-          rows={3}
-        />
-      </div>
-      
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? (
           <>

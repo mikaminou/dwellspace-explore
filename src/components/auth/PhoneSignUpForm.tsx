@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Info } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { RoleSelector } from "./RoleSelector";
 import { CountryCodeSelector } from "./CountryCodeSelector";
 import { usePhoneSignUp } from "@/hooks/usePhoneSignUp";
 
@@ -71,15 +70,6 @@ export function PhoneSignUpForm({ onShowOtp, onError, onPhoneDetailsCapture }: P
           Enter your phone number without the country code
         </p>
       </div>
-      
-      <RoleSelector 
-        userRole={userRole} 
-        setUserRole={setUserRole}
-        agency={agency}
-        setAgency={setAgency}
-        licenseNumber={licenseNumber}
-        setLicenseNumber={setLicenseNumber}
-      />
       
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? "Sending code..." : "Send Verification Code"}

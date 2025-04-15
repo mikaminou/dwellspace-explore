@@ -34,8 +34,7 @@ export function MainNav() {
   const isMobile = useIsMobile();
   
   const { profileData, isLoaded: isProfileLoaded } = useProfile();
-  const userRole = profileData?.role ?? "buyer";
-  const isSellerOrAgent = profileData ? ["seller", "agent", "admin"].includes(userRole) : false;
+  const userRole = profileData?.role;
   
   const handleSignOut = async () => {
     await signOut();
@@ -120,7 +119,7 @@ export function MainNav() {
               </Button>
             </NavigationMenuItem>
             
-            {isLoaded && session && isSellerOrAgent && (
+            {isLoaded && session && (
               <>
                 <NavigationMenuItem>
                   <Button variant="ghost" asChild>
@@ -136,7 +135,6 @@ export function MainNav() {
         </NavigationMenu>
         <div className="ml-auto flex items-center space-x-4">
           <LanguageToggle />
-          
           {isLoaded && session ? (
             <>
               <Button variant="ghost" size="icon" asChild>
@@ -152,7 +150,6 @@ export function MainNav() {
                   <span className="sr-only">Messages</span>
                 </Link>
               </Button>
-              
               <NotificationBell />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -187,24 +184,19 @@ export function MainNav() {
                     </Link>
                   </DropdownMenuItem>
                   
-                  {isSellerOrAgent && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link to="/dashboard">
-                          <LayoutDashboard className="mr-2 h-4 w-4" />
-                          <span>My Dashboard</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/property-create">
-                          <Plus className="mr-2 h-4 w-4" />
-                          <span>Add Property</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>My Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/property-create">
+                      <Plus className="mr-2 h-4 w-4" />
+                      <span>Add Property</span>
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
