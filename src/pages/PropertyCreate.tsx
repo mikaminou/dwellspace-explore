@@ -22,7 +22,7 @@ export default function PropertyCreate() {
   }, [session, isLoaded, navigate, isProfileLoaded, profileData]);
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="min-h-screen bg-background flex flex-col">
       <MainNav />
       <PropertyForm />
     </div>

@@ -14,6 +14,7 @@ import { LocationStep } from "../property-form/LocationStep";
 import { BasicInfoStep } from "../property-form/BasicInfoStep";
 import { FeaturesStep } from "../property-form/FeaturesStep";
 import { MediaStep } from "../property-form/MediaStep";
+import { MainNav } from "../MainNav";
 
 
 const formSteps = [
@@ -53,79 +54,81 @@ export function PropertyForm({ id, useGoogleMaps = false }: { id?: string; useGo
   }
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>{id ? "Edit Property" : "Create New Property"}</CardTitle>
-            <CardDescription>
-              {id ? "Update your property information" : "Fill out the form to list a new property"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <Tabs value={currentStep} onValueChange={setCurrentStep}>
-                <TabsList>
-                  {formSteps.map((step) => (
-                    <TabsTrigger key={step.id} value={step.id}>
-                      {step.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                <TabsContent value="location">
-                  <LocationStep form={form} useGoogleMaps={useGoogleMaps} />
-                </TabsContent>
-                <TabsContent value="basic">
-                  <BasicInfoStep form={form} />
-                </TabsContent>
-                <TabsContent value="features">
-                  <FeaturesStep form={form} />
-                </TabsContent>
-                <TabsContent value="media">
-                  <MediaStep
-                    form={form}
-                    imageUrl={imageUrl}
-                    setImageUrl={setImageUrl}
-                    additionalImageUrls={additionalImageUrls}
-                    setAdditionalImageUrls={setAdditionalImageUrls}
-                  />
-                </TabsContent>
-              </Tabs>
-              <CardFooter className="flex justify-between">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    const currentIndex = formSteps.findIndex(step => step.id === currentStep);
-                    if (currentIndex > 0) {
-                      setCurrentStep(formSteps[currentIndex - 1].id);
-                    }
-                  }}
-                >
-                  Previous
-                </Button>
-                {currentStep === "media" ? (
-                  <Button type="submit" disabled={isSaving}>
-                    {isSaving ? "Saving..." : "Save Property"}
-                  </Button>
-                ) : (
+    <div className="container mx-auto py-8 space-y-6">
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>{id ? "Edit Property" : "Create New Property"}</CardTitle>
+              <CardDescription>
+                {id ? "Update your property information" : "Fill out the form to list a new property"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <Tabs value={currentStep} onValueChange={setCurrentStep}>
+                  <TabsList>
+                    {formSteps.map((step) => (
+                      <TabsTrigger key={step.id} value={step.id}>
+                        {step.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  <TabsContent value="location">
+                    <LocationStep form={form} useGoogleMaps={useGoogleMaps} />
+                  </TabsContent>
+                  <TabsContent value="basic">
+                    <BasicInfoStep form={form} />
+                  </TabsContent>
+                  <TabsContent value="features">
+                    <FeaturesStep form={form} />
+                  </TabsContent>
+                  <TabsContent value="media">
+                    <MediaStep
+                      form={form}
+                      imageUrl={imageUrl}
+                      setImageUrl={setImageUrl}
+                      additionalImageUrls={additionalImageUrls}
+                      setAdditionalImageUrls={setAdditionalImageUrls}
+                    />
+                  </TabsContent>
+                </Tabs>
+                <CardFooter className="flex justify-between">
                   <Button
                     type="button"
+                    variant="outline"
                     onClick={() => {
                       const currentIndex = formSteps.findIndex(step => step.id === currentStep);
-                      if (currentIndex < formSteps.length - 1) {
-                        setCurrentStep(formSteps[currentIndex + 1].id);
+                      if (currentIndex > 0) {
+                        setCurrentStep(formSteps[currentIndex - 1].id);
                       }
                     }}
                   >
-                    Next
+                    Previous
                   </Button>
-                )}
-              </CardFooter>
-            </form>
-          </CardContent>
-        </Card>
-      </form>
-    </FormProvider>
+                  {currentStep === "media" ? (
+                    <Button type="submit" disabled={isSaving}>
+                      {isSaving ? "Saving..." : "Save Property"}
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        const currentIndex = formSteps.findIndex(step => step.id === currentStep);
+                        if (currentIndex < formSteps.length - 1) {
+                          setCurrentStep(formSteps[currentIndex + 1].id);
+                        }
+                      }}
+                    >
+                      Next
+                    </Button>
+                  )}
+                </CardFooter>
+              </form>
+            </CardContent>
+          </Card>
+        </form>
+      </FormProvider>
+    </div>
   );
 }
