@@ -9,7 +9,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { SearchIcon, MapIcon, HeartIcon, UserIcon, LogOut, HomeIcon, MessageSquare, Plus, LayoutDashboard } from "lucide-react";
+import { SearchIcon, MapIcon, HeartIcon, UserIcon, LogOut, HomeIcon, MessageSquare, Plus, LayoutDashboard, Key, Home } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
@@ -63,46 +63,6 @@ export function MainNav() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Explore</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-4 w-[400px] grid-cols-2">
-                  <li className="row-span-3">
-                    <NavigationMenuLink asChild>
-                      <Link to="/properties/sale" className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md">
-                        <div className="mb-2 mt-4 text-lg font-medium">
-                          For Sale
-                        </div>
-                        <p className="text-sm leading-tight text-muted-foreground">
-                          Find your dream home from our curated selection
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link to="/properties/rent" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">For Rent</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Browse properties available for rent
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                  <li>
-                    <NavigationMenuLink asChild>
-                      <Link to="/map" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">Map</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Explore properties on the map
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            
-            <NavigationMenuItem>
               <Button variant="ghost" asChild>
                 <Link to="/search" className="flex items-center gap-2">
                   <SearchIcon className="h-4 w-4" />
@@ -124,8 +84,8 @@ export function MainNav() {
                 <NavigationMenuItem>
                   <Button variant="ghost" asChild>
                     <Link to="/dashboard" className="flex items-center gap-2">
-                      <LayoutDashboard className="h-4 w-4" />
-                      <span>Dashboard</span>
+                    <Home className="h-4 w-4" />
+                    <span>My Immo</span>
                     </Link>
                   </Button>
                 </NavigationMenuItem>
