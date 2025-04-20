@@ -29,7 +29,7 @@ export function MediaStep({ form, imageUrl, setImageUrl, additionalImageUrls, se
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6 bg-white rounded-lg">
       <FormField
         control={form.control}
         name="image"
@@ -37,7 +37,7 @@ export function MediaStep({ form, imageUrl, setImageUrl, additionalImageUrls, se
           <FormItem>
             <FormLabel>Main Image</FormLabel>
             <FormControl>
-            <ImageUploadDropzone
+              <ImageUploadDropzone
                 onChange={handleMainImageChange}
                 value={field.value ? [field.value] : []}
                 maxFiles={1}
@@ -60,7 +60,7 @@ export function MediaStep({ form, imageUrl, setImageUrl, additionalImageUrls, se
           <FormItem>
             <FormLabel>Additional Images</FormLabel>
             <FormControl>
-            <ImageUploadDropzone
+              <ImageUploadDropzone
                 onChange={handleAdditionalImagesChange}
                 value={field.value || []}
                 maxFiles={5}
@@ -78,13 +78,13 @@ export function MediaStep({ form, imageUrl, setImageUrl, additionalImageUrls, se
           <h4 className="text-sm font-medium mb-2">Additional Images</h4>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {additionalImageUrls.map((url, index) => (
-              <div key={index} className="relative">
-                <img src={url} alt={`Additional ${index + 1}`} className="w-full h-32 object-cover rounded-md" />
+              <div key={index} className="relative group">
+                <img src={url} alt={`Additional ${index + 1}`} className="w-full h-32 object-cover rounded-md transition-transform duration-200 transform group-hover:scale-105" />
                 <Button
                   type="button"
                   variant="destructive"
                   size="icon"
-                  className="absolute top-1 right-1"
+                  className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   onClick={() => removeAdditionalImage(index)}
                 >
                   <X className="h-4 w-4" />
