@@ -1,27 +1,27 @@
-
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState, useEffect } from "react";
 import { X, Upload, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface ImageUploadDropzoneProps {
   onChange: (files: File[]) => void;
+  onChangeUrls: (urls: string[]) => void;
   value: File[];
   maxFiles?: number;
-  imageUrls?: string[];
-  onRemoveExisting?: (index: number) => void;
+  imageUrls: string[];
   className?: string;
 }
 
 export function ImageUploadDropzone({
   onChange,
+  onChangeUrls,
   value = [],
-  maxFiles = 10,
+  maxFiles = 20,
   imageUrls = [],
-  onRemoveExisting,
   className,
 }: ImageUploadDropzoneProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -35,6 +35,12 @@ export function ImageUploadDropzone({
     setIsDragging(false);
   }, []);
 
+  const addNewImages = useCallback((newFiles: File[]) => {
+    const newImageUrls = newFiles.map(file => URL.createObjectURL(file));
+    onChangeUrls([...imageUrls, ...newImageUrls]);
+    onChange([...value, ...newFiles]);
+  }, [imageUrls, onChangeUrls, onChange, value]);
+
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
@@ -44,22 +50,20 @@ export function ImageUploadDropzone({
       const files = e.dataTransfer.files;
       if (!files || files.length === 0) return;
 
-      // Filter for image files
       const imageFiles = Array.from(files).filter((file) =>
         file.type.startsWith("image/")
       );
 
       if (imageFiles.length === 0) return;
 
-      // Check if adding these files would exceed the max
-      if (value.length + imageFiles.length > maxFiles) {
+      if (imageUrls.length + imageFiles.length > maxFiles) {
         alert(`You can only upload up to ${maxFiles} images`);
         return;
       }
 
-      onChange([...value, ...imageFiles]);
+      addNewImages(imageFiles);
     },
-    [maxFiles, onChange, value]
+    [maxFiles, addNewImages, imageUrls.length]
   );
 
   const handleFileInputChange = useCallback(
@@ -67,71 +71,55 @@ export function ImageUploadDropzone({
       const files = e.target.files;
       if (!files || files.length === 0) return;
 
-      // Check if adding these files would exceed the max
-      if (value.length + files.length > maxFiles) {
+      if (imageUrls.length + files.length > maxFiles) {
         alert(`You can only upload up to ${maxFiles} images`);
         return;
       }
 
-      onChange([...value, ...Array.from(files)]);
-      
-      // Reset the input so the same file can be uploaded again if removed
+      addNewImages(Array.from(files));
       e.target.value = "";
     },
-    [maxFiles, onChange, value]
+    [maxFiles, addNewImages, imageUrls.length]
   );
 
-  const handleRemoveFile = useCallback(
+  const handleChooseFiles = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleRemoveImage = useCallback(
     (index: number) => {
-      const newFiles = [...value];
-      newFiles.splice(index, 1);
-      onChange(newFiles);
+      const newImageUrls = [...imageUrls];
+      newImageUrls.splice(index, 1);
+      onChangeUrls(newImageUrls);
+
+      if (index < value.length) {
+        const newFiles = [...value];
+        newFiles.splice(index, 1);
+        onChange(newFiles);
+      }
     },
-    [onChange, value]
+    [imageUrls, onChangeUrls, onChange, value]
   );
 
-  const totalImages = value.length + imageUrls.length;
-  const showDropzone = totalImages < maxFiles;
+  const showDropzone = imageUrls.length < maxFiles;
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Preview grid */}
-      {(value.length > 0 || imageUrls.length > 0) && (
+      {/* Image grid */}
+      {imageUrls.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {/* Render existing image URLs */}
           {imageUrls.map((url, index) => (
-            <div key={`url-${index}`} className="relative aspect-square rounded-md overflow-hidden group">
+            <div key={url} className="relative aspect-square rounded-md overflow-hidden group">
               <img
                 src={url}
-                alt={`Uploaded ${index}`}
-                className="w-full h-full object-cover"
-              />
-              {onRemoveExisting && (
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-2 right-2 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => onRemoveExisting(index)}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              )}
-            </div>
-          ))}
-
-          {/* Render new file previews */}
-          {value.map((file, index) => (
-            <div key={`file-${index}`} className="relative aspect-square rounded-md overflow-hidden group">
-              <img
-                src={URL.createObjectURL(file)}
-                alt={`Preview ${index}`}
+                alt={`Image ${index}`}
                 className="w-full h-full object-cover"
               />
               <Button
                 variant="destructive"
                 size="icon"
                 className="absolute top-2 right-2 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => handleRemoveFile(index)}
+                onClick={() => handleRemoveImage(index)}
               >
                 <X className="h-3 w-3" />
               </Button>
@@ -173,24 +161,22 @@ export function ImageUploadDropzone({
               {`Max ${maxFiles} images. Supported formats: JPEG, PNG, WebP`}
             </p>
             <input
+              ref={fileInputRef}
               type="file"
               onChange={handleFileInputChange}
               accept="image/*"
               multiple
               className="hidden"
-              id="file-upload"
             />
-            <label htmlFor="file-upload">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-4"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Choose Files
-              </Button>
-            </label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-4"
+              onClick={handleChooseFiles}
+            >
+              Choose Files
+            </Button>
           </div>
         </div>
       )}

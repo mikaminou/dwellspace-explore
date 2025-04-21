@@ -8,7 +8,7 @@ import { MapPin, Building, Globe, Home } from "lucide-react";
 
 interface LocationData {
   city: string;
-  state?: string;
+  postcode?: string;
   country: string;
   streetName: string;
   location: string;
@@ -24,7 +24,7 @@ interface LocationStepProps {
 export function LocationStep({ form, useGoogleMaps }: LocationStepProps) {
   const handleLocationSelect = (locationData: LocationData) => {
     form.setValue("city", locationData.city, { shouldValidate: true });
-    form.setValue("state", locationData.state || '', { shouldValidate: true });
+    form.setValue("postcode", locationData.postcode, { shouldValidate: true });
     form.setValue("country", locationData.country, { shouldValidate: true });
     form.setValue("street_name", locationData.streetName, { shouldValidate: true });
     form.setValue("location", locationData.location, { shouldValidate: true });
@@ -69,38 +69,6 @@ export function LocationStep({ form, useGoogleMaps }: LocationStepProps) {
                 </FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Enter city" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  <MapPin className="inline-block mr-2" />
-                  State
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter state" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  <Globe className="inline-block mr-2" />
-                  Country
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter country" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

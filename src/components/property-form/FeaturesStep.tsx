@@ -1,7 +1,6 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AmenityItem } from "@/components/owners/AmenityItem";
 import { Bed, Bath, Ruler, Home, CheckSquare, Car, X } from "lucide-react";
 
 export function FeaturesStep({ form }) {
@@ -24,8 +23,13 @@ export function FeaturesStep({ form }) {
                 Bedrooms
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} placeholder="Enter number of bedrooms" />
-              </FormControl>
+              <Input
+                  type="number"
+                  {...field}
+                  placeholder="Enter number of bedrooms"
+                  onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                />
+                </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -40,8 +44,13 @@ export function FeaturesStep({ form }) {
                 Bathrooms
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} placeholder="Enter number of bathrooms" />
-              </FormControl>
+              <Input
+                  type="number"
+                  {...field}
+                  placeholder="Enter number of bathrooms"
+                  onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                />
+                </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -58,8 +67,13 @@ export function FeaturesStep({ form }) {
                 Living Area (m²)
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} placeholder="Enter living area in m²" />
-              </FormControl>
+              <Input
+                  type="number"
+                  {...field}
+                  placeholder="Enter living area in m²"
+                  onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                />
+                </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -74,8 +88,13 @@ export function FeaturesStep({ form }) {
                 Plot Area (m²)
               </FormLabel>
               <FormControl>
-                <Input type="number" {...field} placeholder="Enter plot area in m²" />
-              </FormControl>
+              <Input
+                  type="number"
+                  {...field}
+                  placeholder="Enter plot area in m²"
+                  onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                />
+                </FormControl>
               <FormMessage />
             </FormItem>
           )}

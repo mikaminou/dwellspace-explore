@@ -16,13 +16,14 @@ import { FeaturesStep } from "../property-form/FeaturesStep";
 import { MediaStep } from "../property-form/MediaStep";
 import { MainNav } from "../MainNav";
 
-
+type FormFieldKeys = keyof PropertyFormValues;
 const formSteps = [
-  { id: "location", label: "Location", icon: "MapPin" },
-  { id: "basic", label: "Basic Info", icon: "Home" },
-  { id: "features", label: "Features", icon: "Info" },
-  { id: "media", label: "Media", icon: "Image" },
+  { id: "location", label: "Location", icon: "MapPin", fields: ["city", "street_name"] as FormFieldKeys[] },
+  { id: "basic", label: "Basic Info", icon: "Home", fields: ["title", "price"] as FormFieldKeys[] },
+  { id: "features", label: "Features", icon: "Info", fields: ["beds", "baths", "living_area", "plot_area", "furnished", "amenities"] as FormFieldKeys[] },
+  { id: "media", label: "Media", icon: "Image", fields: ["image", "additionalImages"] as FormFieldKeys[] },
 ];
+
 
 export function PropertyForm({ id, useGoogleMaps = false }: { id?: string; useGoogleMaps?: boolean }) {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export function PropertyForm({ id, useGoogleMaps = false }: { id?: string; useGo
       setAdditionalImageUrls(propertyData.additionalImages || []);
     }
   }, [propertyData, form]);
-
+  
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -69,7 +70,7 @@ export function PropertyForm({ id, useGoogleMaps = false }: { id?: string; useGo
                 <Tabs value={currentStep} onValueChange={setCurrentStep}>
                   <TabsList>
                     {formSteps.map((step) => (
-                      <TabsTrigger key={step.id} value={step.id}>
+                      <TabsTrigger key={step.id} value={step.id} disabled>
                         {step.label}
                       </TabsTrigger>
                     ))}
@@ -94,36 +95,46 @@ export function PropertyForm({ id, useGoogleMaps = false }: { id?: string; useGo
                   </TabsContent>
                 </Tabs>
                 <CardFooter className="flex justify-between">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const currentIndex = formSteps.findIndex(step => step.id === currentStep);
+                    if (currentIndex > 0) {
+                      setCurrentStep(formSteps[currentIndex - 1].id);
+                    }
+                  }}
+                >
+                  Previous
+                </Button>
+                {currentStep === "media" ? (
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? "Saving..." : "Save Property"}
+                  </Button>
+                ) : (
                   <Button
                     type="button"
-                    variant="outline"
-                    onClick={() => {
-                      const currentIndex = formSteps.findIndex(step => step.id === currentStep);
-                      if (currentIndex > 0) {
-                        setCurrentStep(formSteps[currentIndex - 1].id);
+                    onClick={async (e) => {
+                      e.preventDefault(); // Prevent form submission
+                      const currentStepFields = formSteps.find(step => step.id === currentStep)?.fields || [];
+                      const isValid = await form.trigger(currentStepFields);
+                      console.log('Validation result:', isValid);
+                      
+                      if (isValid) {
+                        const currentIndex = formSteps.findIndex(step => step.id === currentStep);
+                        console.log('Current step index:', currentIndex);
+                      
+                        if (currentIndex < formSteps.length - 1) {
+                          setCurrentStep(formSteps[currentIndex + 1].id);
+                          console.log('Navigating to next step:', formSteps[currentIndex + 1].id);
+                        }
                       }
                     }}
                   >
-                    Previous
+                    Next
                   </Button>
-                  {currentStep === "media" ? (
-                    <Button type="submit" disabled={isSaving}>
-                      {isSaving ? "Saving..." : "Save Property"}
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        const currentIndex = formSteps.findIndex(step => step.id === currentStep);
-                        if (currentIndex < formSteps.length - 1) {
-                          setCurrentStep(formSteps[currentIndex + 1].id);
-                        }
-                      }}
-                    >
-                      Next
-                    </Button>
-                  )}
-                </CardFooter>
+                )}
+              </CardFooter>
               </form>
             </CardContent>
           </Card>

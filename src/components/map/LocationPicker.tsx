@@ -11,7 +11,7 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoia2Vzc2FyIiwiYSI6ImNtOGJoYnloaTF4ZXIyanIzcXkzd
 
 interface LocationData {
   city: string;
-  state?: string;
+  postcode?: string;
   country: string;
   streetName: string;
   location: string;
@@ -25,7 +25,7 @@ interface LocationPickerProps {
     longitude?: number;
     latitude?: number;
     city?: string;
-    state?: string;
+    postcode?: string;
     country?: string;
     streetName?: string;
     location?: string;
@@ -132,7 +132,7 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
         
         // Extract location details from the response
         let city = '';
-        let state = '';
+        let postcode = '';
         let country = '';
         let streetName = '';
         let neighborhood = '';
@@ -141,8 +141,8 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
         data.features.forEach((feature: any) => {
           if (feature.place_type.includes('place') || feature.place_type.includes('locality')) {
             city = feature.text;
-          } else if (feature.place_type.includes('region')) {
-            state = feature.text;
+          } else if (feature.place_type.includes('postcode')) {
+            postcode = feature.text;
           } else if (feature.place_type.includes('country')) {
             country = feature.text;
           } else if (feature.place_type.includes('address')) {
@@ -163,7 +163,7 @@ export function LocationPicker({ onLocationSelect, initialLocation }: LocationPi
         // Pass the location data to the parent component
         onLocationSelect({
           city,
-          state,
+          postcode,
           country,
           streetName,
           location: neighborhood || city,
