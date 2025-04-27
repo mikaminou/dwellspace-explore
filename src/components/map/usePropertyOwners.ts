@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Property } from '@/api/properties';
-import { getOwnersForProperties } from '@/api/agents';
+import { getOwnersForProperties } from '@/api/profiles';
 
 export function usePropertyOwners(properties: Property[]) {
   const [propertiesWithOwners, setPropertiesWithOwners] = useState<Property[]>([]);

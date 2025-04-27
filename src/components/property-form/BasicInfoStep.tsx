@@ -1,10 +1,26 @@
+import { useState, useEffect } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { DollarSign, Home, Tag, Type } from "lucide-react";
+import { DollarSign, Home, Tag, Type, Calendar, Layers, Tags } from "lucide-react";
 
 export function BasicInfoStep({ form }) {
+  const initialPropertyType = form.getValues("type") || "apartment";
+  const [showFloorInput, setShowFloorInput] = useState(["apartment", "duplex"].includes(initialPropertyType));
+  const [showTotalFloorsInput, setShowTotalFloorsInput] = useState(["villa", "house"].includes(initialPropertyType));
+
+
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "type") {
+        setShowFloorInput(["apartment", "duplex"].includes(value.type));
+        setShowTotalFloorsInput(["villa", "house"].includes(value.type));
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
   return (
     <div className="space-y-6 p-6 bg-white rounded-lg">
       <div className="flex flex-col md:flex-row md:space-x-4">
@@ -30,7 +46,7 @@ export function BasicInfoStep({ form }) {
           render={({ field }) => (
             <FormItem className="flex-1">
               <FormLabel>
-                <Tag className="inline-block mr-2" />
+                <Tags className="inline-block mr-2" />
                 Listing Type
               </FormLabel>
               <Select onValueChange={field.onChange} defaultValue="rent">
@@ -61,6 +77,7 @@ export function BasicInfoStep({ form }) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="apartment">Apartment</SelectItem>
+                  <SelectItem value="duplex">Duplex</SelectItem>
                   <SelectItem value="house">House</SelectItem>
                   <SelectItem value="villa">Villa</SelectItem>
                   <SelectItem value="land">Land</SelectItem>
@@ -70,6 +87,42 @@ export function BasicInfoStep({ form }) {
             </FormItem>
           )}
         />
+        {showFloorInput && (
+          <FormField
+            control={form.control}
+            name="floor"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>
+                <Layers className="inline-block mr-2" />
+                Floor
+                </FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} placeholder="Enter floor number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+        {showTotalFloorsInput && (
+          <FormField
+            control={form.control}
+            name="totalFloors"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>
+                <Layers className="inline-block mr-2" />
+                Total Floors
+                </FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} placeholder="Enter total floors" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
       </div>
       <div className="flex flex-col md:flex-row md:space-x-4">
         <FormField
@@ -107,6 +160,22 @@ export function BasicInfoStep({ form }) {
                   <SelectItem value="EUR">EUR</SelectItem>
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="constructionYear"
+          render={({ field }) => (
+            <FormItem className="flex-1">
+              <FormLabel>
+                <Calendar className="inline-block mr-2" />
+                Construction Year
+              </FormLabel>
+              <FormControl>
+                <Input type="number" {...field} placeholder="Enter construction year" />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

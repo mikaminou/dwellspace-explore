@@ -118,15 +118,12 @@ export function PropertyForm({ id, useGoogleMaps = false }: { id?: string; useGo
                       e.preventDefault(); // Prevent form submission
                       const currentStepFields = formSteps.find(step => step.id === currentStep)?.fields || [];
                       const isValid = await form.trigger(currentStepFields);
-                      console.log('Validation result:', isValid);
                       
                       if (isValid) {
                         const currentIndex = formSteps.findIndex(step => step.id === currentStep);
-                        console.log('Current step index:', currentIndex);
                       
                         if (currentIndex < formSteps.length - 1) {
                           setCurrentStep(formSteps[currentIndex + 1].id);
-                          console.log('Navigating to next step:', formSteps[currentIndex + 1].id);
                         }
                       }
                     }}

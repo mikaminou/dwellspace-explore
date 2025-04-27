@@ -15,6 +15,8 @@ export const locationSchema = z.object({
 export const basicInfoSchema = z.object({
   title: z.string().min(1, "Title is required"),
   price: z.string().min(1, "Price is required"),
+  floor: z.string().optional(),
+  total_floors: z.string().optional(),
   description: z.string().optional(),
   currency: z.string().default("DZD"),
   type: z.string().default("apartment"),

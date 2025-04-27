@@ -1,27 +1,13 @@
-
 import { supabase } from "@/integrations/supabase/client";
-
-export type Agent = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  name?: string; // Added name field for compatibility with components
-  avatar_url: string | null;
-  phone_number: string | null;
-  email: string | null;
-  agency: string | null;
-  role: string;
-  created_at: string;
-  updated_at: string;
-};
+import { Profiles } from "@/integrations/supabase/tables";
 
 // Function to get all agents
-export const getAllAgents = async (): Promise<Agent[]> => {
+export const getAllAgents = async (): Promise<Profiles[]> => {
   try {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('role', 'agent');
+      .eq('role', 'agent'); // Filter by role 'agent'
 
     if (error) {
       console.error('Error fetching agents:', error);
@@ -31,7 +17,7 @@ export const getAllAgents = async (): Promise<Agent[]> => {
     // Add the name field derived from first_name and last_name
     return data?.map(agent => ({
       ...agent,
-      name: `${agent.first_name || ''} ${agent.last_name || ''}`.trim()
+      name: `${agent.first_name || ''} ${agent.last_name || ''}`.trim(),
     })) || [];
   } catch (error) {
     console.error('Unexpected error fetching agents:', error);
@@ -40,13 +26,13 @@ export const getAllAgents = async (): Promise<Agent[]> => {
 };
 
 // Function to get an agent by ID
-export const getAgentById = async (id: string): Promise<Agent | null> => {
+export const getAgentById = async (id: string): Promise<Profiles | null> => {
   try {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', id)
-      .eq('role', 'agent')
+      .eq('role', 'agent') // Ensure the role is 'agent'
       .single();
 
     if (error) {
@@ -58,7 +44,7 @@ export const getAgentById = async (id: string): Promise<Agent | null> => {
       // Add the name field derived from first_name and last_name
       return {
         ...data,
-        name: `${data.first_name || ''} ${data.last_name || ''}`.trim()
+        name: `${data.first_name || ''} ${data.last_name || ''}`.trim(),
       };
     }
 
@@ -70,7 +56,7 @@ export const getAgentById = async (id: string): Promise<Agent | null> => {
 };
 
 // Function to get property owners for a list of properties
-export const getOwnersForProperties = async (propertyIds: number[]): Promise<{[key: number]: Agent}> => {
+export const getOwnersForProperties = async (propertyIds: string[]): Promise<{ [key: string]: Profiles }> => {
   if (propertyIds.length === 0) return {};
 
   try {
@@ -92,7 +78,7 @@ export const getOwnersForProperties = async (propertyIds: number[]): Promise<{[k
         ownerIds.push(property.owner_id);
       }
     });
-    
+
     if (ownerIds.length === 0) return {};
 
     // Fetch all profiles (both agents and sellers)
@@ -100,7 +86,7 @@ export const getOwnersForProperties = async (propertyIds: number[]): Promise<{[k
       .from('profiles')
       .select('*')
       .in('id', ownerIds)
-      .in('role', ['agent', 'seller']);
+      .in('role', ['agent', 'seller']); // Filter by roles 'agent' and 'seller'
 
     if (ownersError || !owners) {
       console.error('Error fetching property owners:', ownersError);
@@ -108,25 +94,17 @@ export const getOwnersForProperties = async (propertyIds: number[]): Promise<{[k
     }
 
     // Create a map of owner_id to profile, adding the name field
-    const ownerMap: {[key: string]: Agent} = {};
-    owners.forEach((owner) => {
+    const ownerMap: { [key: string]: Profiles } = {};
+    owners.forEach(owner => {
       ownerMap[owner.id] = {
         ...owner,
-        name: `${owner.first_name || ''} ${owner.last_name || ''}`.trim()
+        name: `${owner.first_name || ''} ${owner.last_name || ''}`.trim(),
       };
     });
 
-    // Finally, create a map of property_id to owner
-    const propertyOwnerMap: {[key: number]: Agent} = {};
-    properties.forEach(property => {
-      if (property.owner_id && ownerMap[property.owner_id]) {
-        propertyOwnerMap[property.id] = ownerMap[property.owner_id];
-      }
-    });
-
-    return propertyOwnerMap;
+    return ownerMap;
   } catch (error) {
-    console.error('Unexpected error fetching owners for properties:', error);
+    console.error('Unexpected error fetching property owners:', error);
     return {};
   }
 };

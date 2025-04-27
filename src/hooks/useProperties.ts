@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { propertyService, Property } from '@/api/properties';
-import { getAgentById } from '@/api/agents';
+import { profilesService } from '@/api/profiles';
+import { propertyDetailsService } from '@/api/propertyDetails';
+import { propertyLocationService } from '@/api/propertyLocations';
+import { propertyMediaService } from '@/api/propertyMedia';
+import { propertyAmenitiesService } from '@/api/propertyAmenities';
 import { mapPropertyData } from '@/utils/propertyMapper';
 
 export function useProperties() {
@@ -8,22 +12,35 @@ export function useProperties() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch all properties with related data
   const fetchProperties = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await propertyService.getAllProperties();
-      
-      const normalizedData = await Promise.all(data.map(async property => {
-        let owner = undefined;
-        
-        if (property.owner_id) {
-          owner = await getAgentById(String(property.owner_id));
-        }
-        
-        return mapPropertyData(property, owner);
-      }));
-      
+
+      const normalizedData = await Promise.all(
+        data.map(async (property) => {
+          const [owner, agent, details, location, media, amenities] = await Promise.all([
+            property.owner_id ? profilesService.getProfileById(property.owner_id) : null,
+            propertyDetailsService.getDetailsByPropertyId(property.id),
+            propertyLocationService.getLocationByPropertyId(property.id),
+            propertyMediaService.getMediaByPropertyId(property.id),
+            propertyAmenitiesService.getAmenitiesByPropertyId(property.id),
+          ]);
+
+          return mapPropertyData(
+            {
+              ...property,
+              details,
+              location,
+              media,
+              amenities,
+            },
+          );
+        })
+      );
+
       setProperties(normalizedData);
     } catch (err: any) {
       console.error('Error fetching properties:', err);
@@ -33,18 +50,32 @@ export function useProperties() {
     }
   };
 
-  const fetchPropertyById = async (id: string | number) => {
+  // Fetch a single property by ID with related data
+  const fetchPropertyById = async (id: string) => {
     setLoading(true);
     setError(null);
     try {
-      const propertyData = await propertyService.getPropertyById(id);
-      
-      if (propertyData && propertyData.owner_id) {
-        const ownerData = await getAgentById(String(propertyData.owner_id));
-        return mapPropertyData(propertyData, ownerData);
-      }
-      
-      return propertyData ? mapPropertyData(propertyData) : null;
+      const property = await propertyService.getPropertyById(id);
+
+      if (!property) return null;
+
+      const [owner, agent, details, location, media, amenities] = await Promise.all([
+        property.owner_id ? profilesService.getProfileById(property.owner_id) : null,
+        propertyDetailsService.getDetailsByPropertyId(property.id),
+        propertyLocationService.getLocationByPropertyId(property.id),
+        propertyMediaService.getMediaByPropertyId(property.id),
+        propertyAmenitiesService.getAmenitiesByPropertyId(property.id),
+      ]);
+
+      return mapPropertyData(
+        {
+          ...property,
+          details,
+          location,
+          media,
+          amenities,
+        },
+      );
     } catch (err: any) {
       console.error(`Error fetching property with ID ${id}:`, err);
       setError(err.message || `Failed to fetch property with ID ${id}`);
@@ -54,6 +85,7 @@ export function useProperties() {
     }
   };
 
+  // Search properties with filters and related data
   const search = async (
     searchTerm: string = '',
     filters: {
@@ -72,17 +104,30 @@ export function useProperties() {
     setError(null);
     try {
       const data = await propertyService.searchProperties(searchTerm, filters);
-      
-      const normalizedData = await Promise.all(data.map(async property => {
-        let owner = undefined;
-        
-        if (property.owner_id) {
-          owner = await getAgentById(String(property.owner_id));
-        }
-        
-        return mapPropertyData(property, owner);
-      }));
-      
+
+      const normalizedData = await Promise.all(
+        data.map(async (property) => {
+          const [owner, agent, details, location, media, amenities] = await Promise.all([
+            property.owner_id ? profilesService.getProfileById(property.owner_id) : null,
+            property.agent_id ? profilesService.getProfileById(property.agent_id) : null,
+            propertyDetailsService.getDetailsByPropertyId(property.id),
+            propertyLocationService.getLocationByPropertyId(property.id),
+            propertyMediaService.getMediaByPropertyId(property.id),
+            propertyAmenitiesService.getAmenitiesByPropertyId(property.id),
+          ]);
+
+          return mapPropertyData(
+            {
+              ...property,
+              details,
+              location,
+              media,
+              amenities,
+            },
+          );
+        })
+      );
+
       setProperties(normalizedData);
     } catch (err: any) {
       console.error('Error searching properties:', err);
@@ -102,6 +147,6 @@ export function useProperties() {
     error,
     fetchProperties,
     fetchPropertyById,
-    search
+    search,
   };
 }
